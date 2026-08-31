@@ -22,11 +22,81 @@
     "next": {
       "title": "What comes next",
       "body": "The weekly plan, the recipe editor and the shopping list are separate backlog stories."
+    },
+    "newRecipe": "New recipe",
+    "untitled": "Untitled",
+    "draft": "Draft",
+    "counts": "{ingredients} ingr. · {steps} steps",
+    "empty": {
+      "title": "No recipes yet",
+      "body": "Create your first recipe: the draft exists from the first click, so nothing gets lost."
     }
   },
   "auth": {
     "title": "Sign in",
     "intro": "The full sign-in screen is coming in its own story. This page exists so that access to /app is genuinely guarded.",
     "returnTo": "After signing in, back to"
+  },
+  "recipe": {
+    "untitled": "Untitled",
+    "publish": "Save recipe",
+    "publishedAction": "Saved",
+    "status": {
+      "draft": "Draft · step {step} of 3",
+      "saving": "Saving…",
+      "saved": "Draft saved continuously — nothing gets lost.",
+      "published": "Saved · {ingredients} ingr. · {steps} steps"
+    },
+    "tabs": {
+      "base": "Basics",
+      "ingredients": "Ingredients",
+      "steps": "Steps"
+    },
+    "base": {
+      "title": "Title",
+      "titleHint": "You can change this at any time.",
+      "description": "Description",
+      "servings": "Servings",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "fewer": "One serving fewer",
+      "more": "One serving more",
+      "level": "Difficulty",
+      "tags": "Tags"
+    },
+    "levels": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Demanding"
+    },
+    "tags": {
+      "vegetarian": "Vegetarian",
+      "quick": "Quick",
+      "batch": "Batch cooking",
+      "protein": "High protein",
+      "glutenFree": "Gluten free",
+      "cheap": "Budget"
+    },
+    "ingredients": {
+      "name": "Ingredient",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "add": "Add",
+      "hint": "Press Enter to chain ingredients.",
+      "empty": "No ingredients yet.",
+      "remove": "Remove {name}"
+    },
+    "steps": {
+      "hint": "One action per step · durations become timers.",
+      "add": "Add a step",
+      "label": "Step {number}",
+      "remove": "Delete step {number}"
+    },
+    "errors": {
+      "missing_title": "Give the recipe a title.",
+      "no_ingredient": "Add at least one ingredient.",
+      "no_step": "Add at least one step.",
+      "empty_step": "One step is empty.",
+      "save_failed": "Saving failed. Try again."
+    }
   }
 }

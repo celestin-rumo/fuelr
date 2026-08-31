@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, Ref } from "react";
 import { cn } from "./cn";
 
 export type FieldStatus = "default" | "error" | "success";
@@ -31,6 +31,8 @@ export type InputProps = Omit<
   label: string;
   hint?: ReactNode;
   status?: FieldStatus;
+  /** React 19 passes `ref` as a plain prop; forward it to the input itself. */
+  ref?: Ref<HTMLInputElement>;
 };
 
 export function Input({
@@ -40,6 +42,7 @@ export function Input({
   className,
   id,
   disabled,
+  ref,
   ...props
 }: InputProps) {
   const generatedId = useId();
@@ -61,6 +64,7 @@ export function Input({
 
       <div className="relative">
         <input
+          ref={ref}
           id={inputId}
           disabled={disabled}
           aria-invalid={status === "error" || undefined}

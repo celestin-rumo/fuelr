@@ -22,11 +22,81 @@
     "next": {
       "title": "Nächste Schritte",
       "body": "Der Wochenplan, der Rezepteditor und die Einkaufsliste sind eigene Backlog-Storys."
+    },
+    "newRecipe": "Neues Rezept",
+    "untitled": "Ohne Titel",
+    "draft": "Entwurf",
+    "counts": "{ingredients} Zut. · {steps} Schritte",
+    "empty": {
+      "title": "Noch keine Rezepte",
+      "body": "Erstelle dein erstes Rezept: Der Entwurf existiert ab dem ersten Klick, es geht nichts verloren."
     }
   },
   "auth": {
     "title": "Anmelden",
     "intro": "Der vollständige Anmeldebildschirm kommt in einer eigenen Story. Diese Seite existiert, damit der Zugang zu /app wirklich geschützt ist.",
     "returnTo": "Nach der Anmeldung zurück zu"
+  },
+  "recipe": {
+    "untitled": "Ohne Titel",
+    "publish": "Rezept speichern",
+    "publishedAction": "Gespeichert",
+    "status": {
+      "draft": "Entwurf · Schritt {step} von 3",
+      "saving": "Wird gespeichert…",
+      "saved": "Entwurf wird laufend gespeichert — es geht nichts verloren.",
+      "published": "Gespeichert · {ingredients} Zut. · {steps} Schritte"
+    },
+    "tabs": {
+      "base": "Basis",
+      "ingredients": "Zutaten",
+      "steps": "Schritte"
+    },
+    "base": {
+      "title": "Titel",
+      "titleHint": "Jederzeit änderbar.",
+      "description": "Beschreibung",
+      "servings": "Portionen",
+      "people": "{count, plural, one {# Person} other {# Personen}}",
+      "fewer": "Eine Portion weniger",
+      "more": "Eine Portion mehr",
+      "level": "Schwierigkeit",
+      "tags": "Schlagwörter"
+    },
+    "levels": {
+      "easy": "Einfach",
+      "medium": "Mittel",
+      "hard": "Anspruchsvoll"
+    },
+    "tags": {
+      "vegetarian": "Vegetarisch",
+      "quick": "Schnell",
+      "batch": "Batch Cooking",
+      "protein": "Proteinreich",
+      "glutenFree": "Glutenfrei",
+      "cheap": "Günstig"
+    },
+    "ingredients": {
+      "name": "Zutat",
+      "quantity": "Menge",
+      "unit": "Einheit",
+      "add": "Hinzufügen",
+      "hint": "Enter drücken, um Zutaten aneinanderzureihen.",
+      "empty": "Noch keine Zutaten.",
+      "remove": "{name} entfernen"
+    },
+    "steps": {
+      "hint": "Ein Handgriff pro Schritt · Zeitangaben werden zu Timern.",
+      "add": "Schritt hinzufügen",
+      "label": "Schritt {number}",
+      "remove": "Schritt {number} löschen"
+    },
+    "errors": {
+      "missing_title": "Gib dem Rezept einen Titel.",
+      "no_ingredient": "Füge mindestens eine Zutat hinzu.",
+      "no_step": "Füge mindestens einen Schritt hinzu.",
+      "empty_step": "Ein Schritt ist leer.",
+      "save_failed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+    }
   }
 }

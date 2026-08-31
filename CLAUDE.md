@@ -168,6 +168,12 @@ Frontend checks run inside the frontend container
 first, because `LayoutProps`/`PageProps` are generated route types — plain
 `tsc --noEmit` fails on a clean checkout without it.
 
+**`getByRole("alert")` matches two nodes in e2e.** Next.js keeps its own
+`__next-route-announcer__` in the DOM with `role="alert"`, so a page-wide query
+is always a strict-mode violation. Scope the query to the form or give the
+message a `data-testid`. It does not reproduce in unit tests, because jsdom has
+no route announcer — so a green Vitest run proves nothing here.
+
 Playwright browsers are not in the dev image, so `test:e2e` runs through the
 official Playwright image instead — see the README for the command. The e2e
 suite pins the browser locale to `fr-FR`, since the next-intl proxy negotiates
