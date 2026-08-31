@@ -137,6 +137,13 @@ or `next/navigation`, or locale prefixes get lost.
 The `/design-system` page is an internal reference and is deliberately not
 translated — its copy is English like the rest of the codebase.
 
+**Translation is an acceptance criterion.** Whenever a story displays text —
+labels, headings, buttons, hints, errors, empty states, emails, page titles and
+metadata — the story is not done until every string goes through the message
+catalogues and all three locales (`fr`, `en`, `de`) are filled in, along with
+the `pathnames` slugs for any new route. Write it into the story's acceptance
+criteria explicitly; a hardcoded string is a failed criterion, not a follow-up.
+
 ## Backend
 
 Spring Boot (`ch.celestin.fuelr`) + PostgreSQL, with Flyway migrations in
