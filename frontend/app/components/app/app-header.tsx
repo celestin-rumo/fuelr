@@ -1,0 +1,43 @@
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { ThemeToggle } from "@app/components/theme-toggle";
+import { Container } from "@app/components/site/section";
+
+/**
+ * Product chrome. Deliberately not the marketing header: a signed-in person
+ * gets navigation into their own data, not a pricing link.
+ */
+export function AppHeader({
+  email,
+  name,
+}: {
+  email: string;
+  name: string | null;
+}) {
+  const t = useTranslations("app");
+
+  return (
+    <header className="border-b border-line bg-bg-raised">
+      <Container className="flex h-16 items-center gap-4">
+        <Link href="/app" className="flex shrink-0 items-center gap-2.5">
+          <span className="grid size-8 place-items-center rounded-full bg-accent">
+            <svg viewBox="0 0 24 24" fill="var(--on-accent)" className="size-4">
+              <path d="M13 2 3 14h7l-1 8 11-13h-7l1-7z" />
+            </svg>
+          </span>
+          <span className="font-display text-lg font-extrabold tracking-[-0.02em] text-text">
+            Fuelr
+          </span>
+        </Link>
+
+        <div className="flex-1" />
+
+        <span className="hidden text-[13px] font-semibold text-text-dim sm:inline">
+          {name ?? email}
+        </span>
+        <ThemeToggle />
+        <span className="sr-only">{t("signedIn")}</span>
+      </Container>
+    </header>
+  );
+}
