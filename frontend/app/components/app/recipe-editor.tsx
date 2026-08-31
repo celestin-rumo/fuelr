@@ -345,6 +345,14 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                   id="ingredient-unit"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
+                  onKeyDown={(e) => {
+                    // The unit is the last field of the row, so Enter has to
+                    // commit from here too or the keyboard chain dead-ends.
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addIngredient();
+                    }
+                  }}
                   className="h-[46px] rounded-sm border-[1.5px] border-gray bg-bg px-3 text-[15px] text-text focus:border-mint-ink focus:outline-2 focus:outline-offset-2 focus:outline-[var(--mint-ink)]"
                 >
                   {UNITS.map((u) => (
