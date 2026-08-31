@@ -22,6 +22,25 @@ describe("Card", () => {
 
     const card = screen.getByTestId("card");
     expect(card).toHaveClass("mt-4");
-    expect(card).toHaveClass("border-border");
+    expect(card).toHaveClass("border-line");
+  });
+
+  it("uses the large radius for panels and the medium one for cards", () => {
+    render(
+      <>
+        <Card data-testid="card" />
+        <Card data-testid="panel" as="panel" />
+      </>,
+    );
+
+    expect(screen.getByTestId("card")).toHaveClass("rounded-md");
+    expect(screen.getByTestId("panel")).toHaveClass("rounded-lg");
+  });
+
+  it("marks a selected card with the accent border", () => {
+    render(<Card data-testid="card" selected />);
+
+    expect(screen.getByTestId("card")).toHaveClass("border-accent-ink");
+    expect(screen.getByTestId("card")).not.toHaveClass("border-line");
   });
 });
