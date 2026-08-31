@@ -5,7 +5,8 @@
     "cta": "Create a recipe",
     "next": {
       "title": "Getting started",
-      "body": "Edit app/[locale]/page.tsx, add your components under app/components/ui/, and declare every new route in i18n/routing.ts with its translated slug."
+      "body": "Edit app/[locale]/page.tsx, add your components under app/components/ui/, and declare every new route in i18n/routing.ts with its translated slug.",
+      "link": "Open the design system"
     }
   },
   "theme": {

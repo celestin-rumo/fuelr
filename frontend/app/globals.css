@@ -1,65 +1,183 @@
 @import "tailwindcss";
 
-/* next-themes is mounted with `attribute="class"`, so the dark palette is
-   keyed off a `.dark` class on <html> — not `prefers-color-scheme`. This
-   custom variant points Tailwind's `dark:` utilities at that same class.
-   (`defaultTheme="system"` still follows the OS: next-themes resolves the
-   system preference and adds the class itself.) */
-@custom-variant dark (&:where(.dark, .dark *));
+/* Fuelr design system — dark is the default theme, light is a mirror of it.
+   next-themes is mounted with `attribute="class"`, so it puts `dark` or
+   `light` on <html>. Dark values live on `:root` (the default), and `.light`
+   overrides them. Components must never hardcode a hex: every colour below is
+   a token, which is what lets the light theme exist without duplicating a
+   single component. */
+@custom-variant dark (&:where(:not(.light), :not(.light) *));
 
-/* Color tokens — the single source of truth for the palette. Components read
-   these through the Tailwind theme below (`bg-primary`, `text-muted-foreground`,
-   `border-border`, …) or directly as `var(--…)`. Never hardcode a hex value in
-   a component. */
 :root {
-  --background: #ffffff;
-  --foreground: #1c1917;
+  /* --- Colour ramps, 100 → 1000 -------------------------------------
+     Step 500 is the flat brand colour, identical in both themes. The dark
+     steps carry text on light backgrounds (the `*-ink` tokens). */
+  --lime-100: #fafce6;
+  --lime-200: #f2f8c4;
+  --lime-300: #e4f294;
+  --lime-400: #d2eb5d;
+  --lime-500: #c4f135;
+  --lime-600: #a6cb1b;
+  --lime-700: #85a414;
+  --lime-800: #65800f;
+  --lime-900: #4b5e12;
+  --lime-1000: #2e3a08;
 
-  --primary: #c2410c;
-  --primary-foreground: #ffffff;
+  --mint-100: #e3fbf7;
+  --mint-200: #c4f5ec;
+  --mint-300: #97ecdd;
+  --mint-400: #5fe0cb;
+  --mint-500: #2dd4bf;
+  --mint-600: #1db3a0;
+  --mint-700: #158f80;
+  --mint-800: #0e6b5f;
+  --mint-900: #0a4c43;
+  --mint-1000: #062e28;
 
-  --muted: #f5f5f4;
-  --muted-foreground: #57534e;
+  --coral-100: #ffede7;
+  --coral-200: #ffd3c4;
+  --coral-300: #ffad8c;
+  --coral-400: #ff8a66;
+  --coral-500: #ff6b4a;
+  --coral-600: #e8532f;
+  --coral-700: #c43f22;
+  --coral-800: #9c321b;
+  --coral-900: #742513;
+  --coral-1000: #4d1a0d;
 
-  --accent: #0f766e;
-  --accent-foreground: #ffffff;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+  --neutral-1000: #030712;
 
-  --border: #e7e5e4;
+  /* --- Semantic tokens — dark (default) ----------------------------- */
+  --bg: #121212;
+  --bg-raised: #191919;
+  --bg-raised-2: #212121;
+
+  --text: #f5f5f0;
+  --text-dim: #b9b9b4;
+  --gray: #6b7280;
+  --line: rgba(245, 245, 240, 0.08);
+
+  --lime: #c4f135;
+  --lime-ink: #c4f135;
+  --mint: #2dd4bf;
+  --mint-ink: #2dd4bf;
+  --coral: #ff6b4a;
+  --coral-ink: #ff6b4a;
+
+  /* Ink-on-accent: text that sits on a flat accent fill, both themes. */
+  --on-accent: #121212;
+
+  /* One accent carries the action role per view; lime is the default. */
+  --accent: var(--lime);
+  --accent-ink: var(--lime-ink);
+
+  /* --- Shape --------------------------------------------------------- */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 999px;
+
+  /* --- Elevation — in dark it reads through the surface, in light
+         through the shadow. e0 is border-only and has no token. */
+  --e1: 0 10px 26px rgba(0, 0, 0, 0.28);
+  --e2: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --e3: 0 24px 60px rgba(0, 0, 0, 0.46);
+
+  /* --- Motion — nothing lasts longer than 240ms. --------------------- */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-control: 160ms;
+  --dur-sheet: 240ms;
 }
 
-.dark {
-  --background: #0c0a09;
-  --foreground: #f5f5f4;
+.light {
+  --bg: #f7f5ef;
+  --bg-raised: #ffffff;
+  --bg-raised-2: #ece9df;
 
-  --primary: #fb923c;
-  --primary-foreground: #1c1917;
+  --text: #15150f;
+  --text-dim: #5b5a50;
+  --gray: #64635a;
+  --line: rgba(21, 21, 15, 0.12);
 
-  --muted: #1c1917;
-  --muted-foreground: #a8a29e;
+  /* The flat brand colours do not move between themes; only the ink does. */
+  --lime-ink: #4b5e12;
+  --mint-ink: #0e6b5f;
+  --coral-ink: #9c321b;
 
-  --accent: #2dd4bf;
-  --accent-foreground: #0c0a09;
-
-  --border: #292524;
+  --e1: 0 6px 18px rgba(21, 21, 15, 0.1);
+  --e2: 0 10px 28px rgba(21, 21, 15, 0.14);
+  --e3: 0 24px 56px rgba(21, 21, 15, 0.18);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-border: var(--border);
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-raised-2: var(--bg-raised-2);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-gray: var(--gray);
+  --color-line: var(--line);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-lime: var(--lime);
+  --color-lime-ink: var(--lime-ink);
+  --color-mint: var(--mint);
+  --color-mint-ink: var(--mint-ink);
+  --color-coral: var(--coral);
+  --color-coral-ink: var(--coral-ink);
+
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-full: var(--r-full);
+
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+
+  --font-display: var(--font-poppins);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-jetbrains);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+/* Quantities and units are tabular so a value changing does not make the
+   text jump. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reduced motion is respected: everything becomes instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
