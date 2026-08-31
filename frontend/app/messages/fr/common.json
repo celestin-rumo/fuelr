@@ -22,11 +22,81 @@
     "next": {
       "title": "Prochaines étapes",
       "body": "Le planning de la semaine, l'éditeur de recette et la liste de courses sont des stories distinctes du backlog."
+    },
+    "newRecipe": "Nouvelle recette",
+    "untitled": "Sans titre",
+    "draft": "Brouillon",
+    "counts": "{ingredients} ingr. · {steps} étapes",
+    "empty": {
+      "title": "Aucune recette pour l'instant",
+      "body": "Crée ta première recette : le brouillon existe dès le premier clic, rien ne se perd."
     }
   },
   "auth": {
     "title": "Connexion",
     "intro": "L'écran de connexion complet arrive dans une story dédiée. Cette page existe pour que l'accès à /app soit réellement gardé.",
     "returnTo": "Après connexion, retour vers"
+  },
+  "recipe": {
+    "untitled": "Sans titre",
+    "publish": "Enregistrer la recette",
+    "publishedAction": "Enregistrée",
+    "status": {
+      "draft": "Brouillon · étape {step} sur 3",
+      "saving": "Enregistrement…",
+      "saved": "Brouillon enregistré en continu — rien ne se perd.",
+      "published": "Enregistrée · {ingredients} ingr. · {steps} étapes"
+    },
+    "tabs": {
+      "base": "Base",
+      "ingredients": "Ingrédients",
+      "steps": "Étapes"
+    },
+    "base": {
+      "title": "Titre",
+      "titleHint": "Modifiable à tout moment.",
+      "description": "Description",
+      "servings": "Portions",
+      "people": "{count, plural, one {# personne} other {# personnes}}",
+      "fewer": "Une portion de moins",
+      "more": "Une portion de plus",
+      "level": "Difficulté",
+      "tags": "Étiquettes"
+    },
+    "levels": {
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Exigeant"
+    },
+    "tags": {
+      "vegetarian": "Végétarien",
+      "quick": "Rapide",
+      "batch": "Batch cooking",
+      "protein": "Riche en protéines",
+      "glutenFree": "Sans gluten",
+      "cheap": "Économique"
+    },
+    "ingredients": {
+      "name": "Ingrédient",
+      "quantity": "Quantité",
+      "unit": "Unité",
+      "add": "Ajouter",
+      "hint": "Entrée pour enchaîner les ingrédients.",
+      "empty": "Aucun ingrédient pour l'instant.",
+      "remove": "Retirer {name}"
+    },
+    "steps": {
+      "hint": "Un geste par étape · les durées deviennent des minuteurs.",
+      "add": "Ajouter une étape",
+      "label": "Étape {number}",
+      "remove": "Supprimer l'étape {number}"
+    },
+    "errors": {
+      "missing_title": "Donne un titre à la recette.",
+      "no_ingredient": "Ajoute au moins un ingrédient.",
+      "no_step": "Ajoute au moins une étape.",
+      "empty_step": "Une étape est vide.",
+      "save_failed": "L'enregistrement a échoué. Réessaie."
+    }
   }
 }
