@@ -103,6 +103,16 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
     nameRef.current?.focus();
   }
 
+  /** Moves a step by one position. Buttons rather than drag: they work with a
+   *  keyboard, on a touch screen, and with a screen reader. */
+  function moveStep(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= draft.steps.length) return;
+    const steps = [...draft.steps];
+    [steps[index], steps[target]] = [steps[target], steps[index]];
+    update({ steps });
+  }
+
   async function onPublish() {
     setPublishing(true);
     const result = await publishRecipe(recipe.id, draft);
@@ -439,16 +449,33 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                     step.trim() ? "border-gray" : "border-coral-ink",
                   )}
                 />
-                <IconButton
-                  aria-label={t("steps.remove", { number: index + 1 })}
-                  variant="text"
-                  className="mt-1"
-                  onClick={() =>
-                    update({ steps: draft.steps.filter((_, i) => i !== index) })
-                  }
-                >
-                  ✕
-                </IconButton>
+                <div className="mt-1 flex flex-col gap-1">
+                  <IconButton
+                    aria-label={t("steps.moveUp", { number: index + 1 })}
+                    variant="text"
+                    disabled={index === 0}
+                    onClick={() => moveStep(index, -1)}
+                  >
+                    ↑
+                  </IconButton>
+                  <IconButton
+                    aria-label={t("steps.moveDown", { number: index + 1 })}
+                    variant="text"
+                    disabled={index === draft.steps.length - 1}
+                    onClick={() => moveStep(index, 1)}
+                  >
+                    ↓
+                  </IconButton>
+                  <IconButton
+                    aria-label={t("steps.remove", { number: index + 1 })}
+                    variant="text"
+                    onClick={() =>
+                      update({ steps: draft.steps.filter((_, i) => i !== index) })
+                    }
+                  >
+                    ✕
+                  </IconButton>
+                </div>
               </div>
             ))}
 
