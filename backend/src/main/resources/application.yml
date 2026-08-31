@@ -32,3 +32,12 @@ app:
   admin:
     email: ${ADMIN_EMAIL:admin@celestinrumo.ch}
     password: ${ADMIN_PASSWORD:changeme}
+
+  jwt:
+    # HS256 needs at least 32 bytes. The default is a development value only —
+    # staging and production must set JWT_SECRET, and changing it invalidates
+    # every token already issued.
+    secret: ${JWT_SECRET:dev-only-secret-change-me-in-staging-and-prod}
+    ttl: ${JWT_TTL:P7D}
+    # Only send the cookie over HTTPS. Off in dev, where there is no TLS.
+    secure-cookie: ${JWT_SECURE_COOKIE:false}

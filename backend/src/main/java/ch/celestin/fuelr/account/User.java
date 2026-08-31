@@ -20,6 +20,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    /** Display name. Optional: the bootstrapped admin has none. */
+    @Column
+    private String name;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -33,9 +37,18 @@ public class User {
     }
 
     public User(String email, String passwordHash, String role) {
+        this(email, null, passwordHash, role);
+    }
+
+    public User(String email, String name, String passwordHash, String role) {
         this.email = email;
+        this.name = name;
         this.passwordHash = passwordHash;
         this.role = role;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Long getId() {
