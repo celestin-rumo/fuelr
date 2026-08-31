@@ -30,6 +30,14 @@ export const routing = defineRouting({
       en: "/contact",
       de: "/kontakt",
     },
+    "/login": {
+      fr: "/connexion",
+      en: "/login",
+      de: "/anmelden",
+    },
+    // The product itself. Same slug everywhere: it is a destination people
+    // bookmark and share between locales, not marketing copy.
+    "/app": "/app",
     // Internal reference page; the slug is the same in every locale.
     "/design-system": "/design-system",
   },

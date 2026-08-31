@@ -1,0 +1,36 @@
+import { setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { getPathname } from "@/i18n/navigation";
+import { getSession } from "@app/lib/session";
+import { AppHeader } from "@app/components/app/app-header";
+
+/**
+ * Everything under /app is behind this layout, and this is where access is
+ * actually decided.
+ *
+ * The middleware in proxy.ts only checks that a cookie exists — it cannot
+ * verify a signature, so a hand-written cookie gets past it. Here the session
+ * is resolved against the backend before a single child renders, which is what
+ * makes the guard server-side rather than cosmetic.
+ */
+export default async function AppLayout({
+  children,
+  params,
+}: LayoutProps<"/[locale]">) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const session = await getSession();
+  if (!session) {
+    // Next's own redirect is typed `never`, so the session is narrowed below;
+    // getPathname still resolves the locale's own login slug.
+    redirect(getPathname({ href: "/login", locale }));
+  }
+
+  return (
+    <div className="flex min-h-full flex-1 flex-col bg-bg">
+      <AppHeader email={session.email} name={session.name} />
+      <main className="flex-1">{children}</main>
+    </div>
+  );
+}

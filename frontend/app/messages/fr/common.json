@@ -13,5 +13,20 @@
     "toggle": "Changer de thème",
     "light": "Clair",
     "dark": "Sombre"
+  },
+  "app": {
+    "label": "Mon espace",
+    "greeting": "Bonjour {name}",
+    "intro": "Tes recettes, ton planning et ta liste de courses vivent ici. Les écrans arrivent — cette page existe pour l'instant afin de vérifier que l'accès est bien protégé.",
+    "signedIn": "Session ouverte",
+    "next": {
+      "title": "Prochaines étapes",
+      "body": "Le planning de la semaine, l'éditeur de recette et la liste de courses sont des stories distinctes du backlog."
+    }
+  },
+  "auth": {
+    "title": "Connexion",
+    "intro": "L'écran de connexion complet arrive dans une story dédiée. Cette page existe pour que l'accès à /app soit réellement gardé.",
+    "returnTo": "Après connexion, retour vers"
   }
 }
