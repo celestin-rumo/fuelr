@@ -57,6 +57,9 @@ public class Recipe {
     @Column(nullable = false)
     private String status = Status.DRAFT.name();
 
+    @Column(nullable = false)
+    private boolean favorite = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -136,6 +139,14 @@ public class Recipe {
 
     public void setStatus(Status status) {
         this.status = status.name();
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     public Instant getUpdatedAt() {

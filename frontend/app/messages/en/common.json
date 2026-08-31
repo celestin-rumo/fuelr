@@ -30,6 +30,16 @@
     "empty": {
       "title": "No recipes yet",
       "body": "Create your first recipe: the draft exists from the first click, so nothing gets lost."
+    },
+    "meta": "{servings, plural, one {# person} other {# people}} · {minutes} min",
+    "macros": "{kcal} kcal · {protein} P · {carbs} C · {fat} F",
+    "estimated": "estimated",
+    "pin": "Pin {title}",
+    "unpin": "Unpin {title}",
+    "filters": {
+      "all": "All",
+      "favorites": "Favourites",
+      "noFavorites": "No pinned recipes yet."
     }
   },
   "auth": {
@@ -99,6 +109,18 @@
       "no_step": "Add at least one step.",
       "empty_step": "One step is empty.",
       "save_failed": "Saving failed. Try again."
+    },
+    "nutrition": {
+      "perServing": "Per serving",
+      "estimated": "Estimated",
+      "empty": "Add an ingredient to see the per-serving figures.",
+      "estimatedHint": "Estimated values for: {names}. An unrecognised ingredient is never shown as measured.",
+      "labels": {
+        "kcal": "kcal",
+        "protein": "Protein",
+        "carbs": "Carbs",
+        "fat": "Fat"
+      }
     }
   }
 }

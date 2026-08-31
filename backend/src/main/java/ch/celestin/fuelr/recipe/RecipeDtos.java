@@ -44,9 +44,19 @@ public final class RecipeDtos {
             Set<String> tags) {
     }
 
+    /**
+     * What the grid needs to let someone choose a recipe at a glance: how long
+     * it takes, what it costs nutritionally, and whether it is pinned.
+     * {@code estimated} travels with the figures so the card can mark a
+     * guessed value rather than passing it off as measured.
+     */
     public record RecipeSummary(
             Long id, String title, String status, int servings,
-            int ingredientCount, int stepCount) {
+            int ingredientCount, int stepCount,
+            boolean favorite, int minutes,
+            Double kcalPerServing, Double proteinPerServing,
+            Double carbsPerServing, Double fatPerServing,
+            boolean estimated) {
     }
 
     /** What blocks publishing, so the editor can point at the right tab. */

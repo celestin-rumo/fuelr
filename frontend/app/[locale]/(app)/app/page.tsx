@@ -3,10 +3,9 @@ import { Link } from "@/i18n/navigation";
 import { getSession } from "@app/lib/session";
 import { apiFetch } from "@app/lib/api";
 import type { RecipeSummary } from "@app/lib/api";
-import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
-import { Card } from "@ui/card";
 import { EmptyState } from "@ui/empty-state";
+import { RecipeGrid } from "@app/components/app/recipe-grid";
 import { Container } from "@app/components/site/section";
 
 export const dynamic = "force-dynamic";
@@ -46,36 +45,7 @@ export default async function AppHomePage() {
           }
         />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recipes.map((recipe) => (
-            <li key={recipe.id}>
-              <Link
-                href={{
-                  pathname: "/app/recipes/[id]",
-                  params: { id: String(recipe.id) },
-                }}
-                className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
-              >
-                <Card interactive className="h-full">
-                  <div className="flex items-start justify-between gap-3">
-                    <h2 className="font-display text-base font-bold text-text">
-                      {recipe.title?.trim() || t("untitled")}
-                    </h2>
-                    {recipe.status === "DRAFT" && (
-                      <Badge tone="neutral">{t("draft")}</Badge>
-                    )}
-                  </div>
-                  <p className="tnum mt-2 font-mono text-[12px] text-gray">
-                    {t("counts", {
-                      ingredients: recipe.ingredientCount,
-                      steps: recipe.stepCount,
-                    })}
-                  </p>
-                </Card>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <RecipeGrid recipes={recipes} />
       )}
     </Container>
   );
