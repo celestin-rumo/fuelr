@@ -59,9 +59,15 @@ public class RecipeService {
             }
         }
         if (body.steps() != null) {
+            // A blank step is never persisted. The editor keeps one around
+            // while the author is still typing into it, but it has no place
+            // in a stored recipe — so it is dropped here rather than
+            // rejected, which would block an autosave mid-sentence.
             recipe.getSteps().clear();
             for (String text : body.steps()) {
-                recipe.getSteps().add(new RecipeStep(text));
+                if (!text.isBlank()) {
+                    recipe.getSteps().add(new RecipeStep(text.trim()));
+                }
             }
         }
         if (body.tags() != null) {
@@ -83,10 +89,10 @@ public class RecipeService {
         if (recipe.getIngredients().isEmpty()) {
             errors.add(new ValidationError("ingredients", "no_ingredient"));
         }
+        // Blank steps are stripped on save, so an empty list is the only way
+        // the steps tab can be incomplete.
         if (recipe.getSteps().isEmpty()) {
             errors.add(new ValidationError("steps", "no_step"));
-        } else if (recipe.getSteps().stream().anyMatch(s -> s.getText().isBlank())) {
-            errors.add(new ValidationError("steps", "empty_step"));
         }
         return errors;
     }

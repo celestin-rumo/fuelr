@@ -89,7 +89,9 @@
       "hint": "Un geste par étape · les durées deviennent des minuteurs.",
       "add": "Ajouter une étape",
       "label": "Étape {number}",
-      "remove": "Supprimer l'étape {number}"
+      "remove": "Supprimer l'étape {number}",
+      "moveUp": "Monter l'étape {number}",
+      "moveDown": "Descendre l'étape {number}"
     },
     "errors": {
       "missing_title": "Donne un titre à la recette.",

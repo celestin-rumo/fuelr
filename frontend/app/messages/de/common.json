@@ -89,7 +89,9 @@
       "hint": "Ein Handgriff pro Schritt · Zeitangaben werden zu Timern.",
       "add": "Schritt hinzufügen",
       "label": "Schritt {number}",
-      "remove": "Schritt {number} löschen"
+      "remove": "Schritt {number} löschen",
+      "moveUp": "Schritt {number} nach oben",
+      "moveDown": "Schritt {number} nach unten"
     },
     "errors": {
       "missing_title": "Gib dem Rezept einen Titel.",

@@ -89,7 +89,9 @@
       "hint": "One action per step · durations become timers.",
       "add": "Add a step",
       "label": "Step {number}",
-      "remove": "Delete step {number}"
+      "remove": "Delete step {number}",
+      "moveUp": "Move step {number} up",
+      "moveDown": "Move step {number} down"
     },
     "errors": {
       "missing_title": "Give the recipe a title.",
