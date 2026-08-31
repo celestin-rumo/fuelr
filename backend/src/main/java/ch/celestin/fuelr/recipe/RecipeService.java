@@ -31,7 +31,7 @@ public class RecipeService {
     }
 
     public List<Recipe> list(Long userId) {
-        return recipes.findByUserIdOrderByUpdatedAtDesc(userId);
+        return recipes.findByUserIdOrderByFavoriteDescUpdatedAtDesc(userId);
     }
 
     public Optional<Recipe> find(Long id, Long userId) {
@@ -97,6 +97,13 @@ public class RecipeService {
         return errors;
     }
 
+    /** Pinning is its own operation: it must not wait on an autosave. */
+    @Transactional
+    public Recipe setFavorite(Recipe recipe, boolean favorite) {
+        recipe.setFavorite(favorite);
+        return recipes.save(recipe);
+    }
+
     @Transactional
     public Recipe publish(Recipe recipe) {
         recipe.setStatus(Recipe.Status.PUBLISHED);
@@ -106,6 +113,28 @@ public class RecipeService {
     @Transactional
     public void delete(Recipe recipe) {
         recipes.delete(recipe);
+    }
+
+    private static final java.util.regex.Pattern DURATION =
+            java.util.regex.Pattern.compile("(\\d+)\\s*(min|h)", java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Total time read out of the step text — "15 min", "1 h". A step with no
+     * stated duration counts as three minutes, which is closer to the truth
+     * than counting it as zero.
+     */
+    public static int minutesFor(Recipe recipe) {
+        int total = 0;
+        for (RecipeStep step : recipe.getSteps()) {
+            var matcher = DURATION.matcher(step.getText());
+            int stepMinutes = 0;
+            while (matcher.find()) {
+                int value = Integer.parseInt(matcher.group(1));
+                stepMinutes += matcher.group(2).equalsIgnoreCase("h") ? value * 60 : value;
+            }
+            total += stepMinutes > 0 ? stepMinutes : 3;
+        }
+        return total;
     }
 
     private static String blankToNull(String value) {

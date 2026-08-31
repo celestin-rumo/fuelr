@@ -1,5 +1,7 @@
 package ch.celestin.fuelr.recipe;
 
+import ch.celestin.fuelr.nutrition.NutritionDtos;
+import ch.celestin.fuelr.nutrition.NutritionService;
 import ch.celestin.fuelr.recipe.RecipeDtos.IngredientView;
 import ch.celestin.fuelr.recipe.RecipeDtos.RecipeSummary;
 import ch.celestin.fuelr.recipe.RecipeDtos.RecipeView;
@@ -28,9 +30,11 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipes;
+    private final NutritionService nutrition;
 
-    public RecipeController(RecipeService recipes) {
+    public RecipeController(RecipeService recipes, NutritionService nutrition) {
         this.recipes = recipes;
+        this.nutrition = nutrition;
     }
 
     /** Opening the editor creates the draft; there is no form to fill first. */
@@ -42,11 +46,42 @@ public class RecipeController {
 
     @GetMapping
     public List<RecipeSummary> list(@AuthenticationPrincipal Jwt principal) {
-        return recipes.list(userId(principal)).stream()
-                .map(r -> new RecipeSummary(
-                        r.getId(), r.getTitle(), r.getStatus().name(), r.getServings(),
-                        r.getIngredients().size(), r.getSteps().size()))
-                .toList();
+        return recipes.list(userId(principal)).stream().map(this::toSummary).toList();
+    }
+
+    /** Pinning is a single call, so the grid can flip without a reload. */
+    @PutMapping("/{id}/favorite")
+    public RecipeSummary setFavorite(
+            @AuthenticationPrincipal Jwt principal,
+            @PathVariable Long id,
+            @RequestBody FavoriteRequest body) {
+        return toSummary(recipes.setFavorite(owned(principal, id), body.favorite()));
+    }
+
+    public record FavoriteRequest(boolean favorite) {
+    }
+
+    private RecipeSummary toSummary(Recipe recipe) {
+        // A recipe with no ingredients has no figures to show — null rather
+        // than a misleading zero.
+        NutritionDtos.Breakdown breakdown = recipe.getIngredients().isEmpty() ? null
+                : nutrition.compute(
+                        recipe.getIngredients().stream()
+                                .map(i -> new NutritionDtos.IngredientInput(
+                                        i.getName(), i.getQuantity().doubleValue(), i.getUnit()))
+                                .toList(),
+                        recipe.getServings());
+
+        return new RecipeSummary(
+                recipe.getId(), recipe.getTitle(), recipe.getStatus().name(),
+                recipe.getServings(), recipe.getIngredients().size(),
+                recipe.getSteps().size(), recipe.isFavorite(),
+                RecipeService.minutesFor(recipe),
+                breakdown == null ? null : breakdown.perServing().kcal(),
+                breakdown == null ? null : breakdown.perServing().proteinG(),
+                breakdown == null ? null : breakdown.perServing().carbsG(),
+                breakdown == null ? null : breakdown.perServing().fatG(),
+                breakdown != null && breakdown.containsEstimates());
     }
 
     @GetMapping("/{id}")

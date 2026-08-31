@@ -41,4 +41,11 @@ export type RecipeSummary = {
   servings: number;
   ingredientCount: number;
   stepCount: number;
+  favorite: boolean;
+  minutes: number;
+  kcalPerServing: number | null;
+  proteinPerServing: number | null;
+  carbsPerServing: number | null;
+  fatPerServing: number | null;
+  estimated: boolean;
 };

@@ -30,6 +30,16 @@
     "empty": {
       "title": "Aucune recette pour l'instant",
       "body": "Crée ta première recette : le brouillon existe dès le premier clic, rien ne se perd."
+    },
+    "meta": "{servings, plural, one {# personne} other {# personnes}} · {minutes} min",
+    "macros": "{kcal} kcal · {protein} P · {carbs} G · {fat} L",
+    "estimated": "estimé",
+    "pin": "Épingler {title}",
+    "unpin": "Retirer {title} des favoris",
+    "filters": {
+      "all": "Toutes",
+      "favorites": "Favoris",
+      "noFavorites": "Aucune recette épinglée pour l'instant."
     }
   },
   "auth": {
@@ -99,6 +109,18 @@
       "no_step": "Ajoute au moins une étape.",
       "empty_step": "Une étape est vide.",
       "save_failed": "L'enregistrement a échoué. Réessaie."
+    },
+    "nutrition": {
+      "perServing": "Par portion",
+      "estimated": "Estimé",
+      "empty": "Ajoute un ingrédient pour voir les valeurs par portion.",
+      "estimatedHint": "Valeurs estimées pour : {names}. Un ingrédient non reconnu n'est jamais présenté comme mesuré.",
+      "labels": {
+        "kcal": "kcal",
+        "protein": "Protéines",
+        "carbs": "Glucides",
+        "fat": "Lipides"
+      }
     }
   }
 }
