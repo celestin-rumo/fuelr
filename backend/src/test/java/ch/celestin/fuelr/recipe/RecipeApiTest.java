@@ -137,19 +137,59 @@ class RecipeApiTest {
     }
 
     @Test
-    void refusesToPublishWithABlankStep() throws Exception {
+    void dropsABlankStepInsteadOfStoringIt() throws Exception {
+        long id = createDraft();
+
+        // The editor keeps an empty row around while the author types into it.
+        // It must never reach the stored recipe — and it must not block the
+        // autosave either.
+        mvc.perform(put("/api/recipes/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"title":"Curry","ingredients":[{"name":"riz","quantity":200,"unit":"g"}],
+                                 "steps":["Cuire.","   ","Servir."]}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.steps.length()").value(2))
+                .andExpect(jsonPath("$.steps[0]").value("Cuire."))
+                .andExpect(jsonPath("$.steps[1]").value("Servir."));
+    }
+
+    @Test
+    void refusesToPublishWhenEveryStepIsBlank() throws Exception {
         long id = createDraft();
         mvc.perform(put("/api/recipes/" + id)
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {"title":"Curry","ingredients":[{"name":"riz","quantity":200,"unit":"g"}],
-                         "steps":["Cuire.","   "]}"""));
+                         "steps":["   "]}"""));
 
         mvc.perform(post("/api/recipes/" + id + "/publish")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$[0].message").value("empty_step"));
+                .andExpect(jsonPath("$[0].message").value("no_step"));
+    }
+
+    @Test
+    void keepsTheOrderStepsAreReorderedInto() throws Exception {
+        long id = createDraft();
+        mvc.perform(put("/api/recipes/" + id)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"steps":["Un.","Deux.","Trois."]}"""));
+
+        // The editor sends the whole list in its new order.
+        mvc.perform(put("/api/recipes/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"steps":["Deux.","Un.","Trois."]}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.steps[0]").value("Deux."))
+                .andExpect(jsonPath("$.steps[1]").value("Un."))
+                .andExpect(jsonPath("$.steps[2]").value("Trois."));
     }
 
     @Test
