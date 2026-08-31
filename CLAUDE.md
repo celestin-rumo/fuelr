@@ -5,64 +5,123 @@ Save your recipes and plan your meals for the week.
 ## Design System
 
 Applies to `frontend/` — respect these tokens and reuse `app/components/ui/`
-instead of inventing new colors or writing one-off markup when building UI.
+instead of inventing new colours or writing one-off markup when building UI.
+The living reference is the `/design-system` page
+(`app/[locale]/design-system/page.tsx`); it renders from the real tokens, so
+if a change looks wrong there, it is wrong.
 
-### Color tokens
+**Three principles.** Dark by default — the near-black ground is what lets the
+lime carry the action, and light is a mirror, not a second system. Food first —
+the UI stays neutral so dish photos are the only uncontrolled colour. One
+accent per view — lime = action, mint = progress, coral = alert; never two
+roles for one colour.
 
-Defined as CSS custom properties in `frontend/app/globals.css`. That file is
-the single source of truth for the palette — no component should ever contain
-a raw hex value.
+### Colour
 
-| Token                  | Light     | Dark      | Use                                     |
-| ---------------------- | --------- | --------- | --------------------------------------- |
-| `--background`         | `#ffffff` | `#0c0a09` | Page and surface background             |
-| `--foreground`         | `#1c1917` | `#f5f5f4` | Body text                               |
-| `--primary`            | `#c2410c` | `#fb923c` | Primary actions, emphasis               |
-| `--primary-foreground` | `#ffffff` | `#1c1917` | Text/icons on `--primary`               |
-| `--muted`              | `#f5f5f4` | `#1c1917` | Secondary surfaces, hover states        |
-| `--muted-foreground`   | `#57534e` | `#a8a29e` | Secondary text, captions                |
-| `--accent`             | `#0f766e` | `#2dd4bf` | Accents, highlights                     |
-| `--accent-foreground`  | `#ffffff` | `#0c0a09` | Text/icons on `--accent`                |
-| `--border`             | `#e7e5e4` | `#292524` | Borders, dividers                       |
+Defined in `frontend/app/globals.css`. A component never hardcodes a hex: it
+uses a token. That is what lets the light theme exist without duplicating a
+single component.
 
-These are wired into the Tailwind theme through the `@theme inline` block in
-the same file, so they are consumed as utility classes — `bg-background`,
-`text-muted-foreground`, `border-border`, `bg-primary/90` — not as inline
-styles. Add a new color by declaring it in **both** `:root` and `.dark`, then
-mapping it in `@theme inline`.
+| Token             | Dark        | Light       | Use                              |
+| ----------------- | ----------- | ----------- | -------------------------------- |
+| `--bg`            | `#121212`   | `#F7F5EF`   | Page ground                      |
+| `--bg-raised`     | `#191919`   | `#FFFFFF`   | Cards, panels, nav bar           |
+| `--bg-raised-2`   | `#212121`   | `#ECE9DF`   | Fields, inactive chips, tracks   |
+| `--text`          | `#F5F5F0`   | `#15150F`   | Primary text                     |
+| `--text-dim`      | `#B9B9B4`   | `#5B5A50`   | Descriptions, metadata           |
+| `--gray`          | `#6B7280`   | `#64635A`   | Labels, inactive icons, borders  |
+| `--line`          | `f5f5f0/8%` | `15150f/12%`| Separators, card outlines        |
+| `--lime`          | `#C4F135`   | `#C4F135`   | Primary action (flat)            |
+| `--lime-ink`      | `#C4F135`   | `#4B5E12`   | Lime as text or border           |
+| `--mint`          | `#2DD4BF`   | `#2DD4BF`   | Progress, focus (flat)           |
+| `--mint-ink`      | `#2DD4BF`   | `#0E6B5F`   | Mint as text or link             |
+| `--coral`         | `#FF6B4A`   | `#FF6B4A`   | Alert, badge (flat)              |
+| `--coral-ink`     | `#FF6B4A`   | `#9C321B`   | Coral as text or border          |
+| `--on-accent`     | `#121212`   | `#121212`   | Text on a flat accent fill       |
 
-Typography and spacing use Tailwind's own defaults; there is no custom scale
-to follow. Fonts are Geist Sans / Geist Mono, loaded in
-`app/[locale]/layout.tsx` and exposed as `font-sans` / `font-mono`.
+`--accent` / `--accent-ink` alias the current action colour (lime). Behind
+these sit the full 100→1000 ramps (`--lime-500`, `--mint-800`, …): step 500 is
+the flat brand colour in both themes, and the `*-ink` steps are what carry
+text on light grounds. Use a ramp step directly only when a semantic token
+genuinely doesn't cover the case.
 
-### Dark / light mode
+All of it is wired into the Tailwind theme via `@theme inline`, so it is
+consumed as `bg-bg-raised`, `text-text-dim`, `border-line`, `text-accent-ink`,
+`bg-accent/14`, never as inline styles. Adding a colour means declaring it in
+`:root` **and** `.light`, then mapping it in `@theme inline`.
 
-Handled by `next-themes` (`defaultTheme="system"`, `enableSystem`), mounted in
-`app/components/theme-provider.tsx` and wrapped around the app in
-`app/[locale]/layout.tsx`. It sets a `.dark` class on `<html>`, which
-`globals.css` binds Tailwind's `dark:` variant to via
-`@custom-variant dark (&:where(.dark, .dark *))`.
+### Type, space, shape, motion
 
-Because every token already has a dark value, components generally need **no**
-`dark:` classes at all — using `bg-background`/`text-foreground` is enough.
-Reach for a `dark:` utility only for something the tokens genuinely don't
-cover.
+- **Type** — Poppins ExtraBold (`font-display`) for brand voice and headings,
+  Manrope (`font-sans`) for everything else, JetBrains Mono (`font-mono`) for
+  quantities and units. Add `.tnum` to any changing figure so it doesn't jump.
+  Scale: Display 44/40·800, H1 32/28·800, H2 22/20·800, H3 16·700, Body
+  15·500·1.5, Meta 13·600, Label 11·700·.02em, Data 13·mono. Body lines cap at
+  68ch, heading leading 1.1–1.2, nothing below 11px, Poppins only from 14px,
+  uppercase for labels only.
+- **Space** — 4px base, and nothing off the scale. Tailwind's default spacing
+  is already this scale, so `p-4` = 16px, `gap-6` = 24px. If a spacing "doesn't
+  land", revisit the composition, not the scale.
+- **Shape** — `rounded-sm` 8px (fields, tags), `rounded-md` 14px (cards),
+  `rounded-lg` 20px (panels), `rounded-full` (buttons, chips). A card never
+  mixes two surface radii.
+- **Elevation** — e0 is border-only (in-flow cards), then `shadow-e1` (card
+  hover), `shadow-e2` (menus, toasts), `shadow-e3` (modals, sheets). In dark
+  elevation reads through the surface, in light through the shadow.
+- **Motion** — `var(--dur-fast)` 120ms, `var(--dur)` 180ms,
+  `var(--dur-control)` 160ms, `var(--dur-sheet)` 240ms, all on `var(--ease)`
+  = `cubic-bezier(.2,.8,.2,1)`. Nothing lasts longer than 240ms: a cooking app
+  gets read with dirty hands. Reduced motion is honoured globally in
+  `globals.css`.
+- **Focus** — always the mint ring: `focus-visible:outline-2
+  focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]`.
 
-The user-facing toggle lives in `app/components/theme-toggle.tsx`.
+### Dark / light
+
+`next-themes` with `attribute="class"`, `defaultTheme="dark"` and
+`enableSystem={false}` (dark is a brand decision, not a preference). It puts
+`dark` or `light` on `<html>`; `:root` holds the dark values and `.light`
+overrides them.
+
+Because every token already carries both themes, components need **no** `dark:`
+classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
+`app/components/theme-toggle.tsx`.
 
 ### Component library
 
-`frontend/app/components/ui/` (aliased as `@ui/*`; `@app/*` maps to `app/`).
+`frontend/app/components/ui/` (aliased `@ui/*`; `@app/*` maps to `app/`).
 
-- `button.tsx` — `variant`: `primary` | `secondary` | `ghost`; `size`: `sm` |
-  `md` | `lg`.
-- `card.tsx` — `Card`, `CardTitle`, `CardBody`.
-- `cn.ts` — class-name join helper.
+| File              | Exports                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `button.tsx`      | `Button` (6 variants × 3 sizes, `loading`, `fullWidth`), `IconButton` |
+| `input.tsx`       | `Input` (label + hint, `status` default/error/success)          |
+| `checkbox.tsx`    | `Checkbox` (`indeterminate`, `error`)                           |
+| `radio.tsx`       | `Radio`                                                         |
+| `switch.tsx`      | `Switch`                                                        |
+| `chip.tsx`        | `Chip` (`active`, `count`, `onRemove`)                          |
+| `tabs.tsx`        | `TabList`, `Tab`                                                |
+| `card.tsx`        | `Card` (`as="card"\|"panel"`, `interactive`, `selected`), `CardTitle`, `CardBody` |
+| `recipe-card.tsx` | `RecipeCard` (favourite, selected, unavailable)                 |
+| `badge.tsx`       | `Badge` (accent / mint / coral / neutral / solid)               |
+| `empty-state.tsx` | `EmptyState` (neutral / error tone)                             |
+| `spinner.tsx`     | `Spinner`                                                       |
+| `cn.ts`           | class-name join helper                                          |
 
-New UI extends or reuses these rather than writing one-off markup. Each
-component takes a `className` that is merged last (via `cn`) so callers can
-adjust layout without forking the component. Every component here ships a
-colocated `*.test.tsx`; keep that up as new ones are added.
+Button variants are `primary` (one per view), `secondary`, `tertiary`, `text`,
+`danger`, `soft`. New UI extends or reuses these rather than writing one-off
+markup. Every component takes a `className` merged last through `cn`, so
+callers adjust layout without forking the component. Each ships a colocated
+`*.test.tsx`; keep that up as new ones are added, and add the component to the
+`/design-system` page so the reference stays complete.
+
+**Watch out for competing Tailwind utilities.** When two variants set the same
+property (`bg-transparent` vs `peer-checked:bg-accent` vs
+`peer-disabled:bg-bg-raised-2`), the winner is decided by Tailwind's stylesheet
+order and specificity, not by the order you list the classes. Where a state is
+known in JS, branch in JS and emit only one of them — see `checkbox.tsx`. Where
+it isn't, chain the variants (`peer-checked:peer-disabled:…`) so each
+combination sets the property exactly once, and verify the computed style
+rather than trusting the class list.
 
 ## Internationalization
 
@@ -74,6 +133,9 @@ Every new route needs an entry in `frontend/i18n/routing.ts` under `pathnames`
 with a translated slug per locale. Always import `Link`, `redirect`,
 `usePathname` and `useRouter` from `@/i18n/navigation`, never from `next/link`
 or `next/navigation`, or locale prefixes get lost.
+
+The `/design-system` page is an internal reference and is deliberately not
+translated — its copy is English like the rest of the codebase.
 
 ## Backend
 

@@ -5,7 +5,8 @@
     "cta": "Rezept erstellen",
     "next": {
       "title": "Erste Schritte",
-      "body": "Bearbeite app/[locale]/page.tsx, lege deine Komponenten unter app/components/ui/ ab und trage jede neue Route mit ihrem übersetzten Slug in i18n/routing.ts ein."
+      "body": "Bearbeite app/[locale]/page.tsx, lege deine Komponenten unter app/components/ui/ ab und trage jede neue Route mit ihrem übersetzten Slug in i18n/routing.ts ein.",
+      "link": "Design System öffnen"
     }
   },
   "theme": {

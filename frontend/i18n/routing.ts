@@ -9,5 +9,7 @@ export const routing = defineRouting({
   // Only "/" exists so far.
   pathnames: {
     "/": "/",
+    // Internal reference page; the slug is the same in every locale.
+    "/design-system": "/design-system",
   },
 });

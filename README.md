@@ -17,9 +17,10 @@ fuelr/
 ├── frontend/                  # Next.js 16 (App Router)
 │   ├── app/
 │   │   ├── [locale]/          # localized pages (fr by default)
+│   │   │   └── design-system/ # living design system reference
 │   │   ├── components/ui/     # reusable component library
 │   │   ├── messages/          # fr / en / de translations
-│   │   └── globals.css        # design tokens (colors, theme)
+│   │   └── globals.css        # design tokens (colors, type, shape, motion)
 │   ├── i18n/                  # routing, navigation, message loading
 │   ├── e2e/                   # Playwright tests
 │   └── proxy.ts               # next-intl middleware
@@ -50,6 +51,10 @@ docker compose -f docker-compose.dev.yml up --build
 | Mailpit    | http://localhost:8025   |
 
 The frontend is bind-mounted with hot reload; the backend restarts automatically on every change under `backend/src`.
+
+## Design system
+
+The design system is documented in [CLAUDE.md](CLAUDE.md) and rendered live at http://localhost:3000/fr/design-system — colour ramps, semantic tokens, type scale, spacing, shape, elevation, motion, and every component in all of its states. It renders from the real tokens, so it doubles as a visual regression check: dark is the default theme, and the toggle in the header mirrors everything into light.
 
 ## Account management
 
