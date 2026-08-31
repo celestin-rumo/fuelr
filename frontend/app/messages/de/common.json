@@ -15,18 +15,18 @@
     "dark": "Dunkel"
   },
   "app": {
-    "label": "Mon espace",
-    "greeting": "Bonjour {name}",
-    "intro": "Tes recettes, ton planning et ta liste de courses vivent ici. Les écrans arrivent — cette page existe pour l'instant afin de vérifier que l'accès est bien protégé.",
-    "signedIn": "Session ouverte",
+    "label": "Mein Bereich",
+    "greeting": "Hallo {name}",
+    "intro": "Deine Rezepte, dein Wochenplan und deine Einkaufsliste leben hier. Die Bildschirme kommen noch — vorerst existiert diese Seite, damit wir prüfen können, dass der Zugang wirklich geschützt ist.",
+    "signedIn": "Angemeldet",
     "next": {
-      "title": "Prochaines étapes",
-      "body": "Le planning de la semaine, l'éditeur de recette et la liste de courses sont des stories distinctes du backlog."
+      "title": "Nächste Schritte",
+      "body": "Der Wochenplan, der Rezepteditor und die Einkaufsliste sind eigene Backlog-Storys."
     }
   },
   "auth": {
-    "title": "Connexion",
-    "intro": "L'écran de connexion complet arrive dans une story dédiée. Cette page existe pour que l'accès à /app soit réellement gardé.",
-    "returnTo": "Après connexion, retour vers"
+    "title": "Anmelden",
+    "intro": "Der vollständige Anmeldebildschirm kommt in einer eigenen Story. Diese Seite existiert, damit der Zugang zu /app wirklich geschützt ist.",
+    "returnTo": "Nach der Anmeldung zurück zu"
   }
 }
