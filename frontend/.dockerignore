@@ -1,0 +1,13 @@
+node_modules
+dist
+.next
+.nuxt
+.output
+.angular
+tmp
+logs
+*.log
+.git
+.gitignore
+.DS_Store
+coverage

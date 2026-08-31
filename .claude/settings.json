@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose -f docker-compose.*.yml config*)",
+      "Bash(curl -s http://localhost:*)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s -o /dev/null -w *)",
+      "Bash(git add --dry-run *)",
+      "Bash(mvn -q -o -Dtest=* test)",
+      "Bash(npm run test:ci)",
+      "Bash(export PATH=\"$HOME/.local/bin:$PATH\")"
+    ]
+  }
+}

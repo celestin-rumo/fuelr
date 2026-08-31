@@ -1,0 +1,95 @@
+services:
+  frontend:
+    container_name: fuelr-frontend
+    image: ghcr.io/${IMAGE_NAMESPACE:-celestin-rumo}/fuelr-frontend:${IMAGE_TAG:-latest}
+
+    expose:
+      - "3000"
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fuelr-frontend.rule=Host(`fuelr.celestinrumo.ch`) || Host(`www.fuelr.celestinrumo.ch`)"
+      - "traefik.http.routers.fuelr-frontend.entrypoints=websecure"
+      - "traefik.http.routers.fuelr-frontend.tls.certresolver=le"
+      - "traefik.http.routers.fuelr-frontend.priority=1"
+      - "traefik.http.services.fuelr-frontend.loadbalancer.server.port=3000"
+
+    networks:
+      - traefik-proxy
+
+    restart: unless-stopped
+
+  backend:
+    container_name: fuelr-backend
+    image: ghcr.io/${IMAGE_NAMESPACE:-celestin-rumo}/fuelr-backend:${IMAGE_TAG:-latest}
+
+    expose:
+      - "8080"
+
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/${POSTGRES_DB:-fuelr}
+      DB_USERNAME: ${POSTGRES_USER:-fuelr}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in the production .env file}
+      ADMIN_EMAIL: admin@celestinrumo.ch
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set in the production .env file}
+      MAIL_HOST: smtp.resend.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ${MAIL_USERNAME:?MAIL_USERNAME must be set in the production .env file}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD must be set in the production .env file}
+      MAIL_SMTP_AUTH: "true"
+      MAIL_SMTP_STARTTLS: "true"
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-proxy"
+      - "traefik.http.routers.fuelr-api.rule=(Host(`fuelr.celestinrumo.ch`) || Host(`www.fuelr.celestinrumo.ch`)) && PathPrefix(`/api`)"
+      - "traefik.http.routers.fuelr-api.entrypoints=websecure"
+      - "traefik.http.routers.fuelr-api.tls.certresolver=le"
+      - "traefik.http.routers.fuelr-api.priority=100"
+      - "traefik.http.services.fuelr-api.loadbalancer.server.port=8080"
+
+    networks:
+      - traefik-proxy
+      - app-internal
+
+    restart: unless-stopped
+
+  database:
+    container_name: fuelr-database
+    image: postgres:17
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fuelr}
+      POSTGRES_USER: ${POSTGRES_USER:-fuelr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in the production .env file}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - app-internal
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  traefik-proxy:
+    name: traefik-proxy
+    external: true
+  app-internal:

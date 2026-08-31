@@ -1,0 +1,81 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+
+    working_dir: /app
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+
+    container_name: fuelr-backend
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/fuelr
+      DB_USERNAME: fuelr
+      DB_PASSWORD: fuelr
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      ADMIN_EMAIL: admin@celestinrumo.ch
+      ADMIN_PASSWORD: changeme
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/src
+          target: /app/src
+
+        - action: rebuild
+          path: ./backend/pom.xml
+
+  mailpit:
+    image: axllent/mailpit:latest
+
+    container_name: fuelr-mailpit
+
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  database:
+    image: postgres:17
+
+    container_name: fuelr-database
+
+    environment:
+      POSTGRES_DB: fuelr
+      POSTGRES_USER: fuelr
+      POSTGRES_PASSWORD: fuelr
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fuelr -d fuelr"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  frontend_node_modules:
+  postgres_data:

@@ -1,0 +1,168 @@
+name: Deploy on Server
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Images"]
+    types:
+      - completed
+
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy"
+        required: true
+        default: latest
+        type: string
+      environment:
+        description: "Target environment"
+        required: true
+        default: production
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  DEPLOY_PATH: /home/infra-edge/fuelr
+  STAGING_DEPLOY_PATH: /home/infra-edge/fuelr-staging
+  COMPOSE_PROD_FILE: docker-compose.prod.yml
+  COMPOSE_STAGING_FILE: docker-compose.staging.yml
+
+jobs:
+  deploy-production:
+    # Pushes to dev are handled by deploy-staging below; everything else
+    # (main, version tags, manual dispatch targeting production) goes to prod.
+    if: >
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'production') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch != 'dev')
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        shell: bash
+        run: |
+          IMAGE_TAG_TO_DEPLOY="latest"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG_TO_DEPLOY="${{ inputs.image_tag }}"
+          fi
+
+          echo "image_tag=$IMAGE_TAG_TO_DEPLOY" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare deploy directory
+        shell: bash
+        run: mkdir -p "${{ env.DEPLOY_PATH }}"
+
+      - name: Write .env
+        env:
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+          IMAGE_NAMESPACE: ${{ github.repository_owner }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        shell: bash
+        run: |
+          cd "${{ env.DEPLOY_PATH }}"
+
+          rm -f .env
+          cat > .env <<EOF
+          IMAGE_TAG=${IMAGE_TAG}
+          IMAGE_NAMESPACE=${IMAGE_NAMESPACE}
+          POSTGRES_DB=fuelr
+          POSTGRES_USER=fuelr
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          ADMIN_PASSWORD=${ADMIN_PASSWORD}
+          MAIL_USERNAME=${MAIL_USERNAME}
+          MAIL_PASSWORD=${MAIL_PASSWORD}
+          EOF
+          chmod 600 .env
+
+      - name: Sync deployment compose file
+        shell: bash
+        run: |
+          install -Dm644 docker-compose.prod.yml "${{ env.DEPLOY_PATH }}/${{ env.COMPOSE_PROD_FILE }}"
+
+      - name: Pull deployment images
+        shell: bash
+        run: |
+          cd "${{ env.DEPLOY_PATH }}"
+          docker compose -f "${{ env.COMPOSE_PROD_FILE }}" pull
+
+      - name: Deploy containers
+        shell: bash
+        run: |
+          cd "${{ env.DEPLOY_PATH }}"
+          docker compose -f "${{ env.COMPOSE_PROD_FILE }}" up -d
+
+  deploy-staging:
+    # Triggers on pushes to dev (image tagged "staging"), or a manual dispatch
+    # that explicitly targets staging.
+    if: >
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev')
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        shell: bash
+        run: |
+          IMAGE_TAG_TO_DEPLOY="staging"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG_TO_DEPLOY="${{ inputs.image_tag }}"
+          fi
+
+          echo "image_tag=$IMAGE_TAG_TO_DEPLOY" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare deploy directory
+        shell: bash
+        run: mkdir -p "${{ env.STAGING_DEPLOY_PATH }}"
+
+      - name: Write .env
+        env:
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+          IMAGE_NAMESPACE: ${{ github.repository_owner }}
+          POSTGRES_PASSWORD: ${{ secrets.STAGING_POSTGRES_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
+          MAIL_USERNAME: ${{ secrets.STAGING_MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.STAGING_MAIL_PASSWORD }}
+        shell: bash
+        run: |
+          cd "${{ env.STAGING_DEPLOY_PATH }}"
+
+          rm -f .env
+          cat > .env <<EOF
+          IMAGE_TAG=${IMAGE_TAG}
+          IMAGE_NAMESPACE=${IMAGE_NAMESPACE}
+          POSTGRES_DB=fuelr_staging
+          POSTGRES_USER=fuelr_staging
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          ADMIN_PASSWORD=${ADMIN_PASSWORD}
+          MAIL_USERNAME=${MAIL_USERNAME}
+          MAIL_PASSWORD=${MAIL_PASSWORD}
+          EOF
+          chmod 600 .env
+
+      - name: Sync deployment compose file
+        shell: bash
+        run: |
+          install -Dm644 docker-compose.staging.yml "${{ env.STAGING_DEPLOY_PATH }}/${{ env.COMPOSE_STAGING_FILE }}"
+
+      - name: Pull deployment images
+        shell: bash
+        run: |
+          cd "${{ env.STAGING_DEPLOY_PATH }}"
+          docker compose -f "${{ env.COMPOSE_STAGING_FILE }}" pull
+
+      - name: Deploy containers
+        shell: bash
+        run: |
+          cd "${{ env.STAGING_DEPLOY_PATH }}"
+          docker compose -f "${{ env.COMPOSE_STAGING_FILE }}" up -d

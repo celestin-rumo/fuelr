@@ -1,0 +1,2 @@
+-- Baseline migration. Add your schema here; Hibernate never alters the
+-- schema (ddl-auto: validate) so every change goes through a new Vx__*.sql.

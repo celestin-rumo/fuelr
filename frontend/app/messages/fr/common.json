@@ -1,0 +1,16 @@
+{
+  "home": {
+    "title": "Fuelr",
+    "tagline": "Enregistrez vos recettes et planifiez vos repas de la semaine.",
+    "cta": "Créer une recette",
+    "next": {
+      "title": "Pour commencer",
+      "body": "Modifiez app/[locale]/page.tsx, ajoutez vos composants dans app/components/ui/ et déclarez chaque nouvelle route dans i18n/routing.ts avec son slug traduit."
+    }
+  },
+  "theme": {
+    "toggle": "Changer de thème",
+    "light": "Clair",
+    "dark": "Sombre"
+  }
+}
