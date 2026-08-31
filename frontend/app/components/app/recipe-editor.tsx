@@ -9,7 +9,13 @@ import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
 import type { RecipeDraft } from "@app/[locale]/(app)/app/recipes/actions";
-import { publishRecipe, saveRecipe } from "@app/[locale]/(app)/app/recipes/actions";
+import {
+  computeNutrition,
+  publishRecipe,
+  saveRecipe,
+} from "@app/[locale]/(app)/app/recipes/actions";
+import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
+import { NutritionPanel } from "./nutrition-panel";
 
 const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c"] as const;
 const LEVELS = ["easy", "medium", "hard"] as const;
@@ -52,6 +58,7 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [nutrition, setNutrition] = useState<Nutrition | null>(null);
 
   // New-ingredient row
   const [name, setName] = useState("");
@@ -79,6 +86,21 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
     }, AUTOSAVE_DELAY);
     return () => window.clearTimeout(timer);
   }, [draft, recipe.id]);
+
+  /**
+   * Recomputed on every ingredient and serving change — never behind a
+   * button. The author adjusts the recipe while writing it, so the figures
+   * have to follow without being asked.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    computeNutrition(draft.ingredients, draft.servings).then((result) => {
+      if (!cancelled) setNutrition(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [draft.ingredients, draft.servings]);
 
   const update = useCallback(
     (patch: Partial<RecipeDraft>) => {
@@ -380,6 +402,8 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
             <p className="font-mono text-[11px] text-gray">
               {t("ingredients.hint")}
             </p>
+
+            <NutritionPanel nutrition={nutrition} />
 
             {draft.ingredients.length === 0 ? (
               <p className="text-[15px] font-medium text-text-dim">

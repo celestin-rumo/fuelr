@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
-    List<Recipe> findByUserIdOrderByUpdatedAtDesc(Long userId);
+    List<Recipe> findByUserIdOrderByFavoriteDescUpdatedAtDesc(Long userId);
 
     Optional<Recipe> findByIdAndUserId(Long id, Long userId);
 }

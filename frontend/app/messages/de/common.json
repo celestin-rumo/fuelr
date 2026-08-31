@@ -30,6 +30,16 @@
     "empty": {
       "title": "Noch keine Rezepte",
       "body": "Erstelle dein erstes Rezept: Der Entwurf existiert ab dem ersten Klick, es geht nichts verloren."
+    },
+    "meta": "{servings, plural, one {# Person} other {# Personen}} · {minutes} Min.",
+    "macros": "{kcal} kcal · {protein} P · {carbs} KH · {fat} F",
+    "estimated": "geschätzt",
+    "pin": "{title} anheften",
+    "unpin": "{title} lösen",
+    "filters": {
+      "all": "Alle",
+      "favorites": "Favoriten",
+      "noFavorites": "Noch keine angehefteten Rezepte."
     }
   },
   "auth": {
@@ -99,6 +109,18 @@
       "no_step": "Füge mindestens einen Schritt hinzu.",
       "empty_step": "Ein Schritt ist leer.",
       "save_failed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+    },
+    "nutrition": {
+      "perServing": "Pro Portion",
+      "estimated": "Geschätzt",
+      "empty": "Füge eine Zutat hinzu, um die Werte pro Portion zu sehen.",
+      "estimatedHint": "Geschätzte Werte für: {names}. Eine unbekannte Zutat wird nie als gemessen dargestellt.",
+      "labels": {
+        "kcal": "kcal",
+        "protein": "Protein",
+        "carbs": "Kohlenhydrate",
+        "fat": "Fett"
+      }
     }
   }
 }

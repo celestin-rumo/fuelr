@@ -49,3 +49,46 @@ export async function publishRecipe(
   }
   return { ok: true };
 }
+
+export type Nutrition = {
+  total: { kcal: number; proteinG: number; carbsG: number; fatG: number };
+  perServing: { kcal: number; proteinG: number; carbsG: number; fatG: number };
+  servings: number;
+  containsEstimates: boolean;
+  ingredients: {
+    name: string;
+    kcal: number;
+    proteinG: number;
+    carbsG: number;
+    fatG: number;
+    guessed: boolean;
+  }[];
+};
+
+/**
+ * Nutrition is computed by the backend, never in the browser: the same
+ * arithmetic has to serve the future React Native client from the same
+ * reference table.
+ */
+export async function computeNutrition(
+  ingredients: IngredientDraft[],
+  servings: number,
+): Promise<Nutrition | null> {
+  if (ingredients.length === 0) return null;
+
+  const response = await apiFetch("/api/nutrition/compute", {
+    method: "POST",
+    body: JSON.stringify({ ingredients, servings }),
+  });
+  if (!response.ok) return null;
+  return response.json();
+}
+
+/** Pins or unpins a recipe. Its own call, so the grid flips without a reload. */
+export async function setFavorite(id: number, favorite: boolean) {
+  const response = await apiFetch(`/api/recipes/${id}/favorite`, {
+    method: "PUT",
+    body: JSON.stringify({ favorite }),
+  });
+  return { ok: response.ok };
+}
