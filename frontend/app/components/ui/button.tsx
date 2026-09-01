@@ -4,6 +4,16 @@ import { Spinner } from "./spinner";
 
 // Six variants, one action role each. Only one primary per view.
 // Every colour is a token — see app/globals.css.
+/** Shared by the button and by anchors that must look like one. */
+const BASE = [
+  "inline-flex items-center justify-center gap-2 rounded-full font-bold whitespace-nowrap",
+  "transition-[background-color,border-color,color,filter,transform] duration-[var(--dur)] ease-[var(--ease)]",
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
+  "active:scale-[0.97]",
+  // Disabled is one flat treatment across every variant.
+  "disabled:pointer-events-none disabled:border-transparent disabled:bg-bg-raised-2 disabled:text-gray disabled:no-underline disabled:brightness-100",
+].join(" ");
+
 const variants = {
   primary: "bg-accent text-on-accent hover:brightness-[1.08] active:brightness-[0.94]",
   secondary:
@@ -40,6 +50,28 @@ export type ButtonProps = Omit<
   children?: ReactNode;
 };
 
+/**
+ * The button's look, without the button.
+ *
+ * For a control that navigates: an anchor styled as a button is correct, and
+ * a Button nested inside a Link is not — that is two interactive elements
+ * where the markup promises one, and it is the same nesting already untangled
+ * in `chip.tsx`.
+ */
+export function buttonClasses({
+  variant = "primary",
+  size = "md",
+  fullWidth = false,
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  className?: string;
+} = {}) {
+  return cn(BASE, fullWidth && "w-full", variants[variant], sizes[size], className);
+}
+
 export function Button({
   variant = "primary",
   size = "md",
@@ -57,16 +89,8 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full font-bold whitespace-nowrap",
-        "transition-[background-color,border-color,color,filter,transform] duration-[var(--dur)] ease-[var(--ease)]",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
-        "active:scale-[0.97]",
-        // Disabled is one flat treatment across every variant.
-        "disabled:pointer-events-none disabled:border-transparent disabled:bg-bg-raised-2 disabled:text-gray disabled:no-underline disabled:brightness-100",
+        buttonClasses({ variant, size, fullWidth }),
         loading && "cursor-progress brightness-[0.96]",
-        fullWidth && "w-full",
-        variants[variant],
-        sizes[size],
         className,
       )}
       {...props}

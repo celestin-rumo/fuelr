@@ -254,5 +254,66 @@
     "resend": "Renvoyer l'email",
     "sent": "Email envoyé. Regarde ta boîte de réception.",
     "dismiss": "Plus tard"
+  },
+  "onboarding": {
+    "title": "Tes besoins, en trois questions",
+    "intro": "Aucun compte demandé pour voir le résultat.",
+    "progress": "Étape {current}/{total}",
+    "resume": "On reprend où tu t'étais arrêté.",
+    "back": "Retour",
+    "next": "Suivant",
+    "seeResult": "Voir mon résultat",
+    "goal": {
+      "title": "Quel est ton objectif ?",
+      "hint": "Il décale le total vers le haut ou vers le bas. Rien n'est définitif.",
+      "options": {
+        "LOSE": {
+          "title": "Perdre du poids",
+          "description": "Un déficit mesuré, pas une privation."
+        },
+        "MAINTAIN": {
+          "title": "Maintenir",
+          "description": "Rester là où tu es, sans y penser."
+        },
+        "GAIN": {
+          "title": "Prendre du poids",
+          "description": "Un surplus régulier pour construire."
+        }
+      }
+    },
+    "body": {
+      "title": "Parle-nous de toi",
+      "hint": "Trois informations, c'est tout ce que la formule demande.",
+      "age": "Âge",
+      "sex": "Sexe",
+      "sexes": {
+        "FEMALE": "Femme",
+        "MALE": "Homme"
+      },
+      "height": "Taille (cm)"
+    },
+    "habits": {
+      "title": "Et de tes journées",
+      "hint": "Le niveau d'activité compte autant que le reste.",
+      "weight": "Poids (kg)",
+      "activity": "Activité",
+      "activities": {
+        "SEDENTARY": "Sédentaire — assis la journée",
+        "LIGHT": "Légère — un peu de marche",
+        "MODERATE": "Modérée — du sport 3 à 5 fois",
+        "ACTIVE": "Soutenue — du sport presque tous les jours",
+        "VERY_ACTIVE": "Très soutenue — travail physique ou double séance"
+      }
+    },
+    "preview": {
+      "title": "Voilà ta cible",
+      "hint": "Une estimation de départ. Elle s'ajuste avec ce que tu manges vraiment.",
+      "working": "Calcul en cours…",
+      "perDay": "kcal par jour",
+      "protein": "Protéines",
+      "carbs": "Glucides",
+      "fat": "Lipides",
+      "createAccount": "Créer mon compte"
+    }
   }
 }

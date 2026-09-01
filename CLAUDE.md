@@ -123,6 +123,13 @@ it isn't, chain the variants (`peer-checked:peer-disabled:…`) so each
 combination sets the property exactly once, and verify the computed style
 rather than trusting the class list.
 
+This also catches passing a display utility to a component that already sets
+one. `<Button className="hidden sm:inline-flex">` never hid anything: `Button`
+sets `inline-flex` itself and `.hidden` is emitted earlier in the stylesheet,
+so the CTA stayed visible at 375px and pushed every marketing page 88px
+sideways. Put the toggle on a wrapper, or use `buttonClasses()` on an element
+of your own.
+
 ## Internationalization
 
 `next-intl`, locales `fr` (default), `en`, `de`. Messages live in
