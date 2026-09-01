@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { PasswordStrength } from "./password-strength";
+import { clearDraft, isComplete, readDraft } from "@app/lib/onboarding";
 
 const EMAIL = /.+@.+\..+/;
 const MIN_LENGTH = 8;
@@ -45,6 +46,20 @@ export function RegisterForm() {
     setBusy(false);
 
     if (response.ok) {
+      // The onboarding answers were given before there was an account to hold
+      // them. This is the moment they get one — and if it fails, the account
+      // still exists and the profile can be filled in later, so it is not
+      // allowed to block the way in.
+      const draft = readDraft();
+      if (isComplete(draft)) {
+        const saved = await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(draft),
+        });
+        if (saved.ok) clearDraft();
+      }
+
       router.replace(`/${locale}/app`);
       router.refresh();
       return;

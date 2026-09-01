@@ -35,6 +35,11 @@ export const routing = defineRouting({
       en: "/login",
       de: "/anmelden",
     },
+    "/start": {
+      fr: "/commencer",
+      en: "/get-started",
+      de: "/loslegen",
+    },
     "/register": {
       fr: "/inscription",
       en: "/sign-up",

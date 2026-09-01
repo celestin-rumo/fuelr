@@ -60,9 +60,14 @@ export function SiteHeader() {
 
         <ThemeToggle />
 
-        <Button size="sm" className="hidden sm:inline-flex">
-          {t("cta")}
-        </Button>
+        {/* The display toggle sits on the wrapper, not on the Button: the
+            Button's own base class sets `inline-flex`, and `.hidden` is
+            emitted earlier in the stylesheet, so `hidden` on the Button loses
+            and the CTA stayed visible at 375px — pushing every marketing page
+            88px sideways. */}
+        <span className="hidden sm:block">
+          <Button size="sm">{t("cta")}</Button>
+        </span>
 
         <button
           type="button"

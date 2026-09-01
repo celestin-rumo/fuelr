@@ -42,7 +42,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/register", "/api/auth/login",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
-                        "/api/auth/verify-email").permitAll()
+                        "/api/auth/verify-email",
+                        // Arithmetic on figures the caller typed; nothing is stored.
+                        "/api/nutrition/target").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth
                 .bearerTokenResolver(new CookieOrHeaderTokenResolver())
