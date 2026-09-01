@@ -29,6 +29,7 @@ export type Recipe = {
   servings: number;
   level: string | null;
   status: "DRAFT" | "PUBLISHED";
+  hasPhoto: boolean;
   ingredients: { id: number; name: string; quantity: number; unit: string }[];
   steps: string[];
   tags: string[];
@@ -42,6 +43,7 @@ export type RecipeSummary = {
   ingredientCount: number;
   stepCount: number;
   favorite: boolean;
+  hasPhoto: boolean;
   minutes: number;
   kcalPerServing: number | null;
   proteinPerServing: number | null;

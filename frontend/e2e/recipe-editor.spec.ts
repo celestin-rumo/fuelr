@@ -226,3 +226,56 @@ test("a blank step is never stored", async ({ page, request }) => {
   await expect(page.getByLabel("Étape 1", { exact: true })).toHaveValue("Cuire 15 min.");
   await expect(page.getByLabel("Étape 2", { exact: true })).toHaveCount(0);
 });
+
+test("editing an already-usable recipe warns about what changes", async ({
+  page,
+  request,
+}) => {
+  // A fresh draft has never been used, so it says nothing.
+  await page.goto("/fr/app/recettes/nouvelle");
+  await expect(page.getByTestId("already-used-notice")).toHaveCount(0);
+
+  // A complete recipe, reopened, does.
+  const created = await request.post(`${BACKEND}/api/recipes`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const { id } = await created.json();
+  await request.put(`${BACKEND}/api/recipes/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: {
+      title: "Curry",
+      servings: 4,
+      ingredients: [{ name: "riz", quantity: 100, unit: "g" }],
+      steps: ["Cuire."],
+    },
+  });
+
+  await page.goto(`/fr/app/recettes/${id}`);
+  await expect(page.getByTestId("already-used-notice")).toContainText(
+    "prochaines utilisations",
+  );
+  await expect(page.getByTestId("already-used-notice")).toContainText(
+    "déjà journalisés",
+  );
+});
+
+test("an already-complete recipe reads as saved on open", async ({ page, request }) => {
+  const created = await request.post(`${BACKEND}/api/recipes`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const { id } = await created.json();
+  await request.put(`${BACKEND}/api/recipes/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: {
+      title: "Curry",
+      servings: 4,
+      ingredients: [{ name: "riz", quantity: 100, unit: "g" }],
+      steps: ["Cuire."],
+    },
+  });
+
+  await page.goto(`/fr/app/recettes/${id}`);
+
+  // It must not say "Brouillon" while the notice below says it is usable.
+  await expect(page.getByTestId("draft-status")).toHaveText("Enregistré");
+});

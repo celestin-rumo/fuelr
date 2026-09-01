@@ -64,6 +64,10 @@ services:
 
     restart: unless-stopped
 
+    volumes:
+      # Recipe photos. The database stores only the path.
+      - recipe_media:/var/lib/fuelr/media
+
   database:
     container_name: fuelr-staging-database
     image: postgres:17
@@ -88,6 +92,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  recipe_media:
   postgres_staging_data:
 
 networks:

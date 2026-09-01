@@ -148,6 +148,21 @@
       "title": "ein Titel",
       "ingredients": "mindestens eine Zutat",
       "steps": "mindestens ein Schritt"
-    }
+    },
+    "photo": {
+      "label": "Foto",
+      "field": "Foto auswählen",
+      "add": "Foto hinzufügen",
+      "replace": "Ersetzen",
+      "remove": "Entfernen",
+      "constraints": "JPEG, PNG oder WebP · maximal {megabytes} MB. Das Bild wird vor dem Hochladen auf deinem Gerät verkleinert.",
+      "errors": {
+        "unsupported_format": "Format nicht akzeptiert. Wähle JPEG, PNG oder WebP.",
+        "file_too_large": "Datei zu groß. Wähle ein leichteres Bild.",
+        "unreadable": "Bild nicht lesbar. Versuche eine andere Datei.",
+        "upload_failed": "Hochladen fehlgeschlagen. Bitte erneut versuchen."
+      }
+    },
+    "alreadyUsed": "Dieses Rezept ist bereits gespeichert und nutzbar. Deine Änderungen gelten für künftige Verwendungen; bereits protokollierte Mahlzeiten behalten ihre damaligen Werte."
   }
 }

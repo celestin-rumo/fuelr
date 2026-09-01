@@ -16,6 +16,7 @@ import {
 } from "@app/[locale]/(app)/app/recipes/actions";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 import { NutritionPanel } from "./nutrition-panel";
+import { RecipePhoto } from "./recipe-photo";
 
 const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c"] as const;
 const LEVELS = ["easy", "medium", "hard"] as const;
@@ -64,6 +65,11 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
   const nameRef = useRef<HTMLInputElement>(null);
 
   const firstRender = useRef(true);
+
+  // Captured on open, not derived from the current draft: the point is whether
+  // the recipe was already usable when the author arrived, not whether it has
+  // become complete while they typed.
+  const [wasAlreadyUsable] = useState(() => recipe.status === "PUBLISHED");
 
   /**
    * Autosave. The draft already exists server-side, so every change is an
@@ -174,12 +180,16 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
             aria-live="polite"
             className={cn(
               "shrink-0 text-[13px] font-medium",
-              savedAt && !saving ? "text-mint-ink" : "text-gray",
+              (savedAt || wasAlreadyUsable) && !saving
+                ? "text-mint-ink"
+                : "text-gray",
             )}
           >
             {saving
               ? t("status.saving")
-              : savedAt
+              : // A recipe that was already complete on open reads as saved,
+                // even before this session has written anything.
+                savedAt || wasAlreadyUsable
                 ? t("status.saved")
                 : t("status.draft")}
           </span>
@@ -252,6 +262,15 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
         ))}
       </ol>
 
+      {wasAlreadyUsable && (
+        <p
+          data-testid="already-used-notice"
+          className="rounded-md border border-line bg-bg-raised-2 px-4 py-3 text-[13px] leading-[1.5] font-medium text-text-dim"
+        >
+          {t("alreadyUsed")}
+        </p>
+      )}
+
       {/* The stepper marks what is done; this says what is left, since there
           is no longer a button to press and be refused by. */}
       {missing.length > 0 && (
@@ -263,6 +282,8 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
       <Card as="panel">
         {tab === 0 && (
           <div className="flex flex-col gap-6">
+            <RecipePhoto recipeId={recipe.id} hasPhoto={recipe.hasPhoto} />
+
             <Input
               label={t("base.title")}
               value={draft.title}

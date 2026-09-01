@@ -148,6 +148,21 @@
       "title": "un titre",
       "ingredients": "au moins un ingrédient",
       "steps": "au moins une étape"
-    }
+    },
+    "photo": {
+      "label": "Photo",
+      "field": "Choisir une photo",
+      "add": "Ajouter une photo",
+      "replace": "Remplacer",
+      "remove": "Retirer",
+      "constraints": "JPEG, PNG ou WebP · {megabytes} Mo maximum. L'image est réduite sur ton appareil avant l'envoi.",
+      "errors": {
+        "unsupported_format": "Format non accepté. Choisis un JPEG, un PNG ou un WebP.",
+        "file_too_large": "Fichier trop lourd. Choisis une image plus légère.",
+        "unreadable": "Image illisible. Essaie un autre fichier.",
+        "upload_failed": "L'envoi a échoué. Réessaie."
+      }
+    },
+    "alreadyUsed": "Cette recette est déjà enregistrée et utilisable. Tes modifications s'appliqueront à ses prochaines utilisations ; les repas déjà journalisés gardent les valeurs qu'ils avaient."
   }
 }
