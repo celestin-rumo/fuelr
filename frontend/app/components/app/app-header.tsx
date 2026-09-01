@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ThemeToggle } from "@app/components/theme-toggle";
+import { LogoutButton } from "./logout-button";
 import { Container } from "@app/components/site/section";
 
 /**
@@ -36,6 +37,7 @@ export function AppHeader({
           {name ?? email}
         </span>
         <ThemeToggle />
+        <LogoutButton />
         <span className="sr-only">{t("signedIn")}</span>
       </Container>
     </header>

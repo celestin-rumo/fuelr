@@ -33,6 +33,13 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    @Column(name = "failed_logins", nullable = false)
+    private int failedLogins = 0;
+
+    /** Set while a delay is in force after repeated failures. */
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
+
     protected User() {
     }
 
@@ -69,5 +76,23 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public int getFailedLogins() {
+        return failedLogins;
+    }
+
+    public Instant getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void recordFailure(java.time.Duration delay) {
+        this.failedLogins++;
+        this.lockedUntil = delay.isZero() ? null : Instant.now().plus(delay);
+    }
+
+    public void clearFailures() {
+        this.failedLogins = 0;
+        this.lockedUntil = null;
     }
 }

@@ -63,8 +63,19 @@
   },
   "auth": {
     "title": "Sign in",
-    "intro": "The full sign-in screen is coming in its own story. This page exists so that access to /app is genuinely guarded.",
-    "returnTo": "After signing in, back to"
+    "intro": "Enter your details to get back to your recipes and your plan.",
+    "returnTo": "After signing in, back to",
+    "logout": "Sign out",
+    "form": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "errors": {
+        "incomplete": "Enter your email and your password.",
+        "invalid_credentials": "Incorrect credentials.",
+        "too_many_attempts": "Too many attempts. Try again in {seconds} seconds."
+      }
+    }
   },
   "recipe": {
     "untitled": "Untitled",
