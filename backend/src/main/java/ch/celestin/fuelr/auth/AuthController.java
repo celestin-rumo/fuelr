@@ -2,7 +2,9 @@ package ch.celestin.fuelr.auth;
 
 import ch.celestin.fuelr.account.User;
 import ch.celestin.fuelr.account.UserRepository;
+import ch.celestin.fuelr.auth.AuthDtos.ForgotPasswordRequest;
 import ch.celestin.fuelr.auth.AuthDtos.LoginRequest;
+import ch.celestin.fuelr.auth.AuthDtos.ResetPasswordRequest;
 import ch.celestin.fuelr.auth.AuthDtos.RegisterRequest;
 import ch.celestin.fuelr.auth.AuthDtos.TokenResponse;
 import ch.celestin.fuelr.auth.AuthDtos.UserResponse;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +34,7 @@ public class AuthController {
     private final JwtService jwt;
     private final UserRepository users;
     private final SessionService sessions;
+    private final PasswordResetService passwordReset;
     private final boolean secureCookie;
 
     public AuthController(
@@ -38,7 +42,9 @@ public class AuthController {
             JwtService jwt,
             UserRepository users,
             SessionService sessions,
+            PasswordResetService passwordReset,
             @Value("${app.jwt.secure-cookie}") boolean secureCookie) {
+        this.passwordReset = passwordReset;
         this.auth = auth;
         this.jwt = jwt;
         this.users = users;
@@ -81,6 +87,24 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid_credentials");
         }
         return tokenResponse(user, HttpStatus.OK, userAgent);
+    }
+
+    /**
+     * Always 204, whether or not the address belongs to an account. Any other
+     * behaviour would turn this into a way to test which emails are registered.
+     */
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest body) {
+        passwordReset.request(body.email(), body.locale() == null ? "fr" : body.locale());
+    }
+
+    /** A link works once, within its 30 minutes, and signs every device out. */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest body) {
+        return passwordReset.reset(body.token(), body.password())
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.GONE).build();
     }
 
     /** Closes this session on the server, so the token stops working. */

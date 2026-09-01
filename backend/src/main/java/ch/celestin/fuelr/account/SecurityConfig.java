@@ -39,7 +39,9 @@ public class SecurityConfig {
                 // registration reported itself as "unauthenticated".
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers("/api/health").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/register", "/api/auth/login",
+                        "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth
                 .bearerTokenResolver(new CookieOrHeaderTokenResolver())
