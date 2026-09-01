@@ -63,8 +63,19 @@
   },
   "auth": {
     "title": "Anmelden",
-    "intro": "Der vollständige Anmeldebildschirm kommt in einer eigenen Story. Diese Seite existiert, damit der Zugang zu /app wirklich geschützt ist.",
-    "returnTo": "Nach der Anmeldung zurück zu"
+    "intro": "Gib deine Daten ein, um zu deinen Rezepten und deinem Plan zurückzukehren.",
+    "returnTo": "Nach der Anmeldung zurück zu",
+    "logout": "Abmelden",
+    "form": {
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "errors": {
+        "incomplete": "Gib deine E-Mail und dein Passwort ein.",
+        "invalid_credentials": "Zugangsdaten sind falsch.",
+        "too_many_attempts": "Zu viele Versuche. Versuche es in {seconds} Sekunden erneut."
+      }
+    }
   },
   "recipe": {
     "untitled": "Ohne Titel",

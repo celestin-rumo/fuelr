@@ -13,6 +13,8 @@ services:
       # Server-to-server calls (session checks) go over the compose network by
       # service name — not the host port a browser would use.
       BACKEND_INTERNAL_URL: http://backend:8080
+      # No TLS locally, so the session cookie must not be HTTPS-only.
+      JWT_SECURE_COOKIE: "false"
 
     volumes:
       - ./frontend:/app

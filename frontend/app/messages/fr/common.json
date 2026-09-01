@@ -63,8 +63,19 @@
   },
   "auth": {
     "title": "Connexion",
-    "intro": "L'écran de connexion complet arrive dans une story dédiée. Cette page existe pour que l'accès à /app soit réellement gardé.",
-    "returnTo": "Après connexion, retour vers"
+    "intro": "Entre tes identifiants pour retrouver tes recettes et ton planning.",
+    "returnTo": "Après connexion, retour vers",
+    "logout": "Se déconnecter",
+    "form": {
+      "email": "Email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "errors": {
+        "incomplete": "Renseigne ton email et ton mot de passe.",
+        "invalid_credentials": "Identifiants incorrects.",
+        "too_many_attempts": "Trop de tentatives. Réessaie dans {seconds} secondes."
+      }
+    }
   },
   "recipe": {
     "untitled": "Sans titre",
