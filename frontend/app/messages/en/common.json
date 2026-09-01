@@ -163,6 +163,11 @@
         "upload_failed": "Upload failed. Try again."
       }
     },
-    "alreadyUsed": "This recipe is already saved and usable. Your changes apply to its future uses; meals already logged keep the values they had."
+    "alreadyUsed": "This recipe is already saved and usable. Your changes apply to its future uses; meals already logged keep the values they had.",
+    "nav": {
+      "previous": "Previous",
+      "next": "Next",
+      "finish": "Close"
+    }
   }
 }

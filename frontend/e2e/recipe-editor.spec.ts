@@ -279,3 +279,52 @@ test("an already-complete recipe reads as saved on open", async ({ page, request
   // It must not say "Brouillon" while the notice below says it is usable.
   await expect(page.getByTestId("draft-status")).toHaveText("Enregistré");
 });
+
+test("each panel offers a way forward, and the last one closes", async ({ page }) => {
+  await page.goto("/fr/app/recettes/nouvelle");
+
+  // Nothing to go back to on the first panel.
+  await expect(page.getByRole("button", { name: /Précédent/ })).toHaveCount(0);
+
+  await page.getByRole("button", { name: /Suivant/ }).click();
+  await expect(page.getByRole("button", { name: /Ingrédients/ })).toHaveAttribute(
+    "aria-current",
+    "step",
+  );
+
+  await page.getByRole("button", { name: /Précédent/ }).click();
+  await expect(page.getByRole("button", { name: /Base/ })).toHaveAttribute(
+    "aria-current",
+    "step",
+  );
+
+  await page.getByRole("button", { name: /Suivant/ }).click();
+  await page.getByRole("button", { name: /Suivant/ }).click();
+
+  // Last panel: no "next", just a way out.
+  await expect(page.getByRole("button", { name: /Suivant/ })).toHaveCount(0);
+  await page.getByRole("link", { name: "Fermer" }).click();
+  await expect(page).toHaveURL(/\/fr\/app$/);
+});
+
+test("quantity and unit share one line on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 720 });
+  await page.goto("/fr/app/recettes/nouvelle");
+  await page.getByRole("button", { name: /Ingrédients/ }).click();
+
+  const quantity = await page.getByLabel("Quantité").boundingBox();
+  const unit = await page.getByLabel("Unité").boundingBox();
+
+  // Same row: their vertical centres line up.
+  const quantityCentre = quantity!.y + quantity!.height / 2;
+  const unitCentre = unit!.y + unit!.height / 2;
+  expect(Math.abs(quantityCentre - unitCentre)).toBeLessThan(8);
+
+  // And side by side, not overlapping.
+  expect(quantity!.x + quantity!.width).toBeLessThanOrEqual(unit!.x + 1);
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});
