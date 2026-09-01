@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { ThemeToggle } from "@app/components/theme-toggle";
-import { Button } from "@ui/button";
+import { buttonClasses } from "@ui/button";
 import { cn } from "@ui/cn";
 import { Container } from "./section";
 
@@ -66,7 +66,9 @@ export function SiteHeader() {
             and the CTA stayed visible at 375px — pushing every marketing page
             88px sideways. */}
         <span className="hidden sm:block">
-          <Button size="sm">{t("cta")}</Button>
+          <Link href="/start" className={buttonClasses({ size: "sm" })}>
+            {t("cta")}
+          </Link>
         </span>
 
         <button

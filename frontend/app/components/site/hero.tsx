@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@ui/badge";
-import { Button } from "@ui/button";
+import { buttonClasses } from "@ui/button";
 import { Container } from "./section";
 
 export function Hero() {
@@ -22,11 +22,17 @@ export function Hero() {
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg">{t("ctaPrimary")}</Button>
-          <Link href="/features">
-            <Button size="lg" variant="secondary">
-              {t("ctaSecondary")}
-            </Button>
+          {/* Real links, not Buttons: these navigate. A Button with no
+              handler renders fine and does nothing at all, which is how both
+              of these shipped dead. */}
+          <Link href="/start" className={buttonClasses({ size: "lg" })}>
+            {t("ctaPrimary")}
+          </Link>
+          <Link
+            href="/features"
+            className={buttonClasses({ size: "lg", variant: "secondary" })}
+          >
+            {t("ctaSecondary")}
           </Link>
         </div>
 

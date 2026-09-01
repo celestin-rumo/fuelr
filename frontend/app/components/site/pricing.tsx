@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@ui/badge";
-import { Button } from "@ui/button";
+import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@ui/button";
 import { cn } from "@ui/cn";
 
 type PlanLine = { ok: boolean; text: string };
@@ -110,13 +111,18 @@ export function PricingPlans() {
               ))}
             </ul>
 
-            <Button
-              className="mt-8"
-              fullWidth
-              variant={plan.featured ? "primary" : "secondary"}
+            {/* Every plan leads to sign-up: there is no billing yet, so
+                picking one cannot mean more than creating an account. */}
+            <Link
+              href="/register"
+              className={buttonClasses({
+                className: "mt-8",
+                fullWidth: true,
+                variant: plan.featured ? "primary" : "secondary",
+              })}
             >
               {plan.cta}
-            </Button>
+            </Link>
           </div>
         ))}
       </div>
