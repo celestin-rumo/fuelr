@@ -32,4 +32,13 @@ public final class AuthDtos {
 
     public record UserResponse(Long id, String email, String name, String role) {
     }
+
+    public record ForgotPasswordRequest(@NotBlank @Email String email, String locale) {
+    }
+
+    public record ResetPasswordRequest(
+            @NotBlank String token,
+            @NotBlank @Size(min = 8, message = "Le mot de passe fait au moins 8 caractères.")
+            String password) {
+    }
 }

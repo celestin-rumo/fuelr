@@ -41,6 +41,9 @@ services:
       # Mailpit accepts any sender; staging and production must use the
       # address verified with Resend.
       MAIL_FROM: fuelr@localhost
+      # Where the browser reaches the app, so reset links in emails point
+      # somewhere that resolves. Follows FRONTEND_PORT.
+      SITE_URL: http://localhost:${FRONTEND_PORT:-3000}
       ADMIN_EMAIL: admin@celestinrumo.ch
       ADMIN_PASSWORD: changeme
 

@@ -45,6 +45,7 @@ services:
       MAIL_SMTP_AUTH: "true"
       MAIL_SMTP_STARTTLS: "true"
       MAIL_FROM: no-reply@celestinrumo.ch
+      SITE_URL: https://staging.fuelr.celestinrumo.ch
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in the staging .env file}
       # The session cookie must never travel outside HTTPS.
       JWT_SECURE_COOKIE: "true"

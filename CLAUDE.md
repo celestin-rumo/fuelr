@@ -150,9 +150,23 @@ Spring Boot (`ch.celestin.fuelr`) + PostgreSQL, with Flyway migrations in
 `backend/src/main/resources/db/migration/`. Schema changes go in a new
 `V<n>__<name>.sql` file — never edit an applied migration.
 
-`account/SecurityConfig.java` currently permits **all** requests; it exists
-only to supply the password encoder for the admin bootstrap. Real
-authentication still needs to be built before anything ships.
+`account/SecurityConfig.java` denies anything not explicitly listed as public.
+Two rules that are easy to get wrong there:
+
+- **Errors on public endpoints need `DispatcherType.ERROR` permitted.** Spring
+  re-dispatches to `/error`, which is a fresh, unauthenticated request; without
+  that line every failure on a public endpoint comes back as 401, including a
+  wrong password. MockMvc does not replay the ERROR dispatch, so a green test
+  suite proves nothing — check it over real HTTP.
+- **Anything answering about an account must not differ by whether it exists.**
+  Not in status, not in body, and not in *timing*: `MailService.send` is
+  `@Async` precisely so a reset request does not take measurably longer for a
+  real address once a remote relay is doing the sending.
+
+Backend tests must not depend on a writable `/var/lib` — `MediaStorage` creates
+its directory at startup, so a missing one fails **every** Spring context, not
+just the upload tests. `src/test/resources/application.properties` points
+`app.media.dir` at the temp directory for that reason.
 
 ## Running things
 
@@ -182,8 +196,13 @@ to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into
 meaninglessness. Where space runs out, decide what to drop: the recipe editor's
 stepper keeps only the current step's label below `sm`, so three labels cannot
-squeeze the connectors to nothing. Check a narrow viewport in the browser, not
-only a wide one.
+squeeze the connectors to nothing, and the header's sign-out button drops to its
+icon there. Check a narrow viewport in the browser, not only a wide one.
+
+When a control loses its visible label that way, give it an explicit
+`aria-label`. Hiding the text with `sr-only` alone has bitten this codebase
+twice: the button keeps its name, but a button whose label is `hidden` has none
+at all.
 
 **`getByRole("alert")` matches two nodes in e2e.** Next.js keeps its own
 `__next-route-announcer__` in the DOM with `role="alert"`, so a page-wide query

@@ -37,6 +37,9 @@ app:
     email: ${ADMIN_EMAIL:admin@celestinrumo.ch}
     password: ${ADMIN_PASSWORD:changeme}
 
+  # Where the app is reachable, for links inside emails.
+  site-url: ${SITE_URL:http://localhost:3000}
+
   mail:
     # Resend refuses a send whose domain is not verified in its console, so
     # this address is not cosmetic: it has to be on the verified domain.

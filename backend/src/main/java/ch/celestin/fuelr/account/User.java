@@ -91,6 +91,10 @@ public class User {
         this.lockedUntil = delay.isZero() ? null : Instant.now().plus(delay);
     }
 
+    public void changePassword(String encodedPassword) {
+        this.passwordHash = encodedPassword;
+    }
+
     public void clearFailures() {
         this.failedLogins = 0;
         this.lockedUntil = null;

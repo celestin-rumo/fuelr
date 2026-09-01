@@ -35,6 +35,16 @@ export const routing = defineRouting({
       en: "/login",
       de: "/anmelden",
     },
+    "/forgot-password": {
+      fr: "/mot-de-passe-oublie",
+      en: "/forgot-password",
+      de: "/passwort-vergessen",
+    },
+    "/reset-password": {
+      fr: "/nouveau-mot-de-passe",
+      en: "/reset-password",
+      de: "/neues-passwort",
+    },
     // The product itself. Same slug everywhere: it is a destination people
     // bookmark and share between locales, not marketing copy.
     "/app": "/app",

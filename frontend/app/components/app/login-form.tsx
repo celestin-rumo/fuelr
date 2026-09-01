@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 
@@ -92,6 +93,13 @@ export function LoginForm({ next }: { next: string | null }) {
       <Button type="submit" size="lg" loading={busy}>
         {t("submit")}
       </Button>
+
+      <Link
+        href="/forgot-password"
+        className="text-center text-[13px] font-semibold text-accent-ink underline"
+      >
+        {t("forgotLink")}
+      </Link>
     </form>
   );
 }
