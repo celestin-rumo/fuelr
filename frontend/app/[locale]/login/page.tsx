@@ -4,13 +4,10 @@ import { getPathname } from "@/i18n/navigation";
 import { getSession } from "@app/lib/session";
 import { Card } from "@ui/card";
 import { Container } from "@app/components/site/section";
+import { LoginForm } from "@app/components/app/login-form";
 
-/**
- * Placeholder sign-in screen. The real form — three modes, strength meter,
- * error states — is its own backlog story; what matters here is that the guard
- * has somewhere to send people, and that the destination survives the round
- * trip.
- */
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage({
   params,
   searchParams,
@@ -29,9 +26,9 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
 
   return (
-    <div className="flex min-h-full flex-1 items-center bg-bg py-20">
+    <div className="flex min-h-full flex-1 items-center bg-bg py-16">
       <Container>
-        <Card as="panel" className="mx-auto max-w-lg">
+        <Card as="panel" className="mx-auto w-full max-w-md">
           <h1 className="font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
             {t("title")}
           </h1>
@@ -39,13 +36,18 @@ export default async function LoginPage({
             {t("intro")}
           </p>
 
+          <div className="mt-8">
+            <LoginForm next={destination} />
+          </div>
+
           {destination && (
             <p
               data-testid="login-next"
               data-next={destination}
-              className="mt-6 rounded-sm border border-line bg-bg-raised-2 px-4 py-3 text-[13px] font-medium text-text-dim"
+              className="mt-6 text-[12px] font-medium text-gray"
             >
-              {t("returnTo")} <span className="font-mono text-accent-ink">{destination}</span>
+              {t("returnTo")}{" "}
+              <span className="font-mono text-accent-ink">{destination}</span>
             </p>
           )}
         </Card>

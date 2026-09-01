@@ -49,7 +49,8 @@ public class JwtService {
         return new SecretKeySpec(bytes, "HmacSHA256");
     }
 
-    public String issue(User user) {
+    /** The session id travels in the token, so it can be revoked server-side. */
+    public String issue(User user, java.util.UUID sessionId) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("fuelr")
@@ -58,6 +59,7 @@ public class JwtService {
                 .subject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole())
+                .claim(SessionTokenValidator.CLAIM, sessionId.toString())
                 .build();
         return encoder.encode(
                 JwtEncoderParameters.from(JwsHeader.with(ALGORITHM).build(), claims)).getTokenValue();

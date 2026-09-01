@@ -14,10 +14,16 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 public class JwtConfig {
 
     @Bean
-    public JwtDecoder jwtDecoder(@Value("${app.jwt.secret}") String secret) {
-        return NimbusJwtDecoder
+    public JwtDecoder jwtDecoder(
+            @Value("${app.jwt.secret}") String secret, SessionService sessions) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder
                 .withSecretKey(JwtService.secretKey(secret))
                 .macAlgorithm(JwtService.ALGORITHM)
                 .build();
+        // Signature and expiry are not enough: the session must still be open.
+        decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+                org.springframework.security.oauth2.jwt.JwtValidators.createDefault(),
+                new SessionTokenValidator(sessions)));
+        return decoder;
     }
 }
