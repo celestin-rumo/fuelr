@@ -163,6 +163,11 @@
         "upload_failed": "L'envoi a échoué. Réessaie."
       }
     },
-    "alreadyUsed": "Cette recette est déjà enregistrée et utilisable. Tes modifications s'appliqueront à ses prochaines utilisations ; les repas déjà journalisés gardent les valeurs qu'ils avaient."
+    "alreadyUsed": "Cette recette est déjà enregistrée et utilisable. Tes modifications s'appliqueront à ses prochaines utilisations ; les repas déjà journalisés gardent les valeurs qu'ils avaient.",
+    "nav": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "finish": "Fermer"
+    }
   }
 }

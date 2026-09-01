@@ -163,6 +163,11 @@
         "upload_failed": "Hochladen fehlgeschlagen. Bitte erneut versuchen."
       }
     },
-    "alreadyUsed": "Dieses Rezept ist bereits gespeichert und nutzbar. Deine Änderungen gelten für künftige Verwendungen; bereits protokollierte Mahlzeiten behalten ihre damaligen Werte."
+    "alreadyUsed": "Dieses Rezept ist bereits gespeichert und nutzbar. Deine Änderungen gelten für künftige Verwendungen; bereits protokollierte Mahlzeiten behalten ihre damaligen Werte.",
+    "nav": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "finish": "Schließen"
+    }
   }
 }
