@@ -71,10 +71,10 @@
     "publish": "Rezept speichern",
     "publishedAction": "Gespeichert",
     "status": {
-      "draft": "Entwurf · Schritt {step} von 3",
+      "draft": "Entwurf",
       "saving": "Wird gespeichert…",
-      "saved": "Entwurf wird laufend gespeichert — es geht nichts verloren.",
-      "published": "Gespeichert · {ingredients} Zut. · {steps} Schritte"
+      "saved": "Gespeichert",
+      "published": "Gespeichert"
     },
     "tabs": {
       "base": "Basis",
@@ -139,7 +139,11 @@
         "protein": "Protein",
         "carbs": "Kohlenhydrate",
         "fat": "Fett"
-      }
-    }
+      },
+      "title": "Nährwerte pro Portion",
+      "automatic": "automatisch berechnet"
+    },
+    "close": "Rezept schließen",
+    "stepperLabel": "Erstellungsschritte"
   }
 }

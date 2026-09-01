@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button, IconButton } from "@ui/button";
 import { Card } from "@ui/card";
 import { Chip } from "@ui/chip";
@@ -165,62 +166,96 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
+    <div className="flex flex-col gap-7">
+      {/* Close sits before the title and never moves, whatever tab is open. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+        <div className="flex min-w-0 items-center gap-4">
+          <Link
+            href="/app"
+            aria-label={t("close")}
+            className="grid size-9 shrink-0 place-items-center rounded-full border border-line text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          >
+            ✕
+          </Link>
+
+          <h1 className="min-w-0 truncate font-display text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
             {draft.title.trim() || t("untitled")}
           </h1>
-          <p
+
+          {/* Status is information, not a control — so it reads as text beside
+              the title rather than as a button that always says "Saved". */}
+          <span
             data-testid="draft-status"
-            className="mt-1 font-mono text-[12px] text-gray"
+            aria-live="polite"
+            className={cn(
+              "shrink-0 text-[13px] font-medium",
+              saving ? "text-gray" : savedAt || published ? "text-mint-ink" : "text-gray",
+            )}
           >
-            {published
-              ? t("status.published", {
-                  ingredients: draft.ingredients.length,
-                  steps: draft.steps.length,
-                })
-              : saving
-                ? t("status.saving")
-                : savedAt
-                  ? t("status.saved")
-                  : t("status.draft", { step: tab + 1 })}
-          </p>
+            {saving
+              ? t("status.saving")
+              : savedAt || published
+                ? t("status.saved")
+                : t("status.draft")}
+          </span>
         </div>
+
         <Button onClick={onPublish} loading={publishing}>
-          {published ? t("publishedAction") : t("publish")}
+          {t("publish")}
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* A stepper, not a row of chips: the three parts are a sequence, and
+          the connecting rule is what says so. */}
+      <ol className="flex items-center gap-0" aria-label={t("stepperLabel")}>
         {tabs.map((item, index) => (
-          <button
-            key={item.label}
-            type="button"
-            aria-current={tab === index ? "step" : undefined}
-            onClick={() => setTab(index as Tab)}
-            className={cn(
-              "inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-[13px] font-semibold",
-              "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
-              tab === index
-                ? "border-accent-ink bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-text"
-                : "border-line text-text-dim hover:border-gray hover:text-text",
-            )}
-          >
-            <span
-              aria-hidden
+          <li key={item.label} className="flex flex-1 items-center last:flex-none">
+            <button
+              type="button"
+              aria-current={tab === index ? "step" : undefined}
+              onClick={() => setTab(index as Tab)}
               className={cn(
-                "grid size-5 place-items-center rounded-full font-mono text-[10px] font-bold",
-                item.ok ? "bg-accent text-on-accent" : "bg-bg-raised-2 text-gray",
+                "group flex shrink-0 items-center gap-3 rounded-full py-1.5 pr-4 pl-1.5 text-left",
+                "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
+                tab === index ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)]" : "hover:bg-bg-raised-2",
               )}
             >
-              {item.ok ? "✓" : index + 1}
-            </span>
-            {item.label}
-          </button>
+              <span
+                aria-hidden
+                className={cn(
+                  "grid size-8 shrink-0 place-items-center rounded-full border-[1.5px] font-mono text-[12px] font-bold",
+                  item.ok
+                    ? "border-accent bg-accent text-on-accent"
+                    : tab === index
+                      ? "border-accent-ink text-accent-ink"
+                      : "border-line text-gray",
+                )}
+              >
+                {item.ok ? "✓" : index + 1}
+              </span>
+              <span
+                className={cn(
+                  "text-[14px] font-bold whitespace-nowrap",
+                  tab === index ? "text-text" : "text-text-dim",
+                )}
+              >
+                {item.label}
+              </span>
+            </button>
+
+            {index < tabs.length - 1 && (
+              <span
+                aria-hidden
+                className={cn(
+                  "mx-2 h-[2px] min-w-6 flex-1 rounded-full",
+                  item.ok ? "bg-accent" : "bg-line",
+                )}
+              />
+            )}
+          </li>
         ))}
-      </div>
+      </ol>
 
       {errors.length > 0 && (
         <p
@@ -403,80 +438,96 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
               {t("ingredients.hint")}
             </p>
 
-            <NutritionPanel nutrition={nutrition} />
-
             {draft.ingredients.length === 0 ? (
               <p className="text-[15px] font-medium text-text-dim">
                 {t("ingredients.empty")}
               </p>
             ) : (
-              <ul className="flex flex-col divide-y divide-line">
+              <ul className="overflow-hidden rounded-md border border-line">
                 {draft.ingredients.map((ingredient, index) => (
                   <li
                     key={`${ingredient.name}-${index}`}
-                    className="flex items-center gap-4 py-3"
+                    className="flex items-center gap-4 border-b border-line px-4 py-3 last:border-b-0 hover:bg-bg-raised-2"
                   >
-                    <span className="flex-1 text-[15px] font-medium text-text">
+                    <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-text">
                       {ingredient.name}
                     </span>
-                    <span className="tnum font-mono text-[13px] text-text-dim">
-                      {ingredient.quantity} {ingredient.unit}
-                    </span>
-                    <IconButton
-                      aria-label={t("ingredients.remove", {
-                        name: ingredient.name,
-                      })}
-                      variant="text"
-                      onClick={() =>
-                        update({
-                          ingredients: draft.ingredients.filter(
-                            (_, i) => i !== index,
-                          ),
-                        })
-                      }
-                    >
-                      ✕
-                    </IconButton>
+
+                    {/* Quantity and its remove control belong to the same
+                        ingredient, so they sit together on the right rather
+                        than drifting apart across the row. */}
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="tnum font-mono text-[13px] text-text-dim">
+                        {ingredient.quantity} {ingredient.unit}
+                      </span>
+                      <IconButton
+                        aria-label={t("ingredients.remove", {
+                          name: ingredient.name,
+                        })}
+                        variant="dangerText"
+                        className="size-8"
+                        onClick={() =>
+                          update({
+                            ingredients: draft.ingredients.filter(
+                              (_, i) => i !== index,
+                            ),
+                          })
+                        }
+                      >
+                        ✕
+                      </IconButton>
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
+
+            {/* After the list, because it summarises it. Placed above, it read
+                as the first thing to fill in. */}
+            <NutritionPanel nutrition={nutrition} />
           </div>
         )}
 
         {tab === 2 && (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             <p className="font-mono text-[11px] text-gray">{t("steps.hint")}</p>
 
             {draft.steps.map((step, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className="mt-3 font-mono text-[12px] text-gray"
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <textarea
-                  aria-label={t("steps.label", { number: index + 1 })}
-                  rows={2}
-                  value={step}
-                  onChange={(e) =>
-                    update({
-                      steps: draft.steps.map((s, i) =>
-                        i === index ? e.target.value : s,
-                      ),
-                    })
-                  }
-                  className={cn(
-                    "flex-1 rounded-sm border-[1.5px] bg-bg px-4 py-3 text-[15px] text-text",
-                    "focus:border-mint-ink focus:outline-2 focus:outline-offset-2 focus:outline-[var(--mint-ink)]",
-                    step.trim() ? "border-gray" : "border-coral-ink",
-                  )}
-                />
-                <div className="mt-1 flex flex-col gap-1">
+              <div
+                key={index}
+                className={cn(
+                  "rounded-md border-[1.5px] bg-bg transition-[border-color] duration-[var(--dur-fast)] ease-[var(--ease)]",
+                  "focus-within:border-mint-ink",
+                  step.trim() ? "border-line" : "border-coral-ink",
+                )}
+              >
+                <div className="flex items-start gap-3 px-4 pt-3">
+                  <span aria-hidden className="mt-2 font-mono text-[12px] text-gray">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  {/* Borderless: the card carries the outline, so the controls
+                      below read as part of the same step. */}
+                  <textarea
+                    aria-label={t("steps.label", { number: index + 1 })}
+                    value={step}
+                    onChange={(e) =>
+                      update({
+                        steps: draft.steps.map((s, i) =>
+                          i === index ? e.target.value : s,
+                        ),
+                      })
+                    }
+                    className="min-h-24 flex-1 resize-y bg-transparent py-2 text-[15px] leading-[1.5] text-text outline-none"
+                  />
+                </div>
+
+                {/* One line, inside the card: three stacked buttons took more
+                    room than the step itself. */}
+                <div className="flex items-center justify-end gap-1 border-t border-line px-2 py-1.5">
                   <IconButton
                     aria-label={t("steps.moveUp", { number: index + 1 })}
                     variant="text"
+                    className="size-8"
                     disabled={index === 0}
                     onClick={() => moveStep(index, -1)}
                   >
@@ -485,6 +536,7 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                   <IconButton
                     aria-label={t("steps.moveDown", { number: index + 1 })}
                     variant="text"
+                    className="size-8"
                     disabled={index === draft.steps.length - 1}
                     onClick={() => moveStep(index, 1)}
                   >
@@ -492,7 +544,8 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                   </IconButton>
                   <IconButton
                     aria-label={t("steps.remove", { number: index + 1 })}
-                    variant="text"
+                    variant="dangerText"
+                    className="size-8"
                     onClick={() =>
                       update({ steps: draft.steps.filter((_, i) => i !== index) })
                     }
@@ -503,6 +556,7 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
               </div>
             ))}
 
+            {/* Directly under the last step, where the next one goes. */}
             <Button
               variant="secondary"
               className="self-start"
