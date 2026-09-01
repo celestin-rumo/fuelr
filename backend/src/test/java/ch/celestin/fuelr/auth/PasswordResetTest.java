@@ -63,7 +63,7 @@ class PasswordResetTest {
         String token = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
         Long userId = users.findByEmail(email).orElseThrow().getId();
         tokens.save(new PasswordResetToken(
-                userId, PasswordResetService.hash(token),
+                userId, OneTimeToken.hash(token),
                 java.time.Instant.now().plus(PasswordResetService.LIFETIME)));
         return token;
     }
@@ -154,7 +154,7 @@ class PasswordResetTest {
 
         String token = "deja-perime-" + System.nanoTime();
         tokens.save(new PasswordResetToken(
-                userId, PasswordResetService.hash(token),
+                userId, OneTimeToken.hash(token),
                 java.time.Instant.now().minusSeconds(60)));
 
         mvc.perform(post("/api/auth/reset-password")

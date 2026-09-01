@@ -35,6 +35,16 @@ export const routing = defineRouting({
       en: "/login",
       de: "/anmelden",
     },
+    "/register": {
+      fr: "/inscription",
+      en: "/sign-up",
+      de: "/registrieren",
+    },
+    "/verify-email": {
+      fr: "/verification-email",
+      en: "/verify-email",
+      de: "/email-bestaetigen",
+    },
     "/forgot-password": {
       fr: "/mot-de-passe-oublie",
       en: "/forgot-password",

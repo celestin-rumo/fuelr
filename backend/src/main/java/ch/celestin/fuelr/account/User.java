@@ -40,6 +40,13 @@ public class User {
     @Column(name = "locked_until")
     private Instant lockedUntil;
 
+    /**
+     * When the address was proven. Null means unverified, which is a normal
+     * state for a working account — nothing is withheld because of it.
+     */
+    @Column(name = "email_verified_at")
+    private Instant emailVerifiedAt;
+
     protected User() {
     }
 
@@ -89,6 +96,14 @@ public class User {
     public void recordFailure(java.time.Duration delay) {
         this.failedLogins++;
         this.lockedUntil = delay.isZero() ? null : Instant.now().plus(delay);
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerifiedAt != null;
+    }
+
+    public void markEmailVerified() {
+        this.emailVerifiedAt = Instant.now();
     }
 
     public void changePassword(String encodedPassword) {
