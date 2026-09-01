@@ -36,6 +36,9 @@ services:
       DB_PASSWORD: fuelr
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
+      # Mailpit accepts any sender; staging and production must use the
+      # address verified with Resend.
+      MAIL_FROM: fuelr@localhost
       ADMIN_EMAIL: admin@celestinrumo.ch
       ADMIN_PASSWORD: changeme
 

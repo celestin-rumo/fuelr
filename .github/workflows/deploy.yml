@@ -64,6 +64,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         shell: bash
         run: |
           cd "${{ env.DEPLOY_PATH }}"
@@ -78,6 +79,7 @@ jobs:
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
           MAIL_USERNAME=${MAIL_USERNAME}
           MAIL_PASSWORD=${MAIL_PASSWORD}
+          JWT_SECRET=${JWT_SECRET}
           EOF
           chmod 600 .env
 
@@ -133,6 +135,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.STAGING_MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.STAGING_MAIL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         shell: bash
         run: |
           cd "${{ env.STAGING_DEPLOY_PATH }}"
@@ -147,6 +150,7 @@ jobs:
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
           MAIL_USERNAME=${MAIL_USERNAME}
           MAIL_PASSWORD=${MAIL_PASSWORD}
+          JWT_SECRET=${JWT_SECRET}
           EOF
           chmod 600 .env
 
