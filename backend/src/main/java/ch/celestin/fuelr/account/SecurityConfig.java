@@ -3,6 +3,7 @@ package ch.celestin.fuelr.account;
 import ch.celestin.fuelr.auth.CookieOrHeaderTokenResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import jakarta.servlet.DispatcherType;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +33,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // An error raised inside a permitted endpoint is re-dispatched
+                // to /error. Without this, every failure on a public endpoint
+                // comes back as 401 instead of its real status — a duplicate
+                // registration reported itself as "unauthenticated".
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 .anyRequest().authenticated())

@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * token authenticates a browser (cookie) and a non-browser client (header).
  */
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(print = org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint.NONE)
 @Testcontainers
 class AuthApiTest {
 
@@ -164,6 +165,30 @@ class AuthApiTest {
 
         JsonNode body = json.readTree(response);
         assertThat(body.get("perServing").get("kcal").asDouble()).isEqualTo(350.0);
+    }
+
+    /**
+     * MockMvc does not replay the servlet ERROR dispatch by default, which is
+     * how a real container turns a thrown ResponseStatusException into a
+     * second request to /error. That gap once hid a bug where every failure on
+     * a public endpoint came back as 401. Replaying the dispatch here keeps it
+     * honest.
+     */
+    @Test
+    void reportsTheRealStatusOfAFailureOnAPublicEndpoint() throws Exception {
+        register("dispatch@fuelr.app");
+
+        mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"dispatch@fuelr.app","name":"Autre","password":"motdepasse123"}"""))
+                .andExpect(status().isConflict());
+
+        mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"court@fuelr.app","name":"C","password":"court"}"""))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
