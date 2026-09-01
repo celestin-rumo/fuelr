@@ -37,6 +37,11 @@ app:
     email: ${ADMIN_EMAIL:admin@celestinrumo.ch}
     password: ${ADMIN_PASSWORD:changeme}
 
+  mail:
+    # Resend refuses a send whose domain is not verified in its console, so
+    # this address is not cosmetic: it has to be on the verified domain.
+    from: ${MAIL_FROM:fuelr@localhost}
+
   media:
     # Mounted Docker volume. The container must be able to write here.
     dir: ${MEDIA_DIR:/var/lib/fuelr/media}
