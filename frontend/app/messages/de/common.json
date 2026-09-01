@@ -254,5 +254,66 @@
     "resend": "Erneut senden",
     "sent": "E-Mail gesendet. Schau in deinen Posteingang.",
     "dismiss": "Später"
+  },
+  "onboarding": {
+    "title": "Dein Bedarf, in drei Fragen",
+    "intro": "Für das Ergebnis braucht es kein Konto.",
+    "progress": "Schritt {current}/{total}",
+    "resume": "Wir machen dort weiter, wo du aufgehört hast.",
+    "back": "Zurück",
+    "next": "Weiter",
+    "seeResult": "Mein Ergebnis ansehen",
+    "goal": {
+      "title": "Was ist dein Ziel?",
+      "hint": "Es verschiebt die Summe nach oben oder unten. Nichts ist endgültig.",
+      "options": {
+        "LOSE": {
+          "title": "Abnehmen",
+          "description": "Ein massvolles Defizit, kein Verzicht."
+        },
+        "MAINTAIN": {
+          "title": "Halten",
+          "description": "Bleiben, wo du bist, ohne daran zu denken."
+        },
+        "GAIN": {
+          "title": "Zunehmen",
+          "description": "Ein stetiger Überschuss zum Aufbauen."
+        }
+      }
+    },
+    "body": {
+      "title": "Erzähl uns von dir",
+      "hint": "Drei Angaben — mehr braucht die Formel nicht.",
+      "age": "Alter",
+      "sex": "Geschlecht",
+      "sexes": {
+        "FEMALE": "Weiblich",
+        "MALE": "Männlich"
+      },
+      "height": "Grösse (cm)"
+    },
+    "habits": {
+      "title": "Und von deinen Tagen",
+      "hint": "Wie viel du dich bewegst, zählt genauso.",
+      "weight": "Gewicht (kg)",
+      "activity": "Aktivität",
+      "activities": {
+        "SEDENTARY": "Sitzend — den ganzen Tag am Platz",
+        "LIGHT": "Leicht — etwas zu Fuss unterwegs",
+        "MODERATE": "Mässig — 3- bis 5-mal Sport",
+        "ACTIVE": "Aktiv — fast täglich Sport",
+        "VERY_ACTIVE": "Sehr aktiv — körperliche Arbeit oder zwei Einheiten"
+      }
+    },
+    "preview": {
+      "title": "Das ist dein Ziel",
+      "hint": "Eine Ausgangsschätzung. Sie passt sich an, was du wirklich isst.",
+      "working": "Wird berechnet…",
+      "perDay": "kcal pro Tag",
+      "protein": "Protein",
+      "carbs": "Kohlenhydrate",
+      "fat": "Fett",
+      "createAccount": "Konto erstellen"
+    }
   }
 }

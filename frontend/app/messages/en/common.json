@@ -254,5 +254,66 @@
     "resend": "Send again",
     "sent": "Email sent. Check your inbox.",
     "dismiss": "Later"
+  },
+  "onboarding": {
+    "title": "What you need, in three questions",
+    "intro": "No account needed to see the result.",
+    "progress": "Step {current}/{total}",
+    "resume": "Picking up where you left off.",
+    "back": "Back",
+    "next": "Next",
+    "seeResult": "See my result",
+    "goal": {
+      "title": "What is your goal?",
+      "hint": "It shifts the total up or down. Nothing here is final.",
+      "options": {
+        "LOSE": {
+          "title": "Lose weight",
+          "description": "A measured deficit, not deprivation."
+        },
+        "MAINTAIN": {
+          "title": "Maintain",
+          "description": "Stay where you are, without thinking about it."
+        },
+        "GAIN": {
+          "title": "Gain weight",
+          "description": "A steady surplus to build on."
+        }
+      }
+    },
+    "body": {
+      "title": "Tell us about you",
+      "hint": "Three things — that is all the formula asks for.",
+      "age": "Age",
+      "sex": "Sex",
+      "sexes": {
+        "FEMALE": "Female",
+        "MALE": "Male"
+      },
+      "height": "Height (cm)"
+    },
+    "habits": {
+      "title": "And about your days",
+      "hint": "How much you move counts as much as the rest.",
+      "weight": "Weight (kg)",
+      "activity": "Activity",
+      "activities": {
+        "SEDENTARY": "Sedentary — sitting all day",
+        "LIGHT": "Light — some walking",
+        "MODERATE": "Moderate — training 3 to 5 times",
+        "ACTIVE": "Active — training most days",
+        "VERY_ACTIVE": "Very active — physical work or two sessions a day"
+      }
+    },
+    "preview": {
+      "title": "Here is your target",
+      "hint": "A starting estimate. It adjusts to what you actually eat.",
+      "working": "Working it out…",
+      "perDay": "kcal per day",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fat": "Fat",
+      "createAccount": "Create my account"
+    }
   }
 }

@@ -73,3 +73,33 @@ test("the contact form refuses an incomplete message", async ({ page }) => {
     "Indique ton nom.",
   );
 });
+
+test("no marketing page scrolls sideways on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 720 });
+
+  // The header is shared, so one page passing proves little and one page
+  // failing breaks the whole public site — as the "try it free" button did,
+  // staying visible at 375px because the Button's own `inline-flex` beat the
+  // `hidden` passed to it.
+  for (const path of ["/fr", "/fr/fonctionnalites", "/fr/tarifs", "/fr/a-propos", "/fr/contact"]) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, `${path} déborde`).toBeLessThanOrEqual(0);
+  }
+});
+
+test("the phone menu reaches every page the wide nav does", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 720 });
+  await page.goto("/fr");
+
+  await page.getByRole("button", { name: "Menu" }).click();
+  // Scoped to the header: the footer carries the same links, so a page-wide
+  // query is a strict-mode violation rather than a finding.
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "Tarifs" })
+    .click();
+  await expect(page).toHaveURL(/\/fr\/tarifs$/);
+});
