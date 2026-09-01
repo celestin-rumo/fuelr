@@ -168,6 +168,14 @@ Frontend checks run inside the frontend container
 first, because `LayoutProps`/`PageProps` are generated route types — plain
 `tsc --noEmit` fails on a clean checkout without it.
 
+**Responsive is an acceptance criterion, not a polish pass.** Every screen has
+to hold up from a narrow phone to a wide desktop before a story is done — no
+horizontal body scroll, no control pushed off-screen, no label truncated into
+meaninglessness. Where space runs out, decide what to drop: the recipe editor's
+stepper keeps only the current step's label below `sm`, so three labels cannot
+squeeze the connectors to nothing. Check a narrow viewport in the browser, not
+only a wide one.
+
 **`getByRole("alert")` matches two nodes in e2e.** Next.js keeps its own
 `__next-route-announcer__` in the DOM with `role="alert"`, so a page-wide query
 is always a strict-mode violation. Scope the query to the form or give the

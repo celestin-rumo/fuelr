@@ -68,8 +68,6 @@
   },
   "recipe": {
     "untitled": "Sans titre",
-    "publish": "Enregistrer la recette",
-    "publishedAction": "Enregistrée",
     "status": {
       "draft": "Brouillon",
       "saving": "Enregistrement…",
@@ -143,7 +141,13 @@
       "title": "Nutrition par portion",
       "automatic": "calculée automatiquement"
     },
-    "close": "Fermer la recette",
-    "stepperLabel": "Étapes de création"
+    "stepperLabel": "Étapes de création",
+    "back": "Revenir à mes recettes",
+    "missing": "Il manque encore : {what}.",
+    "missingParts": {
+      "title": "un titre",
+      "ingredients": "au moins un ingrédient",
+      "steps": "au moins une étape"
+    }
   }
 }

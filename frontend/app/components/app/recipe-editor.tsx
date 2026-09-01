@@ -12,7 +12,6 @@ import type { Recipe } from "@app/lib/api";
 import type { RecipeDraft } from "@app/[locale]/(app)/app/recipes/actions";
 import {
   computeNutrition,
-  publishRecipe,
   saveRecipe,
 } from "@app/[locale]/(app)/app/recipes/actions";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
@@ -54,11 +53,8 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
 
   const [draft, setDraft] = useState<RecipeDraft>(() => toDraft(recipe));
   const [tab, setTab] = useState<Tab>(0);
-  const [published, setPublished] = useState(recipe.status === "PUBLISHED");
-  const [errors, setErrors] = useState<{ field: string; message: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [publishing, setPublishing] = useState(false);
   const [nutrition, setNutrition] = useState<Nutrition | null>(null);
 
   // New-ingredient row
@@ -106,8 +102,6 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
   const update = useCallback(
     (patch: Partial<RecipeDraft>) => {
       setDraft((current) => ({ ...current, ...patch }));
-      setPublished(false);
-      setErrors([]);
     },
     [],
   );
@@ -136,23 +130,6 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
     update({ steps });
   }
 
-  async function onPublish() {
-    setPublishing(true);
-    const result = await publishRecipe(recipe.id, draft);
-    setPublishing(false);
-    if (result.ok) {
-      setPublished(true);
-      setErrors([]);
-      return;
-    }
-    setErrors(result.errors);
-    // Send the author to the tab that blocks them rather than to a generic error.
-    const field = result.errors[0]?.field;
-    if (field === "title") setTab(0);
-    else if (field === "ingredients") setTab(1);
-    else if (field === "steps") setTab(2);
-  }
-
   const complete = {
     base: draft.title.trim().length > 0,
     ingredients: draft.ingredients.length > 0,
@@ -165,6 +142,12 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
     { label: t("tabs.steps"), ok: complete.steps },
   ];
 
+  const missing = [
+    !complete.base && "title",
+    !complete.ingredients && "ingredients",
+    !complete.steps && "steps",
+  ].filter(Boolean) as string[];
+
   return (
     <div className="flex flex-col gap-7">
       {/* Close sits before the title and never moves, whatever tab is open. */}
@@ -172,10 +155,12 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
         <div className="flex min-w-0 items-center gap-4">
           <Link
             href="/app"
-            aria-label={t("close")}
+            aria-label={t("back")}
             className="grid size-9 shrink-0 place-items-center rounded-full border border-line text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
           >
-            ✕
+            {/* An arrow, not a cross: a cross beside a title reads as "delete
+                this", and nothing here is destructive. */}
+            ←
           </Link>
 
           <h1 className="min-w-0 truncate font-display text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
@@ -189,36 +174,41 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
             aria-live="polite"
             className={cn(
               "shrink-0 text-[13px] font-medium",
-              saving ? "text-gray" : savedAt || published ? "text-mint-ink" : "text-gray",
+              savedAt && !saving ? "text-mint-ink" : "text-gray",
             )}
           >
             {saving
               ? t("status.saving")
-              : savedAt || published
+              : savedAt
                 ? t("status.saved")
                 : t("status.draft")}
           </span>
         </div>
 
-        <Button onClick={onPublish} loading={publishing}>
-          {t("publish")}
-        </Button>
       </div>
 
       {/* A stepper, not a row of chips: the three parts are a sequence, and
           the connecting rule is what says so. */}
-      <ol className="flex items-center gap-0" aria-label={t("stepperLabel")}>
+      <ol
+        className="flex items-center gap-0"
+        aria-label={t("stepperLabel")}
+      >
         {tabs.map((item, index) => (
-          <li key={item.label} className="flex flex-1 items-center last:flex-none">
+          <li key={item.label} className="flex min-w-0 flex-1 items-center last:flex-none">
             <button
               type="button"
               aria-current={tab === index ? "step" : undefined}
               onClick={() => setTab(index as Tab)}
               className={cn(
-                "group flex shrink-0 items-center gap-3 rounded-full py-1.5 pr-4 pl-1.5 text-left",
+                "flex min-w-0 shrink-0 items-center gap-2 rounded-full py-1.5 pl-1.5 text-left sm:gap-3",
+                // On a narrow screen only the current step keeps its label,
+                // so three labels cannot squeeze the connectors to nothing.
+                tab === index ? "pr-3 sm:pr-4" : "pr-1.5 sm:pr-4",
                 "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
                 "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
-                tab === index ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)]" : "hover:bg-bg-raised-2",
+                tab === index
+                  ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)]"
+                  : "hover:bg-bg-raised-2",
               )}
             >
               <span
@@ -236,8 +226,13 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
               </span>
               <span
                 className={cn(
-                  "text-[14px] font-bold whitespace-nowrap",
-                  tab === index ? "text-text" : "text-text-dim",
+                  "truncate text-[14px] font-bold",
+                  // Hidden from view on a narrow screen, never from the
+                  // accessibility tree: `hidden` would leave these buttons
+                  // with no accessible name at all.
+                  tab === index
+                    ? "text-text"
+                    : "sr-only text-text-dim sm:not-sr-only sm:inline",
                 )}
               >
                 {item.label}
@@ -248,7 +243,7 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
               <span
                 aria-hidden
                 className={cn(
-                  "mx-2 h-[2px] min-w-6 flex-1 rounded-full",
+                  "mx-1.5 h-[2px] min-w-3 flex-1 rounded-full sm:mx-2 sm:min-w-6",
                   item.ok ? "bg-accent" : "bg-line",
                 )}
               />
@@ -257,14 +252,11 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
         ))}
       </ol>
 
-      {errors.length > 0 && (
-        <p
-          role="alert"
-          data-testid="recipe-error"
-          className="text-[13px] font-semibold text-coral-ink"
-        >
-          <span aria-hidden>! </span>
-          {t(`errors.${errors[0].message}`)}
+      {/* The stepper marks what is done; this says what is left, since there
+          is no longer a button to press and be refused by. */}
+      {missing.length > 0 && (
+        <p data-testid="missing-hint" className="text-[13px] font-medium text-text-dim">
+          {t("missing", { what: missing.map((m) => t(`missingParts.${m}`)).join(", ") })}
         </p>
       )}
 

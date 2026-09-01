@@ -57,69 +57,89 @@ test("a draft survives a full reload without any save prompt", async ({ page }) 
   await expect(page.getByLabel("Titre")).toHaveValue("Curry de lentilles corail");
 });
 
-test("saving is refused without an ingredient, and points at the tab", async ({ page }) => {
+test("the stepper says what is still missing, with no button to be refused by", async ({
+  page,
+}) => {
   await page.goto("/fr/app/recettes/nouvelle");
+
+  await expect(page.getByTestId("missing-hint")).toContainText("un titre");
+  await expect(page.getByTestId("missing-hint")).toContainText("un ingrédient");
+  await expect(page.getByTestId("missing-hint")).toContainText("une étape");
 
   await page.getByLabel("Titre").fill("Curry");
-  await page.getByRole("button", { name: "Étapes" }).click();
-  await page.getByRole("button", { name: "Ajouter une étape" }).click();
-  await page.getByLabel("Étape 1", { exact: true }).fill("Cuire 15 min.");
+  await expect(page.getByTestId("missing-hint")).not.toContainText("un titre");
 
-  await page.getByRole("button", { name: "Enregistrer la recette" }).click();
-
-  await expect(page.getByTestId("recipe-error")).toContainText(
-    "Ajoute au moins un ingrédient.",
-  );
-  await expect(page.getByRole("button", { name: /Ingrédients/ })).toHaveAttribute(
-    "aria-current",
-    "step",
-  );
+  // There is no save button at all — the editor autosaves.
+  await expect(
+    page.getByRole("button", { name: "Enregistrer la recette" }),
+  ).toHaveCount(0);
 });
 
-test("saving is refused without a step", async ({ page }) => {
+test("a recipe becomes complete on its own once the content is there", async ({
+  page,
+  request,
+}) => {
   await page.goto("/fr/app/recettes/nouvelle");
-
-  await page.getByLabel("Titre").fill("Curry");
-  await page.getByRole("button", { name: /Ingrédients/ }).click();
-  await page.getByLabel("Ingrédient").fill("Lentilles corail");
-  await page.getByLabel("Quantité").fill("300");
-  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
-
-  await page.getByRole("button", { name: "Enregistrer la recette" }).click();
-
-  await expect(page.getByTestId("recipe-error")).toContainText(
-    "Ajoute au moins une étape.",
-  );
-});
-
-test("a complete recipe saves and appears in the list", async ({ page }) => {
-  await page.goto("/fr/app/recettes/nouvelle");
+  const url = page.url();
 
   await page.getByLabel("Titre").fill("Curry de lentilles corail");
 
   await page.getByRole("button", { name: /Ingrédients/ }).click();
   await page.getByLabel("Ingrédient").fill("Lentilles corail");
   await page.getByLabel("Quantité").fill("300");
-  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
-
-  // Enter chains straight into the next ingredient without touching the mouse.
-  await page.getByLabel("Ingrédient").fill("Lait de coco");
-  await page.getByLabel("Quantité").fill("400");
   await page.getByLabel("Quantité").press("Enter");
-  await expect(page.getByText("Lait de coco")).toBeVisible();
 
   await page.getByRole("button", { name: "Étapes" }).click();
   await page.getByRole("button", { name: "Ajouter une étape" }).click();
   await page.getByLabel("Étape 1", { exact: true }).fill("Cuire 15 min à couvert.");
 
-  await page.getByRole("button", { name: "Enregistrer la recette" }).click();
-  await expect(page.getByTestId("draft-status")).toHaveText("Enregistré");
+  await expect(page.getByTestId("missing-hint")).toHaveCount(0);
+
+  // Status is derived from the content, so it lands with no action taken.
+  const id = url.split("/").pop();
+  await expect
+    .poll(async () => {
+      const response = await request.get(`${BACKEND}/api/recipes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (await response.json()).status;
+    }, { timeout: 10_000 })
+    .toBe("PUBLISHED");
 
   await page.goto("/fr/app");
   await expect(
     page.getByRole("heading", { name: "Curry de lentilles corail" }),
   ).toBeVisible();
 });
+
+test("the back control returns to the library and is not a delete", async ({ page }) => {
+  await page.goto("/fr/app/recettes/nouvelle");
+
+  const back = page.getByRole("link", { name: "Revenir à mes recettes" });
+  await expect(back).toBeVisible();
+  await back.click();
+
+  await expect(page).toHaveURL(/\/fr\/app$/);
+});
+
+test("the editor holds up on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 720 });
+  await page.goto("/fr/app/recettes/nouvelle");
+
+  // Nothing may push the body sideways.
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+
+  // The stepper stays usable: every marker reachable, current label readable.
+  for (const label of ["Base", "Ingrédients", "Étapes"]) {
+    await expect(page.getByRole("button", { name: new RegExp(label) })).toBeVisible();
+  }
+  await page.getByRole("button", { name: /Étapes/ }).click();
+  await expect(page.getByRole("button", { name: "Ajouter une étape" })).toBeVisible();
+});
+
 
 test("an ingredient can be removed", async ({ page }) => {
   await page.goto("/fr/app/recettes/nouvelle");
