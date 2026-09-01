@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
-import { Button } from "@ui/button";
+import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@ui/button";
 import { Container } from "./section";
 
 /** Closing call to action, repeated at the foot of every marketing page. */
@@ -16,7 +17,9 @@ export function CtaBand() {
           <p className="max-w-[62ch] text-[15px] leading-[1.6] font-medium text-text-dim">
             {t("text")}
           </p>
-          <Button size="lg">{t("button")}</Button>
+          <Link href="/register" className={buttonClasses({ size: "lg" })}>
+            {t("button")}
+          </Link>
         </div>
       </Container>
     </section>
