@@ -8,17 +8,35 @@ import { Badge } from "@ui/badge";
 import { Chip } from "@ui/chip";
 import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
-import { setFavorite } from "@app/[locale]/(app)/app/recipes/actions";
+import {
+  deleteRecipe,
+  duplicateRecipe,
+  moveFavorite,
+  setFavorite,
+} from "@app/[locale]/(app)/app/recipes/actions";
+import { RecipeFilters } from "./recipe-filters";
+import { Button, IconButton } from "@ui/button";
 
-/** Favourites first, then the order the backend already sorted them into. */
+/**
+ * The backend already returns the library in order — pinned first, in the
+ * chosen rank. This only re-applies the favourite split so an optimistic pin
+ * moves the card immediately, without waiting for the refetch.
+ */
 function sorted(recipes: RecipeSummary[]) {
-  return [...recipes].sort(
-    (a, b) => Number(b.favorite) - Number(a.favorite),
-  );
+  return [...recipes].sort((a, b) => Number(b.favorite) - Number(a.favorite));
 }
 
-export function RecipeGrid({ recipes }: { recipes: RecipeSummary[] }) {
+export function RecipeGrid({
+  recipes,
+  term,
+  selectedTags,
+}: {
+  recipes: RecipeSummary[];
+  term: string;
+  selectedTags: string[];
+}) {
   const t = useTranslations("app");
+  const [confirming, setConfirming] = useState<RecipeSummary | null>(null);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [, startTransition] = useTransition();
   const router = useRouter();
@@ -36,6 +54,28 @@ export function RecipeGrid({ recipes }: { recipes: RecipeSummary[] }) {
   const shown = sorted(optimistic).filter((r) => !onlyFavorites || r.favorite);
   const favoriteCount = optimistic.filter((r) => r.favorite).length;
 
+  function move(recipe: RecipeSummary, direction: -1 | 1) {
+    startTransition(async () => {
+      const result = await moveFavorite(recipe.id, direction);
+      if (result.ok) router.refresh();
+    });
+  }
+
+  function duplicate(recipe: RecipeSummary) {
+    startTransition(async () => {
+      const result = await duplicateRecipe(recipe.id, t("copySuffix"));
+      if (result.ok) router.refresh();
+    });
+  }
+
+  function confirmDelete(recipe: RecipeSummary) {
+    startTransition(async () => {
+      const result = await deleteRecipe(recipe.id);
+      setConfirming(null);
+      if (result.ok) router.refresh();
+    });
+  }
+
   function toggle(recipe: RecipeSummary) {
     startTransition(async () => {
       addOptimistic({ id: recipe.id, favorite: !recipe.favorite });
@@ -49,6 +89,8 @@ export function RecipeGrid({ recipes }: { recipes: RecipeSummary[] }) {
 
   return (
     <div className="flex flex-col gap-6">
+      <RecipeFilters term={term} selectedTags={selectedTags} />
+
       <div className="flex flex-wrap gap-2">
         <Chip active={!onlyFavorites} onClick={() => setOnlyFavorites(false)}>
           {t("filters.all")}
@@ -63,15 +105,15 @@ export function RecipeGrid({ recipes }: { recipes: RecipeSummary[] }) {
       </div>
 
       {shown.length === 0 ? (
-        <p className="text-[15px] font-medium text-text-dim">
-          {t("filters.noFavorites")}
+        <p data-testid="no-results" className="text-[15px] font-medium text-text-dim">
+          {onlyFavorites ? t("filters.noFavorites") : t("search.noResults")}
         </p>
       ) : (
         <ul
           data-testid="recipe-grid"
           className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
-          {shown.map((recipe) => (
+          {shown.map((recipe, index) => (
             <li key={recipe.id}>
               <article
                 data-testid={`recipe-${recipe.id}`}
@@ -157,11 +199,86 @@ export function RecipeGrid({ recipes }: { recipes: RecipeSummary[] }) {
                       )}
                     </p>
                   )}
+                  <div className="mt-4 flex flex-wrap items-center gap-1 border-t border-line pt-3">
+                    {recipe.favorite && (
+                      <>
+                        <IconButton
+                          aria-label={t("moveUp", { title: recipe.title ?? t("untitled") })}
+                          variant="text"
+                          className="relative z-10 size-8"
+                          disabled={index === 0}
+                          onClick={() => move(recipe, -1)}
+                        >
+                          ↑
+                        </IconButton>
+                        <IconButton
+                          aria-label={t("moveDown", { title: recipe.title ?? t("untitled") })}
+                          variant="text"
+                          className="relative z-10 size-8"
+                          disabled={index === favoriteCount - 1}
+                          onClick={() => move(recipe, 1)}
+                        >
+                          ↓
+                        </IconButton>
+                      </>
+                    )}
+                    <div className="flex-1" />
+                    <IconButton
+                      aria-label={t("duplicate", { title: recipe.title ?? t("untitled") })}
+                      variant="text"
+                      className="relative z-10 size-8"
+                      onClick={() => duplicate(recipe)}
+                    >
+                      ⧉
+                    </IconButton>
+                    <IconButton
+                      aria-label={t("delete", { title: recipe.title ?? t("untitled") })}
+                      // `danger`, not `text` with a coral class: two competing
+                      // text-colour utilities are resolved by Tailwind's sheet
+                      // order, and the destructive one lost.
+                      variant="danger"
+                      className="relative z-10 size-8"
+                      onClick={() => setConfirming(recipe)}
+                    >
+                      ✕
+                    </IconButton>
+                  </div>
                 </div>
               </article>
             </li>
           ))}
         </ul>
+      )}
+
+      {confirming && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-[rgba(0,0,0,0.6)] p-6"
+        >
+          <div className="w-full max-w-md rounded-lg border border-line bg-bg-raised p-8 shadow-e3">
+            <h2
+              id="delete-title"
+              className="font-display text-lg font-extrabold tracking-[-0.02em] text-text"
+            >
+              {t("deleteConfirm.title", {
+                title: confirming.title?.trim() || t("untitled"),
+              })}
+            </h2>
+            <p className="mt-3 text-[15px] leading-[1.5] font-medium text-text-dim">
+              {t("deleteConfirm.body")}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="danger" onClick={() => confirmDelete(confirming)}>
+                {t("deleteConfirm.confirm")}
+              </Button>
+              <Button variant="secondary" onClick={() => setConfirming(null)}>
+                {t("deleteConfirm.cancel")}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

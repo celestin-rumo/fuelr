@@ -40,6 +40,25 @@
       "all": "Alle",
       "favorites": "Favoriten",
       "noFavorites": "Noch keine angehefteten Rezepte."
+    },
+    "copySuffix": " (Kopie)",
+    "export": "Exportieren",
+    "moveUp": "{title} in den Favoriten nach oben",
+    "moveDown": "{title} in den Favoriten nach unten",
+    "duplicate": "{title} duplizieren",
+    "delete": "{title} löschen",
+    "search": {
+      "label": "Suchen",
+      "placeholder": "Titel oder Zutat",
+      "hint": "Die Suche umfasst Titel und Zutaten.",
+      "clear": "Alles zurücksetzen",
+      "noResults": "Kein Rezept passt."
+    },
+    "deleteConfirm": {
+      "title": "„{title}“ löschen?",
+      "confirm": "Löschen",
+      "cancel": "Abbrechen",
+      "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt."
     }
   },
   "auth": {

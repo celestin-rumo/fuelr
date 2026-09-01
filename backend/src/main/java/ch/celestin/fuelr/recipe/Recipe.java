@@ -60,6 +60,10 @@ public class Recipe {
     @Column(nullable = false)
     private boolean favorite = false;
 
+    /** Position among the pinned recipes. Null when not pinned. */
+    @Column(name = "favorite_rank")
+    private Integer favoriteRank;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -147,6 +151,14 @@ public class Recipe {
 
     public void setFavorite(boolean favorite) {
         this.favorite = favorite;
+    }
+
+    public Integer getFavoriteRank() {
+        return favoriteRank;
+    }
+
+    public void setFavoriteRank(Integer favoriteRank) {
+        this.favoriteRank = favoriteRank;
     }
 
     public Instant getUpdatedAt() {
