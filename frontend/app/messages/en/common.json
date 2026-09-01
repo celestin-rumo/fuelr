@@ -40,6 +40,25 @@
       "all": "All",
       "favorites": "Favourites",
       "noFavorites": "No pinned recipes yet."
+    },
+    "copySuffix": " (copy)",
+    "export": "Export",
+    "moveUp": "Move {title} up in favourites",
+    "moveDown": "Move {title} down in favourites",
+    "duplicate": "Duplicate {title}",
+    "delete": "Delete {title}",
+    "search": {
+      "label": "Search",
+      "placeholder": "Title or ingredient",
+      "hint": "Search covers the title and the ingredients.",
+      "clear": "Clear all",
+      "noResults": "No recipe matches."
+    },
+    "deleteConfirm": {
+      "title": "Delete “{title}”?",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "body": "The recipe leaves your library. Meals already cooked and logged are untouched."
     }
   },
   "auth": {

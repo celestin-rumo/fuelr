@@ -40,6 +40,25 @@
       "all": "Toutes",
       "favorites": "Favoris",
       "noFavorites": "Aucune recette épinglée pour l'instant."
+    },
+    "copySuffix": " (copie)",
+    "export": "Exporter",
+    "moveUp": "Monter {title} dans les favoris",
+    "moveDown": "Descendre {title} dans les favoris",
+    "duplicate": "Dupliquer {title}",
+    "delete": "Supprimer {title}",
+    "search": {
+      "label": "Chercher",
+      "placeholder": "Titre ou ingrédient",
+      "hint": "La recherche porte sur le titre et les ingrédients.",
+      "clear": "Tout effacer",
+      "noResults": "Aucune recette ne correspond."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer « {title} » ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler",
+      "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés."
     }
   },
   "auth": {

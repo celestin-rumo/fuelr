@@ -92,3 +92,27 @@ export async function setFavorite(id: number, favorite: boolean) {
   });
   return { ok: response.ok };
 }
+
+/** Moves a pinned recipe one position. Direction is -1 (up) or 1 (down). */
+export async function moveFavorite(id: number, direction: -1 | 1) {
+  const response = await apiFetch(`/api/recipes/${id}/favorite/move`, {
+    method: "PUT",
+    body: JSON.stringify({ direction }),
+  });
+  return { ok: response.ok };
+}
+
+export async function duplicateRecipe(id: number, suffix: string) {
+  const response = await apiFetch(
+    `/api/recipes/${id}/duplicate?suffix=${encodeURIComponent(suffix)}`,
+    { method: "POST" },
+  );
+  if (!response.ok) return { ok: false as const };
+  const copy = await response.json();
+  return { ok: true as const, id: copy.id as number };
+}
+
+export async function deleteRecipe(id: number) {
+  const response = await apiFetch(`/api/recipes/${id}`, { method: "DELETE" });
+  return { ok: response.ok };
+}
