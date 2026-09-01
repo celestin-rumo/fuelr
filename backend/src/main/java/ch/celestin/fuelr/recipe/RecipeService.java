@@ -107,6 +107,14 @@ public class RecipeService {
             recipe.getTags().clear();
             recipe.getTags().addAll(body.tags());
         }
+
+        // Status is a consequence of the content, not a button someone presses.
+        // The editor autosaves, so completeness is re-derived on every save and
+        // a recipe that loses its last ingredient falls back to a draft.
+        recipe.setStatus(validate(recipe).isEmpty()
+                ? Recipe.Status.PUBLISHED
+                : Recipe.Status.DRAFT);
+
         return recipes.save(recipe);
     }
 

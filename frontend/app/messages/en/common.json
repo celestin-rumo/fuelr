@@ -68,8 +68,6 @@
   },
   "recipe": {
     "untitled": "Untitled",
-    "publish": "Save recipe",
-    "publishedAction": "Saved",
     "status": {
       "draft": "Draft",
       "saving": "Saving…",
@@ -143,7 +141,13 @@
       "title": "Nutrition per serving",
       "automatic": "computed automatically"
     },
-    "close": "Close recipe",
-    "stepperLabel": "Creation steps"
+    "stepperLabel": "Creation steps",
+    "back": "Back to my recipes",
+    "missing": "Still missing: {what}.",
+    "missingParts": {
+      "title": "a title",
+      "ingredients": "at least one ingredient",
+      "steps": "at least one step"
+    }
   }
 }

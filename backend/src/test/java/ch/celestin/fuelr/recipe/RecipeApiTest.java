@@ -193,6 +193,29 @@ class RecipeApiTest {
     }
 
     @Test
+    void becomesCompleteOnItsOwnAsSoonAsTheContentIsThere() throws Exception {
+        long id = createDraft();
+
+        // No publish call: saving a complete recipe is what makes it complete.
+        mvc.perform(put("/api/recipes/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"title":"Curry","servings":4,
+                                 "ingredients":[{"name":"riz","quantity":200,"unit":"g"}],
+                                 "steps":["Cuire."]}"""))
+                .andExpect(jsonPath("$.status").value("PUBLISHED"));
+
+        // And it falls back when the content no longer holds up.
+        mvc.perform(put("/api/recipes/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"ingredients":[]}"""))
+                .andExpect(jsonPath("$.status").value("DRAFT"));
+    }
+
+    @Test
     void publishesACompleteRecipe() throws Exception {
         long id = createDraft();
         mvc.perform(put("/api/recipes/" + id)
