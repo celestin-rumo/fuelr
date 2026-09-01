@@ -10,11 +10,13 @@ public final class AuthDtos {
     private AuthDtos() {
     }
 
+    /** `locale` only picks the language of the confirmation email. */
     public record RegisterRequest(
             @NotBlank @Email String email,
             @NotBlank String name,
             @NotBlank @Size(min = 8, message = "Le mot de passe fait au moins 8 caractères.")
-            String password) {
+            String password,
+            String locale) {
     }
 
     public record LoginRequest(
@@ -30,7 +32,11 @@ public final class AuthDtos {
     public record TokenResponse(String token, long expiresInSeconds, UserResponse user) {
     }
 
-    public record UserResponse(Long id, String email, String name, String role) {
+    public record UserResponse(
+            Long id, String email, String name, String role, boolean emailVerified) {
+    }
+
+    public record VerifyEmailRequest(@NotBlank String token) {
     }
 
     public record ForgotPasswordRequest(@NotBlank @Email String email, String locale) {
