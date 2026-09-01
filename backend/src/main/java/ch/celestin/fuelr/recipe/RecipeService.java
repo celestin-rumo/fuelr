@@ -30,8 +30,41 @@ public class RecipeService {
         return recipes.save(new Recipe(userId));
     }
 
+    /**
+     * Pinned first in the order the author chose, then everything else by most
+     * recently touched. The rank only applies among favourites — an unpinned
+     * recipe has none and keeps the date ordering.
+     */
+    static final java.util.Comparator<Recipe> LIBRARY_ORDER =
+            java.util.Comparator.comparing(Recipe::isFavorite).reversed()
+                    .thenComparing(Recipe::getFavoriteRank,
+                            java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder()))
+                    .thenComparing(Recipe::getUpdatedAt, java.util.Comparator.reverseOrder());
+
     public List<Recipe> list(Long userId) {
-        return recipes.findByUserIdOrderByFavoriteDescUpdatedAtDesc(userId);
+        return recipes.findByUserIdOrderByFavoriteDescUpdatedAtDesc(userId).stream()
+                .sorted(LIBRARY_ORDER)
+                .toList();
+    }
+
+    /**
+     * Filtered list. An empty term and no tags gives the plain list back, so
+     * the caller never needs two code paths.
+     */
+    public List<Recipe> search(Long userId, String term, java.util.Set<String> tags) {
+        String normalised = term == null || term.isBlank() ? null
+                : "%" + term.trim().toLowerCase() + "%";
+        java.util.Set<String> wanted = tags == null ? java.util.Set.of() : tags;
+        if (normalised == null && wanted.isEmpty()) {
+            return list(userId);
+        }
+        List<Recipe> found = recipes.search(
+                userId, normalised,
+                wanted.isEmpty() ? java.util.Set.of("") : wanted,
+                wanted.size());
+        // The query cannot express the library ordering, so it is applied
+        // here rather than left to insertion order.
+        return found.stream().sorted(LIBRARY_ORDER).toList();
     }
 
     public Optional<Recipe> find(Long id, Long userId) {
@@ -100,8 +133,92 @@ public class RecipeService {
     /** Pinning is its own operation: it must not wait on an autosave. */
     @Transactional
     public Recipe setFavorite(Recipe recipe, boolean favorite) {
+        if (recipe.isFavorite() == favorite) {
+            return recipe;
+        }
         recipe.setFavorite(favorite);
+        if (favorite) {
+            // Newly pinned goes to the end, so pinning something does not
+            // displace the order already chosen.
+            recipe.setFavoriteRank(nextRank(recipe.getUserId()));
+        } else {
+            recipe.setFavoriteRank(null);
+            // Close the gap left behind, so un-pinning and re-pinning cannot
+            // slowly scatter the remaining ranks.
+            compact(recipe.getUserId(), recipe.getId());
+        }
         return recipes.save(recipe);
+    }
+
+    private int nextRank(Long userId) {
+        return favorites(userId).size();
+    }
+
+    private List<Recipe> favorites(Long userId) {
+        return recipes.findByUserIdOrderByFavoriteDescUpdatedAtDesc(userId).stream()
+                .filter(Recipe::isFavorite)
+                .sorted(java.util.Comparator.comparing(
+                        Recipe::getFavoriteRank,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+    }
+
+    private void compact(Long userId, Long excludeId) {
+        List<Recipe> ordered = favorites(userId).stream()
+                .filter(r -> !r.getId().equals(excludeId))
+                .toList();
+        for (int i = 0; i < ordered.size(); i++) {
+            ordered.get(i).setFavoriteRank(i);
+        }
+        recipes.saveAll(ordered);
+    }
+
+    /**
+     * Moves a pinned recipe one position. Only favourites have a rank, so the
+     * unpinned list is untouched and keeps its updated-at ordering.
+     */
+    @Transactional
+    public void moveFavorite(Recipe recipe, int direction) {
+        if (!recipe.isFavorite()) {
+            throw new IllegalArgumentException("Seules les recettes épinglées ont un ordre.");
+        }
+        List<Recipe> ordered = favorites(recipe.getUserId());
+        int index = -1;
+        for (int i = 0; i < ordered.size(); i++) {
+            if (ordered.get(i).getId().equals(recipe.getId())) {
+                index = i;
+                break;
+            }
+        }
+        int target = index + direction;
+        if (index < 0 || target < 0 || target >= ordered.size()) {
+            return;
+        }
+        Recipe swapped = ordered.get(target);
+        ordered.set(target, ordered.get(index));
+        ordered.set(index, swapped);
+        for (int i = 0; i < ordered.size(); i++) {
+            ordered.get(i).setFavoriteRank(i);
+        }
+        recipes.saveAll(ordered);
+    }
+
+    /** A copy the author can edit freely, with no link back to the original. */
+    @Transactional
+    public Recipe duplicate(Recipe source, String copySuffix) {
+        Recipe copy = new Recipe(source.getUserId());
+        copy.setTitle(source.getTitle() == null ? null : source.getTitle() + copySuffix);
+        copy.setDescription(source.getDescription());
+        copy.setServings(source.getServings());
+        copy.setLevel(source.getLevel());
+        // A copy starts as a draft even when the original was published: it has
+        // not been reviewed yet.
+        copy.setStatus(Recipe.Status.DRAFT);
+        source.getIngredients().forEach(i -> copy.getIngredients().add(
+                new RecipeIngredient(i.getName(), i.getQuantity(), i.getUnit())));
+        source.getSteps().forEach(s -> copy.getSteps().add(new RecipeStep(s.getText())));
+        copy.getTags().addAll(source.getTags());
+        return recipes.save(copy);
     }
 
     @Transactional
@@ -112,7 +229,12 @@ public class RecipeService {
 
     @Transactional
     public void delete(Recipe recipe) {
+        Long userId = recipe.getUserId();
+        boolean wasFavorite = recipe.isFavorite();
         recipes.delete(recipe);
+        if (wasFavorite) {
+            compact(userId, recipe.getId());
+        }
     }
 
     private static final java.util.regex.Pattern DURATION =

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,8 +46,12 @@ public class RecipeController {
     }
 
     @GetMapping
-    public List<RecipeSummary> list(@AuthenticationPrincipal Jwt principal) {
-        return recipes.list(userId(principal)).stream().map(this::toSummary).toList();
+    public List<RecipeSummary> list(
+            @AuthenticationPrincipal Jwt principal,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) java.util.Set<String> tags) {
+        return recipes.search(userId(principal), q, tags).stream()
+                .map(this::toSummary).toList();
     }
 
     /** Pinning is a single call, so the grid can flip without a reload. */
@@ -59,6 +64,47 @@ public class RecipeController {
     }
 
     public record FavoriteRequest(boolean favorite) {
+    }
+
+    /** Moves a pinned recipe one position up or down. */
+    @PutMapping("/{id}/favorite/move")
+    public List<RecipeSummary> moveFavorite(
+            @AuthenticationPrincipal Jwt principal,
+            @PathVariable Long id,
+            @RequestBody MoveRequest body) {
+        Recipe recipe = owned(principal, id);
+        try {
+            recipes.moveFavorite(recipe, body.direction() < 0 ? -1 : 1);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "not_a_favorite");
+        }
+        return list(principal, null, null);
+    }
+
+    public record MoveRequest(int direction) {
+    }
+
+    /** A copy the author edits freely; nothing links it back to the original. */
+    @PostMapping("/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeView duplicate(
+            @AuthenticationPrincipal Jwt principal,
+            @PathVariable Long id,
+            @RequestParam(defaultValue = " (copie)") String suffix) {
+        return toView(recipes.duplicate(owned(principal, id), suffix));
+    }
+
+    /**
+     * Every recipe of the caller, as plain JSON. No pagination and no filter:
+     * this exists so the data can be taken elsewhere, so it has to be whole.
+     */
+    @GetMapping("/export")
+    public ResponseEntity<List<RecipeView>> export(@AuthenticationPrincipal Jwt principal) {
+        List<RecipeView> all = recipes.list(userId(principal)).stream()
+                .map(RecipeController::toView).toList();
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"fuelr-recettes.json\"")
+                .body(all);
     }
 
     private RecipeSummary toSummary(Recipe recipe) {
