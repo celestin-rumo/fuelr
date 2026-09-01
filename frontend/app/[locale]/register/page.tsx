@@ -4,29 +4,22 @@ import { getPathname } from "@/i18n/navigation";
 import { getSession } from "@app/lib/session";
 import { Card } from "@ui/card";
 import { Container } from "@app/components/site/section";
-import { LoginForm } from "@app/components/app/login-form";
+import { RegisterForm } from "@app/components/app/register-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage({
+export default async function RegisterPage({
   params,
-  searchParams,
-}: PageProps<"/[locale]/login">) {
+}: PageProps<"/[locale]/register">) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const session = await getSession();
   if (session) {
-    // Already signed in: no reason to show a login screen.
     redirect(getPathname({ href: "/app", locale }));
   }
 
-  const { next, email } = await searchParams;
-  const destination = typeof next === "string" ? next : null;
-  // Filled in when someone arrives from the sign-up form after finding out the
-  // address is already registered; retyping it there would be busywork.
-  const knownEmail = typeof email === "string" ? email : "";
-  const t = await getTranslations("auth");
+  const t = await getTranslations("register");
 
   return (
     <div className="flex min-h-full flex-1 items-center bg-bg py-16">
@@ -40,19 +33,8 @@ export default async function LoginPage({
           </p>
 
           <div className="mt-8">
-            <LoginForm next={destination} email={knownEmail} />
+            <RegisterForm />
           </div>
-
-          {destination && (
-            <p
-              data-testid="login-next"
-              data-next={destination}
-              className="mt-6 text-[12px] font-medium text-gray"
-            >
-              {t("returnTo")}{" "}
-              <span className="font-mono text-accent-ink">{destination}</span>
-            </p>
-          )}
         </Card>
       </Container>
     </div>

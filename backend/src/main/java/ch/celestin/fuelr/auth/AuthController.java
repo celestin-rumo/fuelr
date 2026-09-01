@@ -8,6 +8,7 @@ import ch.celestin.fuelr.auth.AuthDtos.ResetPasswordRequest;
 import ch.celestin.fuelr.auth.AuthDtos.RegisterRequest;
 import ch.celestin.fuelr.auth.AuthDtos.TokenResponse;
 import ch.celestin.fuelr.auth.AuthDtos.UserResponse;
+import ch.celestin.fuelr.auth.AuthDtos.VerifyEmailRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +37,7 @@ public class AuthController {
     private final UserRepository users;
     private final SessionService sessions;
     private final PasswordResetService passwordReset;
+    private final EmailVerificationService emailVerification;
     private final boolean secureCookie;
 
     public AuthController(
@@ -43,8 +46,10 @@ public class AuthController {
             UserRepository users,
             SessionService sessions,
             PasswordResetService passwordReset,
+            EmailVerificationService emailVerification,
             @Value("${app.jwt.secure-cookie}") boolean secureCookie) {
         this.passwordReset = passwordReset;
+        this.emailVerification = emailVerification;
         this.auth = auth;
         this.jwt = jwt;
         this.users = users;
@@ -65,6 +70,9 @@ public class AuthController {
             // to the login screen. Login and password reset stay silent.
             throw new ResponseStatusException(HttpStatus.CONFLICT, "email_already_used");
         }
+        // Sent, not waited on: the account is usable now, and an unreachable
+        // relay must not stop someone signing up.
+        emailVerification.send(user, body.locale() == null ? "fr" : body.locale());
         return tokenResponse(user, HttpStatus.CREATED, userAgent);
     }
 
@@ -105,6 +113,27 @@ public class AuthController {
         return passwordReset.reset(body.token(), body.password())
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.status(HttpStatus.GONE).build();
+    }
+
+    /**
+     * Confirms an address. Public: whoever follows the link from their inbox
+     * may well not be signed in on that device.
+     */
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest body) {
+        return emailVerification.verify(body.token())
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.GONE).build();
+    }
+
+    /** Sends the confirmation again, for the banner's "resend" action. */
+    @PostMapping("/verify-email/resend")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resendVerification(
+            @AuthenticationPrincipal Jwt principal,
+            @RequestParam(defaultValue = "fr") String locale) {
+        users.findById(Long.valueOf(principal.getSubject()))
+                .ifPresent(user -> emailVerification.send(user, locale));
     }
 
     /** Closes this session on the server, so the token stops working. */
@@ -169,6 +198,8 @@ public class AuthController {
     }
 
     private static UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole());
+        return new UserResponse(
+                user.getId(), user.getEmail(), user.getName(), user.getRole(),
+                user.isEmailVerified());
     }
 }

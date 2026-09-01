@@ -75,7 +75,9 @@
         "invalid_credentials": "Incorrect credentials.",
         "too_many_attempts": "Too many attempts. Try again in {seconds} seconds."
       },
-      "forgotLink": "Forgotten password?"
+      "forgotLink": "Forgotten password?",
+      "noAccount": "No account yet?",
+      "createAccount": "Create an account"
     }
   },
   "recipe": {
@@ -207,5 +209,50 @@
       "link_expired": "This link has expired or has already been used. Ask for a new one.",
       "invalid_password": "This password is too short."
     }
+  },
+  "register": {
+    "title": "Create an account",
+    "intro": "A few seconds, and your recipes are yours.",
+    "name": "First name",
+    "email": "Email",
+    "password": "Password",
+    "invalidEmail": "This email does not look valid.",
+    "emailTaken": "An account already exists with this email.",
+    "signInInstead": "Sign in",
+    "submit": "Create my account",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "errors": {
+      "failed": "Creating the account failed. Try again."
+    },
+    "strength": {
+      "levels": {
+        "0": "Too short",
+        "1": "Weak",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Excellent"
+      },
+      "rules": {
+        "length": "At least 8 characters",
+        "longer": "12 characters is better",
+        "case": "Upper and lower case",
+        "symbol": "A digit or a symbol"
+      }
+    }
+  },
+  "verifyEmail": {
+    "title": "Address confirmation",
+    "working": "Confirming…",
+    "done": "Address confirmed. Thank you!",
+    "failed": "This link has expired. Ask for a new one from the app.",
+    "continue": "Go to my recipes",
+    "noToken": "This link is incomplete. Open it from the email you received."
+  },
+  "verifyBanner": {
+    "message": "Confirm your address {email} so Fuelr can reach you.",
+    "resend": "Send again",
+    "sent": "Email sent. Check your inbox.",
+    "dismiss": "Later"
   }
 }

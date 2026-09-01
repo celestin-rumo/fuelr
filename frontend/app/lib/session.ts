@@ -8,6 +8,7 @@ export type Session = {
   email: string;
   name: string | null;
   role: string;
+  emailVerified: boolean;
 };
 
 /**

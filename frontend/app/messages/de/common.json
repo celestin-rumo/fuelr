@@ -75,7 +75,9 @@
         "invalid_credentials": "Zugangsdaten sind falsch.",
         "too_many_attempts": "Zu viele Versuche. Versuche es in {seconds} Sekunden erneut."
       },
-      "forgotLink": "Passwort vergessen?"
+      "forgotLink": "Passwort vergessen?",
+      "noAccount": "Noch kein Konto?",
+      "createAccount": "Konto erstellen"
     }
   },
   "recipe": {
@@ -207,5 +209,50 @@
       "link_expired": "Dieser Link ist abgelaufen oder wurde bereits benutzt. Fordere einen neuen an.",
       "invalid_password": "Dieses Passwort ist zu kurz."
     }
+  },
+  "register": {
+    "title": "Konto erstellen",
+    "intro": "Ein paar Sekunden, und deine Rezepte gehören dir.",
+    "name": "Vorname",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "invalidEmail": "Diese E-Mail sieht nicht gültig aus.",
+    "emailTaken": "Mit dieser E-Mail besteht bereits ein Konto.",
+    "signInInstead": "Anmelden",
+    "submit": "Konto erstellen",
+    "haveAccount": "Du hast schon ein Konto?",
+    "signIn": "Anmelden",
+    "errors": {
+      "failed": "Das Konto konnte nicht erstellt werden. Versuche es erneut."
+    },
+    "strength": {
+      "levels": {
+        "0": "Zu kurz",
+        "1": "Schwach",
+        "2": "Mittel",
+        "3": "Gut",
+        "4": "Ausgezeichnet"
+      },
+      "rules": {
+        "length": "Mindestens 8 Zeichen",
+        "longer": "12 Zeichen sind besser",
+        "case": "Gross- und Kleinbuchstaben",
+        "symbol": "Eine Ziffer oder ein Symbol"
+      }
+    }
+  },
+  "verifyEmail": {
+    "title": "Adresse bestätigen",
+    "working": "Wird bestätigt…",
+    "done": "Adresse bestätigt. Danke!",
+    "failed": "Dieser Link ist abgelaufen. Fordere in der App einen neuen an.",
+    "continue": "Zu meinen Rezepten",
+    "noToken": "Dieser Link ist unvollständig. Öffne ihn aus der erhaltenen E-Mail."
+  },
+  "verifyBanner": {
+    "message": "Bestätige deine Adresse {email}, damit Fuelr dich erreichen kann.",
+    "resend": "Erneut senden",
+    "sent": "E-Mail gesendet. Schau in deinen Posteingang.",
+    "dismiss": "Später"
   }
 }

@@ -9,11 +9,17 @@ import { Input } from "@ui/input";
 
 const EMAIL = /.+@.+\..+/;
 
-export function LoginForm({ next }: { next: string | null }) {
+export function LoginForm({
+  next,
+  email: knownEmail = "",
+}: {
+  next: string | null;
+  email?: string;
+}) {
   const t = useTranslations("auth.form");
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(knownEmail);
   const [password, setPassword] = useState("");
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -100,6 +106,13 @@ export function LoginForm({ next }: { next: string | null }) {
       >
         {t("forgotLink")}
       </Link>
+
+      <p className="text-center text-[13px] font-medium text-text-dim">
+        {t("noAccount")}{" "}
+        <Link href="/register" className="font-semibold text-accent-ink underline">
+          {t("createAccount")}
+        </Link>
+      </p>
     </form>
   );
 }

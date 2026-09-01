@@ -41,7 +41,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/register", "/api/auth/login",
-                        "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
+                        "/api/auth/forgot-password", "/api/auth/reset-password",
+                        "/api/auth/verify-email").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth
                 .bearerTokenResolver(new CookieOrHeaderTokenResolver())

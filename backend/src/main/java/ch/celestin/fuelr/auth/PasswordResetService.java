@@ -8,13 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -22,19 +17,6 @@ public class PasswordResetService {
 
     /** Long enough to be pointless to guess, short enough to paste. */
     static final Duration LIFETIME = Duration.ofMinutes(30);
-
-    private static final SecureRandom RANDOM = new SecureRandom();
-
-    /**
-     * The slug of the reset screen per locale. It duplicates
-     * `frontend/i18n/routing.ts`, which is unfortunate, but the alternative is
-     * worse: letting the caller pass the link to embed would turn this
-     * endpoint into a way to send phishing from a Fuelr address.
-     */
-    private static final java.util.Map<String, String> RESET_PATH = java.util.Map.of(
-            "fr", "/nouveau-mot-de-passe",
-            "en", "/reset-password",
-            "de", "/neues-passwort");
 
     private final UserRepository users;
     private final PasswordResetTokenRepository tokens;
@@ -74,16 +56,12 @@ public class PasswordResetService {
         }
         User user = found.get();
 
-        byte[] raw = new byte[32];
-        RANDOM.nextBytes(raw);
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
+        String token = OneTimeToken.mint();
 
         tokens.save(new PasswordResetToken(
-                user.getId(), hash(token), Instant.now().plus(LIFETIME)));
+                user.getId(), OneTimeToken.hash(token), Instant.now().plus(LIFETIME)));
 
-        String path = RESET_PATH.getOrDefault(locale, RESET_PATH.get("fr"));
-        String safeLocale = RESET_PATH.containsKey(locale) ? locale : "fr";
-        String link = "%s/%s%s?token=%s".formatted(siteUrl, safeLocale, path, token);
+        String link = EmailLinks.resetPassword(siteUrl, locale, token);
         mail.send(user.getEmail(), "Réinitialiser ton mot de passe Fuelr", """
                 Bonjour,
 
@@ -104,7 +82,7 @@ public class PasswordResetService {
      */
     @Transactional
     public boolean reset(String token, String newPassword) {
-        Optional<PasswordResetToken> found = tokens.findByTokenHash(hash(token));
+        Optional<PasswordResetToken> found = tokens.findByTokenHash(OneTimeToken.hash(token));
         if (found.isEmpty() || !found.get().isUsable()) {
             return false;
         }
@@ -123,15 +101,5 @@ public class PasswordResetService {
 
         sessions.closeAll(reset.getUserId());
         return true;
-    }
-
-    static String hash(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return java.util.HexFormat.of()
-                    .formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
     }
 }

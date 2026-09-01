@@ -75,7 +75,9 @@
         "invalid_credentials": "Identifiants incorrects.",
         "too_many_attempts": "Trop de tentatives. Réessaie dans {seconds} secondes."
       },
-      "forgotLink": "Mot de passe oublié ?"
+      "forgotLink": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
     }
   },
   "recipe": {
@@ -207,5 +209,50 @@
       "link_expired": "Ce lien a expiré ou a déjà servi. Demandes-en un nouveau.",
       "invalid_password": "Ce mot de passe est trop court."
     }
+  },
+  "register": {
+    "title": "Créer un compte",
+    "intro": "Quelques secondes, et tes recettes sont à toi.",
+    "name": "Prénom",
+    "email": "Email",
+    "password": "Mot de passe",
+    "invalidEmail": "Cet email ne semble pas valide.",
+    "emailTaken": "Un compte existe déjà avec cet email.",
+    "signInInstead": "Se connecter",
+    "submit": "Créer mon compte",
+    "haveAccount": "Tu as déjà un compte ?",
+    "signIn": "Se connecter",
+    "errors": {
+      "failed": "La création du compte a échoué. Réessaie."
+    },
+    "strength": {
+      "levels": {
+        "0": "Trop court",
+        "1": "Faible",
+        "2": "Moyen",
+        "3": "Bon",
+        "4": "Excellent"
+      },
+      "rules": {
+        "length": "Au moins 8 caractères",
+        "longer": "12 caractères, c'est mieux",
+        "case": "Des majuscules et des minuscules",
+        "symbol": "Un chiffre ou un symbole"
+      }
+    }
+  },
+  "verifyEmail": {
+    "title": "Confirmation de l'adresse",
+    "working": "Confirmation en cours…",
+    "done": "Adresse confirmée. Merci !",
+    "failed": "Ce lien a expiré. Demande-en un nouveau depuis l'application.",
+    "continue": "Aller à mes recettes",
+    "noToken": "Ce lien est incomplet. Ouvre-le depuis l'email que tu as reçu."
+  },
+  "verifyBanner": {
+    "message": "Confirme ton adresse {email} pour que Fuelr puisse te joindre.",
+    "resend": "Renvoyer l'email",
+    "sent": "Email envoyé. Regarde ta boîte de réception.",
+    "dismiss": "Plus tard"
   }
 }
