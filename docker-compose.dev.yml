@@ -52,6 +52,10 @@ services:
         - action: rebuild
           path: ./backend/pom.xml
 
+    volumes:
+      # Recipe photos. The database stores only the path.
+      - recipe_media:/var/lib/fuelr/media
+
   mailpit:
     image: axllent/mailpit:latest
 
@@ -84,5 +88,6 @@ services:
       retries: 5
 
 volumes:
+  recipe_media:
   frontend_node_modules:
   postgres_data:

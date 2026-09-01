@@ -1,5 +1,6 @@
 package ch.celestin.fuelr.recipe;
 
+import ch.celestin.fuelr.media.MediaStorage;
 import ch.celestin.fuelr.nutrition.NutritionDtos;
 import ch.celestin.fuelr.nutrition.NutritionService;
 import ch.celestin.fuelr.recipe.RecipeDtos.IngredientView;
@@ -32,10 +33,65 @@ public class RecipeController {
 
     private final RecipeService recipes;
     private final NutritionService nutrition;
+    private final MediaStorage media;
 
-    public RecipeController(RecipeService recipes, NutritionService nutrition) {
+    public RecipeController(
+            RecipeService recipes, NutritionService nutrition, MediaStorage media) {
         this.recipes = recipes;
         this.nutrition = nutrition;
+        this.media = media;
+    }
+
+    /** Uploading replaces whatever was there; the old file is removed. */
+    @PostMapping("/{id}/photo")
+    public RecipeView uploadPhoto(
+            @AuthenticationPrincipal Jwt principal,
+            @PathVariable Long id,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        Recipe recipe = owned(principal, id);
+        String stored;
+        try {
+            stored = media.store(file);
+        } catch (MediaStorage.UnsupportedMediaException e) {
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "unsupported_format");
+        } catch (MediaStorage.FileTooLargeException e) {
+            throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "file_too_large");
+        }
+        String previous = recipe.getPhotoPath();
+        recipe.setPhotoPath(stored);
+        RecipeView view = toView(recipes.savePhoto(recipe));
+        media.delete(previous);
+        return view;
+    }
+
+    @DeleteMapping("/{id}/photo")
+    public RecipeView removePhoto(
+            @AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
+        Recipe recipe = owned(principal, id);
+        String previous = recipe.getPhotoPath();
+        recipe.setPhotoPath(null);
+        RecipeView view = toView(recipes.savePhoto(recipe));
+        media.delete(previous);
+        return view;
+    }
+
+    @GetMapping("/{id}/photo")
+    public ResponseEntity<org.springframework.core.io.Resource> photo(
+            @AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
+        Recipe recipe = owned(principal, id);
+        if (recipe.getPhotoPath() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        var resource = new org.springframework.core.io.FileSystemResource(
+                media.resolve(recipe.getPhotoPath()));
+        if (!resource.exists()) {
+            // The row points at a file the volume no longer holds.
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "file_missing");
+        }
+        return ResponseEntity.ok()
+                .header("Content-Type", MediaStorage.contentTypeOf(recipe.getPhotoPath()))
+                .header("Cache-Control", "private, max-age=60")
+                .body(resource);
     }
 
     /** Opening the editor creates the draft; there is no form to fill first. */
@@ -122,6 +178,7 @@ public class RecipeController {
                 recipe.getId(), recipe.getTitle(), recipe.getStatus().name(),
                 recipe.getServings(), recipe.getIngredients().size(),
                 recipe.getSteps().size(), recipe.isFavorite(),
+                recipe.getPhotoPath() != null,
                 RecipeService.minutesFor(recipe),
                 breakdown == null ? null : breakdown.perServing().kcal(),
                 breakdown == null ? null : breakdown.perServing().proteinG(),
@@ -188,6 +245,7 @@ public class RecipeController {
                 recipe.getServings(),
                 recipe.getLevel(),
                 recipe.getStatus().name(),
+                recipe.getPhotoPath() != null,
                 recipe.getIngredients().stream()
                         .map(i -> new IngredientView(
                                 i.getId(), i.getName(), i.getQuantity().doubleValue(), i.getUnit()))

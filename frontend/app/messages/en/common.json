@@ -148,6 +148,21 @@
       "title": "a title",
       "ingredients": "at least one ingredient",
       "steps": "at least one step"
-    }
+    },
+    "photo": {
+      "label": "Photo",
+      "field": "Choose a photo",
+      "add": "Add a photo",
+      "replace": "Replace",
+      "remove": "Remove",
+      "constraints": "JPEG, PNG or WebP · {megabytes} MB maximum. The image is shrunk on your device before upload.",
+      "errors": {
+        "unsupported_format": "Format not accepted. Choose a JPEG, PNG or WebP.",
+        "file_too_large": "File too heavy. Choose a lighter image.",
+        "unreadable": "Unreadable image. Try another file.",
+        "upload_failed": "Upload failed. Try again."
+      }
+    },
+    "alreadyUsed": "This recipe is already saved and usable. Your changes apply to its future uses; meals already logged keep the values they had."
   }
 }

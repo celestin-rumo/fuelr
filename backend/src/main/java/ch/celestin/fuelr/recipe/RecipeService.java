@@ -211,6 +211,12 @@ public class RecipeService {
         recipes.saveAll(ordered);
     }
 
+    /** Saves a photo change alone, without re-deriving the completion status. */
+    @Transactional
+    public Recipe savePhoto(Recipe recipe) {
+        return recipes.save(recipe);
+    }
+
     /** A copy the author can edit freely, with no link back to the original. */
     @Transactional
     public Recipe duplicate(Recipe source, String copySuffix) {

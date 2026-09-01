@@ -25,6 +25,10 @@ spring:
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:false}
 
+spring.servlet.multipart:
+  max-file-size: 4MB
+  max-request-size: 4MB
+
 server:
   forward-headers-strategy: framework
 
@@ -32,6 +36,10 @@ app:
   admin:
     email: ${ADMIN_EMAIL:admin@celestinrumo.ch}
     password: ${ADMIN_PASSWORD:changeme}
+
+  media:
+    # Mounted Docker volume. The container must be able to write here.
+    dir: ${MEDIA_DIR:/var/lib/fuelr/media}
 
   jwt:
     # HS256 needs at least 32 bytes. The default is a development value only —
