@@ -1,14 +1,13 @@
 import { useTranslations } from "next-intl";
-import { Badge } from "@ui/badge";
+import { cn } from "@ui/cn";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 
 /**
- * Energy and macros per serving, recomputed on every ingredient change rather
- * than behind a "calculate" button.
+ * A read-only summary of the ingredients above, recomputed on every change.
  *
- * Every figure is tabular so a value changing does not shift the column, and
- * an estimate is marked wherever it appears — a guessed number is never shown
- * as if it had been measured.
+ * Deliberately quiet: it is a consequence of the list, not a field to fill in.
+ * An earlier version led the tab with large figures and read as the first
+ * thing to edit.
  */
 export function NutritionPanel({ nutrition }: { nutrition: Nutrition | null }) {
   const t = useTranslations("recipe.nutrition");
@@ -27,41 +26,44 @@ export function NutritionPanel({ nutrition }: { nutrition: Nutrition | null }) {
   ] as const;
 
   return (
-    <div
+    <section
       data-testid="nutrition-panel"
-      className="rounded-md border border-line bg-bg-raised-2 p-5"
+      aria-label={t("title")}
+      className="flex flex-col gap-2 border-t border-line pt-4"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("perServing")}
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+          {t("title")}
+        </h3>
+        <span className="text-[12px] font-medium text-gray">
+          {t("automatic")}
         </span>
-        {nutrition.containsEstimates && (
-          <Badge tone="coral" data-testid="nutrition-estimated">
-            {t("estimated")}
-          </Badge>
-        )}
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
         {figures.map((figure) => (
-          <div key={figure.key} className="flex flex-col gap-1">
-            <dt className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+          <div key={figure.key} className="flex items-baseline gap-1.5">
+            <dt className="text-[12px] font-semibold text-text-dim">
               {t(`labels.${figure.key}`)}
             </dt>
-            <dd className="tnum font-mono text-[20px] font-bold text-text">
-              {figure.value}
-              {figure.unit && (
-                <span className="ml-0.5 text-[13px] text-text-dim">
-                  {figure.unit}
-                </span>
+            <dd
+              className={cn(
+                "tnum font-mono text-[15px] font-bold",
+                nutrition.containsEstimates ? "text-text-dim" : "text-text",
               )}
+            >
+              {figure.value}
+              {figure.unit}
             </dd>
           </div>
         ))}
       </dl>
 
       {nutrition.containsEstimates && (
-        <p className="mt-4 text-[12px] font-medium text-text-dim">
+        <p
+          data-testid="nutrition-estimated"
+          className="text-[12px] font-medium text-coral-ink"
+        >
           {t("estimatedHint", {
             names: nutrition.ingredients
               .filter((i) => i.guessed)
@@ -70,6 +72,6 @@ export function NutritionPanel({ nutrition }: { nutrition: Nutrition | null }) {
           })}
         </p>
       )}
-    </div>
+    </section>
   );
 }
