@@ -233,10 +233,7 @@ export function RecipeGrid({
                     </IconButton>
                     <IconButton
                       aria-label={t("delete", { title: recipe.title ?? t("untitled") })}
-                      // `danger`, not `text` with a coral class: two competing
-                      // text-colour utilities are resolved by Tailwind's sheet
-                      // order, and the destructive one lost.
-                      variant="danger"
+                      variant="dangerText"
                       className="relative z-10 size-8"
                       onClick={() => setConfirming(recipe)}
                     >

@@ -44,9 +44,8 @@ test("a draft survives a full reload without any save prompt", async ({ page }) 
   const url = page.url();
 
   await page.getByLabel("Titre").fill("Curry de lentilles corail");
-  await expect(page.getByTestId("draft-status")).toContainText(
-    "enregistré en continu",
-  );
+  // Status now reads as terse text beside the title rather than a sentence.
+  await expect(page.getByTestId("draft-status")).toHaveText("Enregistré");
 
   // Leaving must not raise a dialog. Fail loudly if one appears.
   page.on("dialog", (dialog) => {
@@ -114,7 +113,7 @@ test("a complete recipe saves and appears in the list", async ({ page }) => {
   await page.getByLabel("Étape 1", { exact: true }).fill("Cuire 15 min à couvert.");
 
   await page.getByRole("button", { name: "Enregistrer la recette" }).click();
-  await expect(page.getByTestId("draft-status")).toContainText("Enregistrée");
+  await expect(page.getByTestId("draft-status")).toHaveText("Enregistré");
 
   await page.goto("/fr/app");
   await expect(

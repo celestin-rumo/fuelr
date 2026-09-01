@@ -119,6 +119,7 @@ const BUTTON_VARIANTS: Array<[ButtonVariant, string, string]> = [
   ["text", "Voir la recette", "no surface · underline on hover"],
   ["danger", "Supprimer", "coral outline → filled on hover"],
   ["soft", "Planifier", "accent 14% ground · dense lists"],
+  ["dangerText", "Supprimer", "destructive, no surface · inside a row"],
 ];
 
 function Section({

@@ -71,10 +71,10 @@
     "publish": "Enregistrer la recette",
     "publishedAction": "Enregistrée",
     "status": {
-      "draft": "Brouillon · étape {step} sur 3",
+      "draft": "Brouillon",
       "saving": "Enregistrement…",
-      "saved": "Brouillon enregistré en continu — rien ne se perd.",
-      "published": "Enregistrée · {ingredients} ingr. · {steps} étapes"
+      "saved": "Enregistré",
+      "published": "Enregistré"
     },
     "tabs": {
       "base": "Base",
@@ -139,7 +139,11 @@
         "protein": "Protéines",
         "carbs": "Glucides",
         "fat": "Lipides"
-      }
-    }
+      },
+      "title": "Nutrition par portion",
+      "automatic": "calculée automatiquement"
+    },
+    "close": "Fermer la recette",
+    "stepperLabel": "Étapes de création"
   }
 }

@@ -13,6 +13,11 @@ const variants = {
   danger:
     "border-[1.5px] border-coral-ink text-coral-ink hover:border-coral hover:bg-coral hover:text-on-accent active:brightness-[0.94]",
   soft: "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] active:bg-[color-mix(in_srgb,var(--accent)_26%,transparent)]",
+  // Destructive with no surface, for a remove control sitting inside a row.
+  // `text` with a coral class does not work: two competing text-colour
+  // utilities are resolved by Tailwind's sheet order, not by class order.
+  dangerText:
+    "text-coral-ink hover:bg-[color-mix(in_srgb,var(--coral)_12%,transparent)] active:brightness-[0.9]",
 } as const;
 
 const sizes = {

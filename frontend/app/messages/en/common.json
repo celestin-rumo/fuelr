@@ -71,10 +71,10 @@
     "publish": "Save recipe",
     "publishedAction": "Saved",
     "status": {
-      "draft": "Draft · step {step} of 3",
+      "draft": "Draft",
       "saving": "Saving…",
-      "saved": "Draft saved continuously — nothing gets lost.",
-      "published": "Saved · {ingredients} ingr. · {steps} steps"
+      "saved": "Saved",
+      "published": "Saved"
     },
     "tabs": {
       "base": "Basics",
@@ -139,7 +139,11 @@
         "protein": "Protein",
         "carbs": "Carbs",
         "fat": "Fat"
-      }
-    }
+      },
+      "title": "Nutrition per serving",
+      "automatic": "computed automatically"
+    },
+    "close": "Close recipe",
+    "stepperLabel": "Creation steps"
   }
 }
