@@ -74,7 +74,8 @@
         "incomplete": "Renseigne ton email et ton mot de passe.",
         "invalid_credentials": "Identifiants incorrects.",
         "too_many_attempts": "Trop de tentatives. Réessaie dans {seconds} secondes."
-      }
+      },
+      "forgotLink": "Mot de passe oublié ?"
     }
   },
   "recipe": {
@@ -179,6 +180,32 @@
       "previous": "Précédent",
       "next": "Suivant",
       "finish": "Fermer"
+    }
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié",
+    "intro": "Indique ton email : si un compte existe, tu recevras un lien pour choisir un nouveau mot de passe.",
+    "email": "Email",
+    "invalidEmail": "Cet email ne semble pas valide.",
+    "submit": "Envoyer le lien",
+    "sent": "Si un compte existe pour {email}, le lien vient de partir. Il est valable 30 minutes.",
+    "backToLogin": "Revenir à la connexion"
+  },
+  "resetPassword": {
+    "title": "Nouveau mot de passe",
+    "intro": "Choisis un mot de passe. Tes autres appareils seront déconnectés.",
+    "password": "Nouveau mot de passe",
+    "confirmation": "Confirme le mot de passe",
+    "minLength": "Au moins {count} caractères.",
+    "mismatch": "Les deux mots de passe ne correspondent pas.",
+    "submit": "Enregistrer le mot de passe",
+    "done": "Mot de passe modifié. Tu peux te connecter.",
+    "goToLogin": "Se connecter",
+    "noToken": "Ce lien est incomplet. Demandes-en un nouveau pour continuer.",
+    "askAgain": "Demander un nouveau lien",
+    "errors": {
+      "link_expired": "Ce lien a expiré ou a déjà servi. Demandes-en un nouveau.",
+      "invalid_password": "Ce mot de passe est trop court."
     }
   }
 }

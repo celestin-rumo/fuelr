@@ -20,8 +20,29 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="secondary" size="sm" loading={busy} onClick={logout}>
-      {t("logout")}
+    // Below `sm` the label alone is wider than what the header has left, and
+    // pushed the whole page sideways at 375px. The icon carries it there — with
+    // an explicit `aria-label`, since a visually hidden label would leave the
+    // button with no accessible name at all.
+    <Button
+      variant="secondary"
+      size="sm"
+      loading={busy}
+      onClick={logout}
+      aria-label={t("logout")}
+      className="max-sm:px-2.5"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden className="size-4 sm:hidden">
+        <path
+          d="M15 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v2M19 12H9m10 0-3-3m3 3-3 3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="max-sm:hidden">{t("logout")}</span>
     </Button>
   );
 }

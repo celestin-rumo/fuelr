@@ -74,7 +74,8 @@
         "incomplete": "Gib deine E-Mail und dein Passwort ein.",
         "invalid_credentials": "Zugangsdaten sind falsch.",
         "too_many_attempts": "Zu viele Versuche. Versuche es in {seconds} Sekunden erneut."
-      }
+      },
+      "forgotLink": "Passwort vergessen?"
     }
   },
   "recipe": {
@@ -179,6 +180,32 @@
       "previous": "Zurück",
       "next": "Weiter",
       "finish": "Schließen"
+    }
+  },
+  "forgotPassword": {
+    "title": "Passwort vergessen",
+    "intro": "Gib deine E-Mail an: Wenn ein Konto besteht, bekommst du einen Link für ein neues Passwort.",
+    "email": "E-Mail",
+    "invalidEmail": "Diese E-Mail sieht nicht gültig aus.",
+    "submit": "Link senden",
+    "sent": "Wenn ein Konto für {email} besteht, ist der Link unterwegs. Er gilt 30 Minuten.",
+    "backToLogin": "Zurück zur Anmeldung"
+  },
+  "resetPassword": {
+    "title": "Neues Passwort",
+    "intro": "Wähle ein Passwort. Deine anderen Geräte werden abgemeldet.",
+    "password": "Neues Passwort",
+    "confirmation": "Passwort bestätigen",
+    "minLength": "Mindestens {count} Zeichen.",
+    "mismatch": "Die beiden Passwörter stimmen nicht überein.",
+    "submit": "Passwort speichern",
+    "done": "Passwort geändert. Du kannst dich anmelden.",
+    "goToLogin": "Anmelden",
+    "noToken": "Dieser Link ist unvollständig. Fordere einen neuen an.",
+    "askAgain": "Neuen Link anfordern",
+    "errors": {
+      "link_expired": "Dieser Link ist abgelaufen oder wurde bereits benutzt. Fordere einen neuen an.",
+      "invalid_password": "Dieses Passwort ist zu kurz."
     }
   }
 }

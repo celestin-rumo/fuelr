@@ -74,7 +74,8 @@
         "incomplete": "Enter your email and your password.",
         "invalid_credentials": "Incorrect credentials.",
         "too_many_attempts": "Too many attempts. Try again in {seconds} seconds."
-      }
+      },
+      "forgotLink": "Forgotten password?"
     }
   },
   "recipe": {
@@ -179,6 +180,32 @@
       "previous": "Previous",
       "next": "Next",
       "finish": "Close"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgotten password",
+    "intro": "Enter your email: if an account exists, you will get a link to choose a new password.",
+    "email": "Email",
+    "invalidEmail": "This email does not look valid.",
+    "submit": "Send the link",
+    "sent": "If an account exists for {email}, the link is on its way. It is valid for 30 minutes.",
+    "backToLogin": "Back to sign in"
+  },
+  "resetPassword": {
+    "title": "New password",
+    "intro": "Choose a password. Your other devices will be signed out.",
+    "password": "New password",
+    "confirmation": "Confirm the password",
+    "minLength": "At least {count} characters.",
+    "mismatch": "The two passwords do not match.",
+    "submit": "Save the password",
+    "done": "Password changed. You can sign in.",
+    "goToLogin": "Sign in",
+    "noToken": "This link is incomplete. Ask for a new one to continue.",
+    "askAgain": "Ask for a new link",
+    "errors": {
+      "link_expired": "This link has expired or has already been used. Ask for a new one.",
+      "invalid_password": "This password is too short."
     }
   }
 }
