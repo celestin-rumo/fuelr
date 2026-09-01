@@ -103,3 +103,37 @@ test("the phone menu reaches every page the wide nav does", async ({ page }) => 
     .click();
   await expect(page).toHaveURL(/\/fr\/tarifs$/);
 });
+
+test("every call to action on the public site actually goes somewhere", async ({
+  page,
+}) => {
+  // A <Button> with no handler renders perfectly and does nothing. Five of
+  // them shipped that way, including the home page's main "start — it's free".
+  // Asserting the destination is the only thing that catches it.
+  const CTAS = [
+    { path: "/fr", name: "Commencer — c'est gratuit", lands: /\/fr\/commencer$/ },
+    { path: "/fr", name: "Voir les fonctionnalités", lands: /\/fr\/fonctionnalites$/ },
+    { path: "/fr", name: "Créer mon compte", lands: /\/fr\/inscription$/ },
+    { path: "/fr/tarifs", name: "Commencer", lands: /\/fr\/inscription$/ },
+    { path: "/fr/tarifs", name: "Essayer 14 jours", lands: /\/fr\/inscription$/ },
+    { path: "/fr/tarifs", name: "Choisir Famille", lands: /\/fr\/inscription$/ },
+  ];
+
+  for (const cta of CTAS) {
+    await page.goto(cta.path);
+    await page
+      .getByRole("link", { name: cta.name, exact: true })
+      .first()
+      .click();
+    await expect(page, `« ${cta.name} » ne mène nulle part`).toHaveURL(cta.lands);
+  }
+});
+
+test("the header's try-it button leads to the onboarding", async ({ page }) => {
+  await page.goto("/fr");
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "Essayer gratuitement" })
+    .click();
+  await expect(page).toHaveURL(/\/fr\/commencer$/);
+});
