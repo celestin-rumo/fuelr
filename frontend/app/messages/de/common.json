@@ -68,8 +68,6 @@
   },
   "recipe": {
     "untitled": "Ohne Titel",
-    "publish": "Rezept speichern",
-    "publishedAction": "Gespeichert",
     "status": {
       "draft": "Entwurf",
       "saving": "Wird gespeichert…",
@@ -143,7 +141,13 @@
       "title": "Nährwerte pro Portion",
       "automatic": "automatisch berechnet"
     },
-    "close": "Rezept schließen",
-    "stepperLabel": "Erstellungsschritte"
+    "stepperLabel": "Erstellungsschritte",
+    "back": "Zurück zu meinen Rezepten",
+    "missing": "Es fehlt noch: {what}.",
+    "missingParts": {
+      "title": "ein Titel",
+      "ingredients": "mindestens eine Zutat",
+      "steps": "mindestens ein Schritt"
+    }
   }
 }
