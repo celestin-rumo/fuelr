@@ -400,48 +400,57 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                   }}
                 />
               </div>
-              <div className="w-28">
-                <Input
-                  label={t("ingredients.quantity")}
-                  inputMode="decimal"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addIngredient();
-                    }
-                  }}
-                />
+
+              {/* Quantity and unit share one line on a phone rather than
+                  stacking: they are one measurement, and two full-width rows
+                  for "300" and "g" pushed the button off the first screen.
+                  `sm:contents` lets them rejoin the parent row on wider
+                  viewports. */}
+              <div className="flex items-end gap-3 sm:contents">
+                <div className="flex-1 sm:w-28 sm:flex-none">
+                  <Input
+                    label={t("ingredients.quantity")}
+                    inputMode="decimal"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addIngredient();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex flex-1 flex-col gap-2 sm:flex-none">
+                  <label
+                    htmlFor="ingredient-unit"
+                    className="text-[13px] font-semibold text-text-dim"
+                  >
+                    {t("ingredients.unit")}
+                  </label>
+                  <select
+                    id="ingredient-unit"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    onKeyDown={(e) => {
+                      // The unit is the last field of the row, so Enter has to
+                      // commit from here too or the keyboard chain dead-ends.
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addIngredient();
+                      }
+                    }}
+                    className="h-[46px] rounded-sm border-[1.5px] border-gray bg-bg px-3 text-[15px] text-text focus:border-mint-ink focus:outline-2 focus:outline-offset-2 focus:outline-[var(--mint-ink)]"
+                  >
+                    {UNITS.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="ingredient-unit"
-                  className="text-[13px] font-semibold text-text-dim"
-                >
-                  {t("ingredients.unit")}
-                </label>
-                <select
-                  id="ingredient-unit"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  onKeyDown={(e) => {
-                    // The unit is the last field of the row, so Enter has to
-                    // commit from here too or the keyboard chain dead-ends.
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addIngredient();
-                    }
-                  }}
-                  className="h-[46px] rounded-sm border-[1.5px] border-gray bg-bg px-3 text-[15px] text-text focus:border-mint-ink focus:outline-2 focus:outline-offset-2 focus:outline-[var(--mint-ink)]"
-                >
-                  {UNITS.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
               <Button variant="secondary" onClick={addIngredient}>
                 {t("ingredients.add")}
               </Button>
@@ -579,6 +588,31 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
             </Button>
           </div>
         )}
+
+        {/* Moving on is part of the panel, not something to hunt for in the
+            stepper above. */}
+        <div className="mt-8 flex items-center justify-between gap-3 border-t border-line pt-5">
+          {tab > 0 ? (
+            <Button
+              variant="text"
+              onClick={() => setTab((tab - 1) as Tab)}
+            >
+              ← {t("nav.previous")}
+            </Button>
+          ) : (
+            <span />
+          )}
+
+          {tab < 2 ? (
+            <Button onClick={() => setTab((tab + 1) as Tab)}>
+              {t("nav.next")} →
+            </Button>
+          ) : (
+            <Link href="/app">
+              <Button>{t("nav.finish")}</Button>
+            </Link>
+          )}
+        </div>
       </Card>
     </div>
   );
