@@ -63,7 +63,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          # Spring Mail reads this; for Resend the password is the API key.
+          MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         shell: bash
         run: |
@@ -134,7 +135,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.STAGING_POSTGRES_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.STAGING_MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.STAGING_MAIL_PASSWORD }}
+          # Same Resend account as production, so the same key.
+          MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         shell: bash
         run: |

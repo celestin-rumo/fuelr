@@ -62,7 +62,7 @@ On the backend's first boot, an admin account is created automatically from the 
 
 In dev, outgoing mail is never actually sent: it is caught by **Mailpit** at http://localhost:8025, so no real API key is needed locally.
 
-Staging and production send through Resend: `MAIL_HOST` (`smtp.resend.com`), `MAIL_PORT` (`587`), `MAIL_USERNAME` and `MAIL_PASSWORD` — the API key goes in `MAIL_PASSWORD`, which is what Spring Mail reads.
+Staging and production send through Resend: `MAIL_HOST` (`smtp.resend.com`), `MAIL_PORT` (`587`), `MAIL_USERNAME` and `MAIL_PASSWORD`. The deploy workflow fills `MAIL_PASSWORD` from the `RESEND_API_KEY` secret — for Resend, the SMTP password *is* the API key.
 
 Mail is sent from `no-reply@celestinrumo.ch` (`MAIL_FROM`). **Resend refuses any send whose domain is not verified in its console**, so that domain has to be verified before the first transactional email goes out.
 
@@ -114,9 +114,13 @@ Expected GitHub secrets (`Settings > Secrets and variables > Actions`):
 
 - `POSTGRES_PASSWORD`, `STAGING_POSTGRES_PASSWORD`
 - `ADMIN_PASSWORD`, `STAGING_ADMIN_PASSWORD`
-- `MAIL_USERNAME`, `STAGING_MAIL_USERNAME`
-- `MAIL_PASSWORD`, `STAGING_MAIL_PASSWORD` — the Resend API key
+- `RESEND_API_KEY` — the SMTP password for both environments
+- `MAIL_USERNAME`, `STAGING_MAIL_USERNAME` — the Resend SMTP user
 - `JWT_SECRET` — shared by both environments; rotating it signs every user out
+
+`MAIL_PASSWORD` and `STAGING_MAIL_PASSWORD` are no longer read by anything: the
+deploy workflow takes the key from `RESEND_API_KEY` instead. They can be
+deleted.
 
 `GITHUB_TOKEN` is provided automatically and needs no configuration.
 
