@@ -60,6 +60,10 @@ public class Recipe {
     @Column(nullable = false)
     private boolean favorite = false;
 
+    /** File name on the media volume. Null when the recipe has no photo. */
+    @Column(name = "photo_path")
+    private String photoPath;
+
     /** Position among the pinned recipes. Null when not pinned. */
     @Column(name = "favorite_rank")
     private Integer favoriteRank;
@@ -151,6 +155,14 @@ public class Recipe {
 
     public void setFavorite(boolean favorite) {
         this.favorite = favorite;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public Integer getFavoriteRank() {

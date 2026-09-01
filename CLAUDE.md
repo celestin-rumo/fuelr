@@ -168,6 +168,15 @@ Frontend checks run inside the frontend container
 first, because `LayoutProps`/`PageProps` are generated route types — plain
 `tsc --noEmit` fails on a clean checkout without it.
 
+**A logged meal must copy its values, never reference the recipe.** Recipes get
+edited after they have been used, so a meal log pointing at the live recipe
+would silently rewrite someone's nutritional history every time they fix a typo
+in the ingredients. Whoever builds the meal log copies title, quantities and
+computed nutrition into the log row at the moment of logging. The recipe editor
+already warns the author that edits apply to future uses only — that promise is
+currently made by the copy and enforced by nothing, because there is no meal
+log yet.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into

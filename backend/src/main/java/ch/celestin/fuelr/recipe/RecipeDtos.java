@@ -39,6 +39,7 @@ public final class RecipeDtos {
             int servings,
             String level,
             String status,
+            boolean hasPhoto,
             List<IngredientView> ingredients,
             List<String> steps,
             Set<String> tags) {
@@ -53,7 +54,7 @@ public final class RecipeDtos {
     public record RecipeSummary(
             Long id, String title, String status, int servings,
             int ingredientCount, int stepCount,
-            boolean favorite, int minutes,
+            boolean favorite, boolean hasPhoto, int minutes,
             Double kcalPerServing, Double proteinPerServing,
             Double carbsPerServing, Double fatPerServing,
             boolean estimated) {

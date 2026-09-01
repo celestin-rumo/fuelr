@@ -126,10 +126,20 @@ export function RecipeGrid({
               >
                 {/* Photo upload is a separate story; the tile keeps its slot. */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-bg-raised-2">
-                  <div
-                    aria-hidden
-                    className="size-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent)_22%,transparent),color-mix(in_srgb,var(--mint)_18%,transparent))] transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-[1.04]"
-                  />
+                  {recipe.hasPhoto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`/api/recipes/${recipe.id}/photo`}
+                      alt=""
+                      data-testid={`photo-${recipe.id}`}
+                      className="size-full object-cover transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden
+                      className="size-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent)_22%,transparent),color-mix(in_srgb,var(--mint)_18%,transparent))] transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-[1.04]"
+                    />
+                  )}
                   {recipe.status === "DRAFT" && (
                     <span className="absolute top-3 left-3">
                       <Badge tone="neutral">{t("draft")}</Badge>
