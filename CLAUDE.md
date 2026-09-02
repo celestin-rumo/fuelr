@@ -211,6 +211,13 @@ When a control loses its visible label that way, give it an explicit
 twice: the button keeps its name, but a button whose label is `hidden` has none
 at all.
 
+**A green local suite can be testing files the repository does not have.**
+`.gitignore` carried a bare `target/` for Maven, which is unanchored and so
+swallowed `app/api/nutrition/target/` too: the onboarding preview route lived
+on disk, passed every local run, and never existed in CI. `git status` said
+nothing, because an ignored file is not untracked. When something works locally
+and only fails in CI, check `git check-ignore -v <path>` before anything else.
+
 **`getByRole("alert")` matches two nodes in e2e.** Next.js keeps its own
 `__next-route-announcer__` in the DOM with `role="alert"`, so a page-wide query
 is always a strict-mode violation. Scope the query to the form or give the
