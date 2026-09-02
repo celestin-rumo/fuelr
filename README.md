@@ -23,6 +23,7 @@ fuelr/
 │   │   └── globals.css        # design tokens (colors, type, shape, motion)
 │   ├── i18n/                  # routing, navigation, message loading
 │   ├── e2e/                   # Playwright tests
+│   ├── public/                # manifest icons, sw.js (production only)
 │   └── proxy.ts               # next-intl middleware
 ├── backend/                   # Spring Boot
 │   └── src/main/java/ch/celestin/fuelr/
