@@ -68,6 +68,8 @@ export type PlannedMeal = {
   hasPhoto: boolean;
   kcal: number | null;
   estimated: boolean;
+  /** Who put it there, and only when that is somebody else. */
+  plannedBy: string | null;
 };
 
 /** Always seven, empty days included — a missing day would read as a failure. */
@@ -82,6 +84,47 @@ export type WeekPlan = {
   householdSize: number;
   meals: PlannedMeal[];
   days: DayTotals[];
+  /** More than one account is looking at this plan. */
+  shared: boolean;
+  owner: boolean;
+  accounts: number;
+};
+
+export type HouseholdMember = {
+  userId: number;
+  name: string | null;
+  email: string;
+  owner: boolean;
+  you: boolean;
+  joinedAt: string | null;
+};
+
+export type HouseholdInvitation = {
+  id: number;
+  email: string;
+  expiresAt: string;
+};
+
+export type Household = {
+  id: number;
+  size: number;
+  owner: boolean;
+  /** Whether the household's owner is currently paying for sharing. */
+  sharingOpen: boolean;
+  maxAccounts: number;
+  members: HouseholdMember[];
+  /** Empty for anyone but the owner: nobody else may see who was asked. */
+  invitations: HouseholdInvitation[];
+};
+
+export type Subscription = {
+  tier: "FREE" | "PLUS" | "FAMILY";
+  status: "ACTIVE" | "CANCELED";
+  period: "MONTHLY" | "YEARLY";
+  currentPeriodEnd: string | null;
+  features: string[];
+  /** False while no plan can actually be paid for. */
+  canOrder: boolean;
 };
 
 export type RecipeSummary = {

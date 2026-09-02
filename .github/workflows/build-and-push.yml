@@ -293,6 +293,7 @@ jobs:
             -e SITE_URL=http://localhost:3000 \
             -e ADMIN_EMAIL=admin@fuelr.test -e ADMIN_PASSWORD=changeme \
             -e JWT_SECRET=ci-only-secret-not-used-anywhere-else \
+            -e APP_SUBSCRIPTION_SELF_ACTIVATE=true \
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ github.sha }}
 
           for i in $(seq 1 60); do

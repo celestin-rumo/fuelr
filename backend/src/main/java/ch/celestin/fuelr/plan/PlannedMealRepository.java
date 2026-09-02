@@ -9,11 +9,17 @@ import java.util.Optional;
 public interface PlannedMealRepository extends JpaRepository<PlannedMeal, Long> {
 
     /** Both bounds inclusive: a week is seven days, not six and a bit. */
-    List<PlannedMeal> findByUserIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
-            Long userId, LocalDate from, LocalDate to);
+    List<PlannedMeal> findByHouseholdIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
+            Long householdId, LocalDate from, LocalDate to);
 
-    List<PlannedMeal> findByUserIdAndDateAndSlotOrderByPositionAsc(
-            Long userId, LocalDate date, MealSlot slot);
+    List<PlannedMeal> findByHouseholdIdAndDateAndSlotOrderByPositionAsc(
+            Long householdId, LocalDate date, MealSlot slot);
 
-    Optional<PlannedMeal> findByIdAndUserId(Long id, Long userId);
+    Optional<PlannedMeal> findByIdAndHouseholdId(Long id, Long householdId);
+
+    /**
+     * Whether a recipe is on this household's plan. It is what lets a member
+     * open a dish somebody else put on Thursday — and nothing more than that.
+     */
+    boolean existsByHouseholdIdAndRecipeId(Long householdId, Long recipeId);
 }

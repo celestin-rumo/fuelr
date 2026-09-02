@@ -72,6 +72,14 @@ public class RecipeService {
     }
 
     /**
+     * Unscoped lookup. Only for a caller that has already established the right
+     * to read it some other way — see {@link RecipeAudience}.
+     */
+    public Optional<Recipe> byId(Long id) {
+        return recipes.findById(id);
+    }
+
+    /**
      * Saves whatever the author has so far. Never rejects an incomplete
      * recipe: refusing to save a draft is how work gets lost.
      */

@@ -64,7 +64,8 @@
     "nav": {
       "label": "Hauptnavigation",
       "recipes": "Rezepte",
-      "plan": "Wochenplan"
+      "plan": "Wochenplan",
+      "household": "Haushalt"
     }
   },
   "plan": {
@@ -105,7 +106,8 @@
       "title": "Meine Rezepte",
       "hint": "Zieh ein Rezept auf einen Platz.",
       "search": "Rezept suchen",
-      "noResults": "Kein Rezept passt."
+      "noResults": "Kein Rezept passt.",
+      "empty": "Du hast noch kein Rezept, das du hier ablegen könntest."
     },
     "meal": {
       "open": "{title} bearbeiten — {day}, {slot}",
@@ -115,7 +117,8 @@
       "more": "Eine Portion mehr für {title}",
       "moveTitle": "Verschieben",
       "openRecipe": "Rezept öffnen",
-      "remove": "Aus dem Plan entfernen"
+      "remove": "Aus dem Plan entfernen",
+      "plannedBy": "Hinzugefügt von {name}"
     },
     "noRecipes": {
       "title": "Kein Rezept zum Planen",
@@ -125,6 +128,62 @@
     "unavailable": {
       "title": "Der Plan ist nicht erreichbar",
       "body": "Diese Woche konnte nicht geladen werden. Lade die Seite neu — nichts Geplantes geht verloren."
+    },
+    "sharedWith": "Haushalt · {count} Konten"
+  },
+  "household": {
+    "label": "Haushalt",
+    "title": "Mein Haushalt",
+    "intro": "Ein Plan für alle zu Hause. Rezepte bleiben bei der Person, die sie geschrieben hat, und jede behält ihr eigenes Ernährungsprofil.",
+    "toPlan": "Zum Haushaltsplan",
+    "invitation": {
+      "title": "Du bist in einen Haushalt eingeladen",
+      "body": "Mit dem Beitritt siehst und bearbeitest du denselben Wochenplan wie die anderen Mitglieder. Deine Rezepte und dein Ernährungsprofil bleiben deine.",
+      "accept": "Haushalt beitreten",
+      "ignore": "Ignorieren"
+    },
+    "plan": {
+      "title": "Plan teilen",
+      "openOwner": "Dein Famille-Plan ist aktiv: Du kannst bis zu fünf weitere Personen einladen.",
+      "openMember": "Du teilst den Plan dieses Haushalts. Das Abo läuft über die Person, die ihn erstellt hat.",
+      "closed": "Das Teilen des Plans gehört zum Famille-Plan. Ohne ihn bleibt dein Plan deiner — es wird nichts weggenommen.",
+      "order": "Zum Famille-Plan wechseln",
+      "notPurchasable": "Der Famille-Plan kann noch nicht abonniert werden.",
+      "compare": "Pläne vergleichen",
+      "cancel": "Famille-Plan kündigen",
+      "cancelHint": "Es wird nichts gelöscht: Der Haushalt behält seine Mitglieder, und jeder Plan bleibt lesbar."
+    },
+    "members": {
+      "title": "Mitglieder · {count} von {max}",
+      "you": "du",
+      "owner": "Haushaltsinhaber",
+      "remove": "{name} aus dem Haushalt entfernen",
+      "removeShort": "Entfernen"
+    },
+    "invite": {
+      "label": "Per E-Mail einladen",
+      "hint": "{seats, plural, =0 {Der Haushalt ist voll.} one {Noch # Platz.} other {Noch # Plätze.}}",
+      "submit": "Einladung senden",
+      "sent": "Einladung an {email} gesendet.",
+      "pending": "Offene Einladungen",
+      "revoke": "Einladung an {email} zurückziehen",
+      "revokeShort": "Zurückziehen"
+    },
+    "leave": {
+      "action": "Haushalt verlassen",
+      "body": "Du findest deinen eigenen Plan genau so vor, wie du ihn verlassen hast. Der Haushaltsplan bleibt unberührt.",
+      "confirm": "Verlassen",
+      "cancel": "Bleiben"
+    },
+    "errors": {
+      "upgrade_required": "Das Teilen des Plans braucht den Famille-Plan.",
+      "household_full": "Der Haushalt ist voll.",
+      "gone": "Diese Einladung funktioniert nicht mehr. Frag nach einer neuen.",
+      "failed": "Das hat nicht geklappt. Versuch es nochmal."
+    },
+    "unavailable": {
+      "title": "Der Haushalt ist nicht erreichbar",
+      "body": "Der Haushalt konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
     }
   },
   "auth": {

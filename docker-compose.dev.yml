@@ -46,6 +46,10 @@ services:
       SITE_URL: http://localhost:${FRONTEND_PORT:-3000}
       ADMIN_EMAIL: admin@celestinrumo.ch
       ADMIN_PASSWORD: changeme
+      # No payment provider yet, and the paid features still have to be usable
+      # while they are built. With this on, asking for a plan is enough to get
+      # it — so it belongs here and in the test run, and nowhere else.
+      APP_SUBSCRIPTION_SELF_ACTIVATE: "true"
 
     depends_on:
       database:

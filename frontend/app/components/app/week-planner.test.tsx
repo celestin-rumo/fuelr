@@ -52,14 +52,23 @@ function mealWith(overrides: Partial<PlannedMeal> = {}): PlannedMeal {
     hasPhoto: false,
     kcal: 1800,
     estimated: false,
+    plannedBy: null,
     ...overrides,
   };
 }
 
-function planWith(meals: PlannedMeal[] = [], householdSize = 2): WeekPlan {
+function planWith(
+  meals: PlannedMeal[] = [],
+  householdSize = 2,
+  household: Partial<Pick<WeekPlan, "shared" | "owner" | "accounts">> = {},
+): WeekPlan {
   return {
     weekStart: MONDAY,
     householdSize,
+    shared: false,
+    owner: true,
+    accounts: 1,
+    ...household,
     meals,
     days: weekDays(MONDAY).map((date) => {
       const onDay = meals.filter((meal) => meal.date === date);
@@ -259,6 +268,43 @@ describe("WeekPlanner", () => {
     await waitFor(() =>
       expect(copyWeek).toHaveBeenLastCalledWith(MONDAY, "2026-03-09", true),
     );
+  });
+
+  it("says nothing about a household when the plan is one person's", () => {
+    renderPlanner(planWith([mealWith()]));
+
+    expect(screen.queryByTestId("shared-plan")).not.toBeInTheDocument();
+  });
+
+  it("says the plan is shared, because someone else writing on it is a surprise", async () => {
+    const user = userEvent.setup();
+    renderPlanner(
+      planWith([mealWith({ plannedBy: "Camille" })], 2, {
+        shared: true,
+        owner: false,
+        accounts: 3,
+      }),
+    );
+
+    expect(screen.getByTestId("shared-plan")).toHaveTextContent("3 comptes");
+
+    // And the sheet says whose idea Wednesday was.
+    await user.click(
+      screen.getByRole("button", { name: /Modifier Curry de lentilles/ }),
+    );
+    expect(screen.getByTestId("planned-by")).toHaveTextContent("Ajouté par Camille");
+  });
+
+  it("does not repeat your own name back at you", async () => {
+    const user = userEvent.setup();
+    renderPlanner(
+      planWith([mealWith()], 2, { shared: true, owner: true, accounts: 2 }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /Modifier Curry de lentilles/ }),
+    );
+    expect(screen.queryByTestId("planned-by")).not.toBeInTheDocument();
   });
 
   it("says what to do when a recipe is dropped on a slot", async () => {
