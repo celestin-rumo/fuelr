@@ -13,7 +13,8 @@ frontend/blob-report/
 
 # Spring Boot / Maven
 backend/target/
-target/
+# (no bare `target/`: it would also swallow any route or folder called
+#  "target", which is how the nutrition preview route stayed untracked.)
 
 # Environment / secrets
 .env
