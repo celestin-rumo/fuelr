@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { Banner } from "@ui/banner";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { PasswordStrength } from "./password-strength";
@@ -127,14 +128,9 @@ export function RegisterForm() {
       </div>
 
       {error && (
-        <p
-          role="alert"
-          data-testid="register-error"
-          className="text-[13px] font-semibold text-coral-ink"
-        >
-          <span aria-hidden>! </span>
+        <Banner tone="error" data-testid="register-error">
           {t("errors.failed")}
-        </p>
+        </Banner>
       )}
 
       <Button type="submit" size="lg" loading={busy}>

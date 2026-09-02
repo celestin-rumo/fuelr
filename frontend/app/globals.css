@@ -171,6 +171,24 @@ body {
 }
 
 /* Reduced motion is respected: everything becomes instant. */
+/**
+ * For something that must not be seen unless it is still there in a moment.
+ * The hydration banner is server-rendered and removed the instant React comes
+ * alive, so on a healthy page it is gone long before this delay elapses and
+ * never flashes. The reduced-motion block below collapses durations, not
+ * delays, so the wait survives there too.
+ */
+@keyframes reveal-late {
+  to {
+    opacity: 1;
+  }
+}
+
+.reveal-late {
+  opacity: 0;
+  animation: reveal-late var(--dur) var(--ease) 4s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

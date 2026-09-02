@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { Banner } from "@ui/banner";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 
@@ -99,14 +100,9 @@ export function ResetPasswordForm({
       />
 
       {error && (
-        <p
-          role="alert"
-          data-testid="reset-error"
-          className="text-[13px] font-semibold text-coral-ink"
-        >
-          <span aria-hidden>! </span>
+        <Banner tone="error" data-testid="reset-error">
           {t(`errors.${error}`)}
-        </p>
+        </Banner>
       )}
 
       <Button type="submit" size="lg" loading={busy}>

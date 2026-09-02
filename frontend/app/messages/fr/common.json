@@ -315,5 +315,12 @@
       "fat": "Lipides",
       "createAccount": "Créer mon compte"
     }
+  },
+  "system": {
+    "notInteractive": {
+      "title": "Cette page ne répond pas",
+      "body": "Elle s'est affichée, mais son code ne s'est pas chargé : les boutons et les formulaires ne feront rien. Recharge la page.",
+      "reload": "Recharger la page"
+    }
   }
 }
