@@ -12,6 +12,8 @@
  * session at all.
  */
 
+import type { Recipe } from "./api";
+
 const KEY = "fuelr.cooking-session";
 
 /** Older than this and a resume prompt is a lie, not a convenience. */
@@ -29,6 +31,16 @@ export type StoredTimer = {
 export type CookingSession = {
   recipeId: number;
   title: string;
+  /**
+   * The recipe itself, copied in.
+   *
+   * Cooking must not stop because the network did, and a recipe is a few
+   * kilobytes. Kept with the session rather than in a store of its own so it
+   * has one lifetime: it arrives when cooking starts and leaves when the
+   * session does, including on sign-out. It is never written back — cooking
+   * mode only ever reads the recipe.
+   */
+  recipe: Recipe;
   stepIndex: number;
   stepCount: number;
   servings: number;

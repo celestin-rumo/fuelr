@@ -510,6 +510,11 @@ export default function DesignSystemPage() {
                   <Button variant={variant} size="lg">
                     Large
                   </Button>
+                  {/* 56px: cooking mode, and anything else operated with
+                      dirty hands. */}
+                  <Button variant={variant} size="xl">
+                    Touch
+                  </Button>
                 </div>
               </div>
             ))}
@@ -525,6 +530,9 @@ export default function DesignSystemPage() {
                   ⇪
                 </IconButton>
                 <IconButton aria-label="Favourite" disabled>
+                  ♡
+                </IconButton>
+                <IconButton aria-label="Favourite" size="xl">
                   ♡
                 </IconButton>
               </div>

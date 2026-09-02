@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
    * so. The e2e run sets this to a directory of its own.
    */
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
+
+  /**
+   * Read by the service worker registration, which puts it on the script URL.
+   * A changed URL is what makes the browser install a new worker on a new
+   * release, and the new worker is what drops the previous build's caches.
+   * Inlined at build time, so a redeploy of the same image keeps its value.
+   */
+  env: {
+    NEXT_PUBLIC_BUILD_ID: process.env.BUILD_ID ?? String(Date.now()),
+  },
 };
 
 export default withNextIntl(nextConfig);

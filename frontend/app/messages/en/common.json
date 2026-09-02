@@ -260,6 +260,12 @@
       "under": "under a minute",
       "done": "Back to the recipe",
       "again": "Cook it again"
+    },
+    "offline": {
+      "badge": "Offline",
+      "title": "No network",
+      "body": "No dish is under way on this device. Come back when the network is: your recipes are waiting.",
+      "retry": "Try again"
     }
   },
   "forgotPassword": {
@@ -423,5 +429,10 @@
         "body": "It does not publish its recipe in a machine-readable format. Nothing is lost: enter it by hand."
       }
     }
+  },
+  "manifest": {
+    "name": "Fuelr · recipes and the week's meals",
+    "shortName": "Fuelr",
+    "description": "Your recipes, your week's plan and cooking mode, network or no network."
   }
 }

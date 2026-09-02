@@ -83,6 +83,10 @@ export const routing = defineRouting({
       en: "/app/recipes/[id]/cook",
       de: "/app/rezepte/[id]/kochen",
     },
+    // What the service worker serves when a page cannot be reached. Same slug
+    // everywhere, because the worker addresses it by literal URL and nobody
+    // ever types it.
+    "/offline": "/offline",
     // Internal reference page; the slug is the same in every locale.
     "/design-system": "/design-system",
   },

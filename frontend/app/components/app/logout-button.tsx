@@ -3,14 +3,37 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@ui/button";
+import { clearSession } from "@app/lib/cooking-session";
 
 export function LogoutButton() {
   const t = useTranslations("auth");
   const [busy, setBusy] = useState(false);
 
+  /**
+   * Everything this account left on the device.
+   *
+   * The dish under way carries the recipe itself, and the service worker holds
+   * the pages it was served — neither belongs to whoever signs in next.
+   */
+  async function forget() {
+    clearSession();
+    try {
+      const registrations = await navigator.serviceWorker?.getRegistrations();
+      for (const registration of registrations ?? []) {
+        registration.active?.postMessage("fuelr:sign-out");
+        await registration.unregister();
+      }
+      for (const name of await caches.keys()) await caches.delete(name);
+    } catch {
+      // No worker, no Cache API, or a browser that refuses both. The session
+      // cookie is gone either way, which is what actually signs them out.
+    }
+  }
+
   async function logout() {
     setBusy(true);
     await fetch("/api/auth/logout", { method: "POST" });
+    await forget();
     // A full navigation, not a client-side push. The lint rule is about SPA
     // routing, and logout is exactly the case that wants the opposite: on a
     // shared machine nothing of the signed-in session should survive in
