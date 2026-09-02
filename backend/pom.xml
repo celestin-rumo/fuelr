@@ -18,7 +18,7 @@
     <!-- Project information -->
     <groupId>ch.celestin.fuelr</groupId>
     <artifactId>backend</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <name>fuelr-backend</name>
     <description>Backend API for Fuelr</description>

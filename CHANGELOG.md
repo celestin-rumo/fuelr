@@ -1,8 +1,51 @@
 # Changelog
 
-Every release of Fuelr. The entry below is the same text as
-[`releases-notes/v1.0.0.md`](releases-notes/v1.0.0.md) — that folder holds one
-file per version, this file collects them newest first.
+Every release of Fuelr. Each entry is the same text as the matching file in
+[`releases-notes/`](releases-notes/) — that folder holds one file per version,
+this file collects them newest first.
+
+---
+
+# v1.0.1 — 2026-09-02
+
+A fix release. v1.0.0 shipped with a home page whose main call to action did
+nothing at all.
+
+## Fixed
+
+- **Five marketing buttons led nowhere.** The header's "Essayer gratuitement",
+  the hero's "Commencer — c'est gratuit", the closing band's "Créer mon compte"
+  and all three pricing plans were `<Button>` elements with no handler and no
+  link: rendered perfectly, entirely inert. No visitor could reach sign-up from
+  the home page. They are links now, and an end-to-end test clicks all six and
+  asserts where each one lands — a button that renders is not a button that
+  works, and only asserting the destination catches the difference.
+- **The hero's secondary action nested a button inside a link**, which is two
+  interactive elements where the markup promises one. Buttons that navigate are
+  now anchors styled with `buttonClasses()`.
+
+## Development tooling
+
+Not visible in production, but it cost a day of false diagnosis and is worth
+recording.
+
+The end-to-end suite runs `npm run build` — a production build — into the same
+bind mount the development container serves from, overwriting `.next` under the
+running dev server. The pages already sent then referenced chunks that no
+longer existed: every script returned 403, React never hydrated, and **every
+button in the application stopped working**, while the API answered 200 to
+everything and the test suite stayed green against its own build. Sign-up,
+sign-in and password reset all appeared broken and none of them were.
+
+`next.config.ts` now reads `NEXT_DIST_DIR` and the e2e run sets it to
+`.next-e2e`, so the two builds no longer collide.
+
+## Verification
+
+97 end-to-end tests. Beyond the suite, the part that actually mattered: a real
+browser, through the development stack rather than the test server, creating an
+account from the home page's call to action and receiving the confirmation
+email — checked again after a full e2e run, which is what used to break it.
 
 ---
 
