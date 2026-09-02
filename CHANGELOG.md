@@ -50,6 +50,12 @@ v1.0.1 tag was pushed: the build failed and nothing was ever deployed. Vitest
 now processes next-intl rather than externalising it, and the plan CTA is
 asserted as a link with a destination instead of a button.
 
+The pipeline itself gained an `e2e` job, which runs the image the build just
+pushed — not a rebuild from source — with a database, a mail catcher and the
+backend behind it. Nothing downstream can tag or publish a release if it
+fails, which is what would have stopped v1.0.0 shipping with a home page whose
+main button did nothing.
+
 ## Verification
 
 40 unit tests and 97 end-to-end tests, the unit suite run in a clean container
