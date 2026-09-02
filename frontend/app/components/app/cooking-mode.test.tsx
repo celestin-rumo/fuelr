@@ -23,6 +23,7 @@ function recipeWith(overrides: Partial<Recipe> = {}): Recipe {
     sourceUrl: null,
     totalMinutes: null,
     unverified: [],
+    seasons: [],
     ...overrides,
   };
 }

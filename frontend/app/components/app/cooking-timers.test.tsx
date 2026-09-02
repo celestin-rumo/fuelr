@@ -20,6 +20,7 @@ function recipeWith(steps: string[]): Recipe {
     sourceUrl: null,
     totalMinutes: null,
     unverified: [],
+  seasons: [],
   };
 }
 

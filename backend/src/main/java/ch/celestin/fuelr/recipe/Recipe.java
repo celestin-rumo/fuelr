@@ -104,6 +104,16 @@ public class Recipe {
     @Column(name = "tag", nullable = false)
     private Set<String> tags = new LinkedHashSet<>();
 
+    /**
+     * Zero, one or several. A closed domain, unlike {@link #tags}, which is
+     * what lets "what is in season now" be derived from the date rather than
+     * guessed from what somebody typed.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "recipe_seasons", joinColumns = @JoinColumn(name = "recipe_id"))
+    @Column(name = "season", nullable = false)
+    private Set<String> seasons = new LinkedHashSet<>();
+
     protected Recipe() {
     }
 
@@ -226,5 +236,9 @@ public class Recipe {
 
     public Set<String> getTags() {
         return tags;
+    }
+
+    public Set<String> getSeasons() {
+        return seasons;
     }
 }

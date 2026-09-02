@@ -27,7 +27,9 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
      *
      * The term matches the title or any ingredient name. Tags are cumulative —
      * a recipe must carry every selected tag, not just one of them — which is
-     * what the count comparison enforces.
+     * what the count comparison enforces. Seasons are the opposite and match
+     * any: asking for autumn and winter asks for what can be cooked in either,
+     * and a squash soup that is both appears once rather than twice.
      */
     @Query("""
             select distinct r from Recipe r
@@ -40,10 +42,15 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
               and (:tagCount = 0
                    or (select count(distinct t) from Recipe r2 join r2.tags t
                        where r2 = r and t in :tags) = :tagCount)
+              and (:seasonCount = 0
+                   or exists (select 1 from Recipe r3 join r3.seasons s
+                              where r3 = r and s in :seasons))
             """)
     List<Recipe> search(
             @Param("userId") Long userId,
             @Param("term") String term,
             @Param("tags") Collection<String> tags,
-            @Param("tagCount") long tagCount);
+            @Param("tagCount") long tagCount,
+            @Param("seasons") Collection<String> seasons,
+            @Param("seasonCount") long seasonCount);
 }

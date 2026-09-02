@@ -367,7 +367,9 @@
       "fewer": "Eine Portion weniger",
       "more": "Eine Portion mehr",
       "level": "Schwierigkeit",
-      "tags": "Schlagwörter"
+      "tags": "Schlagwörter",
+      "seasons": "Saisons",
+      "seasonsHint": "Ein Rezept kann keine oder mehrere haben — eine Kürbissuppe ist Herbst und Winter."
     },
     "levels": {
       "easy": "Einfach",
@@ -397,7 +399,23 @@
       "label": "Schritt {number}",
       "remove": "Schritt {number} löschen",
       "moveUp": "Schritt {number} nach oben",
-      "moveDown": "Schritt {number} nach unten"
+      "moveDown": "Schritt {number} nach unten",
+      "suggestions": {
+        "blend": "30 Sek. / Stufe 4 mixen.",
+        "knead": "3 Min. / Knetstufe kneten.",
+        "steam": "20 Min. / 100 °C dämpfen.",
+        "chop": "5 Sek. / Stufe 7 zerkleinern.",
+        "emulsify": "1 Min. / Stufe 3 emulgieren.",
+        "preheat": "Den Ofen auf 180 °C vorheizen.",
+        "sear": "5 Min. bei starker Hitze anbraten.",
+        "simmer": "20 Min. zugedeckt köcheln lassen.",
+        "boil": "Aufkochen lassen.",
+        "season": "Mit Salz und Pfeffer würzen.",
+        "rest": "10 Min. ruhen lassen.",
+        "setAside": "Beiseitestellen.",
+        "bake": "25 Min. bei 180 °C backen."
+      },
+      "suggestionsHint": "Tippe „/“, um einen fertigen Schritt einzufügen."
     },
     "errors": {
       "missing_title": "Gib dem Rezept einen Titel.",
@@ -498,6 +516,13 @@
         "vitamin_e": "Vitamin E",
         "zinc": "Zink"
       }
+    },
+    "seasons": {
+      "now": "Saisonal",
+      "SPRING": "Frühling",
+      "SUMMER": "Sommer",
+      "AUTUMN": "Herbst",
+      "WINTER": "Winter"
     }
   },
   "cook": {

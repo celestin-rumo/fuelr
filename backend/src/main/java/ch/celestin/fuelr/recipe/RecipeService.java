@@ -48,20 +48,24 @@ public class RecipeService {
     }
 
     /**
-     * Filtered list. An empty term and no tags gives the plain list back, so
-     * the caller never needs two code paths.
+     * Filtered list. An empty term, no tags and no seasons gives the plain list
+     * back, so the caller never needs two code paths.
      */
-    public List<Recipe> search(Long userId, String term, java.util.Set<String> tags) {
+    public List<Recipe> search(Long userId, String term, java.util.Set<String> tags,
+                               java.util.Set<String> seasons) {
         String normalised = term == null || term.isBlank() ? null
                 : "%" + term.trim().toLowerCase() + "%";
         java.util.Set<String> wanted = tags == null ? java.util.Set.of() : tags;
-        if (normalised == null && wanted.isEmpty()) {
+        java.util.Set<String> inSeason = seasons == null ? java.util.Set.of() : seasons;
+        if (normalised == null && wanted.isEmpty() && inSeason.isEmpty()) {
             return list(userId);
         }
         List<Recipe> found = recipes.search(
                 userId, normalised,
                 wanted.isEmpty() ? java.util.Set.of("") : wanted,
-                wanted.size());
+                wanted.size(),
+                inSeason.isEmpty() ? java.util.Set.of("") : inSeason,
+                inSeason.size());
         // The query cannot express the library ordering, so it is applied
         // here rather than left to insertion order.
         return found.stream().sorted(LIBRARY_ORDER).toList();
@@ -116,6 +120,13 @@ public class RecipeService {
         if (body.tags() != null) {
             recipe.getTags().clear();
             recipe.getTags().addAll(body.tags());
+        }
+        if (body.seasons() != null) {
+            // Parsed rather than stored as typed: four values, and anything
+            // else is a mistake worth refusing at the door.
+            recipe.getSeasons().clear();
+            body.seasons().stream().map(Season::parse).map(Enum::name)
+                    .forEach(recipe.getSeasons()::add);
         }
 
         // Status is a consequence of the content, not a button someone presses.
@@ -242,6 +253,7 @@ public class RecipeService {
                 new RecipeIngredient(i.getName(), i.getQuantity(), i.getUnit())));
         source.getSteps().forEach(s -> copy.getSteps().add(new RecipeStep(s.getText())));
         copy.getTags().addAll(source.getTags());
+        copy.getSeasons().addAll(source.getSeasons());
         return recipes.save(copy);
     }
 

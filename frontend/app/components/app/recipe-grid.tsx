@@ -8,6 +8,7 @@ import { Badge } from "@ui/badge";
 import { Chip } from "@ui/chip";
 import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
+import type { Season } from "@app/lib/seasons";
 import {
   deleteRecipe,
   duplicateRecipe,
@@ -30,10 +31,15 @@ export function RecipeGrid({
   recipes,
   term,
   selectedTags,
+  selectedSeasons,
+  today,
 }: {
   recipes: RecipeSummary[];
   term: string;
   selectedTags: string[];
+  selectedSeasons: Season[];
+  /** Resolved on the server: "in season" must not depend on the browser. */
+  today: string;
 }) {
   const t = useTranslations("app");
   const [confirming, setConfirming] = useState<RecipeSummary | null>(null);
@@ -89,7 +95,12 @@ export function RecipeGrid({
 
   return (
     <div className="flex flex-col gap-6">
-      <RecipeFilters term={term} selectedTags={selectedTags} />
+      <RecipeFilters
+        term={term}
+        selectedTags={selectedTags}
+        selectedSeasons={selectedSeasons}
+        today={today}
+      />
 
       <div className="flex flex-wrap gap-2">
         <Chip active={!onlyFavorites} onClick={() => setOnlyFavorites(false)}>

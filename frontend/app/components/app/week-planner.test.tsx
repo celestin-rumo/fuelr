@@ -98,6 +98,7 @@ const RECIPES: RecipeSummary[] = [
     carbsPerServing: 50,
     fatPerServing: 12,
     estimated: false,
+    seasons: [],
   },
   {
     id: 8,
@@ -114,6 +115,7 @@ const RECIPES: RecipeSummary[] = [
     carbsPerServing: 2,
     fatPerServing: 30,
     estimated: false,
+    seasons: [],
   },
 ];
 
