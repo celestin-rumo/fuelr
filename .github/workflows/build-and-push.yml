@@ -14,6 +14,11 @@ on:
         required: true
         default: "v1.0.0"
         type: string
+      retag_from:
+        description: "Optional: existing image tag/sha to retag as `version` without rebuilding (e.g. latest, staging, or a sha)"
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: build-and-push-${{ github.ref }}
@@ -25,24 +30,48 @@ env:
   IMAGE_BACKEND_NAME: fuelr-backend
 
 jobs:
-  meta:
+  prepare-meta:
     runs-on: ubuntu-latest
     outputs:
-      is_staging: ${{ steps.meta.outputs.is_staging }}
       release_tag: ${{ steps.meta.outputs.release_tag }}
+      release_name: ${{ steps.meta.outputs.release_name }}
+      is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
+      is_promote: ${{ steps.meta.outputs.is_promote }}
+      is_staging: ${{ steps.meta.outputs.is_staging }}
     steps:
-      - name: Compute build metadata
+      - name: Compute release metadata
         id: meta
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "release_tag=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Release ${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
           elif [ "${{ startsWith(github.ref, 'refs/tags/') }}" = "true" ]; then
             echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Release ${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "release_tag=dev-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Dev build #${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
           else
-            echo "release_tag=${{ github.ref_name }}-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "release_tag=main-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Main build #${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
           fi
 
+          # A promote run retags an image that already exists; it must not
+          # rebuild, retest, or it would defeat the point of promoting the
+          # artefact that was actually tested.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.retag_from }}" ]; then
+            echo "is_promote=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_promote=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Pushes to dev build and deploy to staging only — no git tag and no
+          # GitHub release for those builds.
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_name }}" = "dev" ]; then
             echo "is_staging=true" >> "$GITHUB_OUTPUT"
           else
@@ -50,8 +79,8 @@ jobs:
           fi
 
   test-frontend:
-    needs: meta
-    if: github.event_name != 'pull_request'
+    needs: prepare-meta
+    if: needs.prepare-meta.outputs.is_promote != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -81,6 +110,27 @@ jobs:
         working-directory: frontend
         run: npm run test:coverage
 
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ ! -f frontend/coverage/coverage-summary.json ]; then
+            echo "No coverage report found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          python3 <<'PYEOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+
+          total = json.load(open("frontend/coverage/coverage-summary.json"))["total"]
+
+          print("### Frontend coverage\n")
+          print("| Metric | Covered | Total | % |")
+          print("|---|---|---|---|")
+          for key in ["lines", "statements", "functions", "branches"]:
+              m = total[key]
+              print(f"| {key.capitalize()} | {m['covered']} | {m['total']} | {m['pct']}% |")
+          PYEOF
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
@@ -90,8 +140,8 @@ jobs:
           retention-days: 14
 
   test-backend:
-    needs: meta
-    if: github.event_name != 'pull_request'
+    needs: prepare-meta
+    if: needs.prepare-meta.outputs.is_promote != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -111,8 +161,8 @@ jobs:
         run: mvn -B test
 
   build-frontend:
-    needs: [meta, test-frontend]
-    if: github.event_name != 'pull_request'
+    needs: [prepare-meta, test-frontend]
+    if: needs.prepare-meta.outputs.is_promote != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -138,10 +188,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_FRONT_NAME }}
           tags: |
-            type=raw,value=latest,enable=${{ needs.meta.outputs.is_staging != 'true' }}
-            type=raw,value=staging,enable=${{ needs.meta.outputs.is_staging == 'true' }}
+            type=raw,value=latest,enable=${{ needs.prepare-meta.outputs.is_staging != 'true' }}
+            type=raw,value=staging,enable=${{ needs.prepare-meta.outputs.is_staging == 'true' }}
             type=raw,value=${{ github.sha }}
-            type=raw,value=${{ needs.meta.outputs.release_tag }}
+            type=raw,value=${{ needs.prepare-meta.outputs.release_tag }}
 
       - name: Build and push frontend
         uses: docker/build-push-action@v6
@@ -155,8 +205,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=frontend
 
   build-backend:
-    needs: [meta, test-backend]
-    if: github.event_name != 'pull_request'
+    needs: [prepare-meta, test-backend]
+    if: needs.prepare-meta.outputs.is_promote != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -182,10 +232,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}
           tags: |
-            type=raw,value=latest,enable=${{ needs.meta.outputs.is_staging != 'true' }}
-            type=raw,value=staging,enable=${{ needs.meta.outputs.is_staging == 'true' }}
+            type=raw,value=latest,enable=${{ needs.prepare-meta.outputs.is_staging != 'true' }}
+            type=raw,value=staging,enable=${{ needs.prepare-meta.outputs.is_staging == 'true' }}
             type=raw,value=${{ github.sha }}
-            type=raw,value=${{ needs.meta.outputs.release_tag }}
+            type=raw,value=${{ needs.prepare-meta.outputs.release_tag }}
 
       - name: Build and push backend
         uses: docker/build-push-action@v6
@@ -197,3 +247,231 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
+
+  e2e:
+    needs: [prepare-meta, build-frontend, build-backend]
+    if: needs.prepare-meta.outputs.is_promote != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Host networking throughout: Playwright starts the frontend on the
+      # runner itself, so everything it talks to has to answer on localhost.
+      - name: Start database and mail catcher
+        run: |
+          docker run -d --name database --network host \
+            -e POSTGRES_DB=fuelr -e POSTGRES_USER=fuelr -e POSTGRES_PASSWORD=fuelr \
+            postgres:17
+          docker run -d --name mailpit --network host axllent/mailpit:latest
+
+          for i in $(seq 1 30); do
+            docker exec database pg_isready -U fuelr -d fuelr && break
+            sleep 2
+          done
+
+      # The image that was just pushed, not a rebuild from source: the point is
+      # to exercise the artefact that would be deployed.
+      - name: Start the backend image built by this run
+        run: |
+          docker run -d --name backend --network host \
+            -e DB_URL=jdbc:postgresql://localhost:5432/fuelr \
+            -e DB_USERNAME=fuelr -e DB_PASSWORD=fuelr \
+            -e MAIL_HOST=localhost -e MAIL_PORT=1025 \
+            -e MAIL_FROM=fuelr@localhost \
+            -e SITE_URL=http://localhost:3000 \
+            -e ADMIN_EMAIL=admin@fuelr.test -e ADMIN_PASSWORD=changeme \
+            -e JWT_SECRET=ci-only-secret-not-used-anywhere-else \
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ github.sha }}
+
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:8080/api/health >/dev/null && echo "backend up" && break
+            sleep 3
+          done
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        working-directory: frontend
+        env:
+          BACKEND_INTERNAL_URL: http://localhost:8080
+          E2E_BACKEND_URL: http://localhost:8080
+          E2E_MAILPIT_URL: http://localhost:8025
+        run: npm run test:e2e
+
+      - name: Backend logs on failure
+        if: failure()
+        run: docker logs backend --tail 200
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+  promote:
+    needs: prepare-meta
+    if: needs.prepare-meta.outputs.is_promote == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retag existing frontend image
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_FRONT_NAME }}:${{ needs.prepare-meta.outputs.release_tag }} \
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_FRONT_NAME }}:${{ inputs.retag_from }}
+
+      - name: Retag existing backend image
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ needs.prepare-meta.outputs.release_tag }} \
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ inputs.retag_from }}
+
+  create-tag:
+    needs:
+      - prepare-meta
+      - build-frontend
+      - build-backend
+      - e2e
+      - promote
+    # `always()` because `promote` is skipped on a normal run and skipping a
+    # needed job would otherwise skip this one. Everything else is expressed
+    # over needs.*.result rather than named job by job: a skipped job is fine,
+    # a failed or cancelled one is not.
+    if: >
+      always() &&
+      needs.prepare-meta.result == 'success' &&
+      needs.prepare-meta.outputs.is_staging != 'true' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create git tag if missing
+        shell: bash
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ needs.prepare-meta.outputs.release_tag }}$"; then
+            echo "Tag already exists on origin"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag "${{ needs.prepare-meta.outputs.release_tag }}"
+            git push origin "${{ needs.prepare-meta.outputs.release_tag }}"
+          fi
+
+  release:
+    needs:
+      - prepare-meta
+      - build-frontend
+      - build-backend
+      - e2e
+      - create-tag
+      - promote
+    if: >
+      always() &&
+      needs.create-tag.result == 'success' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare release notes
+        id: release_notes
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ needs.prepare-meta.outputs.release_tag }}
+          IS_PROMOTE: ${{ needs.prepare-meta.outputs.is_promote }}
+          RETAG_FROM: ${{ inputs.retag_from }}
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_FRONT_NAME }}
+          BACKEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}
+        run: |
+          # Hand-written notes when the version has them; the image list is
+          # appended either way.
+          RELEASE_FILE="releases-notes/${RELEASE_TAG}.md"
+
+          retag_suffix=""
+          if [ "$IS_PROMOTE" = "true" ]; then
+            retag_suffix=" (retagged from \`${RETAG_FROM}\`)"
+          fi
+
+          {
+            if [ -f "$RELEASE_FILE" ]; then
+              cat "$RELEASE_FILE"
+              echo
+              echo "---"
+              echo
+            fi
+
+            echo "Docker images published for \`${RELEASE_TAG}\`${retag_suffix}"
+            echo
+            echo "Frontend:"
+            echo "- \`${IMAGE_REF}:${RELEASE_TAG}\`"
+            echo "- \`${IMAGE_REF}:${{ github.sha }}\`"
+            echo
+            echo "Backend:"
+            echo "- \`${BACKEND_IMAGE_REF}:${RELEASE_TAG}\`"
+            echo "- \`${BACKEND_IMAGE_REF}:${{ github.sha }}\`"
+          } > release_body.md
+
+          echo "body_path=release_body.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-meta.outputs.release_tag }}
+          name: ${{ needs.prepare-meta.outputs.release_name }}
+          generate_release_notes: true
+          prerelease: ${{ needs.prepare-meta.outputs.is_prerelease == 'true' }}
+          make_latest: ${{ needs.prepare-meta.outputs.is_prerelease != 'true' }}
+          body_path: ${{ steps.release_notes.outputs.body_path }}
