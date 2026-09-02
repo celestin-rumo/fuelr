@@ -1,0 +1,313 @@
+# Ingredient names, as they reach the matcher.
+#
+# Two provenances, both real:
+#
+#   * the lines marked [import] are the ingredient names parsed out of the
+#     recipe pages under src/test/resources/import — actual pages from Betty
+#     Bossi, Fooby, Swissmilk, Marmiton and Cookidoo;
+#   * the rest are ingredients as people type them into the editor, across the
+#     three languages the app speaks, chosen to cover what a household actually
+#     cooks rather than what the table happens to contain.
+#
+# The test over this file asserts that at least 90% of them resolve to a real
+# food rather than the flat fallback. It is allowed to fail: that is the point.
+# A name that does not match is either a gap in the table or a bug in the
+# matcher, and both are worth knowing about before a user finds them.
+#
+# Lines starting with # are comments; blank lines are ignored.
+
+# --- [import] Betty Bossi, Fooby, Swissmilk, Marmiton, Cookidoo -------------
+farine
+sel
+levure
+eau
+huile d'olive
+huile végétale
+oignon
+concombre
+gousse d'ail
+fromage blanc nature
+tranches de porc
+yogourt nature
+lait
+beurre
+sucre
+oeufs
+crème entière
+chocolat noir
+pommes de terre
+carottes
+poireau
+bouillon de légumes
+poivre
+persil
+citron
+pâte feuilletée
+jambon
+gruyère
+tomates pelées
+basilic
+courgettes
+riz
+poulet
+vin blanc
+échalote
+
+# --- French, hand-typed ------------------------------------------------------
+lentilles corail
+lentilles vertes
+pois chiches
+haricots rouges
+lait de coco
+crème fraîche
+crème de soja
+tofu ferme
+tofu soyeux
+saumon frais
+filet de saumon
+blanc de poulet
+cuisse de poulet
+viande hachée de boeuf
+steak haché
+lard fumé
+saucisse
+thon en boîte
+crevettes
+moules
+oeuf
+jaune d'oeuf
+blanc d'oeuf
+lait entier
+lait écrémé
+lait demi-écrémé
+yaourt grec
+mozzarella
+parmesan
+feta
+comté
+raclette
+mascarpone
+ricotta
+beurre demi-sel
+huile de tournesol
+huile de colza
+vinaigre balsamique
+vinaigre de vin
+moutarde
+mayonnaise
+ketchup
+sauce soja
+miel
+sirop d'érable
+sucre roux
+cassonade
+farine complète
+farine de blé
+semoule
+pâtes
+spaghetti
+nouilles
+riz basmati
+riz complet
+quinoa
+boulgour
+polenta
+avoine
+flocons d'avoine
+pain
+pain complet
+chapelure
+tomates
+tomates cerises
+concentré de tomates
+poivron rouge
+poivron vert
+aubergine
+courge
+potiron
+brocoli
+chou-fleur
+chou rouge
+épinards
+salade verte
+roquette
+mâche
+haricots verts
+petits pois
+maïs
+champignons
+champignons de Paris
+céleri
+fenouil
+navet
+betterave
+radis
+patate douce
+oignon rouge
+ail
+gingembre frais
+citron vert
+orange
+pomme
+poire
+banane
+fraises
+framboises
+myrtilles
+raisins
+abricots
+pêche
+ananas
+mangue
+avocat
+noix
+amandes
+noisettes
+noix de cajou
+graines de courge
+graines de tournesol
+sésame
+pistaches
+raisins secs
+dattes
+figues séchées
+cacao en poudre
+chocolat au lait
+chocolat blanc
+vanille
+cannelle
+curry
+curcuma
+paprika
+cumin
+origan
+thym
+romarin
+laurier
+coriandre
+menthe
+aneth
+estragon
+piment
+noix de muscade
+levure chimique
+bicarbonate
+gélatine
+fécule de maïs
+bouillon de volaille
+vin rouge
+bière
+crème liquide
+lait de soja
+lait d'amande
+boisson d'avoine
+séré
+cervelas
+viande séchée
+
+# --- German ------------------------------------------------------------------
+Zwiebel
+Knoblauch
+Kartoffeln
+Karotten
+Rüebli
+Butter
+Milch
+Rahm
+Vollmilch
+Eier
+Mehl
+Zucker
+Salz
+Pfeffer
+Reis
+Teigwaren
+Haferflocken
+Linsen
+Kichererbsen
+Tomaten
+Gurke
+Zucchetti
+Aubergine
+Blumenkohl
+Broccoli
+Spinat
+Lauch
+Sellerie
+Apfel
+Birne
+Banane
+Erdbeeren
+Rindfleisch
+Poulet
+Schweinefleisch
+Speck
+Lachs
+Thunfisch
+Käse
+Gruyère
+Mozzarella
+Joghurt
+Quark
+Olivenöl
+Sonnenblumenöl
+Honig
+Senf
+Essig
+Weisswein
+Hefe
+Zimt
+
+# --- English -----------------------------------------------------------------
+onion
+garlic
+potatoes
+carrots
+butter
+milk
+whole milk
+cream
+eggs
+flour
+sugar
+salt
+black pepper
+rice
+pasta
+oats
+red lentils
+chickpeas
+black beans
+tomatoes
+cucumber
+courgette
+aubergine
+cauliflower
+broccoli
+spinach
+leek
+celery
+apple
+pear
+banana
+strawberries
+beef
+chicken breast
+pork
+bacon
+salmon
+tuna
+cheese
+cheddar
+mozzarella
+yoghurt
+olive oil
+sunflower oil
+honey
+mustard
+vinegar
+white wine
+baking powder
+cinnamon
+coconut milk
+soy sauce

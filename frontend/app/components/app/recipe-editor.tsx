@@ -18,6 +18,7 @@ import {
 } from "@app/[locale]/(app)/app/recipes/actions";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 import { NutritionPanel } from "./nutrition-panel";
+import { NutritionDetailPanel } from "./nutrition-detail";
 import { RecipePhoto } from "./recipe-photo";
 
 const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c"] as const;
@@ -611,6 +612,19 @@ export function RecipeEditor({
             {/* After the list, because it summarises it. Placed above, it read
                 as the first thing to fill in. */}
             <NutritionPanel nutrition={nutrition} />
+
+            {/* Everything past the four headline figures, on request and on
+                the paid plan. */}
+            <NutritionDetailPanel
+              ingredients={draft.ingredients
+                .filter((ingredient) => ingredient.name.trim() !== "")
+                .map((ingredient) => ({
+                  name: ingredient.name,
+                  quantity: ingredient.quantity,
+                  unit: ingredient.unit,
+                }))}
+              servings={draft.servings}
+            />
           </div>
         )}
 

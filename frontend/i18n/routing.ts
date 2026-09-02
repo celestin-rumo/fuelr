@@ -68,6 +68,11 @@ export const routing = defineRouting({
       en: "/app/plan",
       de: "/app/wochenplan",
     },
+    "/app/journal": {
+      fr: "/app/journal",
+      en: "/app/journal",
+      de: "/app/tagebuch",
+    },
     "/app/shopping": {
       fr: "/app/courses",
       en: "/app/shopping",

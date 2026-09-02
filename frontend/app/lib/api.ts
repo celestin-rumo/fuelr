@@ -141,6 +141,97 @@ export type PantryItem = {
   updatedAt: string;
 };
 
+export type LogEntry = {
+  id: number;
+  date: string;
+  slot: string;
+  title: string;
+  servings: number;
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  estimated: boolean;
+  source: "PLAN" | "RECIPE" | "FREE";
+  recipeId: number | null;
+};
+
+/**
+ * One day's total. `logged` says whether anything was written down at all — a
+ * blank day is a day nobody recorded, not a day of eating nothing, and the
+ * averages are careful about the difference.
+ */
+export type LogDay = {
+  date: string | null;
+  logged: boolean;
+  meals: number;
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  estimated: boolean;
+};
+
+/** `chosen` is false while these are the figures the profile computes. */
+export type NutritionTargets = {
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  chosen: boolean;
+};
+
+/** A finding, as a code and its numbers. The wording lives in the catalogue. */
+export type Insight = { code: string; values: Record<string, number> };
+
+export type LogWeek = {
+  weekStart: string;
+  days: LogDay[];
+  entries: LogEntry[];
+  average: LogDay;
+  loggedDays: number;
+  targets: NutritionTargets | null;
+  insights: Insight[];
+  /** Whether the plan that includes targets and findings is paid for. */
+  tracking: boolean;
+};
+
+export type LogHistory = {
+  from: string;
+  to: string;
+  windowed: boolean;
+  windowDays: number;
+  earliest: string | null;
+  days: LogDay[];
+};
+
+/** The paid detail: macros past the four figures, plus what was measured. */
+export type NutritionDetail = {
+  total: DetailedTotals;
+  perServing: DetailedTotals;
+  servings: number;
+  containsEstimates: boolean;
+  micronutrients: { code: string; amount: number; unit: string }[];
+  ingredients: {
+    name: string;
+    kcal: number;
+    proteinG: number;
+    carbsG: number;
+    fatG: number;
+    guessed: boolean;
+  }[];
+};
+
+export type DetailedTotals = {
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  fibreG: number;
+  sugarsG: number;
+  saltG: number;
+};
+
 export type HouseholdMember = {
   userId: number;
   name: string | null;

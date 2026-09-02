@@ -66,7 +66,8 @@
       "recipes": "Recettes",
       "plan": "Planning",
       "household": "Foyer",
-      "shopping": "Courses"
+      "shopping": "Courses",
+      "journal": "Journal"
     }
   },
   "plan": {
@@ -236,6 +237,95 @@
       "body": "La liste n'a pas pu être chargée. Recharge la page ; rien n'est perdu."
     }
   },
+  "journal": {
+    "label": "Nutrition & suivi",
+    "title": "Mon journal",
+    "intro": "Ce que tu as mangé, écrit sans jugement. Le journal est gratuit ; l'objectif à côté et les constats en dessous font partie du plan Plus.",
+    "week": "Semaine du {date}",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "loggedDays": "{logged, plural, =0 {aucun jour noté} one {# jour noté} other {# jours notés}} sur {days}",
+    "estimated": "estimé",
+    "target": "objectif {value} {unit}",
+    "chartSummary": "{label} — {days} jours notés sur {total}",
+    "add": {
+      "title": "Noter un repas",
+      "body": "Un repas au restaurant n'a pas de recette et n'a pas besoin qu'on lui en invente une. Un nom et des kcal suffisent.",
+      "name": "Repas",
+      "kcal": "kcal",
+      "protein": "Protéines (g)",
+      "date": "Jour",
+      "submit": "Noter"
+    },
+    "charts": {
+      "title": "Ma semaine",
+      "energy": "Énergie par jour",
+      "protein": "Protéines",
+      "carbs": "Glucides",
+      "fat": "Lipides"
+    },
+    "insights": {
+      "title": "Constats",
+      "NOTHING_LOGGED": {
+        "finding": "Rien n'est noté cette semaine.",
+        "action": "Ajoute un repas ci-dessus, même approximatif : c'est plus utile qu'une semaine vide."
+      },
+      "PARTIAL_WEEK": {
+        "finding": "{logged} jours notés sur {days}.",
+        "action": "Les moyennes portent sur ces jours-là, pas sur la semaine entière."
+      },
+      "ENERGY_VS_TARGET": {
+        "finding": "{average} kcal en moyenne par jour noté, pour un objectif de {target}.",
+        "action": "Écart de {gap} kcal ({gapPercent} %). S'il tient plusieurs semaines, c'est l'objectif qu'on ajuste."
+      },
+      "PROTEIN_BELOW_TARGET": {
+        "finding": "Protéines : {average} g en moyenne, pour {target} g visés.",
+        "action": "Une source de protéines au petit-déjeuner comble en général l'essentiel des {gap} g manquants."
+      },
+      "CONTAINS_ESTIMATES": {
+        "finding": "Une partie des ingrédients de la semaine est estimée.",
+        "action": "Les totaux sont des ordres de grandeur. Préciser le nom d'un ingrédient suffit souvent à le faire reconnaître."
+      }
+    },
+    "targets": {
+      "title": "Mes objectifs",
+      "chosen": "Ce sont les chiffres que tu as fixés.",
+      "computed": "Ces chiffres viennent de ton profil. Tant que tu n'en fixes pas, ce sont des suggestions.",
+      "kcal": "kcal / jour",
+      "protein": "Protéines (g)",
+      "submit": "Enregistrer"
+    },
+    "locked": {
+      "title": "Objectifs, graphiques et constats",
+      "body": "Le journal reste gratuit et complet. Ce qui vient avec le plan Plus, c'est l'objectif à côté des chiffres, les graphiques de la semaine et l'historique au-delà de 30 jours.",
+      "order": "Tu peux passer au plan Plus depuis ton foyer.",
+      "notPurchasable": "Le plan Plus n'est pas encore ouvert à la souscription.",
+      "link": "Voir mon plan"
+    },
+    "entries": {
+      "title": "Repas notés",
+      "empty": "Rien de noté cette semaine.",
+      "figures": "{kcal} kcal · {protein} g de protéines",
+      "remove": "Retirer {title} du journal"
+    },
+    "history": {
+      "title": "Historique",
+      "load": "Voir les 90 derniers jours",
+      "energy": "Énergie par jour",
+      "range": "du {from} au {to}",
+      "windowed": "Le plan gratuit garde une fenêtre de {days} jours. Rien n'est supprimé : le reste revient avec le plan Plus."
+    },
+    "errors": {
+      "incomplete": "Il faut au moins un nom et des kcal.",
+      "target": "Un objectif se compte au moins en centaines de kcal.",
+      "upgrade_required": "Les objectifs font partie du plan Plus.",
+      "failed": "L'opération n'a pas abouti. Réessaie."
+    },
+    "unavailable": {
+      "title": "Le journal n'est pas joignable",
+      "body": "Le journal n'a pas pu être chargé. Recharge la page ; rien n'est perdu."
+    }
+  },
   "auth": {
     "title": "Connexion",
     "intro": "Entre tes identifiants pour retrouver tes recettes et ton planning.",
@@ -371,6 +461,43 @@
     },
     "source": {
       "label": "Importée depuis"
+    },
+    "detail": {
+      "title": "Détail nutritionnel",
+      "open": "Voir le détail (fibres, sels minéraux, vitamines)",
+      "locked": "Le détail des macros et des micronutriments fait partie du plan Plus. L'énergie et les trois macros restent gratuites.",
+      "lockedLink": "Voir mon plan",
+      "estimated": "Un ingrédient au moins n'a pas été reconnu : il ne compte pour aucune vitamine ci-dessus.",
+      "source": "Source : Base de données suisse des valeurs nutritives (OSAV).",
+      "macros": {
+        "fibre": "Fibres",
+        "sugars": "Sucres",
+        "salt": "Sel"
+      },
+      "nutrients": {
+        "calcium": "Calcium",
+        "cholesterol": "Cholestérol",
+        "folate": "Folates",
+        "iodine": "Iode",
+        "iron": "Fer",
+        "magnesium": "Magnésium",
+        "niacin": "Niacine",
+        "pantothenic_acid": "Acide pantothénique",
+        "phosphorus": "Phosphore",
+        "potassium": "Potassium",
+        "saturated_fat": "Acides gras saturés",
+        "selenium": "Sélénium",
+        "sodium": "Sodium",
+        "vitamin_a": "Vitamine A",
+        "vitamin_b1": "Vitamine B1",
+        "vitamin_b12": "Vitamine B12",
+        "vitamin_b2": "Vitamine B2",
+        "vitamin_b6": "Vitamine B6",
+        "vitamin_c": "Vitamine C",
+        "vitamin_d": "Vitamine D",
+        "vitamin_e": "Vitamine E",
+        "zinc": "Zinc"
+      }
     }
   },
   "cook": {

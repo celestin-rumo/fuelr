@@ -31,14 +31,14 @@ export function AppHeader({
           </span>
         </Link>
 
-        {/* The two places a signed-in person actually lives. The labels stay
+        {/* Where a signed-in person actually lives. The labels stay
             readable at every width — an icon-only nav would need explaining —
             so below `sm`, where the bar has about 80px to spare and the nav
             wants twice that, it drops to a line of its own instead of pushing
             the theme toggle off the screen. */}
         <nav
           aria-label={t("nav.label")}
-          className="order-last flex w-full items-center gap-1 sm:order-none sm:w-auto"
+          className="order-last flex w-full flex-wrap items-center gap-x-1 gap-y-0.5 sm:order-none sm:w-auto"
         >
           <Link
             href="/app"
@@ -57,6 +57,12 @@ export function AppHeader({
             className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
           >
             {t("nav.shopping")}
+          </Link>
+          <Link
+            href="/app/journal"
+            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          >
+            {t("nav.journal")}
           </Link>
           <Link
             href="/app/household"

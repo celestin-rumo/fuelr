@@ -66,7 +66,8 @@
       "recipes": "Rezepte",
       "plan": "Wochenplan",
       "household": "Haushalt",
-      "shopping": "Einkauf"
+      "shopping": "Einkauf",
+      "journal": "Tagebuch"
     }
   },
   "plan": {
@@ -236,6 +237,95 @@
       "body": "Die Liste konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
     }
   },
+  "journal": {
+    "label": "Ernährung & Verlauf",
+    "title": "Mein Tagebuch",
+    "intro": "Was du gegessen hast, ohne Bewertung notiert. Das Tagebuch ist gratis; das Ziel daneben und die Feststellungen darunter gehören zum Plus-Plan.",
+    "week": "Woche vom {date}",
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "loggedDays": "{logged, plural, =0 {kein Tag notiert} one {# Tag notiert} other {# Tage notiert}} von {days}",
+    "estimated": "geschätzt",
+    "target": "Ziel {value} {unit}",
+    "chartSummary": "{label} — {days} von {total} Tagen notiert",
+    "add": {
+      "title": "Mahlzeit notieren",
+      "body": "Ein Essen im Restaurant hat kein Rezept und braucht auch keines. Ein Name und die Kalorien genügen.",
+      "name": "Mahlzeit",
+      "kcal": "kcal",
+      "protein": "Protein (g)",
+      "date": "Tag",
+      "submit": "Notieren"
+    },
+    "charts": {
+      "title": "Meine Woche",
+      "energy": "Energie pro Tag",
+      "protein": "Protein",
+      "carbs": "Kohlenhydrate",
+      "fat": "Fett"
+    },
+    "insights": {
+      "title": "Feststellungen",
+      "NOTHING_LOGGED": {
+        "finding": "Diese Woche ist nichts notiert.",
+        "action": "Trag oben eine Mahlzeit ein, auch grob geschätzt: Das nützt mehr als eine leere Woche."
+      },
+      "PARTIAL_WEEK": {
+        "finding": "{logged} von {days} Tagen notiert.",
+        "action": "Die Durchschnitte beziehen sich auf diese Tage, nicht auf die ganze Woche."
+      },
+      "ENERGY_VS_TARGET": {
+        "finding": "{average} kcal im Schnitt pro notiertem Tag, bei einem Ziel von {target}.",
+        "action": "Abweichung von {gap} kcal ({gapPercent} %). Hält sie über Wochen an, passt man das Ziel an."
+      },
+      "PROTEIN_BELOW_TARGET": {
+        "finding": "Protein: {average} g im Schnitt, angestrebt sind {target} g.",
+        "action": "Eine Proteinquelle beim Frühstück deckt meist den grössten Teil der fehlenden {gap} g."
+      },
+      "CONTAINS_ESTIMATES": {
+        "finding": "Ein Teil der Zutaten dieser Woche ist geschätzt.",
+        "action": "Die Summen sind Grössenordnungen. Oft genügt ein genauerer Zutatenname, damit sie erkannt wird."
+      }
+    },
+    "targets": {
+      "title": "Meine Ziele",
+      "chosen": "Das sind die Werte, die du gesetzt hast.",
+      "computed": "Diese Werte kommen aus deinem Profil. Solange du keine eigenen setzt, sind es Vorschläge.",
+      "kcal": "kcal / Tag",
+      "protein": "Protein (g)",
+      "submit": "Speichern"
+    },
+    "locked": {
+      "title": "Ziele, Grafiken und Feststellungen",
+      "body": "Das Tagebuch bleibt gratis und vollständig. Der Plus-Plan bringt das Ziel neben den Zahlen, die Wochengrafiken und den Verlauf über 30 Tage hinaus.",
+      "order": "Du kannst in deinem Haushalt zum Plus-Plan wechseln.",
+      "notPurchasable": "Der Plus-Plan kann noch nicht abonniert werden.",
+      "link": "Meinen Plan ansehen"
+    },
+    "entries": {
+      "title": "Notierte Mahlzeiten",
+      "empty": "Diese Woche ist nichts notiert.",
+      "figures": "{kcal} kcal · {protein} g Protein",
+      "remove": "{title} aus dem Tagebuch entfernen"
+    },
+    "history": {
+      "title": "Verlauf",
+      "load": "Die letzten 90 Tage zeigen",
+      "energy": "Energie pro Tag",
+      "range": "vom {from} bis {to}",
+      "windowed": "Der Gratis-Plan behält ein Fenster von {days} Tagen. Nichts wird gelöscht: Der Rest kommt mit dem Plus-Plan zurück."
+    },
+    "errors": {
+      "incomplete": "Ein Name und die Kalorien sind das Minimum.",
+      "target": "Ein Ziel zählt mindestens in Hundertern von kcal.",
+      "upgrade_required": "Ziele gehören zum Plus-Plan.",
+      "failed": "Das hat nicht geklappt. Versuch es nochmal."
+    },
+    "unavailable": {
+      "title": "Das Tagebuch ist nicht erreichbar",
+      "body": "Das Tagebuch konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
+    }
+  },
   "auth": {
     "title": "Anmelden",
     "intro": "Gib deine Daten ein, um zu deinen Rezepten und deinem Plan zurückzukehren.",
@@ -371,6 +461,43 @@
     },
     "source": {
       "label": "Importiert von"
+    },
+    "detail": {
+      "title": "Nährwertdetails",
+      "open": "Details anzeigen (Ballaststoffe, Mineralstoffe, Vitamine)",
+      "locked": "Makros und Mikronährstoffe im Detail gehören zum Plus-Plan. Energie und die drei Makros bleiben gratis.",
+      "lockedLink": "Meinen Plan ansehen",
+      "estimated": "Mindestens eine Zutat wurde nicht erkannt: Sie zählt zu keinem der Vitamine oben.",
+      "source": "Quelle: Schweizer Nährwertdatenbank (BLV).",
+      "macros": {
+        "fibre": "Ballaststoffe",
+        "sugars": "Zucker",
+        "salt": "Salz"
+      },
+      "nutrients": {
+        "calcium": "Kalzium",
+        "cholesterol": "Cholesterin",
+        "folate": "Folat",
+        "iodine": "Jod",
+        "iron": "Eisen",
+        "magnesium": "Magnesium",
+        "niacin": "Niacin",
+        "pantothenic_acid": "Pantothensäure",
+        "phosphorus": "Phosphor",
+        "potassium": "Kalium",
+        "saturated_fat": "Gesättigte Fettsäuren",
+        "selenium": "Selen",
+        "sodium": "Natrium",
+        "vitamin_a": "Vitamin A",
+        "vitamin_b1": "Vitamin B1",
+        "vitamin_b12": "Vitamin B12",
+        "vitamin_b2": "Vitamin B2",
+        "vitamin_b6": "Vitamin B6",
+        "vitamin_c": "Vitamin C",
+        "vitamin_d": "Vitamin D",
+        "vitamin_e": "Vitamin E",
+        "zinc": "Zink"
+      }
     }
   },
   "cook": {
