@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { Banner } from "@ui/banner";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 
@@ -84,16 +85,11 @@ export function LoginForm({
       />
 
       {error && (
-        <p
-          role="alert"
-          data-testid="login-error"
-          className="text-[13px] font-semibold text-coral-ink"
-        >
-          <span aria-hidden>! </span>
+        <Banner tone="error" data-testid="login-error">
           {error === "too_many_attempts"
             ? t("errors.too_many_attempts", { seconds: retryAfter ?? "60" })
             : t(`errors.${error}`)}
-        </p>
+        </Banner>
       )}
 
       <Button type="submit" size="lg" loading={busy}>
