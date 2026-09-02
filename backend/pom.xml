@@ -28,6 +28,15 @@
     </properties>
 
     <dependencies>
+        <!-- Reading recipes out of other people's HTML. Jsoup because a page
+             that publishes microdata cannot be read with a regex, and pages
+             that hand-roll their markup are the norm, not the exception. -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.18.3</version>
+        </dependency>
+
 
         <!-- REST API / Spring MVC -->
         <dependency>

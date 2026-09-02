@@ -85,10 +85,12 @@ public class RecipeService {
         if (body.ingredients() != null) {
             recipe.getIngredients().clear();
             for (IngredientInput input : body.ingredients()) {
-                recipe.getIngredients().add(new RecipeIngredient(
+                RecipeIngredient row = new RecipeIngredient(
                         input.name().trim(),
                         BigDecimal.valueOf(input.quantity()),
-                        input.unit()));
+                        input.unit());
+                row.setNeedsReview(input.needsReview());
+                recipe.getIngredients().add(row);
             }
         }
         if (body.steps() != null) {
@@ -238,6 +240,9 @@ public class RecipeService {
     @Transactional
     public Recipe publish(Recipe recipe) {
         recipe.setStatus(Recipe.Status.PUBLISHED);
+        // Publishing is the cook saying the recipe is right. Whatever the
+        // import was unsure of has now been looked at, by definition.
+        recipe.setUnverified(null);
         return recipes.save(recipe);
     }
 

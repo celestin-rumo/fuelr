@@ -55,6 +55,11 @@ export default async function AppHomePage({
               {t("export")}
             </a>
           )}
+          {/* Importing sits beside creating, not hidden inside it: pasting a
+              link is a different intent from starting a blank recipe. */}
+          <Link href="/app/recipes/import">
+            <Button size="lg" variant="secondary">{t("importRecipe")}</Button>
+          </Link>
           <Link href="/app/recipes/new">
             <Button size="lg">{t("newRecipe")}</Button>
           </Link>

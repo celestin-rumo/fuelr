@@ -3,6 +3,9 @@ package ch.celestin.fuelr.recipe;
 import ch.celestin.fuelr.media.MediaStorage;
 import ch.celestin.fuelr.nutrition.NutritionDtos;
 import ch.celestin.fuelr.nutrition.NutritionService;
+import ch.celestin.fuelr.recipe.RecipeDtos.ImportRequest;
+import ch.celestin.fuelr.recipe.importer.RecipeImportService;
+import ch.celestin.fuelr.recipe.importer.SafePageFetcher;
 import ch.celestin.fuelr.recipe.RecipeDtos.IngredientView;
 import ch.celestin.fuelr.recipe.RecipeDtos.RecipeSummary;
 import ch.celestin.fuelr.recipe.RecipeDtos.RecipeView;
@@ -34,12 +37,15 @@ public class RecipeController {
     private final RecipeService recipes;
     private final NutritionService nutrition;
     private final MediaStorage media;
+    private final RecipeImportService recipeImport;
 
     public RecipeController(
-            RecipeService recipes, NutritionService nutrition, MediaStorage media) {
+            RecipeService recipes, NutritionService nutrition, MediaStorage media,
+            RecipeImportService recipeImport) {
         this.recipes = recipes;
         this.nutrition = nutrition;
         this.media = media;
+        this.recipeImport = recipeImport;
     }
 
     /** Uploading replaces whatever was there; the old file is removed. */
@@ -99,6 +105,28 @@ public class RecipeController {
     @ResponseStatus(HttpStatus.CREATED)
     public RecipeView createDraft(@AuthenticationPrincipal Jwt principal) {
         return toView(recipes.createDraft(userId(principal)));
+    }
+
+    /**
+     * Imports from a link, and always lands in the editor as a draft.
+     *
+     * The two failure modes are told apart on purpose: a page we could not
+     * reach is 502, a page we reached but could not read is 422. The screen
+     * says something different for each, and offers manual entry either way —
+     * a failed import must not be a dead end.
+     */
+    @PostMapping("/import")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeView importFromUrl(
+            @AuthenticationPrincipal Jwt principal,
+            @Valid @RequestBody ImportRequest body) {
+        try {
+            return toView(recipeImport.importFrom(userId(principal), body.url()));
+        } catch (SafePageFetcher.UnreadableSourceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, e.getMessage());
+        } catch (RecipeImportService.NothingToImportException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+        }
     }
 
     @GetMapping
@@ -248,9 +276,16 @@ public class RecipeController {
                 recipe.getPhotoPath() != null,
                 recipe.getIngredients().stream()
                         .map(i -> new IngredientView(
-                                i.getId(), i.getName(), i.getQuantity().doubleValue(), i.getUnit()))
+                                i.getId(), i.getName(), i.getQuantity().doubleValue(),
+                                i.getUnit(), i.isNeedsReview()))
                         .toList(),
                 recipe.getSteps().stream().map(RecipeStep::getText).toList(),
-                recipe.getTags());
+                recipe.getTags(),
+                recipe.getSourceUrl(),
+                recipe.getTotalMinutes(),
+                recipe.getUnverified() == null || recipe.getUnverified().isBlank()
+                        ? java.util.Set.of()
+                        : new java.util.LinkedHashSet<>(
+                                java.util.List.of(recipe.getUnverified().split(","))));
     }
 }

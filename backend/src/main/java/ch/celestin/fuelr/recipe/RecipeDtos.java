@@ -2,6 +2,7 @@ package ch.celestin.fuelr.recipe;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 import java.util.Set;
@@ -26,10 +27,22 @@ public final class RecipeDtos {
             Set<String> tags) {
     }
 
-    public record IngredientInput(String name, double quantity, String unit) {
+    /**
+     * {@code needsReview} travels back and forth so an import's doubt survives
+     * autosave. It clears when the cook replaces the line — which is the only
+     * act that actually resolves it. Absent in a hand-written payload, and
+     * false is the right default there.
+     */
+    public record IngredientInput(
+            String name, double quantity, String unit, boolean needsReview) {
     }
 
-    public record IngredientView(Long id, String name, double quantity, String unit) {
+    /**
+     * {@code needsReview} marks a line an import could not read into a quantity
+     * and a unit, so the editor can ask rather than pass a guess off as read.
+     */
+    public record IngredientView(
+            Long id, String name, double quantity, String unit, boolean needsReview) {
     }
 
     public record RecipeView(
@@ -42,7 +55,14 @@ public final class RecipeDtos {
             boolean hasPhoto,
             List<IngredientView> ingredients,
             List<String> steps,
-            Set<String> tags) {
+            Set<String> tags,
+            String sourceUrl,
+            Integer totalMinutes,
+            /** Field names the import had to guess at: "servings", "steps", "title". */
+            Set<String> unverified) {
+    }
+
+    public record ImportRequest(@NotBlank String url) {
     }
 
     /**

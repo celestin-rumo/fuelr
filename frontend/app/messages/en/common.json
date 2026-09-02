@@ -59,7 +59,8 @@
       "confirm": "Delete",
       "cancel": "Cancel",
       "body": "The recipe leaves your library. Meals already cooked and logged are untouched."
-    }
+    },
+    "importRecipe": "Import"
   },
   "auth": {
     "title": "Sign in",
@@ -182,6 +183,20 @@
       "previous": "Previous",
       "next": "Next",
       "finish": "Close"
+    },
+    "review": {
+      "title": "Check before publishing",
+      "body": "The import could not read: {fields}.",
+      "badge": "Check",
+      "ingredient": "Quantity or unit was guessed",
+      "fields": {
+        "servings": "the number of servings",
+        "steps": "the steps",
+        "title": "the title"
+      }
+    },
+    "source": {
+      "label": "Imported from"
     }
   },
   "forgotPassword": {
@@ -321,6 +336,29 @@
       "title": "This page is not responding",
       "body": "It rendered, but its code did not load: buttons and forms will do nothing. Reload the page.",
       "reload": "Reload the page"
+    }
+  },
+  "import": {
+    "title": "Import a recipe",
+    "intro": "Paste a recipe link. We read the page, you fix what is missing.",
+    "url": "Recipe link",
+    "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo and most cooking sites.",
+    "submit": "Import",
+    "orManual": "Page will not read?",
+    "manualLink": "Enter the recipe by hand",
+    "errors": {
+      "not_a_url": {
+        "title": "That is not a link",
+        "body": "A link starts with http:// or https://."
+      },
+      "unreachable": {
+        "title": "Page unreachable",
+        "body": "The site did not answer, or it turns automated visitors away. You can enter the recipe by hand."
+      },
+      "unreadable": {
+        "title": "Nothing to import on that page",
+        "body": "It does not publish its recipe in a machine-readable format. Nothing is lost: enter it by hand."
+      }
     }
   }
 }
