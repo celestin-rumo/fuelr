@@ -223,6 +223,24 @@
       "more": "One serving more",
       "recipeIsFor": "The recipe is written for {count, plural, one {# person} other {# people}}",
       "stepTextUnchanged": "quantities written inside the steps are not recalculated."
+    },
+    "timers": {
+      "minutes": "{count} min",
+      "hours": "{count} h",
+      "hoursMinutes": "{hours} h {minutes}",
+      "step": "Step {number}",
+      "pause": "Pause the timer of step {number}",
+      "resume": "Resume the timer of step {number}",
+      "cancel": "Cancel the timer of step {number}",
+      "done": "Done",
+      "doneAgo": "{count} min ago",
+      "justNow": "just now",
+      "endedTitle": "{count, plural, one {Timer done} other {# timers done}}",
+      "endedBody": "Step {number} · {duration}",
+      "dismiss": "Got it",
+      "announce": "Timer done: step {number}",
+      "notificationTitle": "Timer done",
+      "notificationBody": "{recipe} · step {number} ({duration})"
     }
   },
   "forgotPassword": {

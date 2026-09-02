@@ -143,6 +143,29 @@ test("the ingredients open over the step, scaled for tonight", async ({
   await expect(sheet).toBeHidden();
 });
 
+test("a duration in the step becomes a timer that follows the cook", async ({
+  page,
+  request,
+}) => {
+  const id = await createRecipe(request, CURRY);
+
+  await page.goto(`/fr/app/recettes/${id}/cuisiner`);
+  // Step one states no duration, so it offers nothing at all.
+  await expect(page.getByTestId("cook-durations")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Suivante" }).click();
+  await page.getByRole("button", { name: "⏱ 5 min" }).click();
+
+  const timer = page.getByTestId("cook-timer");
+  await expect(timer).toContainText("Étape 2");
+  await expect(timer).toContainText(/0[45]:\d\d/);
+
+  // It belongs to the pan, not to the step on screen.
+  await page.getByRole("button", { name: "Suivante" }).click();
+  await expect(page.getByTestId("cook-progress")).toHaveText("Étape 3 sur 3");
+  await expect(timer).toBeVisible();
+});
+
 test("nothing scrolls sideways on a narrow phone, controls stay on screen", async ({
   page,
   request,

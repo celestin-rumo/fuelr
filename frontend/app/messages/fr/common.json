@@ -223,6 +223,24 @@
       "more": "Une portion de plus",
       "recipeIsFor": "La recette est pour {count, plural, one {# personne} other {# personnes}}",
       "stepTextUnchanged": "les quantités écrites dans les étapes ne sont pas recalculées."
+    },
+    "timers": {
+      "minutes": "{count} min",
+      "hours": "{count} h",
+      "hoursMinutes": "{hours} h {minutes}",
+      "step": "Étape {number}",
+      "pause": "Mettre en pause le minuteur de l'étape {number}",
+      "resume": "Reprendre le minuteur de l'étape {number}",
+      "cancel": "Annuler le minuteur de l'étape {number}",
+      "done": "Terminé",
+      "doneAgo": "il y a {count} min",
+      "justNow": "à l'instant",
+      "endedTitle": "{count, plural, one {Minuteur terminé} other {# minuteurs terminés}}",
+      "endedBody": "Étape {number} · {duration}",
+      "dismiss": "C'est noté",
+      "announce": "Minuteur terminé : étape {number}",
+      "notificationTitle": "Minuteur terminé",
+      "notificationBody": "{recipe} · étape {number} ({duration})"
     }
   },
   "forgotPassword": {

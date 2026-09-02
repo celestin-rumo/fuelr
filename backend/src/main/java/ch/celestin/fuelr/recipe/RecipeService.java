@@ -256,26 +256,57 @@ public class RecipeService {
         }
     }
 
-    private static final java.util.regex.Pattern DURATION =
-            java.util.regex.Pattern.compile("(\\d+)\\s*(min|h)", java.util.regex.Pattern.CASE_INSENSITIVE);
+    /** Longest first, so "minutes" is never read as "min" followed by "utes". */
+    private static final String UNIT = "minutes?|minuten|mins?|mn|heures?|hours?|stunden?|std|h";
+
+    /** A unit must not begin a longer word: "5 minimum" states no duration. */
+    private static final String NOT_LETTER = "(?![a-zA-ZÀ-ÖØ-öø-ÿ])";
 
     /**
-     * Total time read out of the step text — "15 min", "1 h". A step with no
-     * stated duration counts as three minutes, which is closer to the truth
-     * than counting it as zero.
+     * One duration, as a step writes it.
+     *
+     * The trailing group is what makes "1 h 30" ninety minutes rather than
+     * sixty. It is refused when that number carries a unit of its own, so
+     * "1 h 30 min" still reads as two durations adding to the same ninety —
+     * and {@code (?!\d)} stops it settling for the "3" of "30", which would
+     * quietly make the step 63 minutes long.
+     *
+     * The frontend parses the same text to offer the timers, in
+     * {@code app/lib/durations.ts}. The two are one rule written twice, and
+     * {@code RecipeDurationTest} runs the same table as {@code durations.test.ts}:
+     * if they disagree, a card promises a total no timer can account for.
+     */
+    private static final java.util.regex.Pattern DURATION =
+            java.util.regex.Pattern.compile(
+                    "(\\d+)\\s*(" + UNIT + ")" + NOT_LETTER
+                            + "(?:\\s*(\\d{1,2})(?!\\d)(?!\\s*(?:" + UNIT + ")" + NOT_LETTER + "))?",
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Total time read out of the step text — "15 min", "1 h 30", "20 Minuten".
+     * A step with no stated duration counts as three minutes, which is closer
+     * to the truth than counting it as zero.
      */
     public static int minutesFor(Recipe recipe) {
         int total = 0;
         for (RecipeStep step : recipe.getSteps()) {
-            var matcher = DURATION.matcher(step.getText());
-            int stepMinutes = 0;
-            while (matcher.find()) {
-                int value = Integer.parseInt(matcher.group(1));
-                stepMinutes += matcher.group(2).equalsIgnoreCase("h") ? value * 60 : value;
-            }
-            total += stepMinutes > 0 ? stepMinutes : 3;
+            total += minutesIn(step.getText());
         }
         return total;
+    }
+
+    /** What one step states, or three minutes when it states nothing. */
+    static int minutesIn(String text) {
+        var matcher = DURATION.matcher(text);
+        int stepMinutes = 0;
+        while (matcher.find()) {
+            int value = Integer.parseInt(matcher.group(1));
+            // "min", "mins", "minute", "minuten", "mn" — everything else is an hour.
+            boolean hours = !matcher.group(2).toLowerCase().startsWith("m");
+            int extra = hours && matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+            stepMinutes += hours ? value * 60 + extra : value;
+        }
+        return stepMinutes > 0 ? stepMinutes : 3;
     }
 
     private static String blankToNull(String value) {

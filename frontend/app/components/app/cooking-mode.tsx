@@ -3,10 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { Banner } from "@ui/banner";
 import { Button, IconButton, buttonClasses } from "@ui/button";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
+import { armAlarm, askForNotifications, notify, sound, vibrate } from "@app/lib/alarm";
 import { cookableSteps } from "@app/lib/cooking";
+import { clock, durationsIn } from "@app/lib/durations";
+import { useCookingTimers } from "@app/lib/use-cooking-timers";
+import { useWakeLock } from "@app/lib/use-wake-lock";
 import { CookingIngredients } from "./cooking-ingredients";
 
 /**
@@ -24,9 +29,73 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
   const [servings, setServings] = useState(recipe.servings);
   const [ticked, setTicked] = useState<number[]>([]);
   const [sheet, setSheet] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
+  const [now, setNow] = useState(() => Date.now());
   const opener = useRef<HTMLButtonElement>(null);
 
   const last = index === steps.length - 1;
+  const title = recipe.title?.trim() || t("untitled");
+
+  // The screen stays on for as long as this component is mounted, and gives
+  // itself back when it is not.
+  useWakeLock(true);
+
+  const formatDuration = useCallback(
+    (minutes: number) => {
+      const hours = Math.floor(minutes / 60);
+      const rest = minutes % 60;
+      if (hours === 0) return t("timers.minutes", { count: rest });
+      if (rest === 0) return t("timers.hours", { count: hours });
+      return t("timers.hoursMinutes", { hours, minutes: rest });
+    },
+    [t],
+  );
+
+  const timers = useCookingTimers({
+    onEnded: (timer) => {
+      sound();
+      vibrate();
+      notify(
+        t("timers.notificationTitle"),
+        t("timers.notificationBody", {
+          recipe: title,
+          number: timer.stepIndex + 1,
+          duration: formatDuration(timer.minutes),
+        }),
+        `fuelr-timer-${timer.id}`,
+      );
+      // Said out loud too: a chip turning mint is not an announcement.
+      setAnnouncement(t("timers.announce", { number: timer.stepIndex + 1 }));
+    },
+  });
+
+  const ended = timers.timers.filter((timer) => timer.state === "ended");
+
+  // "3 min ago" only has to move once a minute, and only while something has
+  // already rung — the countdown itself is driven by the hook. It is read
+  // again the moment the tab comes back, because a timer that rang while the
+  // screen was off is exactly the one whose "ago" must not be stale.
+  useEffect(() => {
+    if (ended.length === 0) return;
+    const refresh = () => setNow(Date.now());
+    refresh();
+    const interval = window.setInterval(refresh, 15_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [ended.length]);
+
+  const durations = useMemo(() => durationsIn(steps[index] ?? ""), [steps, index]);
+
+  function startTimer(minutes: number) {
+    // Both of these need the tap that started the timer: a page cannot make a
+    // sound, nor ask for notifications, outside a gesture.
+    armAlarm();
+    void askForNotifications();
+    timers.start(index, minutes);
+  }
 
   const go = useCallback(
     (delta: -1 | 1) => {
@@ -91,7 +160,7 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
         </Link>
 
         <h1 className="min-w-0 flex-1 truncate font-display text-[16px] leading-[1.2] font-extrabold text-text sm:text-[18px]">
-          {recipe.title?.trim() || t("untitled")}
+          {title}
         </h1>
 
         <span
@@ -126,6 +195,27 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
           >
             {steps[index]}
           </p>
+
+          {/* Read out of the step's own text, so an imported recipe gets its
+              timers without anyone re-typing them. A step stating no duration
+              offers nothing at all — no empty control, no zero. */}
+          {durations.length > 0 && (
+            <div data-testid="cook-durations" className="flex shrink-0 flex-wrap gap-2 pt-2">
+              {durations.map((duration, position) => (
+                <button
+                  key={`${duration.at}-${position}`}
+                  type="button"
+                  onClick={() => startTimer(duration.minutes)}
+                  className={buttonClasses({
+                    variant: "secondary",
+                    className: "h-14 px-5",
+                  })}
+                >
+                  ⏱ {formatDuration(duration.minutes)}
+                </button>
+              ))}
+            </div>
+          )}
         </main>
 
         <CookingIngredients
@@ -156,6 +246,116 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
           className="fixed inset-0 z-30 bg-[color-mix(in_srgb,var(--bg)_70%,transparent)] lg:hidden"
         />
       )}
+
+      {/* Running timers stay on screen whatever step is showing: a timer
+          belongs to the pan, not to the page the cook happens to be on. */}
+      {timers.timers.length > 0 && (
+        <ul
+          data-testid="cook-timers"
+          className="flex shrink-0 items-center gap-2 overflow-x-auto border-t border-line px-3 py-2"
+        >
+          {timers.timers.map((timer) => {
+            const number = timer.stepIndex + 1;
+            const ago = timer.endedAt
+              ? Math.floor((now - timer.endedAt) / 60_000)
+              : 0;
+            return (
+              <li
+                key={timer.id}
+                data-testid="cook-timer"
+                data-state={timer.state}
+                className={cn(
+                  "flex shrink-0 items-center gap-1 rounded-full border py-1 pr-1 pl-3",
+                  timer.state === "ended"
+                    ? "border-mint-ink bg-[color-mix(in_srgb,var(--mint)_14%,transparent)]"
+                    : "border-line bg-bg-raised",
+                )}
+              >
+                <span className="flex flex-col">
+                  <span className="text-[10px] font-bold tracking-[0.02em] text-gray uppercase">
+                    {t("timers.step", { number })}
+                  </span>
+                  <span
+                    className={cn(
+                      "tnum font-mono text-[15px] font-semibold whitespace-nowrap",
+                      timer.state === "ended" ? "text-mint-ink" : "text-text",
+                    )}
+                  >
+                    {timer.state === "ended"
+                      ? `${t("timers.done")} · ${
+                          ago >= 1 ? t("timers.doneAgo", { count: ago }) : t("timers.justNow")
+                        }`
+                      : clock(timer.remaining)}
+                  </span>
+                </span>
+
+                {timer.state !== "ended" && (
+                  <IconButton
+                    aria-label={
+                      timer.state === "running"
+                        ? t("timers.pause", { number })
+                        : t("timers.resume", { number })
+                    }
+                    variant="text"
+                    className="size-14"
+                    onClick={() =>
+                      timer.state === "running"
+                        ? timers.pause(timer.id)
+                        : timers.resume(timer.id)
+                    }
+                  >
+                    {timer.state === "running" ? "⏸" : "▶"}
+                  </IconButton>
+                )}
+
+                <IconButton
+                  aria-label={t("timers.cancel", { number })}
+                  variant="text"
+                  className="size-14"
+                  onClick={() => timers.cancel(timer.id)}
+                >
+                  ✕
+                </IconButton>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {/* The alert that always fires, whatever the browser allowed. */}
+      {ended.length > 0 && (
+        <div className="shrink-0 px-3 pb-2">
+          <Banner
+            tone="success"
+            data-testid="cook-timer-ended"
+            title={t("timers.endedTitle", { count: ended.length })}
+            action={
+              <Button className="h-14" onClick={timers.dismissEnded}>
+                {t("timers.dismiss")}
+              </Button>
+            }
+          >
+            {ended
+              .map((timer) =>
+                t("timers.endedBody", {
+                  number: timer.stepIndex + 1,
+                  duration: formatDuration(timer.minutes),
+                }),
+              )
+              .join(" · ")}
+          </Banner>
+        </div>
+      )}
+
+      {/* Announced, not only shown. */}
+      <p
+        data-testid="cook-announcement"
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {announcement}
+      </p>
 
       <footer className="flex shrink-0 items-center gap-2 border-t border-line p-3 sm:gap-3 sm:px-4">
         <div className="lg:hidden">
