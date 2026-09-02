@@ -429,6 +429,30 @@ three small charts side by side, each in the one accent, each with its own
 target line. Nothing then depends on telling two colours apart. A day nobody
 logged is drawn as a baseline tick, not a zero bar.
 
+**Seasons are a closed domain, and that is the point.** Four values in
+`recipe_seasons`, not a tag: "show me what is in season" has to be derivable
+from the date, and it cannot be if the value is whatever somebody typed. A
+recipe carries zero, one or several — a squash soup is autumn *and* winter,
+and most dishes are of no season at all. Filtering by two seasons asks for
+*either*, unlike tags, which are cumulative. `Season.of` and `seasonOf` are
+the only two places that turn a date into a season, and both say out loud that
+they assume the northern hemisphere: the day Fuelr ships south of the equator
+that has to follow the account rather than the calendar.
+
+**The step suggestions are a fixed list, not a generator.** Typing `/` in a
+step offers ready-made phrasings from a catalogue written in advance, in three
+languages — which is why the story is free. Suggesting steps *from the
+recipe's own contents* would be a different thing entirely and belongs to the
+paid epic. What is inserted is ordinary text: a step that cannot be edited
+afterwards is a form field pretending to be a sentence.
+
+The trigger only fires at the start of the field or after a space, and a space
+closes it again. That is what keeps "1/2 citron" typable — the slash there
+follows a digit, so it is a fraction and not a command, which is the failure
+everybody meets first with this convention. On a phone the list opens upwards
+when `visualViewport` says the keyboard has taken the room below: the viewport
+is the part of the page the keyboard has *not* eaten, and `innerHeight` is not.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into
