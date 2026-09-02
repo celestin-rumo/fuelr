@@ -15,6 +15,13 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Optional<Recipe> findByIdAndUserId(Long id, Long userId);
 
     /**
+     * The recipes behind a set of planned meals, in one query. The week grid
+     * shows up to 28 of them, and one lookup each would be 28 round trips for
+     * a single screen.
+     */
+    List<Recipe> findByUserIdAndIdIn(Long userId, Collection<Long> ids);
+
+    /**
      * Search runs in the database rather than over a fetched list: a library of
      * 200 recipes is the case this exists for.
      *

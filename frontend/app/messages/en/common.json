@@ -60,7 +60,72 @@
       "cancel": "Cancel",
       "body": "The recipe leaves your library. Meals already cooked and logged are untouched."
     },
-    "importRecipe": "Import"
+    "importRecipe": "Import",
+    "nav": {
+      "label": "Main navigation",
+      "recipes": "Recipes",
+      "plan": "Plan"
+    }
+  },
+  "plan": {
+    "label": "Planning",
+    "title": "My week",
+    "untitled": "Untitled",
+    "close": "Close",
+    "estimated": "estimated",
+    "week": "Week of {date}",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "thisWeek": "This week",
+    "dayKcal": "{kcal} kcal",
+    "servingsShort": "{count, plural, one {# serving} other {# servings}}",
+    "recipeMeta": "{servings, plural, one {# serving} other {# servings}} · {minutes} min",
+    "nothingPlanned": "Nothing planned",
+    "add": "Add",
+    "addTo": "Add a meal — {day}, {slot}",
+    "slots": {
+      "BREAKFAST": "Breakfast",
+      "LUNCH": "Lunch",
+      "DINNER": "Dinner",
+      "SNACK": "Snack"
+    },
+    "household": {
+      "label": "Household",
+      "less": "One person fewer in the household",
+      "more": "One person more in the household"
+    },
+    "duplicate": {
+      "action": "Copy to next week",
+      "title": "Next week is already planned",
+      "body": "Copying will replace the meals already placed on next week. This week is left alone.",
+      "confirm": "Replace",
+      "cancel": "Cancel"
+    },
+    "rail": {
+      "title": "My recipes",
+      "hint": "Drag a recipe onto a slot.",
+      "search": "Search a recipe",
+      "noResults": "No recipe matches."
+    },
+    "meal": {
+      "open": "Edit {title} — {day}, {slot}",
+      "scaled": "Recipe written for {count, plural, one {# serving} other {# servings}} · {minutes} min",
+      "servings": "Servings",
+      "less": "One serving fewer for {title}",
+      "more": "One serving more for {title}",
+      "moveTitle": "Move",
+      "openRecipe": "Open the recipe",
+      "remove": "Remove from the plan"
+    },
+    "noRecipes": {
+      "title": "No recipe to plan with",
+      "body": "The week fills up with your own recipes. Write one, then drop it on a day.",
+      "action": "New recipe"
+    },
+    "unavailable": {
+      "title": "The plan cannot be reached",
+      "body": "This week could not be loaded. Reload the page — nothing already planned is lost."
+    }
   },
   "auth": {
     "title": "Sign in",
