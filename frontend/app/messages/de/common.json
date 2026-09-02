@@ -223,6 +223,24 @@
       "more": "Eine Portion mehr",
       "recipeIsFor": "Das Rezept ist für {count, plural, one {# Person} other {# Personen}}",
       "stepTextUnchanged": "Mengen im Schritttext werden nicht umgerechnet."
+    },
+    "timers": {
+      "minutes": "{count} Min.",
+      "hours": "{count} Std.",
+      "hoursMinutes": "{hours} Std. {minutes}",
+      "step": "Schritt {number}",
+      "pause": "Timer von Schritt {number} pausieren",
+      "resume": "Timer von Schritt {number} fortsetzen",
+      "cancel": "Timer von Schritt {number} abbrechen",
+      "done": "Fertig",
+      "doneAgo": "vor {count} Min.",
+      "justNow": "gerade eben",
+      "endedTitle": "{count, plural, one {Timer fertig} other {# Timer fertig}}",
+      "endedBody": "Schritt {number} · {duration}",
+      "dismiss": "Alles klar",
+      "announce": "Timer fertig: Schritt {number}",
+      "notificationTitle": "Timer fertig",
+      "notificationBody": "{recipe} · Schritt {number} ({duration})"
     }
   },
   "forgotPassword": {
