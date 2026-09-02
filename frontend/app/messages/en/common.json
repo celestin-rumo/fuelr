@@ -241,6 +241,25 @@
       "announce": "Timer done: step {number}",
       "notificationTitle": "Timer done",
       "notificationBody": "{recipe} · step {number} ({duration})"
+    },
+    "resume": {
+      "title": "A dish is under way",
+      "body": "{recipe} · step {number} of {total}",
+      "resume": "Resume",
+      "discard": "Discard"
+    },
+    "conflict": {
+      "title": "Another dish is under way",
+      "body": "{recipe} · step {number} of {total}. Only one session is kept at a time.",
+      "resume": "Resume that one",
+      "takeOver": "Cook this one"
+    },
+    "finished": {
+      "label": "Done",
+      "elapsed": "{duration} at the stove",
+      "under": "under a minute",
+      "done": "Back to the recipe",
+      "again": "Cook it again"
     }
   },
   "forgotPassword": {

@@ -52,7 +52,7 @@ describe("CookingMode", () => {
     renderWithIntl(<CookingMode recipe={recipeWith({ steps: ["Servir."] })} />);
 
     expect(screen.queryByRole("button", { name: /Suivante/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Terminer" })).toBeInTheDocument();
+    expect(screen.getByTestId("cook-finish")).toHaveTextContent("Terminer");
 
     // And the counter does not pretend there are more.
     expect(screen.getByTestId("cook-progress")).toHaveTextContent("Étape 1 sur 1");

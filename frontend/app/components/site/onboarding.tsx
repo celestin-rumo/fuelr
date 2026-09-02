@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonClasses } from "@ui/button";
 import { Card } from "@ui/card";
 import { Input } from "@ui/input";
 import { Spinner } from "@ui/spinner";
+import { useHydrated } from "@app/lib/use-hydrated";
 import {
   type Activity,
   type Draft,
@@ -17,25 +18,6 @@ import {
   readDraft,
   writeDraft,
 } from "@app/lib/onboarding";
-
-/**
- * False on the server and through hydration, true afterwards.
- *
- * The stored draft only exists in the browser, so a component that reads it
- * cannot render the same markup on both sides. Rather than reading storage in
- * an effect and patching the result in — which is both a state update in an
- * effect and a hydration mismatch — the stateful part simply does not mount
- * until hydration is done, and can then seed itself directly from storage.
- */
-const noSubscribe = () => () => {};
-
-function useHydrated() {
-  return useSyncExternalStore(
-    noSubscribe,
-    () => true,
-    () => false,
-  );
-}
 
 const GOALS: Goal[] = ["LOSE", "MAINTAIN", "GAIN"];
 const SEXES: Sex[] = ["FEMALE", "MALE"];

@@ -4,6 +4,7 @@ import { getPathname } from "@/i18n/navigation";
 import { getSession } from "@app/lib/session";
 import { AppHeader } from "@app/components/app/app-header";
 import { VerifyEmailBanner } from "@app/components/app/verify-email-banner";
+import { CookingResumeBanner } from "@app/components/app/cooking-resume-banner";
 
 /**
  * Everything under /app is behind this layout, and this is where access is
@@ -32,6 +33,9 @@ export default async function AppLayout({
     <div className="flex min-h-full flex-1 flex-col bg-bg">
       <AppHeader email={session.email} name={session.name} />
       {!session.emailVerified && <VerifyEmailBanner email={session.email} />}
+      {/* A dish left mid-way is the first thing to say on coming back, and it
+          belongs on every screen of the app rather than on one of them. */}
+      <CookingResumeBanner />
       <main className="flex-1">{children}</main>
     </div>
   );
