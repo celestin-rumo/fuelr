@@ -368,6 +368,67 @@ chunks under the very paths a worker would be holding. Its version comes from
 the build id on the script URL, which is what makes a release install a new
 worker and drop the previous one's caches.
 
+**The reference food table is imported, not typed.** 1 216 foods from the
+Swiss Food Composition Database (FSVO), names and synonyms in fr/en/de, macros
+and twenty-odd micronutrients per 100 g. `tools/food-table/build.py` joins the
+published workbooks into two CSVs under `resources/food/`, and
+`FoodTableImporter` re-imports them whenever their checksum changes — so
+following an upstream release is a regenerate, a diff and a boot, never a
+hand-edited migration. The terms and the attribution live in
+`tools/food-table/SOURCE.md`; the product is paid, so that file is the one to
+keep in step with theirs.
+
+**More data made matching harder, not easier, and that was the real work.**
+A substring search over two dozen rows is fine; over twelve hundred it is
+actively wrong, and the answer used to depend on the order rows came back in.
+`FoodMatcher` normalises (lowercase, unaccented, ligatures opened — NFD does
+not take "œ" apart), cuts the written name into words, and tries every run of
+consecutive words longest-first against three indexes: the whole published
+name, its head before the first comma, and the head's first word. A published
+table says "Oignon, cru" where a cook writes "oignon", so the head index is
+what makes the common case work at all; whole words are what stop "ail"
+matching "corail"; and where several foods answer to one key the shortest full
+name wins, because fewest qualifiers is the plainest version of the thing.
+`FoodMatchingCorpusTest` holds it to 90% over 288 real ingredient lines — it
+sits at 91.3%, and the number is printed on every run.
+
+**The fallback and the "estimated" flag stay.** No published table covers a
+brand, a grandmother's preparation or a regional name. What changed is that
+the guess became rare instead of usual. A guessed ingredient contributes no
+micronutrients at all: inventing them is the one thing the detail screen must
+not do.
+
+**A logged meal copies its values — now enforced, not just promised.**
+`meal_log` stores the figures as they were at the moment of logging and keeps
+the recipe id without a foreign key, so correcting a recipe in June cannot
+rewrite what was eaten in March, and deleting one leaves the history standing.
+Marking a planned meal cooked logs one serving, not the whole pot, and does so
+once however many times it is clicked.
+
+**Writing the diary is free; measuring yourself against it is not.**
+`Feature.NUTRITION_TRACKING` gates the target, the findings and the charts;
+`FULL_HISTORY` gates anything older than the 30-day window. The window is a
+clamp on the start date, never a filter on the rows — the data is all still
+there, and it comes back the moment the plan does.
+
+**The findings are codes and numbers; the words live in the catalogues.**
+Nothing on that screen congratulates, blames, or counts a streak, and the
+rules are deliberately dull: a gap against a target, a macro that is short, a
+week that was only half written down. An average is taken over the days that
+were logged, never over seven — a blank day is a day nobody wrote down, not a
+day of eating nothing, and treating it as zero would flatter every figure on
+the screen. Every finding carries something to do about it; a finding with no
+action is just a verdict.
+
+**One series per chart, because this palette has two chromatic families.**
+Protein, carbohydrate and fat in one three-colour chart needs three hues that
+stay apart for a colourblind reader, and lime and mint are neighbours — the
+validator puts their worst adjacent pair below the readable floor whichever
+steps are chosen. The fix is not a worse palette but fewer series per chart:
+three small charts side by side, each in the one accent, each with its own
+target line. Nothing then depends on telling two colours apart. A day nobody
+logged is drawn as a baseline tick, not a zero bar.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into
