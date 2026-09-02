@@ -59,7 +59,8 @@
       "confirm": "Löschen",
       "cancel": "Abbrechen",
       "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt."
-    }
+    },
+    "importRecipe": "Importieren"
   },
   "auth": {
     "title": "Anmelden",
@@ -182,6 +183,20 @@
       "previous": "Zurück",
       "next": "Weiter",
       "finish": "Schließen"
+    },
+    "review": {
+      "title": "Vor dem Veröffentlichen prüfen",
+      "body": "Der Import konnte nicht lesen: {fields}.",
+      "badge": "Prüfen",
+      "ingredient": "Menge oder Einheit geraten",
+      "fields": {
+        "servings": "die Anzahl Portionen",
+        "steps": "die Schritte",
+        "title": "den Titel"
+      }
+    },
+    "source": {
+      "label": "Importiert von"
     }
   },
   "forgotPassword": {
@@ -321,6 +336,29 @@
       "title": "Diese Seite reagiert nicht",
       "body": "Sie wurde angezeigt, aber ihr Code wurde nicht geladen: Schaltflächen und Formulare tun nichts. Lade die Seite neu.",
       "reload": "Seite neu laden"
+    }
+  },
+  "import": {
+    "title": "Rezept importieren",
+    "intro": "Füge einen Rezeptlink ein. Wir lesen die Seite, du korrigierst, was fehlt.",
+    "url": "Rezeptlink",
+    "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo und die meisten Kochseiten.",
+    "submit": "Importieren",
+    "orManual": "Die Seite lässt sich nicht lesen?",
+    "manualLink": "Rezept von Hand erfassen",
+    "errors": {
+      "not_a_url": {
+        "title": "Das ist kein Link",
+        "body": "Ein Link beginnt mit http:// oder https://."
+      },
+      "unreachable": {
+        "title": "Seite nicht erreichbar",
+        "body": "Die Seite hat nicht geantwortet oder weist automatische Besucher ab. Du kannst das Rezept von Hand erfassen."
+      },
+      "unreadable": {
+        "title": "Auf dieser Seite ist nichts zu importieren",
+        "body": "Sie veröffentlicht ihr Rezept nicht maschinenlesbar. Nichts ist verloren: erfasse es von Hand."
+      }
     }
   }
 }

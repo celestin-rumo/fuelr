@@ -30,9 +30,22 @@ export type Recipe = {
   level: string | null;
   status: "DRAFT" | "PUBLISHED";
   hasPhoto: boolean;
-  ingredients: { id: number; name: string; quantity: number; unit: string }[];
+  ingredients: {
+    id: number;
+    name: string;
+    quantity: number;
+    unit: string;
+    /** The import could not read this line into a quantity and a unit. */
+    needsReview: boolean;
+  }[];
   steps: string[];
   tags: string[];
+  /** Where an imported recipe came from. Null when it was written by hand. */
+  sourceUrl: string | null;
+  /** A duration the source stated; otherwise it is inferred from the steps. */
+  totalMinutes: number | null;
+  /** Field names the import had to guess at: "servings", "steps", "title". */
+  unverified: string[];
 };
 
 export type RecipeSummary = {

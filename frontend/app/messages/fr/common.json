@@ -59,7 +59,8 @@
       "confirm": "Supprimer",
       "cancel": "Annuler",
       "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés."
-    }
+    },
+    "importRecipe": "Importer"
   },
   "auth": {
     "title": "Connexion",
@@ -182,6 +183,20 @@
       "previous": "Précédent",
       "next": "Suivant",
       "finish": "Fermer"
+    },
+    "review": {
+      "title": "À vérifier avant de publier",
+      "body": "L'import n'a pas pu lire : {fields}.",
+      "badge": "À vérifier",
+      "ingredient": "Quantité ou unité devinée",
+      "fields": {
+        "servings": "le nombre de portions",
+        "steps": "les étapes",
+        "title": "le titre"
+      }
+    },
+    "source": {
+      "label": "Importée depuis"
     }
   },
   "forgotPassword": {
@@ -321,6 +336,29 @@
       "title": "Cette page ne répond pas",
       "body": "Elle s'est affichée, mais son code ne s'est pas chargé : les boutons et les formulaires ne feront rien. Recharge la page.",
       "reload": "Recharger la page"
+    }
+  },
+  "import": {
+    "title": "Importer une recette",
+    "intro": "Colle le lien d'une recette. On lit la page, tu corriges ce qui manque.",
+    "url": "Lien de la recette",
+    "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo et la plupart des sites de cuisine.",
+    "submit": "Importer",
+    "orManual": "La page ne se laisse pas lire ?",
+    "manualLink": "Saisir la recette à la main",
+    "errors": {
+      "not_a_url": {
+        "title": "Ce n'est pas un lien",
+        "body": "Un lien commence par http:// ou https://."
+      },
+      "unreachable": {
+        "title": "Page inaccessible",
+        "body": "Le site n'a pas répondu, ou il refuse les visiteurs automatiques. Tu peux saisir la recette à la main."
+      },
+      "unreadable": {
+        "title": "Rien à importer sur cette page",
+        "body": "Elle ne publie pas sa recette dans un format lisible par une machine. Rien n'est perdu : saisis-la à la main."
+      }
     }
   }
 }

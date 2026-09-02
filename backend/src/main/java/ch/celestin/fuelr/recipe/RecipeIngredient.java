@@ -26,6 +26,22 @@ public class RecipeIngredient {
     @Column(nullable = false)
     private String unit;
 
+    /**
+     * Set when an import could not read the line into a quantity and a unit.
+     * Cleared as soon as the cook saves the row, because saving it is what
+     * makes it theirs rather than a guess.
+     */
+    @Column(name = "needs_review", nullable = false)
+    private boolean needsReview = false;
+
+    public boolean isNeedsReview() {
+        return needsReview;
+    }
+
+    public void setNeedsReview(boolean needsReview) {
+        this.needsReview = needsReview;
+    }
+
     protected RecipeIngredient() {
     }
 

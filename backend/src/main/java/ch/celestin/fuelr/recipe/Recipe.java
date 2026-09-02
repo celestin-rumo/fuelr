@@ -68,6 +68,21 @@ public class Recipe {
     @Column(name = "favorite_rank")
     private Integer favoriteRank;
 
+    /** Where an imported recipe came from, so it can be credited and rechecked. */
+    @Column(name = "source_url", length = 2048)
+    private String sourceUrl;
+
+    /**
+     * A duration the source stated. Null means nobody said, and the total goes
+     * back to being inferred from the step text — one number, one source.
+     */
+    @Column(name = "total_minutes")
+    private Integer totalMinutes;
+
+    /** Comma-separated names of fields an import had to guess at. */
+    @Column(length = 120)
+    private String unverified;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -167,6 +182,30 @@ public class Recipe {
 
     public Integer getFavoriteRank() {
         return favoriteRank;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
+
+    public Integer getTotalMinutes() {
+        return totalMinutes;
+    }
+
+    public void setTotalMinutes(Integer totalMinutes) {
+        this.totalMinutes = totalMinutes;
+    }
+
+    public String getUnverified() {
+        return unverified;
+    }
+
+    public void setUnverified(String unverified) {
+        this.unverified = unverified;
     }
 
     public void setFavoriteRank(Integer favoriteRank) {
