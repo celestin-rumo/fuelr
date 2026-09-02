@@ -93,7 +93,7 @@ classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
 
 | File              | Exports                                                        |
 | ----------------- | -------------------------------------------------------------- |
-| `button.tsx`      | `Button` (6 variants × 3 sizes, `loading`, `fullWidth`), `IconButton` |
+| `button.tsx`      | `Button` (6 variants × 4 sizes + `none`, `loading`, `fullWidth`), `IconButton` (`size` md/xl) |
 | `input.tsx`       | `Input` (label + hint, `status` default/error/success)          |
 | `checkbox.tsx`    | `Checkbox` (`indeterminate`, `error`)                           |
 | `radio.tsx`       | `Radio`                                                         |
@@ -130,6 +130,14 @@ sets `inline-flex` itself and `.hidden` is emitted earlier in the stylesheet,
 so the CTA stayed visible at 375px and pushed every marketing page 88px
 sideways. Put the toggle on a wrapper, or use `buttonClasses()` on an element
 of your own.
+
+A size behaves the same way. `<Button className="h-14">` did nothing: the
+size class already in the string won, and every 56 px target in cooking mode
+was quietly 46 — and 44 on `IconButton`, which was overriding the height a
+second time. Sizes are therefore chosen, never patched: `size="xl"` is the
+56 px control, and `IconButton` passes `size="none"` so the button emits no
+height for it to fight. If a caller needs a box the library does not have,
+add it to the library.
 
 ## Internationalization
 
@@ -221,6 +229,38 @@ running. `HydrationBanner` is the answer — server-rendered, removed the instan
 React takes over, and held back four seconds by `.reveal-late` so a healthy page
 never flashes it. If a control ever seems inert, that banner appearing is the
 diagnosis.
+
+**Cooking mode reads the recipe and never writes to it.** That is what makes
+it safe to scale the quantities on screen for six people without touching a
+recipe written for four, and what lets it work with no network at all. The
+session it keeps — step, servings, ticked ingredients, running timers, and a
+copy of the recipe — lives in `localStorage` under one key, so it survives a
+dead network and dies on sign-out. It does not follow the cook to another
+device; that would need the backend and is a story of its own.
+
+Two rules there are worth keeping. Timers store the wall-clock instant they
+are due and recompute from it, because an interval alone is throttled to a
+crawl in a hidden tab and comes back wrong by exactly the minutes the cook was
+away. And the wake lock has to be re-acquired on `visibilitychange`: the
+browser drops it every time the tab hides, so taking it once is the bug that
+looks like it works.
+
+**`navigator.onLine` is not a network check.** It reports that an interface
+exists, not that anything is reachable — under Playwright's offline emulation
+it says "online" while every request fails. Where the app needs to know, it is
+told: the service worker serving the offline shell is a fact, that flag is a
+guess.
+
+**The service worker caches two things and refuses everything else.**
+Content-hashed assets under `/_next/static`, which cannot be stale in a way
+that is wrong, and one offline page per locale. No page carrying a session is
+ever cached, because a worker that cached pages will eventually serve one
+person's signed-in HTML to the next and nothing in a test suite would say so —
+`e2e/cooking-offline.spec.ts` walks the caches and asserts it. It registers in
+production only, and unregisters itself anywhere else: the dev server rebuilds
+chunks under the very paths a worker would be holding. Its version comes from
+the build id on the script URL, which is what makes a release install a new
+worker and drop the previous one's caches.
 
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
