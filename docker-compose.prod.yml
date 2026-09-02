@@ -53,7 +53,11 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set in the production .env file}
       MAIL_HOST: smtp.resend.com
       MAIL_PORT: 587
-      MAIL_USERNAME: ${MAIL_USERNAME:?MAIL_USERNAME must be set in the production .env file}
+      # Fixed by the provider, like the host above: Resend's SMTP user is the
+      # literal string "resend", never the sender address and never the API
+      # key. Kept out of the secrets precisely because making it configurable
+      # only ever produced "535 Invalid username".
+      MAIL_USERNAME: resend
       MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD must be set in the production .env file}
       MAIL_SMTP_AUTH: "true"
       MAIL_SMTP_STARTTLS: "true"

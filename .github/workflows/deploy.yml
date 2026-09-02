@@ -62,7 +62,6 @@ jobs:
           IMAGE_NAMESPACE: ${{ github.repository_owner }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           # Spring Mail reads this; for Resend the password is the API key.
           MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -78,7 +77,6 @@ jobs:
           POSTGRES_USER=fuelr
           POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
-          MAIL_USERNAME=${MAIL_USERNAME}
           MAIL_PASSWORD=${MAIL_PASSWORD}
           JWT_SECRET=${JWT_SECRET}
           EOF
@@ -134,7 +132,6 @@ jobs:
           IMAGE_NAMESPACE: ${{ github.repository_owner }}
           POSTGRES_PASSWORD: ${{ secrets.STAGING_POSTGRES_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
-          MAIL_USERNAME: ${{ secrets.STAGING_MAIL_USERNAME }}
           # Same Resend account as production, so the same key.
           MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -150,7 +147,6 @@ jobs:
           POSTGRES_USER=fuelr_staging
           POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
-          MAIL_USERNAME=${MAIL_USERNAME}
           MAIL_PASSWORD=${MAIL_PASSWORD}
           JWT_SECRET=${JWT_SECRET}
           EOF
