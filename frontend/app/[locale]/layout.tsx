@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { Poppins, Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@app/components/theme-provider";
 import { HydrationBanner } from "@app/components/app/hydration-banner";
+import { ServiceWorker } from "@app/components/app/service-worker";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -26,10 +27,18 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Fuelr",
-  description: "Save your recipes and plan your meals for the week.",
-};
+export async function generateMetadata({
+  params,
+}: LayoutProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Fuelr",
+    description: "Save your recipes and plan your meals for the week.",
+    // One manifest per locale: the install prompt is the app introducing
+    // itself, and it should not do that in a language nobody chose.
+    manifest: `/manifest/${locale}`,
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -59,6 +68,7 @@ export default async function LocaleLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <NextIntlClientProvider>
             {children}
+            <ServiceWorker />
             {/* Last, so it sits above the page it is complaining about. */}
             <HydrationBanner />
           </NextIntlClientProvider>

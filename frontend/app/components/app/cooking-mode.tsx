@@ -14,6 +14,7 @@ import type { CookingSession } from "@app/lib/cooking-session";
 import { clearSession, readSession, writeSession } from "@app/lib/cooking-session";
 import { useCookingTimers } from "@app/lib/use-cooking-timers";
 import { useHydrated } from "@app/lib/use-hydrated";
+import { useOnline } from "@app/lib/use-online";
 import { useWakeLock } from "@app/lib/use-wake-lock";
 import { CookingIngredients } from "./cooking-ingredients";
 
@@ -29,13 +30,28 @@ import { CookingIngredients } from "./cooking-ingredients";
  * renders exactly what the server sent: step one, which is also the right
  * answer when there is no session to come back to.
  */
-export function CookingMode({ recipe }: { recipe: Recipe }) {
+export function CookingMode({
+  recipe,
+  offline = false,
+}: {
+  recipe: Recipe;
+  /**
+   * True when this is the offline shell rather than the page itself.
+   *
+   * It is stated rather than detected because `navigator.onLine` cannot be
+   * trusted for it: it reports that a network interface exists, not that
+   * anything is reachable, and it happily says "online" while every request
+   * fails. Being served from the cache is a fact; that flag is a guess.
+   */
+  offline?: boolean;
+}) {
   const hydrated = useHydrated();
   return (
     <CookingSurface
       key={hydrated ? "live" : "server"}
       recipe={recipe}
       restore={hydrated}
+      offline={offline}
     />
   );
 }
@@ -43,10 +59,12 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
 function CookingSurface({
   recipe,
   restore,
+  offline,
 }: {
   recipe: Recipe;
   /** False through hydration, when there is no storage to read yet. */
   restore: boolean;
+  offline: boolean;
 }) {
   const t = useTranslations("cook");
 
@@ -76,6 +94,10 @@ function CookingSurface({
 
   const last = index === steps.length - 1;
   const title = recipe.title?.trim() || t("untitled");
+  const online = useOnline();
+  // Either we are already on the offline shell, or the browser has just told
+  // us the network went away under a page that is still open.
+  const disconnected = offline || !online;
 
   // The screen stays on while there is cooking to do, and is given back the
   // moment there is not — including on the completion screen.
@@ -139,6 +161,8 @@ function CookingSurface({
     writeSession({
       recipeId: recipe.id,
       title,
+      // Copied in so the session can be cooked with no network at all.
+      recipe,
       stepIndex: index,
       stepCount: steps.length,
       servings,
@@ -156,7 +180,7 @@ function CookingSurface({
     conflict,
     done,
     index,
-    recipe.id,
+    recipe,
     restore,
     servings,
     startedAt,
@@ -247,7 +271,7 @@ function CookingSurface({
     return (
       <div className="flex h-dvh flex-col items-center justify-center gap-8 bg-bg px-6 text-center">
         <div className="flex flex-col gap-3">
-          <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+          <span className="text-[11px] font-bold tracking-[0.02em] text-text-dim uppercase">
             {t("finished.label")}
           </span>
           <h1 className="font-display text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] text-text">
@@ -267,11 +291,11 @@ function CookingSurface({
         <div className="flex w-full max-w-sm flex-col gap-3">
           <Link
             href={recipeHref}
-            className={buttonClasses({ variant: "primary", className: "h-14 w-full" })}
+            className={buttonClasses({ variant: "primary", size: "xl", fullWidth: true })}
           >
             {t("finished.done")}
           </Link>
-          <Button variant="secondary" className="h-14" onClick={cookAgain}>
+          <Button variant="secondary" size="xl" onClick={cookAgain}>
             {t("finished.again")}
           </Button>
         </div>
@@ -293,6 +317,17 @@ function CookingSurface({
         <h1 className="min-w-0 flex-1 truncate font-display text-[16px] leading-[1.2] font-extrabold text-text sm:text-[18px]">
           {title}
         </h1>
+
+        {/* Said, not shouted: nothing here needs the network, so losing it
+            changes nothing but this word. */}
+        {disconnected && (
+          <span
+            data-testid="cook-offline"
+            className="shrink-0 rounded-full border border-line px-2 py-0.5 text-[11px] font-bold tracking-[0.02em] text-text-dim uppercase"
+          >
+            {t("offline.badge")}
+          </span>
+        )}
 
         <span
           data-testid="cook-progress"
@@ -328,13 +363,13 @@ function CookingSurface({
                     pathname: "/app/recipes/[id]/cook",
                     params: { id: String(conflict.recipeId) },
                   }}
-                  className={buttonClasses({ variant: "primary", className: "h-14" })}
+                  className={buttonClasses({ variant: "primary", size: "xl" })}
                 >
                   {t("conflict.resume")}
                 </Link>
                 <Button
                   variant="secondary"
-                  className="h-14"
+                  size="xl"
                   onClick={() => setConflict(null)}
                 >
                   {t("conflict.takeOver")}
@@ -356,7 +391,7 @@ function CookingSurface({
             box: a 600-character imported step must not push the controls off
             the bottom of the phone. */}
         <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-          <p className="shrink-0 text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+          <p className="shrink-0 text-[11px] font-bold tracking-[0.02em] text-text-dim uppercase">
             {t("stepLabel", { number: index + 1 })}
           </p>
           <p
@@ -377,10 +412,7 @@ function CookingSurface({
                   key={`${duration.at}-${position}`}
                   type="button"
                   onClick={() => startTimer(duration.minutes)}
-                  className={buttonClasses({
-                    variant: "secondary",
-                    className: "h-14 px-5",
-                  })}
+                  className={buttonClasses({ variant: "secondary", size: "xl" })}
                 >
                   ⏱ {formatDuration(duration.minutes)}
                 </button>
@@ -443,7 +475,7 @@ function CookingSurface({
                 )}
               >
                 <span className="flex flex-col">
-                  <span className="text-[10px] font-bold tracking-[0.02em] text-gray uppercase">
+                  <span className="text-[10px] font-bold tracking-[0.02em] text-text-dim uppercase">
                     {t("timers.step", { number })}
                   </span>
                   <span
@@ -468,7 +500,7 @@ function CookingSurface({
                         : t("timers.resume", { number })
                     }
                     variant="text"
-                    className="size-14"
+                    size="xl"
                     onClick={() =>
                       timer.state === "running"
                         ? timers.pause(timer.id)
@@ -482,7 +514,7 @@ function CookingSurface({
                 <IconButton
                   aria-label={t("timers.cancel", { number })}
                   variant="text"
-                  className="size-14"
+                  size="xl"
                   onClick={() => timers.cancel(timer.id)}
                 >
                   ✕
@@ -501,7 +533,7 @@ function CookingSurface({
             data-testid="cook-timer-ended"
             title={t("timers.endedTitle", { count: ended.length })}
             action={
-              <Button className="h-14" onClick={timers.dismissEnded}>
+              <Button size="xl" onClick={timers.dismissEnded}>
                 {t("timers.dismiss")}
               </Button>
             }
@@ -528,16 +560,15 @@ function CookingSurface({
         {announcement}
       </p>
 
-      <footer className="flex shrink-0 items-center gap-2 border-t border-line p-3 sm:gap-3 sm:px-4">
+      {/* Tight on a narrow phone: three 56px controls and the word
+          "Ingrédients" do not leave 24px of padding to spare at 375px. */}
+      <footer className="flex shrink-0 items-center gap-2 border-t border-line px-2 py-3 sm:gap-3 sm:px-4">
         <div className="lg:hidden">
           <button
             ref={opener}
             type="button"
             onClick={() => setSheet(true)}
-            className={buttonClasses({
-              variant: "secondary",
-              className: "h-14 px-5",
-            })}
+            className={buttonClasses({ variant: "secondary", size: "xl" })}
           >
             {t("ingredients.open")}
           </button>
@@ -546,7 +577,8 @@ function CookingSurface({
         <IconButton
           aria-label={t("previous")}
           variant="secondary"
-          className="size-14 text-[18px]"
+          size="xl"
+          className="text-[18px]"
           disabled={index === 0}
           onClick={() => go(-1)}
         >
@@ -554,11 +586,11 @@ function CookingSurface({
         </IconButton>
 
         {last ? (
-          <Button className="h-14 flex-1" data-testid="cook-finish" onClick={finish}>
+          <Button size="xl" className="flex-1" data-testid="cook-finish" onClick={finish}>
             {t("finish")}
           </Button>
         ) : (
-          <Button className="h-14 flex-1" onClick={() => go(1)}>
+          <Button size="xl" className="flex-1" onClick={() => go(1)}>
             {t("next")} →
           </Button>
         )}

@@ -260,6 +260,12 @@
       "under": "moins d'une minute",
       "done": "Revenir à la recette",
       "again": "Cuisiner à nouveau"
+    },
+    "offline": {
+      "badge": "Hors ligne",
+      "title": "Pas de réseau",
+      "body": "Aucun plat n'est en cours sur cet appareil. Reviens quand le réseau est là — tes recettes t'attendent.",
+      "retry": "Réessayer"
     }
   },
   "forgotPassword": {
@@ -423,5 +429,10 @@
         "body": "Elle ne publie pas sa recette dans un format lisible par une machine. Rien n'est perdu : saisis-la à la main."
       }
     }
+  },
+  "manifest": {
+    "name": "Fuelr · recettes et repas de la semaine",
+    "shortName": "Fuelr",
+    "description": "Tes recettes, ton plan de la semaine et le mode cuisine, même sans réseau."
   }
 }

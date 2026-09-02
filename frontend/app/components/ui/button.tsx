@@ -34,6 +34,24 @@ const sizes = {
   sm: "h-9 px-4 text-[13px]",
   md: "h-[46px] px-5 text-[15px]",
   lg: "h-[54px] px-7 text-base",
+  /**
+   * 56px, the smallest target that can be hit with the back of a hand.
+   *
+   * It is a size rather than a `className` on the caller, because passing
+   * `h-14` in would lose: the size class is already in the string, and which
+   * height wins is decided by Tailwind's stylesheet order, not by the order
+   * the classes are listed. Cooking mode was silently getting 46px.
+   */
+  xl: "h-14 px-7 text-base",
+  /**
+   * No box at all, for a control that supplies its own — `IconButton` does.
+   *
+   * It exists so there is never a second height in the class string: which of
+   * two competing utilities wins is decided by Tailwind's stylesheet order,
+   * not by the order they are listed, and that is not a thing to be guessing
+   * about. Callers should reach for a real size.
+   */
+  none: "",
 } as const;
 
 export type ButtonVariant = keyof typeof variants;
@@ -101,23 +119,33 @@ export function Button({
   );
 }
 
+/** Square. The button itself emits no size, so these are uncontested. */
+const iconSizes = {
+  md: "h-11 w-11",
+  xl: "h-14 w-14",
+} as const;
+
 export type IconButtonProps = Omit<ButtonProps, "size" | "fullWidth"> & {
   /** Required: an icon button has no text to name it. */
   "aria-label": string;
   selected?: boolean;
+  /** `xl` is 56px: for a screen operated with dirty hands. */
+  size?: keyof typeof iconSizes;
 };
 
 export function IconButton({
   className,
   selected = false,
   variant = "tertiary",
+  size = "md",
   children,
   ...props
 }: IconButtonProps) {
   return (
     <Button
       variant={selected ? "primary" : variant}
-      className={cn("h-11 w-11 shrink-0 p-0 text-base", className)}
+      size="none"
+      className={cn(iconSizes[size], "shrink-0 p-0 text-base", className)}
       {...props}
     >
       {children}

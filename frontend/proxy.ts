@@ -40,6 +40,8 @@ export default function proxy(request: NextRequest) {
 export const config = {
   // Match all pathnames except for
   // - … if they start with `/api`, `/trpc`, `/_next` or `/_vercel`
-  // - … the ones containing a dot (e.g. `favicon.ico`)
-  matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+  // - … `/manifest`, which carries its own locale in the path: localising it
+  //   would send the browser to `/fr/manifest/fr`
+  // - … the ones containing a dot (e.g. `favicon.ico`, `sw.js`)
+  matcher: "/((?!api|trpc|_next|_vercel|manifest|.*\\..*).*)",
 };

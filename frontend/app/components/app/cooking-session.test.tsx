@@ -59,6 +59,7 @@ describe("the cooking session", () => {
     writeSession({
       recipeId: 7,
       title: "Curry de lentilles corail",
+      recipe: recipeWith(),
       stepIndex: 2,
       stepCount: 3,
       servings: 6,
@@ -82,6 +83,7 @@ describe("the cooking session", () => {
     writeSession({
       recipeId: 7,
       title: "Curry de lentilles corail",
+      recipe: recipeWith(),
       stepIndex: 9,
       stepCount: 10,
       servings: 4,
@@ -99,6 +101,7 @@ describe("the cooking session", () => {
     writeSession({
       recipeId: 7,
       title: "Curry",
+      recipe: recipeWith(),
       stepIndex: 1,
       stepCount: 3,
       servings: 4,
@@ -121,6 +124,7 @@ describe("the cooking session", () => {
     writeSession({
       recipeId: 42,
       title: "Risotto",
+      recipe: recipeWith({ id: 42, title: "Risotto" }),
       stepIndex: 2,
       stepCount: 5,
       servings: 2,
@@ -188,6 +192,7 @@ describe("the resume banner", () => {
     writeSession({
       recipeId: 42,
       title: "Risotto",
+      recipe: recipeWith({ id: 42, title: "Risotto" }),
       stepIndex: 2,
       stepCount: 5,
       servings: 2,

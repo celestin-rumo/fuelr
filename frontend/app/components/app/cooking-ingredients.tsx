@@ -91,7 +91,7 @@ export function CookingIngredients({
           <IconButton
             aria-label={t("close")}
             variant="text"
-            className="size-14"
+            size="xl"
             onClick={onClose}
           >
             ✕
@@ -100,14 +100,14 @@ export function CookingIngredients({
       </div>
 
       <div className="flex flex-col gap-2 border-b border-line px-4 py-3">
-        <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+        <span className="text-[11px] font-bold tracking-[0.02em] text-text-dim uppercase">
           {t("servings")}
         </span>
         <div className="flex items-center gap-3">
           <IconButton
             aria-label={t("fewer")}
             variant="secondary"
-            className="size-14"
+            size="xl"
             disabled={servings <= MIN_SERVINGS}
             onClick={() => onServings(Math.max(MIN_SERVINGS, servings - 1))}
           >
@@ -122,7 +122,7 @@ export function CookingIngredients({
           <IconButton
             aria-label={t("more")}
             variant="secondary"
-            className="size-14"
+            size="xl"
             disabled={servings >= MAX_SERVINGS}
             onClick={() => onServings(Math.min(MAX_SERVINGS, servings + 1))}
           >

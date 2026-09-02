@@ -260,6 +260,12 @@
       "under": "unter einer Minute",
       "done": "Zurück zum Rezept",
       "again": "Nochmals kochen"
+    },
+    "offline": {
+      "badge": "Offline",
+      "title": "Kein Netz",
+      "body": "Auf diesem Gerät ist kein Gericht im Gang. Komm zurück, sobald das Netz da ist – deine Rezepte warten.",
+      "retry": "Erneut versuchen"
     }
   },
   "forgotPassword": {
@@ -423,5 +429,10 @@
         "body": "Sie veröffentlicht ihr Rezept nicht maschinenlesbar. Nichts ist verloren: erfasse es von Hand."
       }
     }
+  },
+  "manifest": {
+    "name": "Fuelr · Rezepte und Wochenplan",
+    "shortName": "Fuelr",
+    "description": "Deine Rezepte, dein Wochenplan und der Kochmodus – auch ohne Netz."
   }
 }
