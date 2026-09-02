@@ -10,6 +10,12 @@ services:
       JWT_SECURE_COOKIE: "true"
       NODE_ENV: production
       PORT: 3000
+      # Named explicitly, and resolved on app-internal rather than the shared
+      # proxy network: four projects on traefik-proxy each declare a service
+      # called `backend`, and a Docker alias shared by several containers
+      # round-robins between them. Server-side calls — the session guard among
+      # them — must not be able to reach another project's API.
+      BACKEND_INTERNAL_URL: http://backend:8080
 
     labels:
       - "traefik.enable=true"
@@ -28,6 +34,7 @@ services:
 
     networks:
       - traefik-proxy
+      - app-internal
 
     restart: unless-stopped
 
@@ -60,17 +67,14 @@ services:
       database:
         condition: service_healthy
 
+    # No Traefik router: the API is reached through the frontend's own route
+    # handlers, which are what set the session cookie and turn backend errors
+    # into messages people can read. A public API for the native client will
+    # get a hostname of its own; it cannot share a path with the web app.
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-proxy"
-      - "traefik.http.routers.fuelr-api.rule=(Host(`fuelr.celestinrumo.ch`) || Host(`www.fuelr.celestinrumo.ch`)) && PathPrefix(`/api`)"
-      - "traefik.http.routers.fuelr-api.entrypoints=websecure"
-      - "traefik.http.routers.fuelr-api.tls.certresolver=le"
-      - "traefik.http.routers.fuelr-api.priority=100"
-      - "traefik.http.services.fuelr-api.loadbalancer.server.port=8080"
+      - "traefik.enable=false"
 
     networks:
-      - traefik-proxy
       - app-internal
 
     restart: unless-stopped
