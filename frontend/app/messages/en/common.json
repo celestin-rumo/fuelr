@@ -315,5 +315,12 @@
       "fat": "Fat",
       "createAccount": "Create my account"
     }
+  },
+  "system": {
+    "notInteractive": {
+      "title": "This page is not responding",
+      "body": "It rendered, but its code did not load: buttons and forms will do nothing. Reload the page.",
+      "reload": "Reload the page"
+    }
   }
 }

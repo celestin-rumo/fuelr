@@ -103,6 +103,7 @@ classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
 | `card.tsx`        | `Card` (`as="card"\|"panel"`, `interactive`, `selected`), `CardTitle`, `CardBody` |
 | `recipe-card.tsx` | `RecipeCard` (favourite, selected, unavailable)                 |
 | `badge.tsx`       | `Badge` (accent / mint / coral / neutral / solid)               |
+| `banner.tsx`      | `Banner` (error / success / info, `title`, `action`, `onDismiss`, `position="inline"\|"fixed"`) |
 | `empty-state.tsx` | `EmptyState` (neutral / error tone)                             |
 | `spinner.tsx`     | `Spinner`                                                       |
 | `cn.ts`           | class-name join helper                                          |
@@ -197,6 +198,15 @@ computed nutrition into the log row at the moment of logging. The recipe editor
 already warns the author that edits apply to future uses only — that promise is
 currently made by the copy and enforced by nothing, because there is no meal
 log yet.
+
+**An unhydrated page cannot report its own failure.** When React does not
+hydrate, every control renders perfectly and does nothing: a form falls back to
+a native submit, so the page reloads and the fields empty, with a clean console
+and a clean terminal. No client-side handler can say so, because none are
+running. `HydrationBanner` is the answer — server-rendered, removed the instant
+React takes over, and held back four seconds by `.reveal-late` so a healthy page
+never flashes it. If a control ever seems inert, that banner appearing is the
+diagnosis.
 
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no

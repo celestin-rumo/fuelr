@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Poppins, Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@app/components/theme-provider";
+import { HydrationBanner } from "@app/components/app/hydration-banner";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -56,7 +57,11 @@ export default async function LocaleLayout({
         {/* Dark by default: the near-black ground is what lets the lime carry
             the action. Light is a mirror, not a second system. */}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider>
+            {children}
+            {/* Last, so it sits above the page it is complaining about. */}
+            <HydrationBanner />
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

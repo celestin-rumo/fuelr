@@ -8,6 +8,7 @@ import { Button, IconButton } from "@ui/button";
 import { Card, CardBody, CardTitle } from "@ui/card";
 import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
+import { Banner } from "@ui/banner";
 import { EmptyState } from "@ui/empty-state";
 import { Input } from "@ui/input";
 import { Radio } from "@ui/radio";
@@ -714,7 +715,24 @@ export default function DesignSystemPage() {
           </div>
         </Section>
 
-        <Section num="11" title="Data & system states">
+        <Section
+          num="11"
+          title="Banners"
+          intro="Three tones, because the system gives one meaning per colour. Errors take role=alert and interrupt; the rest wait their turn. `position=&quot;fixed&quot;` pins one to the bottom of the viewport for something wrong with the page as a whole."
+        >
+          <div className="flex flex-col gap-3">
+            <Banner tone="error" title="Cette page ne répond pas">
+              Elle s&apos;est affichée, mais son code ne s&apos;est pas chargé :
+              les boutons ne feront rien.
+            </Banner>
+            <Banner tone="success">Mot de passe modifié.</Banner>
+            <Banner tone="info" onDismiss={() => {}} dismissLabel="Fermer">
+              Confirme ton adresse pour que Fuelr puisse te joindre.
+            </Banner>
+          </div>
+        </Section>
+
+        <Section num="12" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
               icon="◷"
