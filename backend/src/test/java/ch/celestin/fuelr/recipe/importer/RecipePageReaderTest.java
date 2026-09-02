@@ -65,6 +65,28 @@ class RecipePageReaderTest {
     }
 
     @Test
+    void aSingleStepHoldingTheWholeMethodIsSplit() throws Exception {
+        // Betty Bossi publishes one "Étape 1" containing everything. One step
+        // for a whole recipe is a paragraph, not a numbered method.
+        var recipe = read("bettybossi.html").recipe();
+
+        assertThat(recipe.getSteps()).hasSizeGreaterThan(1);
+        assertThat(recipe.getSteps().get(0)).contains("Mélanger");
+        // Splitting is a guess, and says so.
+        assertThat(recipe.getUnverified()).contains("steps");
+    }
+
+    @Test
+    void aSourceThatNumbersItsStepsIsBelieved() throws Exception {
+        // Marmiton's eight HowToStep entries stay eight — the rule above must
+        // not start rewriting methods that were already right.
+        var recipe = read("marmiton.html").recipe();
+
+        assertThat(recipe.getSteps()).hasSize(8);
+        assertThat(recipe.getUnverified()).doesNotContain("steps");
+    }
+
+    @Test
     void readsSwissmilkWhichPublishesNoJsonLd() throws Exception {
         var reading = read("swissmilk.html");
         var recipe = reading.recipe();
