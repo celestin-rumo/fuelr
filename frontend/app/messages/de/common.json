@@ -241,6 +241,25 @@
       "announce": "Timer fertig: Schritt {number}",
       "notificationTitle": "Timer fertig",
       "notificationBody": "{recipe} · Schritt {number} ({duration})"
+    },
+    "resume": {
+      "title": "Ein Gericht ist im Gang",
+      "body": "{recipe} · Schritt {number} von {total}",
+      "resume": "Fortsetzen",
+      "discard": "Verwerfen"
+    },
+    "conflict": {
+      "title": "Ein anderes Gericht ist im Gang",
+      "body": "{recipe} · Schritt {number} von {total}. Es wird immer nur eine Kochsitzung behalten.",
+      "resume": "Das andere fortsetzen",
+      "takeOver": "Dieses kochen"
+    },
+    "finished": {
+      "label": "Fertig",
+      "elapsed": "{duration} am Herd",
+      "under": "unter einer Minute",
+      "done": "Zurück zum Rezept",
+      "again": "Nochmals kochen"
     }
   },
   "forgotPassword": {

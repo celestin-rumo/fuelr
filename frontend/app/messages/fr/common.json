@@ -241,6 +241,25 @@
       "announce": "Minuteur terminé : étape {number}",
       "notificationTitle": "Minuteur terminé",
       "notificationBody": "{recipe} · étape {number} ({duration})"
+    },
+    "resume": {
+      "title": "Un plat est en cours",
+      "body": "{recipe} · étape {number} sur {total}",
+      "resume": "Reprendre",
+      "discard": "Abandonner"
+    },
+    "conflict": {
+      "title": "Un autre plat est en cours",
+      "body": "{recipe} · étape {number} sur {total}. Une seule cuisson est gardée à la fois.",
+      "resume": "Reprendre l'autre",
+      "takeOver": "Cuisiner celui-ci"
+    },
+    "finished": {
+      "label": "Terminé",
+      "elapsed": "{duration} aux fourneaux",
+      "under": "moins d'une minute",
+      "done": "Revenir à la recette",
+      "again": "Cuisiner à nouveau"
     }
   },
   "forgotPassword": {

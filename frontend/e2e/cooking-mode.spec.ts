@@ -90,8 +90,41 @@ test("the last step finishes rather than offering another one", async ({
 
   await expect(page.getByTestId("cook-progress")).toHaveText("Étape 3 sur 3");
   await expect(page.getByRole("button", { name: "Suivante" })).toHaveCount(0);
-  await page.getByRole("link", { name: "Terminer" }).click();
+
+  await page.getByTestId("cook-finish").click();
+  await expect(page.getByTestId("cook-elapsed")).toContainText("aux fourneaux");
+
+  await page.getByRole("link", { name: "Revenir à la recette" }).click();
   await expect(page).toHaveURL(new RegExp(`/fr/app/recettes/${id}$`));
+  // Finished is not interrupted: nothing invites the cook back into it.
+  await expect(page.getByTestId("cook-resume")).toHaveCount(0);
+});
+
+test("an interrupted dish waits on every screen of the app", async ({
+  page,
+  request,
+}) => {
+  const id = await createRecipe(request, CURRY);
+
+  await page.goto(`/fr/app/recettes/${id}/cuisiner`);
+  await page.getByRole("button", { name: "Suivante" }).click();
+  await expect(page.getByTestId("cook-progress")).toHaveText("Étape 2 sur 3");
+
+  // Interrupted: away from the app entirely.
+  await page.goto("/fr/app");
+  const banner = page.getByTestId("cook-resume");
+  await expect(banner).toContainText("Curry de lentilles corail");
+  await expect(banner).toContainText("étape 2 sur 3");
+
+  await banner.getByRole("link", { name: "Reprendre" }).click();
+  await expect(page.getByTestId("cook-progress")).toHaveText("Étape 2 sur 3");
+
+  // And letting it go really lets it go.
+  await page.goto("/fr/app");
+  await page.getByRole("button", { name: "Abandonner" }).click();
+  await expect(page.getByTestId("cook-resume")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("cook-resume")).toHaveCount(0);
 });
 
 test("a recipe with no step cannot be cooked, by button or by URL", async ({

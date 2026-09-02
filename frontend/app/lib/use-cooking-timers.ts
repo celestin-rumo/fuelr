@@ -17,6 +17,8 @@ export type CookingTimer = {
 type Options = {
   /** Rings: a sound, a vibration, a notification. Called once per timer. */
   onEnded: (timer: CookingTimer) => void;
+  /** Timers a resumed session left running. Read once, on mount. */
+  initial?: Omit<CookingTimer, "id">[];
 };
 
 let counter = 0;
@@ -37,8 +39,9 @@ let counter = 0;
  * browser, so a notification may land up to a minute late; nothing a page can
  * do changes that, and coming back to the app always shows the truth.
  */
-export function useCookingTimers({ onEnded }: Options) {
+export function useCookingTimers({ onEnded, initial }: Options) {
   const [timers, setTimers] = useState<CookingTimer[]>([]);
+  const restored = useRef(false);
   // A mirror, because the tick reads the current timers from outside React's
   // render cycle and must not ring twice for one timer.
   const current = useRef<CookingTimer[]>([]);
@@ -125,6 +128,28 @@ export function useCookingTimers({ onEnded }: Options) {
       pending.clear();
     };
   }, []);
+
+  /**
+   * Timers a resumed session left behind. Restored after mount rather than as
+   * initial state: the server rendered a page with none, and the stored ones
+   * only exist on the device. Anything already due rings on the first tick.
+   */
+  useEffect(() => {
+    if (restored.current || !initial || initial.length === 0) return;
+    restored.current = true;
+
+    const revived = initial.map((timer) => {
+      counter += 1;
+      return { ...timer, id: `t${counter}` };
+    });
+    commit(revived);
+    for (const timer of revived) {
+      if (timer.state === "running" && timer.endsAt !== null) {
+        schedule(timer.id, (timer.endsAt - Date.now()) / 1000);
+      }
+    }
+    tick();
+  }, [commit, initial, schedule, tick]);
 
   const start = useCallback(
     (stepIndex: number, minutes: number) => {

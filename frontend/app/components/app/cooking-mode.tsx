@@ -10,7 +10,10 @@ import type { Recipe } from "@app/lib/api";
 import { armAlarm, askForNotifications, notify, sound, vibrate } from "@app/lib/alarm";
 import { cookableSteps } from "@app/lib/cooking";
 import { clock, durationsIn } from "@app/lib/durations";
+import type { CookingSession } from "@app/lib/cooking-session";
+import { clearSession, readSession, writeSession } from "@app/lib/cooking-session";
 import { useCookingTimers } from "@app/lib/use-cooking-timers";
+import { useHydrated } from "@app/lib/use-hydrated";
 import { useWakeLock } from "@app/lib/use-wake-lock";
 import { CookingIngredients } from "./cooking-ingredients";
 
@@ -20,25 +23,63 @@ import { CookingIngredients } from "./cooking-ingredients";
  * It reads the recipe and never writes to it. That is what lets it work with
  * no network later, and what makes it safe to scale the quantities on screen
  * without touching what the author wrote.
+ *
+ * The surface is remounted once hydration is done, so it can seed itself
+ * straight from the session on the device — see `useHydrated`. Before that it
+ * renders exactly what the server sent: step one, which is also the right
+ * answer when there is no session to come back to.
  */
 export function CookingMode({ recipe }: { recipe: Recipe }) {
+  const hydrated = useHydrated();
+  return (
+    <CookingSurface
+      key={hydrated ? "live" : "server"}
+      recipe={recipe}
+      restore={hydrated}
+    />
+  );
+}
+
+function CookingSurface({
+  recipe,
+  restore,
+}: {
+  recipe: Recipe;
+  /** False through hydration, when there is no storage to read yet. */
+  restore: boolean;
+}) {
   const t = useTranslations("cook");
 
   const steps = useMemo(() => cookableSteps(recipe), [recipe]);
-  const [index, setIndex] = useState(0);
-  const [servings, setServings] = useState(recipe.servings);
-  const [ticked, setTicked] = useState<number[]>([]);
+
+  // Read once, on the render that mounts the live surface.
+  const [stored] = useState(() => (restore ? readSession() : null));
+  const foreign = stored !== null && stored.recipeId !== recipe.id;
+  const mine = stored && !foreign ? stored : null;
+
+  const [index, setIndex] = useState(() =>
+    mine ? Math.min(Math.max(0, mine.stepIndex), steps.length - 1) : 0,
+  );
+  const [servings, setServings] = useState(() => mine?.servings ?? recipe.servings);
+  const [ticked, setTicked] = useState<number[]>(() => mine?.ticked ?? []);
   const [sheet, setSheet] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [now, setNow] = useState(() => Date.now());
+  const [done, setDone] = useState(false);
+  const [startedAt, setStartedAt] = useState(() => mine?.startedAt ?? Date.now());
+  const [elapsed, setElapsed] = useState(0);
+  /** Another dish already in progress. Nothing is stored until this is settled. */
+  const [conflict, setConflict] = useState<CookingSession | null>(
+    foreign ? stored : null,
+  );
   const opener = useRef<HTMLButtonElement>(null);
 
   const last = index === steps.length - 1;
   const title = recipe.title?.trim() || t("untitled");
 
-  // The screen stays on for as long as this component is mounted, and gives
-  // itself back when it is not.
-  useWakeLock(true);
+  // The screen stays on while there is cooking to do, and is given back the
+  // moment there is not — including on the completion screen.
+  useWakeLock(restore && !done);
 
   const formatDuration = useCallback(
     (minutes: number) => {
@@ -67,6 +108,7 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
       // Said out loud too: a chip turning mint is not an announcement.
       setAnnouncement(t("timers.announce", { number: timer.stepIndex + 1 }));
     },
+    initial: mine?.timers,
   });
 
   const ended = timers.timers.filter((timer) => timer.state === "ended");
@@ -86,6 +128,58 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
       document.removeEventListener("visibilitychange", refresh);
     };
   }, [ended.length]);
+
+  /**
+   * Written on every change, so an interruption costs nothing. Never while
+   * another dish is still in progress and unsettled, and never once this one
+   * is finished — a finished session is not one to come back to.
+   */
+  useEffect(() => {
+    if (!restore || conflict || done) return;
+    writeSession({
+      recipeId: recipe.id,
+      title,
+      stepIndex: index,
+      stepCount: steps.length,
+      servings,
+      ticked,
+      timers: timers.timers.map(({ stepIndex, minutes, endsAt, remaining, state }) => ({
+        stepIndex,
+        minutes,
+        endsAt,
+        remaining,
+        state,
+      })),
+      startedAt,
+    });
+  }, [
+    conflict,
+    done,
+    index,
+    recipe.id,
+    restore,
+    servings,
+    startedAt,
+    steps.length,
+    ticked,
+    timers.timers,
+    title,
+  ]);
+
+  function finish() {
+    setElapsed(Date.now() - startedAt);
+    setDone(true);
+    // Nothing keeps running behind a kitchen that has been put away.
+    for (const timer of timers.timers) timers.cancel(timer.id);
+    clearSession();
+  }
+
+  function cookAgain() {
+    setIndex(0);
+    setTicked([]);
+    setStartedAt(Date.now());
+    setDone(false);
+  }
 
   const durations = useMemo(() => durationsIn(steps[index] ?? ""), [steps, index]);
 
@@ -148,6 +242,43 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
     params: { id: String(recipe.id) },
   };
 
+  if (done) {
+    const minutes = Math.floor(elapsed / 60_000);
+    return (
+      <div className="flex h-dvh flex-col items-center justify-center gap-8 bg-bg px-6 text-center">
+        <div className="flex flex-col gap-3">
+          <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+            {t("finished.label")}
+          </span>
+          <h1 className="font-display text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] text-text">
+            {title}
+          </h1>
+          {/* What it took, and nothing else. The meal log does not exist yet,
+              and a screen that implied it had logged anything would be lying
+              — when it does exist it will copy these values, never point at a
+              recipe that can still be edited. */}
+          <p data-testid="cook-elapsed" className="tnum text-[15px] font-medium text-text-dim">
+            {t("finished.elapsed", {
+              duration: minutes < 1 ? t("finished.under") : formatDuration(minutes),
+            })}
+          </p>
+        </div>
+
+        <div className="flex w-full max-w-sm flex-col gap-3">
+          <Link
+            href={recipeHref}
+            className={buttonClasses({ variant: "primary", className: "h-14 w-full" })}
+          >
+            {t("finished.done")}
+          </Link>
+          <Button variant="secondary" className="h-14" onClick={cookAgain}>
+            {t("finished.again")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-dvh flex-col bg-bg">
       <header className="flex shrink-0 items-center gap-2 px-2 py-2 sm:px-4">
@@ -179,6 +310,46 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
           style={{ width: `${((index + 1) / steps.length) * 100}%` }}
         />
       </div>
+
+      {/* Only one session is kept, so taking this one over is said out loud
+          rather than done quietly. Nothing is stored for this recipe until
+          the cook has answered, which is what lets the other dish survive
+          somebody opening the wrong recipe. */}
+      {conflict && (
+        <div className="shrink-0 px-3 pt-2">
+          <Banner
+            tone="info"
+            data-testid="cook-conflict"
+            title={t("conflict.title")}
+            action={
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={{
+                    pathname: "/app/recipes/[id]/cook",
+                    params: { id: String(conflict.recipeId) },
+                  }}
+                  className={buttonClasses({ variant: "primary", className: "h-14" })}
+                >
+                  {t("conflict.resume")}
+                </Link>
+                <Button
+                  variant="secondary"
+                  className="h-14"
+                  onClick={() => setConflict(null)}
+                >
+                  {t("conflict.takeOver")}
+                </Button>
+              </div>
+            }
+          >
+            {t("conflict.body", {
+              recipe: conflict.title,
+              number: conflict.stepIndex + 1,
+              total: conflict.stepCount,
+            })}
+          </Banner>
+        </div>
+      )}
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6 lg:p-6">
         {/* The step is the only thing on screen, and it scrolls inside its own
@@ -383,14 +554,9 @@ export function CookingMode({ recipe }: { recipe: Recipe }) {
         </IconButton>
 
         {last ? (
-          <Link
-            href={recipeHref}
-            className={cn(
-              buttonClasses({ variant: "primary", className: "h-14 flex-1" }),
-            )}
-          >
+          <Button className="h-14 flex-1" data-testid="cook-finish" onClick={finish}>
             {t("finish")}
-          </Link>
+          </Button>
         ) : (
           <Button className="h-14 flex-1" onClick={() => go(1)}>
             {t("next")} →
