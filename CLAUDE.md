@@ -281,6 +281,45 @@ payment webhook will call and is idempotent because providers retry. The screen
 asks `canOrder` before offering anything — a button that takes an order nobody
 can settle is worse than a screen saying the plan is not open yet.
 
+**The shopping list is stored, not derived.** A ticked box is a fact about
+somebody standing in a shop, so it has to survive the plan changing under it.
+Reading the list regenerates it — quantities recomputed, lines the week no
+longer needs dropped, new ones added — and the merge leaves every tick and
+every free item exactly where they were. That is why a GET writes, and why
+there is no "regenerate" button: a list that only followed the plan when
+somebody remembered to press one would be wrong most of the time.
+
+**A line is identified by its name and its unit, and by one function.**
+`ShoppingService.key` is the only definition. There were two once — a space on
+one side and a nul byte on the other — and the cupboard silently stopped
+covering anything while both keys printed identically in the output. Anything
+that matches a list line against a shelf goes through that function.
+
+**The aisle lives on the reference food table, and the matcher takes the
+longest key.** `food_nutrition` already turns "200 g de lentilles corail" into
+a known food, so the aisle belongs there: one lookup, one place to be wrong.
+The matcher used to take the first row that matched, which made "lentilles
+corail" resolve to *ail* the day an unrelated `UPDATE` changed the physical row
+order — 700 kcal of lentils quietly became 300 of garlic. Longest match wins,
+ties broken by the key, so the answer no longer depends on anything unspecified.
+
+**Nothing asks `navigator.onLine`; the request answers.** Every tick is
+attempted against the server, and whatever fails is kept on the device and sent
+when a later attempt succeeds. Each tick carries the instant it happened, not
+the instant it syncs, so a phone coming back from a basement cannot undo a tick
+made after it — `shopping_items.checked_updated_at` is what makes that
+comparison possible for unticks too. The offline page shows the stored list, so
+the aisle with no signal is not a dead end, and sign-out clears it along with
+the cooking session: the list belongs to a household, and the next person to
+sign in on that machine is not in it.
+
+**A row created on demand is created with `ON CONFLICT`, never read-then-insert.**
+The household and the week's list are both made the first time something needs
+them, and a very ordinary page fires two requests at once — for a new account,
+both found nothing, both inserted, and one came back 500 on the first visit.
+The unique constraint is the arbiter; consulting it takes one statement and no
+exception handling.
+
 **`app.subscription.self-activate` hands out paid plans for free.** With it on,
 ordering a plan grants it immediately; it exists because the tests and the dev
 environment have to exercise a paid feature and there is no provider to
