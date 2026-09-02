@@ -13,6 +13,13 @@ services:
 
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-proxy"
+      # Both hosts on one router, as dev-portfolio does. Traefik then asks for
+      # a single certificate covering both names — which is why every name in
+      # the rule must resolve before the first deploy: Let's Encrypt validates
+      # each one separately, and a single unresolvable name fails the whole
+      # issuance, leaving even the working host on Traefik's self-signed
+      # default. That is what www did here.
       - "traefik.http.routers.fuelr-frontend.rule=Host(`fuelr.celestinrumo.ch`) || Host(`www.fuelr.celestinrumo.ch`)"
       - "traefik.http.routers.fuelr-frontend.entrypoints=websecure"
       - "traefik.http.routers.fuelr-frontend.tls.certresolver=le"
