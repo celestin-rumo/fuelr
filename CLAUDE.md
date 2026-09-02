@@ -217,6 +217,16 @@ is always a strict-mode violation. Scope the query to the form or give the
 message a `data-testid`. It does not reproduce in unit tests, because jsdom has
 no route announcer — so a green Vitest run proves nothing here.
 
+**The e2e run must never share `.next` with the dev container.** It does
+`npm run build`, a production build, into the same bind mount the dev server is
+serving from — which wipes the chunks the already-loaded pages reference. The
+symptom is brutal and silent: pages still render server-side, every script
+returns 403, React never hydrates, and *every button in the app does nothing*,
+with a clean terminal on both sides. `next.config.ts` reads `NEXT_DIST_DIR` and
+`playwright.config.ts` sets it to `.next-e2e` for exactly this reason. If the
+app ever goes inert in the browser while the e2e suite passes, check for
+refused `/_next/static/chunks/*` before suspecting anything else.
+
 Playwright browsers are not in the dev image, so `test:e2e` runs through the
 official Playwright image instead — see the README for the command. The e2e
 suite pins the browser locale to `fr-FR`, since the next-intl proxy negotiates

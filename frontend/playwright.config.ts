@@ -19,5 +19,7 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // Never the dev server's build directory — see next.config.ts.
+    env: { NEXT_DIST_DIR: ".next-e2e" },
   },
 });
