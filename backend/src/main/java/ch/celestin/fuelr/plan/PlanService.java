@@ -1,5 +1,7 @@
 package ch.celestin.fuelr.plan;
 
+import ch.celestin.fuelr.account.User;
+import ch.celestin.fuelr.account.UserRepository;
 import ch.celestin.fuelr.nutrition.NutritionDtos;
 import ch.celestin.fuelr.nutrition.NutritionService;
 import ch.celestin.fuelr.plan.PlanDtos.AddMealRequest;
@@ -24,6 +26,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * The week plan, always read and written through the household in front of the
+ * caller. No method here takes a user id to scope a query with — the household
+ * is the scope, which is what makes "visible to every member" true by
+ * construction rather than by everyone remembering to widen a filter.
+ */
 @Service
 public class PlanService {
 
@@ -45,14 +53,22 @@ public class PlanService {
 
     private final PlannedMealRepository meals;
     private final HouseholdRepository households;
+    private final HouseholdService householdService;
+    private final HouseholdMemberRepository members;
     private final RecipeRepository recipes;
+    private final UserRepository users;
     private final NutritionService nutrition;
 
     public PlanService(PlannedMealRepository meals, HouseholdRepository households,
-                       RecipeRepository recipes, NutritionService nutrition) {
+                       HouseholdService householdService, HouseholdMemberRepository members,
+                       RecipeRepository recipes, UserRepository users,
+                       NutritionService nutrition) {
         this.meals = meals;
         this.households = households;
+        this.householdService = householdService;
+        this.members = members;
         this.recipes = recipes;
+        this.users = users;
         this.nutrition = nutrition;
     }
 
@@ -68,15 +84,19 @@ public class PlanService {
     // --- reading ------------------------------------------------------------
 
     public WeekView week(Long userId, LocalDate anyDay) {
+        Household household = householdService.activeHouseholdFor(userId);
         LocalDate start = weekStart(anyDay);
         LocalDate end = start.plusDays(DAYS_IN_WEEK - 1L);
 
-        List<PlannedMeal> planned =
-                meals.findByUserIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(userId, start, end);
-        Map<Long, Recipe> byId = recipesFor(userId, planned);
+        List<PlannedMeal> planned = meals
+                .findByHouseholdIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
+                        household.getId(), start, end);
+        Map<Long, Recipe> recipesById = recipesFor(planned);
+        Map<Long, String> names = authorNames(planned);
 
         List<PlannedMealView> views = planned.stream()
-                .map(meal -> toView(meal, byId.get(meal.getRecipeId())))
+                .map(meal -> toView(meal, recipesById.get(meal.getRecipeId()),
+                        names.get(meal.getCreatedBy()), userId))
                 .filter(java.util.Objects::nonNull)
                 .toList();
 
@@ -98,7 +118,12 @@ public class PlanService {
             days.add(new DayTotals(day, onDay.size(), kcal));
         }
 
-        return new WeekView(start, householdSize(userId), views, days);
+        long accounts = members.countByHouseholdId(household.getId()) + 1;
+        return new WeekView(
+                start, household.getSize(), views, days,
+                accounts > 1,
+                householdService.isOwner(household, userId),
+                (int) accounts);
     }
 
     /**
@@ -106,14 +131,16 @@ public class PlanService {
      * planned for. The shopping list aggregates this; nothing else does.
      */
     public List<PlannedIngredientView> ingredients(Long userId, LocalDate anyDay) {
+        Household household = householdService.activeHouseholdFor(userId);
         LocalDate start = weekStart(anyDay);
-        List<PlannedMeal> planned = meals.findByUserIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
-                userId, start, start.plusDays(DAYS_IN_WEEK - 1L));
-        Map<Long, Recipe> byId = recipesFor(userId, planned);
+        List<PlannedMeal> planned = meals
+                .findByHouseholdIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
+                        household.getId(), start, start.plusDays(DAYS_IN_WEEK - 1L));
+        Map<Long, Recipe> recipesById = recipesFor(planned);
 
         List<PlannedIngredientView> lines = new ArrayList<>();
         for (PlannedMeal meal : planned) {
-            Recipe recipe = byId.get(meal.getRecipeId());
+            Recipe recipe = recipesById.get(meal.getRecipeId());
             if (recipe == null) continue;
             double factor = scale(meal, recipe);
             recipe.getIngredients().forEach(ingredient -> lines.add(new PlannedIngredientView(
@@ -130,17 +157,22 @@ public class PlanService {
 
     @Transactional
     public PlannedMeal add(Long userId, AddMealRequest request) {
+        // Planning is scoped to the household; what may be planned is still
+        // scoped to the person. Nobody puts someone else's recipe on the week.
         Recipe recipe = recipes.findByIdAndUserId(request.recipeId(), userId)
                 .orElseThrow(UnknownRecipeException::new);
+        Household household = householdService.activeHouseholdFor(userId);
         MealSlot slot = MealSlot.parse(request.slot());
         // Portions default to the household, not to what the recipe happens to
         // be written for: the cook is feeding the same people every evening.
-        int servings = request.servings() != null ? request.servings() : householdSize(userId);
+        int servings = request.servings() != null ? request.servings() : household.getSize();
         int position = meals
-                .findByUserIdAndDateAndSlotOrderByPositionAsc(userId, request.date(), slot)
+                .findByHouseholdIdAndDateAndSlotOrderByPositionAsc(
+                        household.getId(), request.date(), slot)
                 .size();
         return meals.save(new PlannedMeal(
-                userId, recipe.getId(), request.date(), slot, position, servings));
+                household.getId(), userId, recipe.getId(), request.date(), slot,
+                position, servings));
     }
 
     /**
@@ -168,8 +200,8 @@ public class PlanService {
             // Landing in a new slot means landing at its end, never on top of
             // what is already there.
             meal.setPosition(meals
-                    .findByUserIdAndDateAndSlotOrderByPositionAsc(
-                            meal.getUserId(), meal.getDate(), meal.getSlot())
+                    .findByHouseholdIdAndDateAndSlotOrderByPositionAsc(
+                            meal.getHouseholdId(), meal.getDate(), meal.getSlot())
                     .stream().filter(m -> !m.getId().equals(meal.getId()))
                     .toList().size());
         }
@@ -179,11 +211,13 @@ public class PlanService {
     @Transactional
     public void remove(PlannedMeal meal) {
         meals.delete(meal);
-        compact(meal.getUserId(), meal.getDate(), meal.getSlot(), meal.getId());
+        compact(meal.getHouseholdId(), meal.getDate(), meal.getSlot(), meal.getId());
     }
 
+    /** A meal is the caller's to touch when it is on the plan they are looking at. */
     public java.util.Optional<PlannedMeal> find(Long id, Long userId) {
-        return meals.findByIdAndUserId(id, userId);
+        return meals.findByIdAndHouseholdId(
+                id, householdService.activeHouseholdFor(userId).getId());
     }
 
     /**
@@ -196,14 +230,16 @@ public class PlanService {
      */
     @Transactional
     public WeekView copyWeek(Long userId, CopyWeekRequest request) {
+        Household household = householdService.activeHouseholdFor(userId);
         LocalDate from = weekStart(request.from());
         LocalDate to = weekStart(request.to());
         if (from.equals(to)) {
             return week(userId, to);
         }
 
-        List<PlannedMeal> target = meals.findByUserIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
-                userId, to, to.plusDays(DAYS_IN_WEEK - 1L));
+        List<PlannedMeal> target = meals
+                .findByHouseholdIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
+                        household.getId(), to, to.plusDays(DAYS_IN_WEEK - 1L));
         if (!target.isEmpty()) {
             if (!request.replace()) {
                 throw new WeekNotEmptyException();
@@ -211,13 +247,15 @@ public class PlanService {
             meals.deleteAll(target);
         }
 
-        List<PlannedMeal> source = meals.findByUserIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
-                userId, from, from.plusDays(DAYS_IN_WEEK - 1L));
+        List<PlannedMeal> source = meals
+                .findByHouseholdIdAndDateBetweenOrderByDateAscSlotAscPositionAsc(
+                        household.getId(), from, from.plusDays(DAYS_IN_WEEK - 1L));
         long offset = java.time.temporal.ChronoUnit.DAYS.between(from, to);
         meals.saveAll(source.stream()
                 .map(meal -> new PlannedMeal(
-                        userId, meal.getRecipeId(), meal.getDate().plusDays(offset),
-                        meal.getSlot(), meal.getPosition(), meal.getServings()))
+                        household.getId(), userId, meal.getRecipeId(),
+                        meal.getDate().plusDays(offset), meal.getSlot(),
+                        meal.getPosition(), meal.getServings()))
                 .toList());
 
         return week(userId, to);
@@ -226,9 +264,7 @@ public class PlanService {
     // --- household ----------------------------------------------------------
 
     public int householdSize(Long userId) {
-        return households.findByOwnerUserId(userId)
-                .map(Household::getSize)
-                .orElse(Household.DEFAULT_SIZE);
+        return householdService.activeHouseholdFor(userId).getSize();
     }
 
     /**
@@ -238,21 +274,42 @@ public class PlanService {
      */
     @Transactional
     public int setHouseholdSize(Long userId, int size) {
-        Household household = households.findByOwnerUserId(userId)
-                .orElseGet(() -> new Household(userId));
+        Household household = householdService.activeHouseholdFor(userId);
         household.setSize(size);
         return households.save(household).getSize();
     }
 
     // --- internals ----------------------------------------------------------
 
-    private Map<Long, Recipe> recipesFor(Long userId, List<PlannedMeal> planned) {
+    /**
+     * The recipes behind the meals, by id.
+     *
+     * Not filtered by owner: on a shared plan the dishes belong to whoever put
+     * them there. The authorisation happened when the meal was created, and it
+     * is the household row that carries it from then on.
+     */
+    private Map<Long, Recipe> recipesFor(List<PlannedMeal> planned) {
         List<Long> ids = planned.stream().map(PlannedMeal::getRecipeId).distinct().toList();
         if (ids.isEmpty()) {
             return Map.of();
         }
-        return recipes.findByUserIdAndIdIn(userId, ids).stream()
+        return recipes.findAllById(ids).stream()
                 .collect(Collectors.toMap(Recipe::getId, Function.identity(),
+                        (a, b) -> a, LinkedHashMap::new));
+    }
+
+    private Map<Long, String> authorNames(List<PlannedMeal> planned) {
+        List<Long> ids = planned.stream()
+                .map(PlannedMeal::getCreatedBy)
+                .filter(java.util.Objects::nonNull)
+                .distinct().toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return users.findAllById(ids).stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        user -> user.getName() == null ? user.getEmail() : user.getName(),
                         (a, b) -> a, LinkedHashMap::new));
     }
 
@@ -262,7 +319,7 @@ public class PlanService {
         return (double) meal.getServings() / base;
     }
 
-    private PlannedMealView toView(PlannedMeal meal, Recipe recipe) {
+    private PlannedMealView toView(PlannedMeal meal, Recipe recipe, String author, Long viewer) {
         // The recipe is gone from under the meal — cascade should have taken
         // the row with it, so this is a torn read rather than a normal state.
         if (recipe == null) {
@@ -282,12 +339,14 @@ public class PlanService {
                 RecipeService.minutesFor(recipe), recipe.getPhotoPath() != null,
                 breakdown == null ? null
                         : round(breakdown.perServing().kcal() * meal.getServings()),
-                breakdown != null && breakdown.containsEstimates());
+                breakdown != null && breakdown.containsEstimates(),
+                // The name is only worth showing for somebody else's doing.
+                meal.getCreatedBy() != null && meal.getCreatedBy().equals(viewer) ? null : author);
     }
 
-    private void compact(Long userId, LocalDate date, MealSlot slot, Long removedId) {
+    private void compact(Long householdId, LocalDate date, MealSlot slot, Long removedId) {
         List<PlannedMeal> remaining = meals
-                .findByUserIdAndDateAndSlotOrderByPositionAsc(userId, date, slot).stream()
+                .findByHouseholdIdAndDateAndSlotOrderByPositionAsc(householdId, date, slot).stream()
                 .filter(m -> !m.getId().equals(removedId))
                 .toList();
         for (int i = 0; i < remaining.size(); i++) {

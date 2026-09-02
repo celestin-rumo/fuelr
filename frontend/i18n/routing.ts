@@ -68,6 +68,13 @@ export const routing = defineRouting({
       en: "/app/plan",
       de: "/app/wochenplan",
     },
+    // Invitation links point here, so these slugs are duplicated in the
+    // backend's EmailLinks. Changing one means changing the other.
+    "/app/household": {
+      fr: "/app/foyer",
+      en: "/app/household",
+      de: "/app/haushalt",
+    },
     "/app/recipes/import": {
       fr: "/app/recettes/importer",
       en: "/app/recipes/import",

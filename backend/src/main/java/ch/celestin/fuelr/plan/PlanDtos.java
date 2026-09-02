@@ -24,7 +24,11 @@ public final class PlanDtos {
             LocalDate weekStart,
             int householdSize,
             List<PlannedMealView> meals,
-            List<DayTotals> days) {
+            List<DayTotals> days,
+            /** More than one account is looking at this plan. */
+            boolean shared,
+            boolean owner,
+            int accounts) {
     }
 
     /**
@@ -45,7 +49,13 @@ public final class PlanDtos {
             int minutes,
             boolean hasPhoto,
             Double kcal,
-            boolean estimated) {
+            boolean estimated,
+            /**
+             * Who put it there, and only when that is somebody else. Null for
+             * one's own doing: a shared plan should say what is new to the
+             * reader, not repeat their own name twenty times.
+             */
+            String plannedBy) {
     }
 
     public record DayTotals(LocalDate date, int meals, Double kcal) {

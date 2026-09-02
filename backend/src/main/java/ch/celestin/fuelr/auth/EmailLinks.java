@@ -10,7 +10,7 @@ import java.util.Map;
  * endpoint into a way to send phishing from a Fuelr address. Adding a locale
  * there means adding it here.
  */
-final class EmailLinks {
+public final class EmailLinks {
 
     private static final String FALLBACK_LOCALE = "fr";
 
@@ -24,7 +24,21 @@ final class EmailLinks {
             "en", "/verify-email",
             "de", "/email-bestaetigen");
 
+    /**
+     * The household screen, which reads the token out of the query and offers
+     * to join. Signed out, the proxy sends the visitor to login carrying this
+     * whole URL, so the invitation survives having to sign in first.
+     */
+    private static final Map<String, String> HOUSEHOLD = Map.of(
+            "fr", "/app/foyer",
+            "en", "/app/household",
+            "de", "/app/haushalt");
+
     private EmailLinks() {
+    }
+
+    public static String householdInvitation(String siteUrl, String locale, String token) {
+        return build(siteUrl, HOUSEHOLD, locale, token);
     }
 
     static String resetPassword(String siteUrl, String locale, String token) {

@@ -64,7 +64,8 @@
     "nav": {
       "label": "Navigation principale",
       "recipes": "Recettes",
-      "plan": "Planning"
+      "plan": "Planning",
+      "household": "Foyer"
     }
   },
   "plan": {
@@ -105,7 +106,8 @@
       "title": "Mes recettes",
       "hint": "Glisse une recette sur un créneau.",
       "search": "Chercher une recette",
-      "noResults": "Aucune recette ne correspond."
+      "noResults": "Aucune recette ne correspond.",
+      "empty": "Tu n'as pas encore de recette à poser ici."
     },
     "meal": {
       "open": "Modifier {title} — {day}, {slot}",
@@ -115,7 +117,8 @@
       "more": "Une portion de plus pour {title}",
       "moveTitle": "Déplacer",
       "openRecipe": "Voir la recette",
-      "remove": "Retirer du planning"
+      "remove": "Retirer du planning",
+      "plannedBy": "Ajouté par {name}"
     },
     "noRecipes": {
       "title": "Aucune recette à planifier",
@@ -125,6 +128,62 @@
     "unavailable": {
       "title": "Le planning n'est pas joignable",
       "body": "La semaine n'a pas pu être chargée. Recharge la page ; rien de ce qui est planifié n'est perdu."
+    },
+    "sharedWith": "Foyer · {count} comptes"
+  },
+  "household": {
+    "label": "Foyer",
+    "title": "Mon foyer",
+    "intro": "Un seul planning pour tout le monde à la maison. Les recettes restent à qui les a écrites, et chacun garde son profil nutritionnel.",
+    "toPlan": "Voir le planning du foyer",
+    "invitation": {
+      "title": "Tu es invité·e à rejoindre un foyer",
+      "body": "En rejoignant, tu verras et modifieras le même planning de la semaine que les autres membres. Tes recettes et ton profil nutritionnel restent les tiens.",
+      "accept": "Rejoindre le foyer",
+      "ignore": "Ignorer"
+    },
+    "plan": {
+      "title": "Partage du planning",
+      "openOwner": "Ton plan Famille est actif : tu peux inviter jusqu'à cinq personnes de plus sur ton planning.",
+      "openMember": "Tu partages le planning de ce foyer. L'abonnement est porté par la personne qui l'a créé.",
+      "closed": "Le partage du planning fait partie du plan Famille. Sans lui, ton planning reste le tien — rien n'est retiré.",
+      "order": "Passer au plan Famille",
+      "notPurchasable": "Le plan Famille n'est pas encore ouvert à la souscription.",
+      "compare": "Comparer les plans",
+      "cancel": "Résilier le plan Famille",
+      "cancelHint": "Rien n'est supprimé : le foyer garde ses membres et chaque planning reste consultable."
+    },
+    "members": {
+      "title": "Membres · {count} sur {max}",
+      "you": "toi",
+      "owner": "titulaire du foyer",
+      "remove": "Retirer {name} du foyer",
+      "removeShort": "Retirer"
+    },
+    "invite": {
+      "label": "Inviter par email",
+      "hint": "{seats, plural, =0 {Le foyer est complet.} one {Encore # place.} other {Encore # places.}}",
+      "submit": "Envoyer l'invitation",
+      "sent": "Invitation envoyée à {email}.",
+      "pending": "Invitations en attente",
+      "revoke": "Annuler l'invitation de {email}",
+      "revokeShort": "Annuler"
+    },
+    "leave": {
+      "action": "Quitter le foyer",
+      "body": "Tu retrouveras ton propre planning, tel que tu l'avais laissé. Le planning du foyer n'est pas touché.",
+      "confirm": "Quitter",
+      "cancel": "Rester"
+    },
+    "errors": {
+      "upgrade_required": "Le partage du planning demande le plan Famille.",
+      "household_full": "Le foyer est complet.",
+      "gone": "Cette invitation n'est plus valable. Demande-en une nouvelle.",
+      "failed": "L'opération n'a pas abouti. Réessaie."
+    },
+    "unavailable": {
+      "title": "Le foyer n'est pas joignable",
+      "body": "Les informations du foyer n'ont pas pu être chargées. Recharge la page ; rien n'est perdu."
     }
   },
   "auth": {

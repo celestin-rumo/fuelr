@@ -64,7 +64,8 @@
     "nav": {
       "label": "Main navigation",
       "recipes": "Recipes",
-      "plan": "Plan"
+      "plan": "Plan",
+      "household": "Household"
     }
   },
   "plan": {
@@ -105,7 +106,8 @@
       "title": "My recipes",
       "hint": "Drag a recipe onto a slot.",
       "search": "Search a recipe",
-      "noResults": "No recipe matches."
+      "noResults": "No recipe matches.",
+      "empty": "You have no recipe to put here yet."
     },
     "meal": {
       "open": "Edit {title} — {day}, {slot}",
@@ -115,7 +117,8 @@
       "more": "One serving more for {title}",
       "moveTitle": "Move",
       "openRecipe": "Open the recipe",
-      "remove": "Remove from the plan"
+      "remove": "Remove from the plan",
+      "plannedBy": "Added by {name}"
     },
     "noRecipes": {
       "title": "No recipe to plan with",
@@ -125,6 +128,62 @@
     "unavailable": {
       "title": "The plan cannot be reached",
       "body": "This week could not be loaded. Reload the page — nothing already planned is lost."
+    },
+    "sharedWith": "Household · {count} accounts"
+  },
+  "household": {
+    "label": "Household",
+    "title": "My household",
+    "intro": "One plan for everyone at home. Recipes stay with whoever wrote them, and each person keeps their own nutrition profile.",
+    "toPlan": "Open the household plan",
+    "invitation": {
+      "title": "You have been invited to a household",
+      "body": "Joining means seeing and editing the same week plan as the other members. Your recipes and your nutrition profile stay yours.",
+      "accept": "Join the household",
+      "ignore": "Ignore"
+    },
+    "plan": {
+      "title": "Plan sharing",
+      "openOwner": "Your Family plan is active: you can invite up to five more people onto your week.",
+      "openMember": "You share this household's plan. The subscription belongs to whoever created it.",
+      "closed": "Sharing a plan is part of the Family plan. Without it your plan is still yours — nothing is taken away.",
+      "order": "Switch to the Family plan",
+      "notPurchasable": "The Family plan cannot be subscribed to yet.",
+      "compare": "Compare the plans",
+      "cancel": "Cancel the Family plan",
+      "cancelHint": "Nothing is deleted: the household keeps its members and every plan stays readable."
+    },
+    "members": {
+      "title": "Members · {count} of {max}",
+      "you": "you",
+      "owner": "household owner",
+      "remove": "Remove {name} from the household",
+      "removeShort": "Remove"
+    },
+    "invite": {
+      "label": "Invite by email",
+      "hint": "{seats, plural, =0 {The household is full.} one {# seat left.} other {# seats left.}}",
+      "submit": "Send the invitation",
+      "sent": "Invitation sent to {email}.",
+      "pending": "Pending invitations",
+      "revoke": "Cancel the invitation to {email}",
+      "revokeShort": "Cancel"
+    },
+    "leave": {
+      "action": "Leave the household",
+      "body": "You will find your own plan exactly as you left it. The household plan is not touched.",
+      "confirm": "Leave",
+      "cancel": "Stay"
+    },
+    "errors": {
+      "upgrade_required": "Sharing a plan needs the Family plan.",
+      "household_full": "The household is full.",
+      "gone": "This invitation no longer works. Ask for a new one.",
+      "failed": "That did not go through. Try again."
+    },
+    "unavailable": {
+      "title": "The household cannot be reached",
+      "body": "The household could not be loaded. Reload the page — nothing is lost."
     }
   },
   "auth": {

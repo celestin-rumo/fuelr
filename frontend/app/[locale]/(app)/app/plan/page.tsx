@@ -54,8 +54,10 @@ export default async function PlanPage({
       </div>
 
       {/* Nothing to plan with is a different state from an empty week, and it
-          has a different answer: write a recipe first. */}
-      {recipes.length === 0 ? (
+          has a different answer: write a recipe first. It is only true when
+          there is also nothing planned — on a shared plan, a member with no
+          recipes of their own still has a week to look at. */}
+      {recipes.length === 0 && plan.meals.length === 0 ? (
         <EmptyState
           icon="◷"
           title={t("noRecipes.title")}

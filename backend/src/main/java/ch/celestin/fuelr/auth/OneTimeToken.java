@@ -15,7 +15,7 @@ import java.util.HexFormat;
  * these tokens are 256 bits of randomness, so there is nothing to guess and
  * nothing for a slow hash to protect.
  */
-final class OneTimeToken {
+public final class OneTimeToken {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -23,13 +23,13 @@ final class OneTimeToken {
     }
 
     /** A fresh token, URL-safe so it survives being pasted out of an email. */
-    static String mint() {
+    public static String mint() {
         byte[] raw = new byte[32];
         RANDOM.nextBytes(raw);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
     }
 
-    static String hash(String token) {
+    public static String hash(String token) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return HexFormat.of()

@@ -20,6 +20,10 @@ import java.time.LocalDate;
  * that has not been cooked yet, so it should follow the recipe as it is
  * corrected. Only the servings are stored here, because they belong to this
  * evening and not to the recipe.
+ *
+ * It belongs to a household rather than to a person. That is the whole of
+ * sharing: everyone looking at the same household sees the same rows, with no
+ * query anywhere having to remember to widen itself.
  */
 @Entity
 @Table(name = "planned_meals")
@@ -29,8 +33,16 @@ public class PlannedMeal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "household_id", nullable = false)
+    private Long householdId;
+
+    /**
+     * Who put it there. Null once that account is gone: the point of a shared
+     * plan is knowing somebody already thought about Thursday, and that stays
+     * true after they leave.
+     */
+    @Column(name = "created_by")
+    private Long createdBy;
 
     @Column(name = "recipe_id", nullable = false)
     private Long recipeId;
@@ -57,9 +69,10 @@ public class PlannedMeal {
     protected PlannedMeal() {
     }
 
-    public PlannedMeal(Long userId, Long recipeId, LocalDate date, MealSlot slot,
-                       int position, int servings) {
-        this.userId = userId;
+    public PlannedMeal(Long householdId, Long createdBy, Long recipeId, LocalDate date,
+                       MealSlot slot, int position, int servings) {
+        this.householdId = householdId;
+        this.createdBy = createdBy;
         this.recipeId = recipeId;
         this.date = date;
         this.slot = slot;
@@ -76,8 +89,12 @@ public class PlannedMeal {
         return id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHouseholdId() {
+        return householdId;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
     }
 
     public Long getRecipeId() {

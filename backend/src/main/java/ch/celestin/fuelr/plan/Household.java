@@ -11,12 +11,13 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 /**
- * How many people the plan cooks for. That is all it holds today.
+ * A household: the thing a week plan belongs to.
  *
- * It exists as a row of its own rather than a column on the profile because a
- * profile is optional — someone can plan a week without ever having filled in
- * their age and weight — and because this is where the Famille story attaches
- * its members.
+ * Everyone owns exactly one, created the first time they plan anything, and
+ * {@code size} is how many people it cooks for — which is not the same as how
+ * many accounts are in it, because children eat without having an account.
+ * {@link HouseholdMember} is what puts other accounts inside one, and that is
+ * the part the Famille plan pays for.
  */
 @Entity
 @Table(name = "households")
@@ -51,6 +52,14 @@ public class Household {
     @PreUpdate
     void touch() {
         this.updatedAt = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
     }
 
     public int getSize() {

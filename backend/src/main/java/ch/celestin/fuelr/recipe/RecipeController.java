@@ -38,14 +38,16 @@ public class RecipeController {
     private final NutritionService nutrition;
     private final MediaStorage media;
     private final RecipeImportService recipeImport;
+    private final RecipeAudience audience;
 
     public RecipeController(
             RecipeService recipes, NutritionService nutrition, MediaStorage media,
-            RecipeImportService recipeImport) {
+            RecipeImportService recipeImport, RecipeAudience audience) {
         this.recipes = recipes;
         this.nutrition = nutrition;
         this.media = media;
         this.recipeImport = recipeImport;
+        this.audience = audience;
     }
 
     /** Uploading replaces whatever was there; the old file is removed. */
@@ -84,7 +86,7 @@ public class RecipeController {
     @GetMapping("/{id}/photo")
     public ResponseEntity<org.springframework.core.io.Resource> photo(
             @AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
-        Recipe recipe = owned(principal, id);
+        Recipe recipe = readable(principal, id);
         if (recipe.getPhotoPath() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -217,7 +219,7 @@ public class RecipeController {
 
     @GetMapping("/{id}")
     public RecipeView get(@AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
-        return toView(owned(principal, id));
+        return toView(readable(principal, id));
     }
 
     /** Autosave. Accepts an incomplete recipe by design. */
@@ -258,6 +260,19 @@ public class RecipeController {
      */
     private Recipe owned(Jwt principal, Long id) {
         return recipes.find(id, userId(principal))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Reading is wider than owning, by exactly one case: a recipe somebody put
+     * on the plan the caller shares. Every other endpoint here still goes
+     * through {@link #owned} — a shared plan lets you read a dish, not rewrite
+     * or delete somebody else's recipe.
+     */
+    private Recipe readable(Jwt principal, Long id) {
+        Long userId = userId(principal);
+        return recipes.find(id, userId)
+                .or(() -> audience.canRead(userId, id) ? recipes.byId(id) : java.util.Optional.empty())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 

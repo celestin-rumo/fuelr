@@ -119,6 +119,8 @@ export function WeekPlanner({
         today={today}
         locale={locale}
         household={household}
+        shared={plan.shared}
+        accounts={plan.accounts}
         onHousehold={changeHousehold}
         onDuplicate={() => duplicate(false)}
       />
@@ -333,6 +335,8 @@ function Toolbar({
   today,
   locale,
   household,
+  shared,
+  accounts,
   onHousehold,
   onDuplicate,
 }: {
@@ -340,6 +344,8 @@ function Toolbar({
   today: string;
   locale: string;
   household: number;
+  shared: boolean;
+  accounts: number;
   onHousehold: (size: number) => void;
   onDuplicate: () => void;
 }) {
@@ -371,6 +377,19 @@ function Toolbar({
       >
         {t("thisWeek")}
       </Link>
+
+      {/* A shared plan has to say so. Someone else's dinner appearing on
+          Thursday is a surprise exactly once if the screen never mentions
+          that other people are writing on it. */}
+      {shared && (
+        <Link
+          href="/app/household"
+          data-testid="shared-plan"
+          className="inline-flex h-9 items-center gap-2 rounded-full border border-accent-ink px-3 text-[13px] font-semibold text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+        >
+          {t("sharedWith", { count: accounts })}
+        </Link>
+      )}
 
       <div className="flex-1" />
 
@@ -466,7 +485,11 @@ function RecipeRail({
       />
 
       {shown.length === 0 ? (
-        <p className="text-[13px] font-semibold text-text-dim">{t("rail.noResults")}</p>
+        // A library with nothing in it and a search that matched nothing are
+        // two different states with two different answers.
+        <p className="text-[13px] font-semibold text-text-dim">
+          {recipes.length === 0 ? t("rail.empty") : t("rail.noResults")}
+        </p>
       ) : (
         <ul className="flex max-h-[560px] flex-col gap-2 overflow-y-auto">
           {shown.map((recipe) => (
@@ -524,7 +547,19 @@ function RecipePicker({
         className="mt-4 h-11 w-full rounded-sm border border-line bg-bg-raised-2 px-3 text-[15px] font-semibold text-text placeholder:text-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
       />
       {shown.length === 0 ? (
-        <p className="mt-4 text-[15px] font-medium text-text-dim">{t("rail.noResults")}</p>
+        <div className="mt-4 flex flex-col items-start gap-3">
+          <p className="text-[15px] font-medium text-text-dim">
+            {recipes.length === 0 ? t("rail.empty") : t("rail.noResults")}
+          </p>
+          {recipes.length === 0 && (
+            <Link
+              href="/app/recipes/new"
+              className="text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            >
+              {t("noRecipes.action")}
+            </Link>
+          )}
+        </div>
       ) : (
         <ul className="mt-4 flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
           {shown.map((recipe) => (
@@ -575,6 +610,12 @@ function MealSheet({
         {t("meal.scaled", { count: meal.recipeServings, minutes: meal.minutes })}
         {meal.estimated && <span className="ml-2 text-coral-ink">{t("estimated")}</span>}
       </p>
+      {/* Only ever set for somebody else's doing. */}
+      {meal.plannedBy && (
+        <p data-testid="planned-by" className="mt-1 text-[13px] font-semibold text-text-dim">
+          {t("meal.plannedBy", { name: meal.plannedBy })}
+        </p>
+      )}
 
       <section className="mt-6">
         <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
