@@ -6,6 +6,58 @@ this file collects them newest first.
 
 ---
 
+# v1.0.3 — 2026-09-02
+
+Four deployment faults, all invisible from the code and all found by looking at
+the running site. v1.0.2 was correct and still could not send an email, still
+showed a translation key instead of an error, and still resolved the wrong
+backend.
+
+## Fixed
+
+- **The frontend was reaching another project's API.** `BACKEND_INTERNAL_URL`
+  was never set on the servers, so it fell back to `http://backend:8080`,
+  resolved on the shared `traefik-proxy` network — where four projects each
+  declare a service called `backend`. Compose publishes the *service* name as a
+  network alias on every network a container joins, so unique container names
+  did not help. Measured, not assumed: reproducing the topology locally, twelve
+  lookups of `backend` returned our container seven times and another project's
+  five. Every server-side call the frontend made, the session guard included,
+  was a coin toss. The frontend now sits on the project's private network and
+  addresses the backend by its container name, which is unique host-wide and
+  cannot drift back.
+
+- **`/api` never reached the app's own route handlers in production.** Traefik
+  matched it ahead of the frontend, so requests went straight to Spring: a
+  wrong password came back as Spring's error body and the screen showed the raw
+  key `auth.form.errors.Unauthorized`. Those handlers are also what set the
+  session cookie. Traefik no longer routes `/api` on the site's hostname. The
+  public API the native client will need gets a hostname of its own — it cannot
+  share a path with the web app.
+
+- **No email was ever sent.** Resend answered `535 Invalid username` on every
+  attempt. Its SMTP user is the literal string `resend`, never the sender
+  address and never the API key — as fixed as the host beside it, which the
+  compose file already hardcoded. It is no longer a secret, because a value
+  that can only be one thing should not live somewhere it can be typed wrongly.
+  `MAIL_USERNAME` and `STAGING_MAIL_USERNAME` are now unread and can be
+  deleted.
+
+  The failure was silent by design: a mail error must not reveal which
+  addresses exist, so the only trace was one line in the backend log.
+
+- The staging router kept a middleware label pointing at a router that no
+  longer existed.
+
+## Verification
+
+The full pipeline, e2e included. The parts that only production and staging can
+show were checked there: the certificate is now issued by Let's Encrypt for
+both hostnames, and staging was confirmed to sign in with a readable error and
+to deliver its confirmation email.
+
+---
+
 # v1.0.2 — 2026-09-02
 
 Makes failure visible. Two of the last three bugs looked identical from the
