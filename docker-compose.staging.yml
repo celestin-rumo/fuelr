@@ -10,12 +10,14 @@ services:
       JWT_SECURE_COOKIE: "true"
       NODE_ENV: production
       PORT: 3000
-      # Named explicitly, and resolved on app-internal rather than the shared
-      # proxy network: four projects on traefik-proxy each declare a service
-      # called `backend`, and a Docker alias shared by several containers
-      # round-robins between them. Server-side calls — the session guard among
-      # them — must not be able to reach another project's API.
-      BACKEND_INTERNAL_URL: http://backend:8080
+      # The container name, not the service name. Compose publishes the
+      # service name as a network alias on every network a container joins,
+      # and four projects on the shared traefik-proxy network each call theirs
+      # `backend` — measured resolving to two different projects, round-robin,
+      # which is where the frontend's server-side calls were going. A container
+      # name is unique host-wide, so this cannot drift back whatever anyone
+      # attaches to which network later.
+      BACKEND_INTERNAL_URL: http://fuelr-staging-backend:8080
 
     labels:
       - "traefik.enable=true"
