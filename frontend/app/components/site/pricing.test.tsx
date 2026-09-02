@@ -33,8 +33,10 @@ describe("PricingPlans", () => {
     for (const name of ["Cuisine", "Fuelr Plus", "Famille"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
+    // A link, not a button: choosing a plan navigates to sign-up. It was a
+    // <Button> with no handler and did nothing at all.
     expect(
-      screen.getByRole("button", { name: "Essayer 14 jours" }),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: "Essayer 14 jours" }),
+    ).toHaveAttribute("href", "/fr/inscription");
   });
 });
