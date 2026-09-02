@@ -111,6 +111,7 @@ public class JsonLdRecipeParser implements RecipePageParser {
         }
 
         collectSteps(recipe, node.get("recipeInstructions"));
+        splitIfItIsOneLongStep(recipe);
         return recipe;
     }
 
@@ -138,6 +139,21 @@ public class JsonLdRecipeParser implements RecipePageParser {
                 RecipeFields.addStep(recipe, text(entry.get("text")));
             }
         }
+    }
+
+    /**
+     * A source that numbers its steps is believed — Marmiton's eight are eight.
+     * But a single "Étape 1" holding the whole method, as Betty Bossi
+     * publishes, is not a step list: it is a paragraph that happens to be in
+     * one. Splitting it is a guess, so {@code addProse} flags it as one.
+     */
+    private void splitIfItIsOneLongStep(ParsedRecipe recipe) {
+        if (recipe.getSteps().size() != 1) {
+            return;
+        }
+        String only = recipe.getSteps().get(0);
+        recipe.getSteps().clear();
+        RecipeFields.addProse(recipe, only);
     }
 
     private String text(JsonNode node) {
