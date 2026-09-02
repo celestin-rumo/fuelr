@@ -65,7 +65,8 @@
       "label": "Main navigation",
       "recipes": "Recipes",
       "plan": "Plan",
-      "household": "Household"
+      "household": "Household",
+      "shopping": "Shopping"
     }
   },
   "plan": {
@@ -118,7 +119,9 @@
       "moveTitle": "Move",
       "openRecipe": "Open the recipe",
       "remove": "Remove from the plan",
-      "plannedBy": "Added by {name}"
+      "plannedBy": "Added by {name}",
+      "cooked": "Cooked",
+      "cookedHint": "Takes the ingredients out of the cupboard."
     },
     "noRecipes": {
       "title": "No recipe to plan with",
@@ -184,6 +187,53 @@
     "unavailable": {
       "title": "The household cannot be reached",
       "body": "The household could not be loaded. Reload the page — nothing is lost."
+    }
+  },
+  "shopping": {
+    "label": "Shopping list",
+    "title": "My shopping",
+    "intro": "Everything the week needs, grouped by aisle. What is already in the cupboard is deducted.",
+    "week": "Week of {date}",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "remaining": "{count, plural, =0 {All done} one {# item left} other {# items left}}",
+    "empty": "Nothing to buy: the week has no meals yet.",
+    "covered": "Already in the cupboard",
+    "inStock": "{quantity} {unit} in the cupboard",
+    "removeItem": "Remove {name} from the list",
+    "pendingTicks": "{count, plural, one {# tick has not been saved yet.} other {# ticks have not been saved yet.}} They will be sent as soon as the network is back.",
+    "offlineHint": "Copy saved on {date}. What you tick here will be sent when the network returns.",
+    "aisles": {
+      "PRODUCE": "Fruit & vegetables",
+      "BAKERY": "Bakery",
+      "MEAT_FISH": "Meat & fish",
+      "DAIRY": "Dairy",
+      "FROZEN": "Frozen",
+      "GROCERY": "Groceries",
+      "HOUSEHOLD": "Household",
+      "OTHER": "Other"
+    },
+    "add": {
+      "title": "Add an item",
+      "name": "Item",
+      "quantity": "Quantity",
+      "submit": "Add"
+    },
+    "pantry": {
+      "title": "My cupboard",
+      "body": "What you declare here is deducted from the list, and goes down when you mark a meal as cooked.",
+      "name": "Ingredient",
+      "quantity": "Quantity (g)",
+      "submit": "Put in the cupboard",
+      "remove": "Take {name} out of the cupboard"
+    },
+    "errors": {
+      "failed": "That did not go through. Try again.",
+      "planLine": "This line comes from the plan: it would be back on the next update. Use the cupboard or the plan instead."
+    },
+    "unavailable": {
+      "title": "The list cannot be reached",
+      "body": "The list could not be loaded. Reload the page — nothing is lost."
     }
   },
   "auth": {

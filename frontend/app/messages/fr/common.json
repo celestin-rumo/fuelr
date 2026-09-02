@@ -65,7 +65,8 @@
       "label": "Navigation principale",
       "recipes": "Recettes",
       "plan": "Planning",
-      "household": "Foyer"
+      "household": "Foyer",
+      "shopping": "Courses"
     }
   },
   "plan": {
@@ -118,7 +119,9 @@
       "moveTitle": "Déplacer",
       "openRecipe": "Voir la recette",
       "remove": "Retirer du planning",
-      "plannedBy": "Ajouté par {name}"
+      "plannedBy": "Ajouté par {name}",
+      "cooked": "Cuisiné",
+      "cookedHint": "Retire les ingrédients du placard."
     },
     "noRecipes": {
       "title": "Aucune recette à planifier",
@@ -184,6 +187,53 @@
     "unavailable": {
       "title": "Le foyer n'est pas joignable",
       "body": "Les informations du foyer n'ont pas pu être chargées. Recharge la page ; rien n'est perdu."
+    }
+  },
+  "shopping": {
+    "label": "Liste de courses",
+    "title": "Mes courses",
+    "intro": "Tout ce que la semaine demande, regroupé par rayon. Ce que tu as déjà au placard en est déduit.",
+    "week": "Semaine du {date}",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "remaining": "{count, plural, =0 {Tout est pris} one {# article restant} other {# articles restants}}",
+    "empty": "Rien à acheter : la semaine n'a pas encore de repas.",
+    "covered": "Déjà au placard",
+    "inStock": "{quantity} {unit} au placard",
+    "removeItem": "Retirer {name} de la liste",
+    "pendingTicks": "{count, plural, one {# case cochée n'est pas encore enregistrée.} other {# cases cochées ne sont pas encore enregistrées.}} Elles partiront dès que le réseau revient.",
+    "offlineHint": "Copie enregistrée le {date}. Ce que tu coches ici partira au retour du réseau.",
+    "aisles": {
+      "PRODUCE": "Fruits & légumes",
+      "BAKERY": "Boulangerie",
+      "MEAT_FISH": "Viande & poisson",
+      "DAIRY": "Crémerie",
+      "FROZEN": "Surgelés",
+      "GROCERY": "Épicerie",
+      "HOUSEHOLD": "Maison",
+      "OTHER": "Divers"
+    },
+    "add": {
+      "title": "Ajouter un article",
+      "name": "Article",
+      "quantity": "Quantité",
+      "submit": "Ajouter"
+    },
+    "pantry": {
+      "title": "Mon placard",
+      "body": "Ce que tu déclares ici est déduit de la liste, et se décrémente quand tu marques un repas comme cuisiné.",
+      "name": "Ingrédient",
+      "quantity": "Quantité (g)",
+      "submit": "Mettre au placard",
+      "remove": "Retirer {name} du placard"
+    },
+    "errors": {
+      "failed": "L'opération n'a pas abouti. Réessaie.",
+      "planLine": "Cette ligne vient du planning : elle reviendra à la prochaine mise à jour. Passe par le placard ou par le planning."
+    },
+    "unavailable": {
+      "title": "La liste n'est pas joignable",
+      "body": "La liste n'a pas pu être chargée. Recharge la page ; rien n'est perdu."
     }
   },
   "auth": {

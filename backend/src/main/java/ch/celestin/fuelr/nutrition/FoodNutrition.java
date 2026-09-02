@@ -33,6 +33,14 @@ public class FoodNutrition {
     @Column(name = "fat_g", nullable = false)
     private BigDecimal fatG;
 
+    /**
+     * Which aisle it is found in. It lives here because this table is already
+     * what turns "200 g de lentilles corail" into a known food — one lookup,
+     * and one place to be wrong about what a name means.
+     */
+    @Column(nullable = false)
+    private String aisle;
+
     protected FoodNutrition() {
     }
 
@@ -58,5 +66,9 @@ public class FoodNutrition {
 
     public double getFatG() {
         return fatG.doubleValue();
+    }
+
+    public String getAisle() {
+        return aisle;
     }
 }

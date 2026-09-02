@@ -53,6 +53,12 @@ export function AppHeader({
             {t("nav.plan")}
           </Link>
           <Link
+            href="/app/shopping"
+            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          >
+            {t("nav.shopping")}
+          </Link>
+          <Link
             href="/app/household"
             className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
           >

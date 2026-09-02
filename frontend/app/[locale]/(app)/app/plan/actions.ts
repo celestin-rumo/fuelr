@@ -62,6 +62,18 @@ export async function copyWeek(
 }
 
 /**
+ * Says a meal was actually cooked, which is what takes its ingredients out of
+ * the cupboard. Unmarking it puts nothing back — nobody knows whether the food
+ * was un-eaten.
+ */
+export async function markCooked(id: number, cooked: boolean) {
+  const response = await apiFetch(`/api/plan/${id}/cooked`, {
+    method: cooked ? "POST" : "DELETE",
+  });
+  return { ok: response.ok };
+}
+
+/**
  * The default for meals planned from here on. Meals already on the grid keep
  * the servings they were given.
  */

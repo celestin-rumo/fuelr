@@ -77,12 +77,37 @@ public class NutritionService {
         return new NutritionDtos.Breakdown(total, perServing, servings, anyGuessed, lines);
     }
 
-    /** Substring match on a lowercased name, mirroring how people type. */
+    /**
+     * Which aisle an ingredient name is found in, or null when the reference
+     * table has never heard of it.
+     *
+     * The shopping list groups by this. It goes through the same matcher as
+     * the figures do on purpose: a name that is recognised for its calories
+     * and not for its aisle would be a second, quieter way of being wrong.
+     */
+    public String aisleOf(String name) {
+        FoodNutrition match = match(foods.findAll(), name);
+        return match == null ? null : match.getAisle();
+    }
+
+    /**
+     * Substring match on a lowercased name, mirroring how people type, with
+     * the longest matching key winning.
+     *
+     * "Lentilles corail" contains both "lentilles" and "ail", and taking the
+     * first match made the answer depend on the order rows came back in — which
+     * is unspecified, and which an unrelated {@code UPDATE} on the table
+     * silently changed. Longest wins is both deterministic and right: the more
+     * specific key is the better guess. The key breaks ties so that two keys of
+     * equal length cannot reintroduce the same coin toss.
+     */
     private static FoodNutrition match(List<FoodNutrition> reference, String name) {
         String needle = name.toLowerCase(Locale.ROOT);
         return reference.stream()
                 .filter(food -> needle.contains(food.getMatchKey()))
-                .findFirst()
+                .max(java.util.Comparator
+                        .comparingInt((FoodNutrition food) -> food.getMatchKey().length())
+                        .thenComparing(FoodNutrition::getMatchKey))
                 .orElse(null);
     }
 
