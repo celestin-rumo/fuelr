@@ -135,9 +135,17 @@ public class RecipeController {
     public List<RecipeSummary> list(
             @AuthenticationPrincipal Jwt principal,
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) java.util.Set<String> tags) {
-        return recipes.search(userId(principal), q, tags).stream()
-                .map(this::toSummary).toList();
+            @RequestParam(required = false) java.util.Set<String> tags,
+            @RequestParam(required = false) java.util.Set<String> seasons) {
+        try {
+            java.util.Set<String> wanted = seasons == null ? null
+                    : seasons.stream().map(Season::parse).map(Enum::name)
+                            .collect(java.util.stream.Collectors.toSet());
+            return recipes.search(userId(principal), q, tags, wanted).stream()
+                    .map(this::toSummary).toList();
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     /** Pinning is a single call, so the grid can flip without a reload. */
@@ -164,7 +172,7 @@ public class RecipeController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "not_a_favorite");
         }
-        return list(principal, null, null);
+        return list(principal, null, null, null);
     }
 
     public record MoveRequest(int direction) {
@@ -214,7 +222,8 @@ public class RecipeController {
                 breakdown == null ? null : breakdown.perServing().proteinG(),
                 breakdown == null ? null : breakdown.perServing().carbsG(),
                 breakdown == null ? null : breakdown.perServing().fatG(),
-                breakdown != null && breakdown.containsEstimates());
+                breakdown != null && breakdown.containsEstimates(),
+                recipe.getSeasons());
     }
 
     @GetMapping("/{id}")
@@ -228,7 +237,15 @@ public class RecipeController {
             @AuthenticationPrincipal Jwt principal,
             @PathVariable Long id,
             @Valid @RequestBody SaveRequest body) {
-        return toView(recipes.save(owned(principal, id), body));
+        try {
+            return toView(recipes.save(owned(principal, id), body));
+        } catch (IllegalArgumentException e) {
+            // A season that is not one of the four. Everything else here is
+            // saved exactly as typed, half-finished included — this is the one
+            // field with a closed domain, and a bad value is a bug in the
+            // caller rather than a draft in progress.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     /**
@@ -296,6 +313,7 @@ public class RecipeController {
                         .toList(),
                 recipe.getSteps().stream().map(RecipeStep::getText).toList(),
                 recipe.getTags(),
+                recipe.getSeasons(),
                 recipe.getSourceUrl(),
                 recipe.getTotalMinutes(),
                 recipe.getUnverified() == null || recipe.getUnverified().isBlank()

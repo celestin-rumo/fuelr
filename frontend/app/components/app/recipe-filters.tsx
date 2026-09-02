@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
+import { SEASONS, seasonOf } from "@app/lib/seasons";
+import type { Season } from "@app/lib/seasons";
 
 /** The tags the editor offers; the filter bar mirrors them exactly. */
 const TAGS = [
@@ -21,9 +23,14 @@ const DEBOUNCE = 300;
 export function RecipeFilters({
   term,
   selectedTags,
+  selectedSeasons,
+  today,
 }: {
   term: string;
   selectedTags: string[];
+  selectedSeasons: Season[];
+  /** Resolved on the server, so "in season" means the same on both sides. */
+  today: string;
 }) {
   const t = useTranslations("recipe");
   const tApp = useTranslations("app");
@@ -33,10 +40,11 @@ export function RecipeFilters({
   const [value, setValue] = useState(term);
   const firstRender = useRef(true);
 
-  function push(nextTerm: string, nextTags: string[]) {
+  function push(nextTerm: string, nextTags: string[], nextSeasons: Season[]) {
     const params = new URLSearchParams();
     if (nextTerm.trim()) params.set("q", nextTerm.trim());
     if (nextTags.length) params.set("tags", nextTags.join(","));
+    if (nextSeasons.length) params.set("seasons", nextSeasons.join(","));
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
@@ -47,7 +55,10 @@ export function RecipeFilters({
       firstRender.current = false;
       return;
     }
-    const timer = window.setTimeout(() => push(value, selectedTags), DEBOUNCE);
+    const timer = window.setTimeout(
+      () => push(value, selectedTags, selectedSeasons),
+      DEBOUNCE,
+    );
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -56,8 +67,19 @@ export function RecipeFilters({
     const next = selectedTags.includes(tag)
       ? selectedTags.filter((x) => x !== tag)
       : [...selectedTags, tag];
-    push(value, next);
+    push(value, next, selectedSeasons);
   }
+
+  function toggleSeason(season: Season) {
+    const next = selectedSeasons.includes(season)
+      ? selectedSeasons.filter((x) => x !== season)
+      : [...selectedSeasons, season];
+    push(value, selectedTags, next);
+  }
+
+  const current = seasonOf(today);
+  const onlyCurrent =
+    selectedSeasons.length === 1 && selectedSeasons[0] === current;
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,11 +104,32 @@ export function RecipeFilters({
             {t(`tags.${tag}`)}
           </Chip>
         ))}
-        {(selectedTags.length > 0 || value !== "") && (
+      </div>
+
+      <div className="flex flex-wrap gap-2" data-testid="season-filters">
+        {/* One tap for the common case, next to the four it is made of — it
+            selects the season, it does not hide the others. */}
+        <Chip
+          active={onlyCurrent}
+          data-testid="in-season"
+          onClick={() => push(value, selectedTags, onlyCurrent ? [] : [current])}
+        >
+          {t("seasons.now")}
+        </Chip>
+        {SEASONS.map((season) => (
+          <Chip
+            key={season}
+            active={selectedSeasons.includes(season)}
+            onClick={() => toggleSeason(season)}
+          >
+            {t(`seasons.${season}`)}
+          </Chip>
+        ))}
+        {(selectedTags.length > 0 || selectedSeasons.length > 0 || value !== "") && (
           <Chip
             onClick={() => {
               setValue("");
-              push("", []);
+              push("", [], []);
             }}
           >
             {tApp("search.clear")}

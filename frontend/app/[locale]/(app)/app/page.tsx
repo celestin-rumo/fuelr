@@ -7,6 +7,8 @@ import { Button } from "@ui/button";
 import { EmptyState } from "@ui/empty-state";
 import { RecipeGrid } from "@app/components/app/recipe-grid";
 import { Container } from "@app/components/site/section";
+import { isSeason } from "@app/lib/seasons";
+import { todayIso } from "@app/lib/week";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +20,16 @@ export default async function AppHomePage({
 
   // The query lives in the URL so a filtered library can be bookmarked and
   // shared, and so the back button undoes a filter.
-  const { q, tags } = await searchParams;
+  const { q, tags, seasons } = await searchParams;
   const term = typeof q === "string" ? q : "";
   const selected = typeof tags === "string" ? tags.split(",").filter(Boolean) : [];
+  const inSeason =
+    typeof seasons === "string" ? seasons.split(",").filter(isSeason) : [];
 
   const params = new URLSearchParams();
   if (term) params.set("q", term);
   for (const tag of selected) params.append("tags", tag);
+  for (const season of inSeason) params.append("seasons", season);
   const query = params.toString();
 
   const response = await apiFetch(`/api/recipes${query ? `?${query}` : ""}`);
@@ -32,7 +37,7 @@ export default async function AppHomePage({
 
   // Whether the library is empty, or merely filtered down to nothing, are two
   // different states and must not share a message.
-  const filtering = term !== "" || selected.length > 0;
+  const filtering = term !== "" || selected.length > 0 || inSeason.length > 0;
 
   return (
     <Container className="flex flex-col gap-8 py-14">
@@ -45,7 +50,9 @@ export default async function AppHomePage({
             {t("greeting", { name: session?.name ?? session?.email ?? "" })}
           </h1>
         </div>
-        <div className="flex items-center gap-3">
+        {/* Wraps: three actions are 428px of buttons, and a 375px screen has
+            343 of room. They queue up rather than pushing the page sideways. */}
+        <div className="flex flex-wrap items-center gap-3">
           {recipes.length > 0 && (
             <a
               href="/api/recipes/export"
@@ -78,7 +85,13 @@ export default async function AppHomePage({
           }
         />
       ) : (
-        <RecipeGrid recipes={recipes} term={term} selectedTags={selected} />
+        <RecipeGrid
+          recipes={recipes}
+          term={term}
+          selectedTags={selected}
+          selectedSeasons={inSeason}
+          today={todayIso()}
+        />
       )}
     </Container>
   );

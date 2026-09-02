@@ -367,7 +367,9 @@
       "fewer": "Une portion de moins",
       "more": "Une portion de plus",
       "level": "Difficulté",
-      "tags": "Étiquettes"
+      "tags": "Étiquettes",
+      "seasons": "Saisons",
+      "seasonsHint": "Une recette peut n'en avoir aucune, ou plusieurs — une soupe de courge est d'automne et d'hiver."
     },
     "levels": {
       "easy": "Facile",
@@ -397,7 +399,23 @@
       "label": "Étape {number}",
       "remove": "Supprimer l'étape {number}",
       "moveUp": "Monter l'étape {number}",
-      "moveDown": "Descendre l'étape {number}"
+      "moveDown": "Descendre l'étape {number}",
+      "suggestions": {
+        "blend": "Mixer 30 s / vitesse 4.",
+        "knead": "Pétrir 3 min / mode pétrissage.",
+        "steam": "Cuire à la vapeur 20 min / 100 °C.",
+        "chop": "Hacher 5 s / vitesse 7.",
+        "emulsify": "Émulsionner 1 min / vitesse 3.",
+        "preheat": "Préchauffer le four à 180 °C.",
+        "sear": "Faire revenir 5 min à feu vif.",
+        "simmer": "Laisser mijoter 20 min à couvert.",
+        "boil": "Porter à ébullition.",
+        "season": "Saler et poivrer.",
+        "rest": "Laisser reposer 10 min.",
+        "setAside": "Réserver.",
+        "bake": "Enfourner 25 min à 180 °C."
+      },
+      "suggestionsHint": "Tape « / » pour insérer une étape toute faite."
     },
     "errors": {
       "missing_title": "Donne un titre à la recette.",
@@ -498,6 +516,13 @@
         "vitamin_e": "Vitamine E",
         "zinc": "Zinc"
       }
+    },
+    "seasons": {
+      "now": "De saison",
+      "SPRING": "Printemps",
+      "SUMMER": "Été",
+      "AUTUMN": "Automne",
+      "WINTER": "Hiver"
     }
   },
   "cook": {

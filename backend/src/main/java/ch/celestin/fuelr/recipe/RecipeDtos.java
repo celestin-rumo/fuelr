@@ -24,7 +24,9 @@ public final class RecipeDtos {
             String level,
             List<IngredientInput> ingredients,
             List<String> steps,
-            Set<String> tags) {
+            Set<String> tags,
+            /** Zero, one or several of SPRING, SUMMER, AUTUMN, WINTER. */
+            Set<String> seasons) {
     }
 
     /**
@@ -56,6 +58,7 @@ public final class RecipeDtos {
             List<IngredientView> ingredients,
             List<String> steps,
             Set<String> tags,
+            Set<String> seasons,
             String sourceUrl,
             Integer totalMinutes,
             /** Field names the import had to guess at: "servings", "steps", "title". */
@@ -77,7 +80,8 @@ public final class RecipeDtos {
             boolean favorite, boolean hasPhoto, int minutes,
             Double kcalPerServing, Double proteinPerServing,
             Double carbsPerServing, Double fatPerServing,
-            boolean estimated) {
+            boolean estimated,
+            Set<String> seasons) {
     }
 
     /** What blocks publishing, so the editor can point at the right tab. */

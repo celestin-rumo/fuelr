@@ -18,6 +18,8 @@ import {
 } from "@app/[locale]/(app)/app/recipes/actions";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 import { NutritionPanel } from "./nutrition-panel";
+import { SEASONS } from "@app/lib/seasons";
+import { StepTextarea } from "./step-suggestions";
 import { NutritionDetailPanel } from "./nutrition-detail";
 import { RecipePhoto } from "./recipe-photo";
 
@@ -50,6 +52,7 @@ function toDraft(recipe: Recipe): RecipeDraft {
     })),
     steps: recipe.steps,
     tags: recipe.tags,
+    seasons: recipe.seasons,
   };
 }
 
@@ -472,6 +475,37 @@ export function RecipeEditor({
                 })}
               </div>
             </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-[13px] font-semibold text-text-dim">
+                {t("base.seasons")}
+              </span>
+              {/* Four values, not free text: a squash soup is autumn and
+                  winter, and most recipes are of no season at all. */}
+              <div className="flex flex-wrap gap-2" data-testid="season-picker">
+                {SEASONS.map((season) => {
+                  const on = draft.seasons.includes(season);
+                  return (
+                    <Chip
+                      key={season}
+                      active={on}
+                      onClick={() =>
+                        update({
+                          seasons: on
+                            ? draft.seasons.filter((x) => x !== season)
+                            : [...draft.seasons, season],
+                        })
+                      }
+                    >
+                      {t(`seasons.${season}`)}
+                    </Chip>
+                  );
+                })}
+              </div>
+              <span className="text-[12px] font-medium text-gray">
+                {t("base.seasonsHint")}
+              </span>
+            </div>
           </div>
         )}
 
@@ -631,6 +665,11 @@ export function RecipeEditor({
         {tab === 2 && (
           <div className="flex flex-col gap-4">
             <p className="font-mono text-[11px] text-gray">{t("steps.hint")}</p>
+            {/* Said once, at the top: a shortcut nobody is told about is a
+                shortcut nobody uses. */}
+            <p className="font-mono text-[11px] text-gray">
+              {t("steps.suggestionsHint")}
+            </p>
 
             {draft.steps.map((step, index) => (
               <div
@@ -647,17 +686,15 @@ export function RecipeEditor({
                   </span>
                   {/* Borderless: the card carries the outline, so the controls
                       below read as part of the same step. */}
-                  <textarea
-                    aria-label={t("steps.label", { number: index + 1 })}
+                  <StepTextarea
+                    label={t("steps.label", { number: index + 1 })}
                     value={step}
-                    onChange={(e) =>
+                    onChange={(next) =>
                       update({
-                        steps: draft.steps.map((s, i) =>
-                          i === index ? e.target.value : s,
-                        ),
+                        steps: draft.steps.map((s, i) => (i === index ? next : s)),
                       })
                     }
-                    className="min-h-24 flex-1 resize-y bg-transparent py-2 text-[15px] leading-[1.5] text-text outline-none"
+                    className="min-h-24 w-full resize-y bg-transparent py-2 text-[15px] leading-[1.5] text-text outline-none"
                   />
                 </div>
 

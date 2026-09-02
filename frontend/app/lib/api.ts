@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { TOKEN_COOKIE } from "./session";
 import type { Slot } from "./week";
+import type { Season } from "./seasons";
 
 function backendUrl() {
   return process.env.BACKEND_INTERNAL_URL ?? "http://backend:8080";
@@ -47,6 +48,8 @@ export type Recipe = {
   totalMinutes: number | null;
   /** Field names the import had to guess at: "servings", "steps", "title". */
   unverified: string[];
+  /** Zero, one or several. Most recipes are of no season. */
+  seasons: Season[];
 };
 
 /**
@@ -284,4 +287,5 @@ export type RecipeSummary = {
   carbsPerServing: number | null;
   fatPerServing: number | null;
   estimated: boolean;
+  seasons: Season[];
 };

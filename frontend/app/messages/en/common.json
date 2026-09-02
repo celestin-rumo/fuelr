@@ -367,7 +367,9 @@
       "fewer": "One serving fewer",
       "more": "One serving more",
       "level": "Difficulty",
-      "tags": "Tags"
+      "tags": "Tags",
+      "seasons": "Seasons",
+      "seasonsHint": "A recipe can have none, or several — a squash soup is autumn and winter."
     },
     "levels": {
       "easy": "Easy",
@@ -397,7 +399,23 @@
       "label": "Step {number}",
       "remove": "Delete step {number}",
       "moveUp": "Move step {number} up",
-      "moveDown": "Move step {number} down"
+      "moveDown": "Move step {number} down",
+      "suggestions": {
+        "blend": "Blend 30 s / speed 4.",
+        "knead": "Knead 3 min / dough mode.",
+        "steam": "Steam 20 min / 100 °C.",
+        "chop": "Chop 5 s / speed 7.",
+        "emulsify": "Emulsify 1 min / speed 3.",
+        "preheat": "Preheat the oven to 180 °C.",
+        "sear": "Sear 5 min over high heat.",
+        "simmer": "Simmer 20 min, covered.",
+        "boil": "Bring to the boil.",
+        "season": "Season with salt and pepper.",
+        "rest": "Leave to rest 10 min.",
+        "setAside": "Set aside.",
+        "bake": "Bake 25 min at 180 °C."
+      },
+      "suggestionsHint": "Type “/” to insert a ready-made step."
     },
     "errors": {
       "missing_title": "Give the recipe a title.",
@@ -498,6 +516,13 @@
         "vitamin_e": "Vitamin E",
         "zinc": "Zinc"
       }
+    },
+    "seasons": {
+      "now": "In season",
+      "SPRING": "Spring",
+      "SUMMER": "Summer",
+      "AUTUMN": "Autumn",
+      "WINTER": "Winter"
     }
   },
   "cook": {

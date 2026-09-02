@@ -1,6 +1,7 @@
 "use server";
 
 import { apiFetch } from "@app/lib/api";
+import type { Season } from "@app/lib/seasons";
 
 export type IngredientDraft = {
   name: string;
@@ -22,6 +23,8 @@ export type RecipeDraft = {
   ingredients: IngredientDraft[];
   steps: string[];
   tags: string[];
+  /** Zero, one or several. A closed domain, unlike the tags above. */
+  seasons: Season[];
 };
 
 /** Autosave. Accepts a half-finished recipe — that is the point of a draft. */
