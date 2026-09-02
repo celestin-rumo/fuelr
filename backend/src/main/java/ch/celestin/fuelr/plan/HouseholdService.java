@@ -85,8 +85,13 @@ public class HouseholdService {
     /** Everyone owns one, created the first time they need it. */
     @Transactional
     public Household ownHousehold(Long userId) {
-        return households.findByOwnerUserId(userId)
-                .orElseGet(() -> households.save(new Household(userId)));
+        return households.findByOwnerUserId(userId).orElseGet(() -> {
+            // Two requests for a brand-new account arrive together on the very
+            // first page that needs a household. The database decides which
+            // insert lands; both then read the same row.
+            households.createIfAbsent(userId);
+            return households.findByOwnerUserId(userId).orElseThrow();
+        });
     }
 
     /**

@@ -55,7 +55,9 @@ public final class PlanDtos {
              * one's own doing: a shared plan should say what is new to the
              * reader, not repeat their own name twenty times.
              */
-            String plannedBy) {
+            String plannedBy,
+            /** Said out loud by somebody; it is what empties the cupboard. */
+            boolean cooked) {
     }
 
     public record DayTotals(LocalDate date, int meals, Double kcal) {

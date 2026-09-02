@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@ui/button";
 import { clearSession } from "@app/lib/cooking-session";
+import { clearList } from "@app/lib/shopping-offline";
 
 export function LogoutButton() {
   const t = useTranslations("auth");
@@ -12,11 +13,15 @@ export function LogoutButton() {
   /**
    * Everything this account left on the device.
    *
-   * The dish under way carries the recipe itself, and the service worker holds
-   * the pages it was served — neither belongs to whoever signs in next.
+   * The dish under way carries the recipe itself, the shopping list is a copy
+   * of the household's week, and the service worker holds the pages it was
+   * served — none of it belongs to whoever signs in next.
    */
   async function forget() {
     clearSession();
+    // The list is the household's, and the next person to sign in on this
+    // machine is not in it.
+    clearList();
     try {
       const registrations = await navigator.serviceWorker?.getRegistrations();
       for (const registration of registrations ?? []) {

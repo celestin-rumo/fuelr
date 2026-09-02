@@ -30,6 +30,22 @@ class NutritionServiceTest {
     @Autowired
     NutritionService nutrition;
 
+    /**
+     * "Lentilles corail" contains "ail" as well as "lentilles". Which one wins
+     * used to depend on the order the rows came back in, and an unrelated
+     * migration changed that order — turning 700 kcal of lentils into 300 kcal
+     * of garlic with nothing in the diff to suggest it.
+     */
+    @Test
+    void picksTheMostSpecificFoodWhenANameContainsTwo() {
+        var lentils = nutrition.compute(
+                List.of(new IngredientInput("lentilles corail", 100, "g")), 1);
+        var garlic = nutrition.compute(List.of(new IngredientInput("ail", 100, "g")), 1);
+
+        assertThat(lentils.total().kcal()).isEqualTo(350.0);
+        assertThat(garlic.total().kcal()).isEqualTo(150.0);
+    }
+
     @Test
     void computesGramsAgainstThePer100Reference() {
         // Lentilles: 350 kcal / 24 p / 60 c / 1 f per 100 g, so 200 g doubles it.

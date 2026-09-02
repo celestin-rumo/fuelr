@@ -65,7 +65,8 @@
       "label": "Hauptnavigation",
       "recipes": "Rezepte",
       "plan": "Wochenplan",
-      "household": "Haushalt"
+      "household": "Haushalt",
+      "shopping": "Einkauf"
     }
   },
   "plan": {
@@ -118,7 +119,9 @@
       "moveTitle": "Verschieben",
       "openRecipe": "Rezept öffnen",
       "remove": "Aus dem Plan entfernen",
-      "plannedBy": "Hinzugefügt von {name}"
+      "plannedBy": "Hinzugefügt von {name}",
+      "cooked": "Gekocht",
+      "cookedHint": "Nimmt die Zutaten aus dem Vorrat."
     },
     "noRecipes": {
       "title": "Kein Rezept zum Planen",
@@ -184,6 +187,53 @@
     "unavailable": {
       "title": "Der Haushalt ist nicht erreichbar",
       "body": "Der Haushalt konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
+    }
+  },
+  "shopping": {
+    "label": "Einkaufsliste",
+    "title": "Mein Einkauf",
+    "intro": "Alles, was die Woche braucht, nach Abteilung gruppiert. Was schon im Vorrat ist, wird abgezogen.",
+    "week": "Woche vom {date}",
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "remaining": "{count, plural, =0 {Alles erledigt} one {# Artikel übrig} other {# Artikel übrig}}",
+    "empty": "Nichts zu kaufen: Die Woche hat noch keine Mahlzeiten.",
+    "covered": "Schon im Vorrat",
+    "inStock": "{quantity} {unit} im Vorrat",
+    "removeItem": "{name} von der Liste entfernen",
+    "pendingTicks": "{count, plural, one {# Häkchen ist noch nicht gespeichert.} other {# Häkchen sind noch nicht gespeichert.}} Sie gehen raus, sobald das Netz zurück ist.",
+    "offlineHint": "Kopie vom {date}. Was du hier abhakst, geht raus, sobald das Netz zurück ist.",
+    "aisles": {
+      "PRODUCE": "Obst & Gemüse",
+      "BAKERY": "Backwaren",
+      "MEAT_FISH": "Fleisch & Fisch",
+      "DAIRY": "Molkerei",
+      "FROZEN": "Tiefkühl",
+      "GROCERY": "Lebensmittel",
+      "HOUSEHOLD": "Haushalt",
+      "OTHER": "Sonstiges"
+    },
+    "add": {
+      "title": "Artikel hinzufügen",
+      "name": "Artikel",
+      "quantity": "Menge",
+      "submit": "Hinzufügen"
+    },
+    "pantry": {
+      "title": "Mein Vorrat",
+      "body": "Was du hier angibst, wird von der Liste abgezogen und sinkt, wenn du eine Mahlzeit als gekocht markierst.",
+      "name": "Zutat",
+      "quantity": "Menge (g)",
+      "submit": "In den Vorrat",
+      "remove": "{name} aus dem Vorrat nehmen"
+    },
+    "errors": {
+      "failed": "Das hat nicht geklappt. Versuch es nochmal.",
+      "planLine": "Diese Zeile kommt aus dem Plan: Sie wäre beim nächsten Abgleich wieder da. Nutz den Vorrat oder den Plan."
+    },
+    "unavailable": {
+      "title": "Die Liste ist nicht erreichbar",
+      "body": "Die Liste konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
     }
   },
   "auth": {

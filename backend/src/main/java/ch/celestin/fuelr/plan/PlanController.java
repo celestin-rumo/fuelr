@@ -97,6 +97,30 @@ public class PlanController {
     }
 
     /**
+     * Says a meal was actually cooked, which is what takes its ingredients out
+     * of the cupboard. Saying it twice changes nothing.
+     */
+    @PostMapping("/{id}/cooked")
+    public PlanDtos.PlannedMealView cooked(
+            @AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
+        PlannedMeal meal = owned(principal, id);
+        plan.markCooked(meal);
+        return mealOf(principal, meal.getId(), meal.getDate());
+    }
+
+    /**
+     * Takes the mark back. Nothing goes back into the cupboard — nobody knows
+     * whether the food was un-eaten.
+     */
+    @DeleteMapping("/{id}/cooked")
+    public PlanDtos.PlannedMealView notCooked(
+            @AuthenticationPrincipal Jwt principal, @PathVariable Long id) {
+        PlannedMeal meal = owned(principal, id);
+        plan.markNotCooked(meal);
+        return mealOf(principal, meal.getId(), meal.getDate());
+    }
+
+    /**
      * Copies one week onto another. 409 when the target is not empty and the
      * caller has not said to replace it — the screen turns that into a
      * question rather than into a loss.

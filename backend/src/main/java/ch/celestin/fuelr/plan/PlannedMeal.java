@@ -60,6 +60,10 @@ public class PlannedMeal {
     @Column(nullable = false)
     private int servings;
 
+    /** Set the moment somebody says they cooked it. Null until then. */
+    @Column(name = "cooked_at")
+    private Instant cookedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -127,6 +131,23 @@ public class PlannedMeal {
 
     public int getServings() {
         return servings;
+    }
+
+    public Instant getCookedAt() {
+        return cookedAt;
+    }
+
+    /** Idempotent: cooking it twice must not empty the cupboard twice. */
+    public boolean markCooked() {
+        if (cookedAt != null) {
+            return false;
+        }
+        cookedAt = Instant.now();
+        return true;
+    }
+
+    public void markNotCooked() {
+        cookedAt = null;
     }
 
     public void setServings(int servings) {

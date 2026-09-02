@@ -53,6 +53,7 @@ function mealWith(overrides: Partial<PlannedMeal> = {}): PlannedMeal {
     kcal: 1800,
     estimated: false,
     plannedBy: null,
+    cooked: false,
     ...overrides,
   };
 }

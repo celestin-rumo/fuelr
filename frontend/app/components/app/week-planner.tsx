@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button, IconButton } from "@ui/button";
+import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
 import { cn } from "@ui/cn";
 import type { PlannedMeal, RecipeSummary, WeekPlan } from "@app/lib/api";
@@ -12,6 +13,7 @@ import { SLOTS, addDays, formatDay, weekDays } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
 import {
   copyWeek,
+  markCooked,
   planMeal,
   removePlannedMeal,
   setHouseholdSize,
@@ -302,6 +304,7 @@ export function WeekPlanner({
             run(() => updatePlannedMeal(editingMeal.id, { servings }))
           }
           onMove={(patch) => run(() => updatePlannedMeal(editingMeal.id, patch))}
+          onCooked={(cooked) => run(() => markCooked(editingMeal.id, cooked))}
           onRemove={() => {
             setEditing(null);
             run(() => removePlannedMeal(editingMeal.id));
@@ -590,6 +593,7 @@ function MealSheet({
   locale,
   onServings,
   onMove,
+  onCooked,
   onRemove,
   onClose,
 }: {
@@ -598,6 +602,7 @@ function MealSheet({
   locale: string;
   onServings: (servings: number) => void;
   onMove: (patch: { date?: string; slot?: Slot }) => void;
+  onCooked: (cooked: boolean) => void;
   onRemove: () => void;
   onClose: () => void;
 }) {
@@ -675,6 +680,18 @@ function MealSheet({
             </Chip>
           ))}
         </div>
+      </section>
+
+      <section className="mt-6">
+        {/* The one thing on this screen that changes something outside the
+            plan: it takes the ingredients out of the cupboard. */}
+        <Checkbox
+          checked={meal.cooked}
+          onChange={(event) => onCooked(event.target.checked)}
+          data-testid="meal-cooked"
+          label={t("meal.cooked")}
+        />
+        <p className="mt-1 text-[13px] font-semibold text-gray">{t("meal.cookedHint")}</p>
       </section>
 
       <div className="mt-8 flex flex-wrap gap-3">

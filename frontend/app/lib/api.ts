@@ -70,6 +70,8 @@ export type PlannedMeal = {
   estimated: boolean;
   /** Who put it there, and only when that is somebody else. */
   plannedBy: string | null;
+  /** Said out loud by somebody; it is what empties the cupboard. */
+  cooked: boolean;
 };
 
 /** Always seven, empty days included — a missing day would read as a failure. */
@@ -88,6 +90,55 @@ export type WeekPlan = {
   shared: boolean;
   owner: boolean;
   accounts: number;
+};
+
+/**
+ * One line of the shopping list. `quantity` is what the week needs, `inStock`
+ * what the cupboard holds and `toBuy` the difference — all three travel,
+ * because a line that says "buy 300 g" without saying why is not trusted.
+ */
+export type ShoppingItem = {
+  id: number;
+  name: string;
+  quantity: number | null;
+  unit: string;
+  aisle: Aisle;
+  source: "PLAN" | "MANUAL";
+  inStock: number | null;
+  toBuy: number | null;
+  checked: boolean;
+  checkedAt: string | null;
+};
+
+export type Aisle =
+  | "PRODUCE"
+  | "BAKERY"
+  | "MEAT_FISH"
+  | "DAIRY"
+  | "FROZEN"
+  | "GROCERY"
+  | "HOUSEHOLD"
+  | "OTHER";
+
+export type AisleGroup = { aisle: Aisle; items: ShoppingItem[] };
+
+export type ShoppingListView = {
+  id: number;
+  weekStart: string;
+  generatedAt: string;
+  /** Already grouped and in the order a shop is walked. */
+  aisles: AisleGroup[];
+  /** Lines the cupboard already covers. Shown, never bought. */
+  covered: ShoppingItem[];
+  remaining: number;
+};
+
+export type PantryItem = {
+  id: number;
+  name: string;
+  quantity: number;
+  unit: string;
+  updatedAt: string;
 };
 
 export type HouseholdMember = {

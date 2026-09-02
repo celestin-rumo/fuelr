@@ -58,11 +58,17 @@ public class PlanService {
     private final RecipeRepository recipes;
     private final UserRepository users;
     private final NutritionService nutrition;
+    /**
+     * Who cares that a meal was cooked. Empty is a valid answer; the plan does
+     * not know or need to know who is listening.
+     */
+    private final List<CookedMealListener> cookedListeners;
 
     public PlanService(PlannedMealRepository meals, HouseholdRepository households,
                        HouseholdService householdService, HouseholdMemberRepository members,
                        RecipeRepository recipes, UserRepository users,
-                       NutritionService nutrition) {
+                       NutritionService nutrition,
+                       List<CookedMealListener> cookedListeners) {
         this.meals = meals;
         this.households = households;
         this.householdService = householdService;
@@ -70,6 +76,7 @@ public class PlanService {
         this.recipes = recipes;
         this.users = users;
         this.nutrition = nutrition;
+        this.cookedListeners = cookedListeners;
     }
 
     /**
@@ -261,6 +268,51 @@ public class PlanService {
         return week(userId, to);
     }
 
+    /** What one meal uses, scaled to the servings it was planned for. */
+    public List<PlannedIngredientView> ingredientsOf(PlannedMeal meal) {
+        Recipe recipe = recipes.findById(meal.getRecipeId()).orElse(null);
+        if (recipe == null) {
+            return List.of();
+        }
+        double factor = scale(meal, recipe);
+        return recipe.getIngredients().stream()
+                .map(ingredient -> new PlannedIngredientView(
+                        meal.getId(), meal.getDate(), meal.getSlot().name(),
+                        recipe.getId(), recipe.getTitle(), ingredient.getName(),
+                        round(ingredient.getQuantity().doubleValue() * factor),
+                        ingredient.getUnit()))
+                .toList();
+    }
+
+    /**
+     * Says a meal was actually cooked.
+     *
+     * Idempotent, because what listens to it takes things out of the cupboard
+     * and a second click must not empty the shelf twice. It is also where the
+     * meal log will hang when that story lands — which is why the plan
+     * announces the fact rather than acting on it.
+     */
+    @Transactional
+    public boolean markCooked(PlannedMeal meal) {
+        if (!meal.markCooked()) {
+            return false;
+        }
+        meals.save(meal);
+        List<PlannedIngredientView> used = ingredientsOf(meal);
+        cookedListeners.forEach(listener -> listener.mealCooked(meal.getHouseholdId(), used));
+        return true;
+    }
+
+    /**
+     * Takes the mark back. Deliberately does not put anything back in the
+     * cupboard: nobody knows whether the food was un-eaten.
+     */
+    @Transactional
+    public void markNotCooked(PlannedMeal meal) {
+        meal.markNotCooked();
+        meals.save(meal);
+    }
+
     // --- household ----------------------------------------------------------
 
     public int householdSize(Long userId) {
@@ -341,7 +393,8 @@ public class PlanService {
                         : round(breakdown.perServing().kcal() * meal.getServings()),
                 breakdown != null && breakdown.containsEstimates(),
                 // The name is only worth showing for somebody else's doing.
-                meal.getCreatedBy() != null && meal.getCreatedBy().equals(viewer) ? null : author);
+                meal.getCreatedBy() != null && meal.getCreatedBy().equals(viewer) ? null : author,
+                meal.getCookedAt() != null);
     }
 
     private void compact(Long householdId, LocalDate date, MealSlot slot, Long removedId) {
