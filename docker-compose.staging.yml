@@ -73,7 +73,6 @@ services:
     # a hostname of its own; it cannot share a path with the web app.
     labels:
       - "traefik.enable=false"
-      - "traefik.http.routers.fuelr-staging-api.middlewares=basic-auth@file"
 
     networks:
       - app-internal
