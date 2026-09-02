@@ -199,6 +199,32 @@
       "label": "Importiert von"
     }
   },
+  "cook": {
+    "start": "Kochen",
+    "startHint": "Füge mindestens einen Schritt hinzu, um den Kochmodus zu starten.",
+    "noSteps": "Dieses Rezept hat noch keinen Schritt. Schreibe sie hier und starte dann den Kochmodus.",
+    "untitled": "Ohne Titel",
+    "exit": "Kochmodus verlassen",
+    "progress": "Schritt {number} von {total}",
+    "stepLabel": "Schritt {number}",
+    "previous": "Vorheriger Schritt",
+    "next": "Weiter",
+    "finish": "Fertig",
+    "ingredients": {
+      "title": "Zutaten",
+      "open": "Zutaten",
+      "close": "Zutaten schließen",
+      "empty": "Dieses Rezept hat keine Zutaten.",
+      "unverified": "Prüfen",
+      "unverifiedHint": "Ungeprüfte Menge: der Import konnte sie nicht lesen.",
+      "servings": "Für wie viele",
+      "people": "{count, plural, one {# Person} other {# Personen}}",
+      "fewer": "Eine Portion weniger",
+      "more": "Eine Portion mehr",
+      "recipeIsFor": "Das Rezept ist für {count, plural, one {# Person} other {# Personen}}",
+      "stepTextUnchanged": "Mengen im Schritttext werden nicht umgerechnet."
+    }
+  },
   "forgotPassword": {
     "title": "Passwort vergessen",
     "intro": "Gib deine E-Mail an: Wenn ein Konto besteht, bekommst du einen Link für ein neues Passwort.",

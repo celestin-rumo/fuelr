@@ -78,6 +78,11 @@ export const routing = defineRouting({
       en: "/app/recipes/[id]",
       de: "/app/rezepte/[id]",
     },
+    "/app/recipes/[id]/cook": {
+      fr: "/app/recettes/[id]/cuisiner",
+      en: "/app/recipes/[id]/cook",
+      de: "/app/rezepte/[id]/kochen",
+    },
     // Internal reference page; the slug is the same in every locale.
     "/design-system": "/design-system",
   },
