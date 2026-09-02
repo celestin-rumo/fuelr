@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Button, IconButton } from "@ui/button";
+import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Card } from "@ui/card";
 import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
 import { Banner } from "@ui/banner";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
+import { cookableSteps } from "@app/lib/cooking";
 import type { RecipeDraft } from "@app/[locale]/(app)/app/recipes/actions";
 import {
   computeNutrition,
@@ -51,8 +52,16 @@ function toDraft(recipe: Recipe): RecipeDraft {
   };
 }
 
-export function RecipeEditor({ recipe }: { recipe: Recipe }) {
+export function RecipeEditor({
+  recipe,
+  notice,
+}: {
+  recipe: Recipe;
+  /** Why cooking mode sent the author back here, when it did. */
+  notice?: "no-steps";
+}) {
   const t = useTranslations("recipe");
+  const tCook = useTranslations("cook");
 
   const [draft, setDraft] = useState<RecipeDraft>(() => toDraft(recipe));
   const [tab, setTab] = useState<Tab>(0);
@@ -138,6 +147,11 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
     update({ steps });
   }
 
+  // Cooking mode shows the steps as written and saved; a step still being
+  // typed empty is not one to follow, and the route's own guard agrees because
+  // both ask `cookableSteps`.
+  const cookable = cookableSteps({ steps: draft.steps }).length > 0;
+
   const complete = {
     base: draft.title.trim().length > 0,
     ingredients: draft.ingredients.length > 0,
@@ -197,7 +211,49 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
           </span>
         </div>
 
+        {/* Cooking is what the recipe is for, so it sits in the header rather
+            than at the end of the last tab. Soft, not primary: the primary of
+            this view is finishing the recipe, one panel below. */}
+        <div className="flex items-center gap-3">
+          {cookable ? (
+            <Link
+              href={{
+                pathname: "/app/recipes/[id]/cook",
+                params: { id: String(recipe.id) },
+              }}
+              data-testid="cook-start"
+              className={buttonClasses({ variant: "soft" })}
+            >
+              {tCook("start")}
+            </Link>
+          ) : (
+            <>
+              <span
+                id="cook-hint"
+                className="text-[13px] font-medium text-text-dim"
+              >
+                {tCook("startHint")}
+              </span>
+              <Button
+                variant="soft"
+                disabled
+                aria-describedby="cook-hint"
+                data-testid="cook-start"
+              >
+                {tCook("start")}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Sent back from cooking mode, which cannot run on a recipe with
+          nothing to follow. */}
+      {notice === "no-steps" && (
+        <Banner tone="info" data-testid="cook-no-steps">
+          {tCook("noSteps")}
+        </Banner>
+      )}
 
       {/* What the import could not read, said once at the top — the
           ingredient rows carry their own marks further down. Nothing here is

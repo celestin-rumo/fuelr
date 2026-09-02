@@ -199,6 +199,32 @@
       "label": "Importée depuis"
     }
   },
+  "cook": {
+    "start": "Cuisiner",
+    "startHint": "Ajoute au moins une étape pour lancer le mode cuisine.",
+    "noSteps": "Cette recette n'a pas encore d'étape à suivre. Écris-les ici, puis lance le mode cuisine.",
+    "untitled": "Sans titre",
+    "exit": "Quitter le mode cuisine",
+    "progress": "Étape {number} sur {total}",
+    "stepLabel": "Étape {number}",
+    "previous": "Étape précédente",
+    "next": "Suivante",
+    "finish": "Terminer",
+    "ingredients": {
+      "title": "Ingrédients",
+      "open": "Ingrédients",
+      "close": "Fermer les ingrédients",
+      "empty": "Aucun ingrédient dans cette recette.",
+      "unverified": "À vérifier",
+      "unverifiedHint": "Quantité non vérifiée : l'import n'a pas su la lire.",
+      "servings": "Pour combien",
+      "people": "{count, plural, one {# personne} other {# personnes}}",
+      "fewer": "Une portion de moins",
+      "more": "Une portion de plus",
+      "recipeIsFor": "La recette est pour {count, plural, one {# personne} other {# personnes}}",
+      "stepTextUnchanged": "les quantités écrites dans les étapes ne sont pas recalculées."
+    }
+  },
   "forgotPassword": {
     "title": "Mot de passe oublié",
     "intro": "Indique ton email : si un compte existe, tu recevras un lien pour choisir un nouveau mot de passe.",

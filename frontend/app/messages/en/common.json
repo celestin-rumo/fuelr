@@ -199,6 +199,32 @@
       "label": "Imported from"
     }
   },
+  "cook": {
+    "start": "Cook",
+    "startHint": "Add at least one step to start cooking mode.",
+    "noSteps": "This recipe has no step to follow yet. Write them here, then start cooking mode.",
+    "untitled": "Untitled",
+    "exit": "Leave cooking mode",
+    "progress": "Step {number} of {total}",
+    "stepLabel": "Step {number}",
+    "previous": "Previous step",
+    "next": "Next",
+    "finish": "Finish",
+    "ingredients": {
+      "title": "Ingredients",
+      "open": "Ingredients",
+      "close": "Close the ingredients",
+      "empty": "This recipe has no ingredients.",
+      "unverified": "Check",
+      "unverifiedHint": "Unverified quantity: the import could not read it.",
+      "servings": "Cooking for",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "fewer": "One serving fewer",
+      "more": "One serving more",
+      "recipeIsFor": "The recipe is written for {count, plural, one {# person} other {# people}}",
+      "stepTextUnchanged": "quantities written inside the steps are not recalculated."
+    }
+  },
   "forgotPassword": {
     "title": "Forgotten password",
     "intro": "Enter your email: if an account exists, you will get a link to choose a new password.",
