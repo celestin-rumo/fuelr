@@ -6,6 +6,63 @@ this file collects them newest first.
 
 ---
 
+# v1.0.2 — 2026-09-02
+
+Makes failure visible. Two of the last three bugs looked identical from the
+outside — a control that does nothing — and neither said a word.
+
+## Added
+
+- **`Banner`** (`app/components/ui/banner.tsx`) — error, success and info.
+  Three tones, because the system gives one meaning per colour: an amber
+  "warning" would have to borrow one that already means something else. Errors
+  take `role="alert"` and interrupt, the rest take `role="status"` and wait
+  their turn. Sign-in, sign-up and password reset now surface their failures
+  through it instead of a bare line of text.
+
+- **A page that admits when it is dead.** When React fails to hydrate, every
+  control renders perfectly and does nothing: a form falls back to a native
+  submit, so the page reloads and the fields empty, with a clean console and a
+  clean terminal. No client-side handler can report that — none are running. So
+  the banner is rendered by the server and removed the instant React takes
+  over, which means it stays put forever when React never does. It waits four
+  seconds before showing itself, so a healthy page never flashes it; the
+  reduced-motion rules collapse durations, not delays, so the wait survives
+  there too. Its way out is a link with an empty href rather than a button:
+  nothing is listening for a click.
+
+## Fixed
+
+- **The production certificate.** The site was serving `TRAEFIK DEFAULT CERT`
+  and every visitor got a browser warning. `www.fuelr.celestinrumo.ch` had no
+  DNS record, and because the router matches both hosts in one rule, Traefik
+  asks Let's Encrypt for a single certificate covering both — which validates
+  each name separately. The unresolvable name failed the whole issuance and
+  took the working host down with it, over a hostname nobody was using. The
+  record now exists; the rule keeps both hosts, with a comment next to it
+  saying why each must resolve before the first deploy.
+
+- The frontend was missing the `traefik.docker.network` label the backend
+  already had.
+
+## Known, not fixed here
+
+On the production domain Traefik routes `/api` straight to the backend, ahead
+of the frontend, so the app's own route handlers never run there. A wrong
+password comes back as the raw key `auth.form.errors.Unauthorized` instead of
+"Identifiants incorrects". Exposing the API publicly is deliberate — the native
+client will need it — but it cannot share a path with the web app's handlers.
+It needs a hostname of its own.
+
+## Verification
+
+45 unit tests, 99 end-to-end tests. The hydration banner was checked the only
+way that means anything: by blocking the JavaScript chunks in a real browser —
+opacity 0 at two seconds, 1 at five, form inert — and by confirming it is
+absent from the DOM entirely on a healthy page.
+
+---
+
 # v1.0.1 — 2026-09-02
 
 A fix release. v1.0.0 shipped with a home page whose main call to action did
