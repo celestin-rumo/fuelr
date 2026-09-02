@@ -243,11 +243,50 @@ and another in the browser, which surfaces as a hydration error rather than as
 the timezone bug it is. `todayIso` is the deliberate exception: which day *today*
 is can only be answered locally, so the server answers it once and passes it down.
 
-**`households` exists before the Famille story does.** It holds one row per
-account and one number, and the plan is still owned by the user. That is where
-the members table attaches when sharing lands, and `planned_meals.user_id`
-backfills from `households.owner_user_id`; putting the size on `profiles`
-instead would have tied planning to an onboarding step that is optional.
+**The plan belongs to a household, not to a person.** Everyone owns exactly
+one, created the first time they plan anything, and `planned_meals.household_id`
+is the whole of sharing: everyone looking at the same household sees the same
+rows, with no query anywhere having to remember to widen itself.
+`created_by` says who put a meal there — it survives that account being deleted
+(`ON DELETE SET NULL`), because the point of a shared plan is knowing somebody
+already thought about Thursday. `households.size` is how many people it cooks
+for, which is not how many accounts are in it: children eat without having one.
+
+**One rule decides which plan you are looking at.**
+`HouseholdService.activeHouseholdFor` returns the household you are a member
+of *while its owner is entitled to share*, and otherwise your own. That single
+condition is what makes cancelling safe: the member falls back to their own
+plan, which was there and untouched the whole time, the owner keeps theirs, and
+re-subscribing puts everyone back without anything having to be rebuilt.
+Nothing is deleted on a lapse — the pricing page promises exactly that, and a
+shared household is the easiest place to break the promise.
+
+**Sharing a plan is not sharing a library.** A member may read a recipe that is
+*on the shared plan* — otherwise the plan is a list of titles nobody can open —
+and nothing else. That is `RecipeAudience`, an interface the recipe package
+owns and the plan package implements, because the fact lives in planning and
+recipes reaching into planning would put the two in a circle. It is read
+access only: every write still goes through `owned()`.
+
+**One enum holds the paid boundary.** `Feature` maps each paid capability to
+the tier that opens it, `Entitlements.require` is the only check, and a refusal
+is **402**, not 403 — nothing is wrong with the account, and the way past it is
+a plan rather than a permission. Nothing else may compare tiers, or the pricing
+page becomes a claim instead of a description.
+
+**Nobody can pay yet, and the schema is not pretending otherwise.** Asking for
+a plan writes a `subscription_orders` row that stays PENDING; a subscription is
+only ever written by `SubscriptionService.confirm`, which is the method a
+payment webhook will call and is idempotent because providers retry. The screen
+asks `canOrder` before offering anything — a button that takes an order nobody
+can settle is worse than a screen saying the plan is not open yet.
+
+**`app.subscription.self-activate` hands out paid plans for free.** With it on,
+ordering a plan grants it immediately; it exists because the tests and the dev
+environment have to exercise a paid feature and there is no provider to
+exercise it through. It is set in `docker-compose.dev.yml`, in the backend test
+properties and on the CI e2e container — and it must stay false everywhere a
+real person can reach, exactly like `app.import.allow-private-hosts`.
 
 **An unhydrated page cannot report its own failure.** When React does not
 hydrate, every control renders perfectly and does nothing: a form falls back to
