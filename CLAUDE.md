@@ -221,6 +221,34 @@ already warns the author that edits apply to future uses only — that promise i
 currently made by the copy and enforced by nothing, because there is no meal
 log yet.
 
+**The week plan is the opposite: it points at the recipe.** A planned meal is
+an intention for a day that has not happened, so a recipe corrected on Tuesday
+should be the one cooked on Thursday — `planned_meals` therefore holds a
+`recipe_id`, and deleting a recipe takes its planned meals with it, because
+nothing was cooked and there is no history to protect. The one thing the row
+does store is `servings`, which belong to that evening rather than to the
+recipe: they default to the household size at the moment of planning and never
+move again, so changing the household does not silently rewrite what a dinner
+for eight needs bought. `GET /api/plan/ingredients` is where the shopping list
+will read those scaled quantities from; it exists now so that "the shopping
+list updates" is provable before the list itself does.
+
+**A day in the plan is a calendar day, not an instant.** All of `app/lib/week.ts`
+computes in UTC and formats with `timeZone: "UTC"`, and the backend normalises
+any date to its Monday with the same rule the client uses. Local `Date`
+arithmetic gets this wrong twice a year — 2026-03-29 is 23 hours long in Zurich,
+so "add one day" lands on the 29th again and Sunday's dinner becomes Saturday's
+— and a date formatted in the runtime's own zone renders one day on the server
+and another in the browser, which surfaces as a hydration error rather than as
+the timezone bug it is. `todayIso` is the deliberate exception: which day *today*
+is can only be answered locally, so the server answers it once and passes it down.
+
+**`households` exists before the Famille story does.** It holds one row per
+account and one number, and the plan is still owned by the user. That is where
+the members table attaches when sharing lands, and `planned_meals.user_id`
+backfills from `households.owner_user_id`; putting the size on `profiles`
+instead would have tied planning to an onboarding step that is optional.
+
 **An unhydrated page cannot report its own failure.** When React does not
 hydrate, every control renders perfectly and does nothing: a form falls back to
 a native submit, so the page reloads and the fields empty, with a clean console
@@ -268,7 +296,9 @@ horizontal body scroll, no control pushed off-screen, no label truncated into
 meaninglessness. Where space runs out, decide what to drop: the recipe editor's
 stepper keeps only the current step's label below `sm`, so three labels cannot
 squeeze the connectors to nothing, and the header's sign-out button drops to its
-icon there. Check a narrow viewport in the browser, not only a wide one.
+icon there. The app nav wraps onto a line of its own below `sm` for the same
+reason: that bar has about 80px to spare and two readable labels want twice
+that, so keeping them in the row pushed the theme toggle off a 375px screen. Check a narrow viewport in the browser, not only a wide one.
 
 When a control loses its visible label that way, give it an explicit
 `aria-label`. Hiding the text with `sr-only` alone has bitten this codebase
