@@ -190,6 +190,20 @@ Frontend checks run inside the frontend container
 first, because `LayoutProps`/`PageProps` are generated route types — plain
 `tsc --noEmit` fails on a clean checkout without it.
 
+**Importing fetches a URL a stranger chose, from inside the network.** That is
+server-side request forgery in one sentence, so `SafePageFetcher` only speaks
+http(s), re-checks every redirect hop, and refuses any host whose addresses are
+private — `http://backend:8080` and `169.254.169.254` are pages like any other
+without that. `app.import.allow-private-hosts` exists so tests can serve their
+own fixtures; it must stay false everywhere else.
+
+**Parse formats, not sites.** `RecipePageParser` implementations are found by
+Spring and tried in `@Order`, so a site publishing nothing standard can get its
+own parser later without touching a registry. But the two that exist read
+*schema.org* — as JSON-LD and as microdata — which is why Fooby and Cookidoo
+worked without anyone writing a line for them. Site-specific parsers rot at the
+first redesign; format parsers do not.
+
 **A logged meal must copy its values, never reference the recipe.** Recipes get
 edited after they have been used, so a meal log pointing at the live recipe
 would silently rewrite someone's nutritional history every time they fix a typo

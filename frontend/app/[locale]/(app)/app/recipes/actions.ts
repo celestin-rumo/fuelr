@@ -2,7 +2,17 @@
 
 import { apiFetch } from "@app/lib/api";
 
-export type IngredientDraft = { name: string; quantity: number; unit: string };
+export type IngredientDraft = {
+  name: string;
+  quantity: number;
+  unit: string;
+  /**
+   * Carried only so the editor can mark the row. It is never sent back: saving
+   * the recipe is the cook taking responsibility for the line, which is
+   * precisely what clears the doubt.
+   */
+  needsReview?: boolean;
+};
 
 export type RecipeDraft = {
   title: string;

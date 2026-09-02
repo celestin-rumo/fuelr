@@ -7,6 +7,7 @@ import { Button, IconButton } from "@ui/button";
 import { Card } from "@ui/card";
 import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
+import { Banner } from "@ui/banner";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
 import type { RecipeDraft } from "@app/[locale]/(app)/app/recipes/actions";
@@ -43,6 +44,7 @@ function toDraft(recipe: Recipe): RecipeDraft {
       name: i.name,
       quantity: i.quantity,
       unit: i.unit,
+      needsReview: i.needsReview,
     })),
     steps: recipe.steps,
     tags: recipe.tags,
@@ -196,6 +198,39 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
         </div>
 
       </div>
+
+      {/* What the import could not read, said once at the top — the
+          ingredient rows carry their own marks further down. Nothing here is
+          a blocker: it is a list of things to glance at. */}
+      {recipe.unverified.length > 0 && (
+        <Banner
+          tone="error"
+          className="mt-6"
+          data-testid="import-review"
+          title={t("review.title")}
+        >
+          {t("review.body", {
+            fields: recipe.unverified.map((f) => t(`review.fields.${f}`)).join(", "),
+          })}
+        </Banner>
+      )}
+
+      {recipe.sourceUrl && (
+        <p
+          data-testid="recipe-source"
+          className="mt-4 text-[13px] font-medium text-text-dim"
+        >
+          {t("source.label")}{" "}
+          <a
+            href={recipe.sourceUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-semibold text-accent-ink underline"
+          >
+            {new URL(recipe.sourceUrl).hostname.replace(/^www\./, "")}
+          </a>
+        </p>
+      )}
 
       {/* A stepper, not a row of chips: the three parts are a sequence, and
           the connecting rule is what says so. */}
@@ -471,8 +506,21 @@ export function RecipeEditor({ recipe }: { recipe: Recipe }) {
                     key={`${ingredient.name}-${index}`}
                     className="flex items-center gap-4 border-b border-line px-4 py-3 last:border-b-0 hover:bg-bg-raised-2"
                   >
-                    <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-text">
-                      {ingredient.name}
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                      <span className="min-w-0 truncate text-[15px] font-medium text-text">
+                        {ingredient.name}
+                      </span>
+                      {/* Marked where it is corrected, not in a summary at the
+                          top: the cook fixes the line they are looking at. */}
+                      {ingredient.needsReview && (
+                        <span
+                          data-testid="ingredient-review"
+                          title={t("review.ingredient")}
+                          className="shrink-0 rounded-full border border-coral-ink px-2 py-0.5 text-[11px] font-bold tracking-[0.02em] text-coral-ink uppercase"
+                        >
+                          {t("review.badge")}
+                        </span>
+                      )}
                     </span>
 
                     {/* Quantity and its remove control belong to the same

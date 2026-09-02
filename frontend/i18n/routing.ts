@@ -63,6 +63,11 @@ export const routing = defineRouting({
     // The product itself. Same slug everywhere: it is a destination people
     // bookmark and share between locales, not marketing copy.
     "/app": "/app",
+    "/app/recipes/import": {
+      fr: "/app/recettes/importer",
+      en: "/app/recipes/import",
+      de: "/app/rezepte/importieren",
+    },
     "/app/recipes/new": {
       fr: "/app/recettes/nouvelle",
       en: "/app/recipes/new",
