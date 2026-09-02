@@ -298,8 +298,12 @@ public class PlanService {
             return false;
         }
         meals.save(meal);
-        List<PlannedIngredientView> used = ingredientsOf(meal);
-        cookedListeners.forEach(listener -> listener.mealCooked(meal.getHouseholdId(), used));
+        Recipe recipe = recipes.findById(meal.getRecipeId()).orElse(null);
+        var event = new CookedMealListener.CookedMeal(
+                meal.getHouseholdId(), meal.getCreatedBy(), meal.getId(), meal.getRecipeId(),
+                recipe == null ? "" : recipe.getTitle(), meal.getDate(), meal.getSlot().name(),
+                meal.getServings(), ingredientsOf(meal));
+        cookedListeners.forEach(listener -> listener.mealCooked(event));
         return true;
     }
 

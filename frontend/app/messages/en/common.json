@@ -66,7 +66,8 @@
       "recipes": "Recipes",
       "plan": "Plan",
       "household": "Household",
-      "shopping": "Shopping"
+      "shopping": "Shopping",
+      "journal": "Diary"
     }
   },
   "plan": {
@@ -236,6 +237,95 @@
       "body": "The list could not be loaded. Reload the page — nothing is lost."
     }
   },
+  "journal": {
+    "label": "Nutrition & tracking",
+    "title": "My diary",
+    "intro": "What you ate, written down without judgement. The diary is free; the target beside it and the findings below are part of the Plus plan.",
+    "week": "Week of {date}",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "loggedDays": "{logged, plural, =0 {no day written down} one {# day written down} other {# days written down}} of {days}",
+    "estimated": "estimated",
+    "target": "target {value} {unit}",
+    "chartSummary": "{label} — {days} of {total} days written down",
+    "add": {
+      "title": "Write down a meal",
+      "body": "A meal at a restaurant has no recipe and needs nobody to invent one. A name and a calorie count are enough.",
+      "name": "Meal",
+      "kcal": "kcal",
+      "protein": "Protein (g)",
+      "date": "Day",
+      "submit": "Write it down"
+    },
+    "charts": {
+      "title": "My week",
+      "energy": "Energy per day",
+      "protein": "Protein",
+      "carbs": "Carbohydrate",
+      "fat": "Fat"
+    },
+    "insights": {
+      "title": "Findings",
+      "NOTHING_LOGGED": {
+        "finding": "Nothing is written down this week.",
+        "action": "Add a meal above, even a rough one: it is more use than an empty week."
+      },
+      "PARTIAL_WEEK": {
+        "finding": "{logged} of {days} days written down.",
+        "action": "The averages cover those days, not the whole week."
+      },
+      "ENERGY_VS_TARGET": {
+        "finding": "{average} kcal on average per day written down, against a target of {target}.",
+        "action": "A gap of {gap} kcal ({gapPercent}%). If it holds for weeks, it is the target that gets adjusted."
+      },
+      "PROTEIN_BELOW_TARGET": {
+        "finding": "Protein: {average} g on average, against {target} g.",
+        "action": "A protein source at breakfast usually covers most of the missing {gap} g."
+      },
+      "CONTAINS_ESTIMATES": {
+        "finding": "Some of this week's ingredients are estimated.",
+        "action": "The totals are orders of magnitude. Naming an ingredient more precisely is often enough for it to be recognised."
+      }
+    },
+    "targets": {
+      "title": "My targets",
+      "chosen": "These are the figures you set.",
+      "computed": "These come from your profile. Until you set your own, they are suggestions.",
+      "kcal": "kcal / day",
+      "protein": "Protein (g)",
+      "submit": "Save"
+    },
+    "locked": {
+      "title": "Targets, charts and findings",
+      "body": "The diary stays free and complete. What the Plus plan adds is the target beside the figures, the week's charts, and history further back than 30 days.",
+      "order": "You can switch to the Plus plan from your household.",
+      "notPurchasable": "The Plus plan cannot be subscribed to yet.",
+      "link": "See my plan"
+    },
+    "entries": {
+      "title": "Meals written down",
+      "empty": "Nothing written down this week.",
+      "figures": "{kcal} kcal · {protein} g of protein",
+      "remove": "Remove {title} from the diary"
+    },
+    "history": {
+      "title": "History",
+      "load": "Show the last 90 days",
+      "energy": "Energy per day",
+      "range": "from {from} to {to}",
+      "windowed": "The free plan keeps a {days}-day window. Nothing is deleted: the rest comes back with the Plus plan."
+    },
+    "errors": {
+      "incomplete": "A name and a calorie count are the minimum.",
+      "target": "A target is counted in hundreds of kcal at least.",
+      "upgrade_required": "Targets are part of the Plus plan.",
+      "failed": "That did not go through. Try again."
+    },
+    "unavailable": {
+      "title": "The diary cannot be reached",
+      "body": "The diary could not be loaded. Reload the page — nothing is lost."
+    }
+  },
   "auth": {
     "title": "Sign in",
     "intro": "Enter your details to get back to your recipes and your plan.",
@@ -371,6 +461,43 @@
     },
     "source": {
       "label": "Imported from"
+    },
+    "detail": {
+      "title": "Nutrition detail",
+      "open": "Show the detail (fibre, minerals, vitamins)",
+      "locked": "Macros and micronutrients in detail are part of the Plus plan. Energy and the three macros stay free.",
+      "lockedLink": "See my plan",
+      "estimated": "At least one ingredient was not recognised: it counts towards none of the vitamins above.",
+      "source": "Source: Swiss Food Composition Database (FSVO).",
+      "macros": {
+        "fibre": "Fibre",
+        "sugars": "Sugars",
+        "salt": "Salt"
+      },
+      "nutrients": {
+        "calcium": "Calcium",
+        "cholesterol": "Cholesterol",
+        "folate": "Folate",
+        "iodine": "Iodine",
+        "iron": "Iron",
+        "magnesium": "Magnesium",
+        "niacin": "Niacin",
+        "pantothenic_acid": "Pantothenic acid",
+        "phosphorus": "Phosphorus",
+        "potassium": "Potassium",
+        "saturated_fat": "Saturated fat",
+        "selenium": "Selenium",
+        "sodium": "Sodium",
+        "vitamin_a": "Vitamin A",
+        "vitamin_b1": "Vitamin B1",
+        "vitamin_b12": "Vitamin B12",
+        "vitamin_b2": "Vitamin B2",
+        "vitamin_b6": "Vitamin B6",
+        "vitamin_c": "Vitamin C",
+        "vitamin_d": "Vitamin D",
+        "vitamin_e": "Vitamin E",
+        "zinc": "Zinc"
+      }
     }
   },
   "cook": {

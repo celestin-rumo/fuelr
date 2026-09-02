@@ -1,10 +1,7 @@
 package ch.celestin.fuelr.shopping;
 
 import ch.celestin.fuelr.plan.CookedMealListener;
-import ch.celestin.fuelr.plan.PlanDtos.PlannedIngredientView;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /** Cooking a meal is what takes its ingredients off the shelf. */
 @Component
@@ -17,7 +14,7 @@ public class PantryConsumesCookedMeals implements CookedMealListener {
     }
 
     @Override
-    public void mealCooked(Long householdId, List<PlannedIngredientView> ingredients) {
-        pantry.consume(householdId, ingredients);
+    public void mealCooked(CookedMeal meal) {
+        pantry.consume(meal.householdId(), meal.ingredients());
     }
 }

@@ -26,3 +26,7 @@ backend/target/
 
 # Logs
 *.log
+
+# Downloaded food-composition workbooks. The generated CSVs are committed; the
+# 3 MB of source spreadsheets are not — see tools/food-table/SOURCE.md.
+tools/food-table/cache/

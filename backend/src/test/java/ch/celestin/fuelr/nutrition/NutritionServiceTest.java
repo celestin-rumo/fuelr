@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -30,6 +31,21 @@ class NutritionServiceTest {
     @Autowired
     NutritionService nutrition;
 
+    @Autowired
+    FoodMatcher matcher;
+
+    /**
+     * What the reference table says about one food, per 100 g.
+     *
+     * The tests below check arithmetic and behaviour, not the contents of a
+     * published database: hard-coding "lentils are 350 kcal" would turn every
+     * upstream correction into a red build for no reason, and those numbers
+     * are not ours to assert.
+     */
+    private double per100(String ingredient) {
+        return matcher.match(ingredient).orElseThrow().getKcal();
+    }
+
     /**
      * "Lentilles corail" contains "ail" as well as "lentilles". Which one wins
      * used to depend on the order the rows came back in, and an unrelated
@@ -42,21 +58,25 @@ class NutritionServiceTest {
                 List.of(new IngredientInput("lentilles corail", 100, "g")), 1);
         var garlic = nutrition.compute(List.of(new IngredientInput("ail", 100, "g")), 1);
 
-        assertThat(lentils.total().kcal()).isEqualTo(350.0);
-        assertThat(garlic.total().kcal()).isEqualTo(150.0);
+        assertThat(lentils.total().kcal()).isEqualTo(per100("lentilles corail"));
+        assertThat(garlic.total().kcal()).isEqualTo(per100("ail"));
+        // Two different foods, which is the whole point.
+        assertThat(lentils.total().kcal()).isNotEqualTo(garlic.total().kcal());
+        assertThat(lentils.containsEstimates()).isFalse();
     }
 
     @Test
     void computesGramsAgainstThePer100Reference() {
-        // Lentilles: 350 kcal / 24 p / 60 c / 1 f per 100 g, so 200 g doubles it.
-        var result = nutrition.compute(
+        // Whatever the table says lentils are, 200 g is twice 100 g.
+        var hundred = nutrition.compute(
+                List.of(new IngredientInput("lentilles corail", 100, "g")), 1);
+        var twoHundred = nutrition.compute(
                 List.of(new IngredientInput("lentilles corail", 200, "g")), 1);
 
-        assertThat(result.total().kcal()).isEqualTo(700.0);
-        assertThat(result.total().proteinG()).isEqualTo(48.0);
-        assertThat(result.total().carbsG()).isEqualTo(120.0);
-        assertThat(result.total().fatG()).isEqualTo(2.0);
-        assertThat(result.containsEstimates()).isFalse();
+        assertThat(twoHundred.total().kcal()).isEqualTo(hundred.total().kcal() * 2);
+        assertThat(twoHundred.total().proteinG()).isEqualTo(hundred.total().proteinG() * 2);
+        assertThat(twoHundred.total().carbsG()).isEqualTo(hundred.total().carbsG() * 2);
+        assertThat(twoHundred.containsEstimates()).isFalse();
     }
 
     @Test
@@ -64,15 +84,17 @@ class NutritionServiceTest {
         var result = nutrition.compute(
                 List.of(new IngredientInput("riz", 400, "g")), 4);
 
-        assertThat(result.total().kcal()).isEqualTo(1400.0);
-        assertThat(result.perServing().kcal()).isEqualTo(350.0);
+        assertThat(result.total().kcal()).isEqualTo(per100("riz") * 4);
+        assertThat(result.perServing().kcal()).isEqualTo(per100("riz"));
         assertThat(result.servings()).isEqualTo(4);
     }
 
     @Test
     void flagsAnIngredientItCannotRecognise() {
+        // A brand nobody publishes composition for. The fallback exists for
+        // exactly this, and says so rather than pretending to know.
         var result = nutrition.compute(
-                List.of(new IngredientInput("racine de yuzu confite", 100, "g")), 1);
+                List.of(new IngredientInput("Zoubidou 3000", 100, "g")), 1);
 
         assertThat(result.containsEstimates()).isTrue();
         assertThat(result.ingredients()).singleElement()
@@ -109,12 +131,41 @@ class NutritionServiceTest {
         var result = nutrition.compute(List.of(
                 new IngredientInput("poulet", 300, "g"),
                 new IngredientInput("riz", 200, "g"),
-                new IngredientInput("huile d'olive", 1, "c.à.s")), 2);
+                new IngredientInput("huile d\'olive", 1, "c.à.s")), 2);
 
-        // 495 + 700 + 132 kcal
-        assertThat(result.total().kcal()).isEqualTo(1327.0);
-        assertThat(result.perServing().kcal()).isEqualTo(663.5);
+        double expected = per100("poulet") * 3 + per100("riz") * 2
+                + per100("huile d\'olive") * 0.15;
+        assertThat(result.total().kcal()).isCloseTo(expected, within(0.2));
+        assertThat(result.perServing().kcal())
+                .isCloseTo(expected / 2, within(0.2));
         assertThat(result.ingredients()).hasSize(3);
         assertThat(result.containsEstimates()).isFalse();
+    }
+
+    @Test
+    void theDetailCarriesTheMacrosAndTheMicronutrientsTheSourceMeasured() {
+        var detail = nutrition.detail(List.of(
+                new IngredientInput("épinards", 200, "g"),
+                new IngredientInput("saumon", 150, "g")), 2);
+
+        assertThat(detail.perServing().kcal()).isGreaterThan(0);
+        assertThat(detail.perServing().fibreG()).isGreaterThan(0);
+        assertThat(detail.micronutrients())
+                .extracting(NutritionDtos.NutrientAmount::code)
+                .contains("iron", "calcium", "vitamin_c");
+        // Per serving, so two people eating this get half of it each.
+        assertThat(detail.total().kcal()).isEqualTo(detail.perServing().kcal() * 2);
+    }
+
+    @Test
+    void aGuessedIngredientContributesNoMicronutrients() {
+        var detail = nutrition.detail(
+                List.of(new IngredientInput("Zoubidou 3000", 100, "g")), 1);
+
+        assertThat(detail.containsEstimates()).isTrue();
+        // The fallback has four numbers and no vitamins; inventing them is the
+        // one thing this screen must not do.
+        assertThat(detail.micronutrients()).isEmpty();
+        assertThat(detail.perServing().kcal()).isEqualTo(60.0);
     }
 }

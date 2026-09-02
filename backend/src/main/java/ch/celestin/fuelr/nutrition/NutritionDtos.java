@@ -32,6 +32,30 @@ public final class NutritionDtos {
             String name, double kcal, double proteinG, double carbsG, double fatG, boolean guessed) {
     }
 
+    /** Everything past the four headline figures, per serving. */
+    public record DetailedTotals(
+            double kcal, double proteinG, double carbsG, double fatG,
+            double fibreG, double sugarsG, double saltG) {
+    }
+
+    /** One measured vitamin or mineral. {@code unit} is "mg", "ug" or "g". */
+    public record NutrientAmount(String code, double amount, String unit) {
+    }
+
+    /**
+     * The paid detail. {@code containsEstimates} means at least one ingredient
+     * fell through to the flat guess — which contributes no micronutrients at
+     * all, so the vitamins shown are only ever from foods that were recognised.
+     */
+    public record Detail(
+            DetailedTotals total,
+            DetailedTotals perServing,
+            int servings,
+            boolean containsEstimates,
+            List<NutrientAmount> micronutrients,
+            List<IngredientBreakdown> ingredients) {
+    }
+
     public record Breakdown(
             Totals total,
             Totals perServing,
