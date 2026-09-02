@@ -15,6 +15,18 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    server: {
+      deps: {
+        /**
+         * next-intl's navigation helpers import `next/navigation`, a package
+         * subpath export. Left external, Node's ESM resolver reads it as a
+         * file path and fails — "did you mean next/navigation.js?". Processed
+         * by Vite, the export map is honoured. The dev container happened to
+         * resolve it anyway, so this only ever failed in CI.
+         */
+        inline: ["next-intl"],
+      },
+    },
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],
