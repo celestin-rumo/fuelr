@@ -60,7 +60,72 @@
       "cancel": "Annuler",
       "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés."
     },
-    "importRecipe": "Importer"
+    "importRecipe": "Importer",
+    "nav": {
+      "label": "Navigation principale",
+      "recipes": "Recettes",
+      "plan": "Planning"
+    }
+  },
+  "plan": {
+    "label": "Planification",
+    "title": "Ma semaine",
+    "untitled": "Sans titre",
+    "close": "Fermer",
+    "estimated": "estimé",
+    "week": "Semaine du {date}",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "thisWeek": "Cette semaine",
+    "dayKcal": "{kcal} kcal",
+    "servingsShort": "{count, plural, one {# pers.} other {# pers.}}",
+    "recipeMeta": "{servings, plural, one {# pers.} other {# pers.}} · {minutes} min",
+    "nothingPlanned": "Rien de prévu",
+    "add": "Ajouter",
+    "addTo": "Ajouter un repas — {day}, {slot}",
+    "slots": {
+      "BREAKFAST": "Petit-déjeuner",
+      "LUNCH": "Déjeuner",
+      "DINNER": "Dîner",
+      "SNACK": "Collation"
+    },
+    "household": {
+      "label": "Foyer",
+      "less": "Une personne de moins dans le foyer",
+      "more": "Une personne de plus dans le foyer"
+    },
+    "duplicate": {
+      "action": "Dupliquer vers la semaine suivante",
+      "title": "La semaine suivante est déjà planifiée",
+      "body": "La copie remplacera les repas déjà posés sur la semaine suivante. Cette semaine-ci n'est pas touchée.",
+      "confirm": "Remplacer",
+      "cancel": "Annuler"
+    },
+    "rail": {
+      "title": "Mes recettes",
+      "hint": "Glisse une recette sur un créneau.",
+      "search": "Chercher une recette",
+      "noResults": "Aucune recette ne correspond."
+    },
+    "meal": {
+      "open": "Modifier {title} — {day}, {slot}",
+      "scaled": "Recette prévue pour {count, plural, one {# personne} other {# personnes}} · {minutes} min",
+      "servings": "Portions",
+      "less": "Une portion de moins pour {title}",
+      "more": "Une portion de plus pour {title}",
+      "moveTitle": "Déplacer",
+      "openRecipe": "Voir la recette",
+      "remove": "Retirer du planning"
+    },
+    "noRecipes": {
+      "title": "Aucune recette à planifier",
+      "body": "Le planning se remplit avec tes recettes. Écris-en une, puis pose-la sur un jour.",
+      "action": "Nouvelle recette"
+    },
+    "unavailable": {
+      "title": "Le planning n'est pas joignable",
+      "body": "La semaine n'a pas pu être chargée. Recharge la page ; rien de ce qui est planifié n'est perdu."
+    }
   },
   "auth": {
     "title": "Connexion",

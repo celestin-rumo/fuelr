@@ -60,7 +60,72 @@
       "cancel": "Abbrechen",
       "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt."
     },
-    "importRecipe": "Importieren"
+    "importRecipe": "Importieren",
+    "nav": {
+      "label": "Hauptnavigation",
+      "recipes": "Rezepte",
+      "plan": "Wochenplan"
+    }
+  },
+  "plan": {
+    "label": "Planung",
+    "title": "Meine Woche",
+    "untitled": "Ohne Titel",
+    "close": "Schliessen",
+    "estimated": "geschätzt",
+    "week": "Woche vom {date}",
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "thisWeek": "Diese Woche",
+    "dayKcal": "{kcal} kcal",
+    "servingsShort": "{count, plural, one {# Portion} other {# Portionen}}",
+    "recipeMeta": "{servings, plural, one {# Portion} other {# Portionen}} · {minutes} Min.",
+    "nothingPlanned": "Nichts geplant",
+    "add": "Hinzufügen",
+    "addTo": "Mahlzeit hinzufügen — {day}, {slot}",
+    "slots": {
+      "BREAKFAST": "Frühstück",
+      "LUNCH": "Mittagessen",
+      "DINNER": "Abendessen",
+      "SNACK": "Snack"
+    },
+    "household": {
+      "label": "Haushalt",
+      "less": "Eine Person weniger im Haushalt",
+      "more": "Eine Person mehr im Haushalt"
+    },
+    "duplicate": {
+      "action": "In die nächste Woche kopieren",
+      "title": "Die nächste Woche ist bereits geplant",
+      "body": "Beim Kopieren werden die bereits geplanten Mahlzeiten der nächsten Woche ersetzt. Diese Woche bleibt unberührt.",
+      "confirm": "Ersetzen",
+      "cancel": "Abbrechen"
+    },
+    "rail": {
+      "title": "Meine Rezepte",
+      "hint": "Zieh ein Rezept auf einen Platz.",
+      "search": "Rezept suchen",
+      "noResults": "Kein Rezept passt."
+    },
+    "meal": {
+      "open": "{title} bearbeiten — {day}, {slot}",
+      "scaled": "Rezept für {count, plural, one {# Portion} other {# Portionen}} · {minutes} Min.",
+      "servings": "Portionen",
+      "less": "Eine Portion weniger für {title}",
+      "more": "Eine Portion mehr für {title}",
+      "moveTitle": "Verschieben",
+      "openRecipe": "Rezept öffnen",
+      "remove": "Aus dem Plan entfernen"
+    },
+    "noRecipes": {
+      "title": "Kein Rezept zum Planen",
+      "body": "Die Woche füllt sich mit deinen eigenen Rezepten. Schreib eines und leg es auf einen Tag.",
+      "action": "Neues Rezept"
+    },
+    "unavailable": {
+      "title": "Der Plan ist nicht erreichbar",
+      "body": "Diese Woche konnte nicht geladen werden. Lade die Seite neu — nichts Geplantes geht verloren."
+    }
   },
   "auth": {
     "title": "Anmelden",

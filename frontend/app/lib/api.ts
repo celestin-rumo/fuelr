@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { TOKEN_COOKIE } from "./session";
+import type { Slot } from "./week";
 
 function backendUrl() {
   return process.env.BACKEND_INTERNAL_URL ?? "http://backend:8080";
@@ -46,6 +47,41 @@ export type Recipe = {
   totalMinutes: number | null;
   /** Field names the import had to guess at: "servings", "steps", "title". */
   unverified: string[];
+};
+
+/**
+ * One recipe placed on one day. `kcal` is what the planned servings add up to,
+ * not what one plate costs — the day total is what the household eats. Null
+ * when the recipe carries no ingredients yet.
+ */
+export type PlannedMeal = {
+  id: number;
+  date: string;
+  slot: Slot;
+  position: number;
+  recipeId: number;
+  title: string | null;
+  servings: number;
+  /** What the recipe itself is written for, so the scaling is visible. */
+  recipeServings: number;
+  minutes: number;
+  hasPhoto: boolean;
+  kcal: number | null;
+  estimated: boolean;
+};
+
+/** Always seven, empty days included — a missing day would read as a failure. */
+export type DayTotals = {
+  date: string;
+  meals: number;
+  kcal: number | null;
+};
+
+export type WeekPlan = {
+  weekStart: string;
+  householdSize: number;
+  meals: PlannedMeal[];
+  days: DayTotals[];
 };
 
 export type RecipeSummary = {
