@@ -507,6 +507,16 @@ everybody meets first with this convention. On a phone the list opens upwards
 when `visualViewport` says the keyboard has taken the room below: the viewport
 is the part of the page the keyboard has *not* eaten, and `innerHeight` is not.
 
+**What leaves the app is written down on one page.** `/privacy` — reachable
+from the footer, which used to say "Conditions · Confidentialité · Cookies" and
+link nowhere — names the three doors out: the AI features, which are processed
+by Anthropic in the United States and therefore send what they are given
+abroad; the mail relay; and the import, which fetches a page from our servers
+rather than the visitor's browser. It says only what the code does, so it stays
+true by being checked against the code: no hosting country is claimed, no
+retention period is invented, and account deletion is described as what it is —
+a request handled by hand, since no endpoint does it yet.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into

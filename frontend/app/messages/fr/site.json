@@ -358,7 +358,7 @@
   "footer": {
     "tagline": "Planifier, acheter, cuisiner, mesurer. Une boucle, pas dix applis.",
     "copyright": "© 2026 Fuelr — Lausanne",
-    "legal": "Conditions · Confidentialité · Cookies",
+    "legal": "Confidentialité",
     "columns": [
       {
         "title": "Produit",
@@ -422,6 +422,40 @@
             "href": "/contact"
           }
         ]
+      }
+    ]
+  },
+  "privacy": {
+    "label": "Données",
+    "title": "Où vont tes données",
+    "text": "Fuelr est une application de cuisine, pas une régie publicitaire. Cette page dit ce qui est conservé, ce qui sort de l'application, et vers où.",
+    "updated": "Mise à jour le 3 septembre 2026",
+    "sections": [
+      {
+        "title": "Ce que Fuelr conserve",
+        "text": "Ton compte — adresse email, prénom, mot de passe chiffré à sens unique — et ce que tu écris dans l'application : recettes et photos, planning de la semaine, liste de courses, journal des repas, foyer et invitations. Rien d'autre n'est collecté : aucun traceur publicitaire, aucune mesure d'audience, aucun profil revendu."
+      },
+      {
+        "tone": "mint",
+        "title": "L'intelligence artificielle est traitée à l'étranger",
+        "text": "Les fonctions d'intelligence artificielle — lire une page de recette mal balisée, estimer une assiette photographiée, transcrire une page de livre — s'appuient sur Anthropic, aux États-Unis. Ce que tu soumets à ces fonctions, la photo ou le contenu de la page, quitte donc la Suisse le temps de l'analyse. Elles sont facultatives et font partie d'un plan payant : tant que tu ne les utilises pas, rien n'est transmis à Anthropic."
+      },
+      {
+        "title": "Les deux autres portes de sortie",
+        "items": [
+          "Les emails — confirmation d'adresse, réinitialisation de mot de passe — partent par un service d'envoi établi hors de Suisse, qui voit ton adresse et le contenu du message.",
+          "Quand tu importes une recette depuis un lien, c'est Fuelr qui va chercher la page et sa photo. Le site visité voit une requête venant de nos serveurs, jamais de ton navigateur."
+        ]
+      },
+      {
+        "title": "Ce qui reste sur ton appareil",
+        "text": "Le mode cuisine et la liste de courses hors ligne gardent une copie sur la machine que tu utilises, pour qu'une cuisine sans réseau ne soit pas une impasse ; cette copie est effacée à la déconnexion. Un seul cookie est posé, celui qui te garde connecté, et il n'y en a aucun de mesure ni de publicité."
+      },
+      {
+        "title": "Tes recettes restent les tiennes",
+        "text": "L'export de toutes tes recettes est disponible depuis la bibliothèque, à tout moment et sans condition — y compris après une résiliation, qui ne supprime rien. Pour faire effacer ton compte et ce qu'il contient, écris-nous : c'est traité à la main aujourd'hui, et c'est traité.",
+        "link": "/contact",
+        "linkLabel": "Nous écrire"
       }
     ]
   }

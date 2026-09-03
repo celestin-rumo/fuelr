@@ -58,7 +58,15 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-2 border-t border-line pt-6 text-[12px] font-medium text-gray sm:flex-row sm:justify-between">
           <span>{t("copyright")}</span>
-          <span>{t("legal")}</span>
+          {/* It used to read "Conditions · Confidentialité · Cookies" and go
+              nowhere. One of the three exists now, so it is a link and the
+              other two stop being promised. */}
+          <Link
+            href="/privacy"
+            className="inline-flex min-h-11 items-center font-semibold hover:text-text sm:min-h-0"
+          >
+            {t("legal")}
+          </Link>
         </div>
       </Container>
     </footer>

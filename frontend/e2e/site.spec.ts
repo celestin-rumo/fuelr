@@ -137,3 +137,33 @@ test("the header's try-it button leads to the onboarding", async ({ page }) => {
     .click();
   await expect(page).toHaveURL(/\/fr\/commencer$/);
 });
+
+test("the footer leads to the data page, which says where the AI runs", async ({
+  page,
+}) => {
+  await page.goto("/fr");
+  await page
+    .getByRole("contentinfo")
+    .getByRole("link", { name: "Confidentialité" })
+    .click();
+
+  await expect(page).toHaveURL(/\/fr\/confidentialite$/);
+  // The reason the page exists: an AI feature sends what it is given out of
+  // the country, and somebody deciding whether to use one should read that
+  // before, not after.
+  await expect(page.getByRole("main")).toContainText("Anthropic");
+  await expect(page.getByRole("main")).toContainText("quitte donc la Suisse");
+});
+
+test("the data page holds up on a 360px phone", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto("/fr/confidentialite");
+
+  await expect(
+    page.getByRole("heading", { name: "Où vont tes données" }),
+  ).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});

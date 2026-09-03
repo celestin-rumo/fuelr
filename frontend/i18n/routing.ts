@@ -30,6 +30,11 @@ export const routing = defineRouting({
       en: "/contact",
       de: "/kontakt",
     },
+    "/privacy": {
+      fr: "/confidentialite",
+      en: "/privacy",
+      de: "/datenschutz",
+    },
     "/login": {
       fr: "/connexion",
       en: "/login",
