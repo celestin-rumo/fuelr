@@ -773,6 +773,50 @@
       "unreadable": {
         "title": "Nothing to import on that page",
         "body": "It does not publish its recipe in a machine-readable format. Nothing is lost: enter it by hand."
+      },
+      "unsupported_format": {
+        "title": "That file is not an image",
+        "body": "JPEG, PNG or WebP. The file name is not enough: the content is what gets read."
+      },
+      "file_too_large": {
+        "title": "Image too heavy",
+        "body": "2 MB per image at most. A cropped phone photo fits easily."
+      },
+      "ai_unavailable": {
+        "title": "Not wired up yet",
+        "body": "No reader is configured yet. A link or typing it in both work today."
+      },
+      "upgrade_required": {
+        "title": "This reading is part of a paid plan",
+        "body": "Importing from a link stays free and unlimited."
+      },
+      "no_file": {
+        "title": "No photo chosen",
+        "body": "Pick at least one image of the recipe."
+      }
+    },
+    "sources": {
+      "label": "Where the recipe comes from",
+      "URL": "A link",
+      "PHOTO": "A photo",
+      "SCREENSHOT": "A screenshot",
+      "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo and most cooking sites.",
+      "photoHint": "A page of a book, a recipe card, something written by hand. Two photos if the recipe runs over two pages.",
+      "screenshotHint": "A capture from another app, a story or a message. Frame the whole recipe, not only the ingredients.",
+      "files": "Photos of the recipe",
+      "filesHint": "JPEG, PNG or WebP, 2 MB per image at most.",
+      "submit": "Read the recipe"
+    },
+    "closed": {
+      "PLAN": {
+        "title": "This reading is part of the {tier} plan",
+        "body": "Reading a photo or a capture takes a model, and every reading is billed. It is the one feature the launch period does not open — importing from a link stays free and unlimited.",
+        "link": "See the plans"
+      },
+      "SOON": {
+        "title": "Not wired up yet",
+        "body": "Your plan is fine, we are the ones who are not ready: no reader is configured yet. Nothing is lost — a link or typing it in both work today.",
+        "link": "See the plans"
       }
     }
   },

@@ -209,6 +209,10 @@ test("cooking mode holds up, and keeps its footer on screen", async ({
   await holdsUp(page);
   // The footer stacks rather than clipping the primary action off the edge.
   const next = page.getByRole("button", { name: /Suivante/ });
+  // Waited for, not assumed: boundingBox answers null for an element the
+  // page has not painted yet, and the assertion below then reads as a
+  // geometry failure rather than as the race it is.
+  await expect(next).toBeVisible();
   const box = await next.boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(360);
 });

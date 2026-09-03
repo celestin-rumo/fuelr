@@ -315,6 +315,33 @@ export async function fetchPlans(): Promise<PlanPrices | null> {
   }
 }
 
+/**
+ * Whether a way of importing can be offered right now.
+ *
+ * `PLAN` is answered by subscribing and `SOON` only by us, so the screen says
+ * something different for each rather than one shrug for both.
+ */
+export type ImportSourceState = "OPEN" | "PLAN" | "SOON";
+
+export type ImportSource = {
+  source: "URL" | "PHOTO" | "SCREENSHOT";
+  state: ImportSourceState;
+  /** The tier that would open it, when a plan is what is missing. */
+  requiredTier: string | null;
+};
+
+/**
+ * Asked before anything is offered. A link always works, so a backend that
+ * cannot answer still leaves the screen usable.
+ */
+export async function importSources(): Promise<ImportSource[]> {
+  const response = await apiFetch("/api/recipes/import/sources");
+  if (!response.ok) {
+    return [{ source: "URL", state: "OPEN", requiredTier: null }];
+  }
+  return (await response.json()) as ImportSource[];
+}
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

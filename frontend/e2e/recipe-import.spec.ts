@@ -46,6 +46,23 @@ test("an unreachable page says so and is not a dead end", async ({ page }) => {
   await expect(page).toHaveURL(/\/fr\/app\/recettes\/\d+$/);
 });
 
+test("the three ways in are offered, and the paid ones say so", async ({ page }) => {
+  await page.goto("/fr/app/recettes/importer");
+
+  await expect(page.getByTestId("import-sources")).toBeVisible();
+  await expect(page.getByTestId("source-URL")).toHaveAttribute("aria-pressed", "true");
+
+  // Reading a photo costs money per reading, so it is the one feature the
+  // launch period does not open — and the screen says that before offering it.
+  await page.getByTestId("source-PHOTO").click();
+  await expect(page.getByTestId("import-closed-PLAN")).toContainText("plan PLUS");
+  await expect(page.getByLabel("Photos de la recette")).toHaveCount(0);
+
+  // The link is still one tap away: a closed door is never a dead end.
+  await page.getByTestId("source-URL").click();
+  await expect(page.getByLabel("Lien de la recette")).toBeVisible();
+});
+
 test("manual entry is offered before trying anything", async ({ page }) => {
   await page.goto("/fr/app/recettes/importer");
   await expect(

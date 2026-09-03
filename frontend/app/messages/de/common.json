@@ -773,6 +773,50 @@
       "unreadable": {
         "title": "Auf dieser Seite ist nichts zu importieren",
         "body": "Sie veröffentlicht ihr Rezept nicht maschinenlesbar. Nichts ist verloren: erfasse es von Hand."
+      },
+      "unsupported_format": {
+        "title": "Diese Datei ist kein Bild",
+        "body": "JPEG, PNG oder WebP. Der Dateiname genügt nicht: Gelesen wird der Inhalt."
+      },
+      "file_too_large": {
+        "title": "Bild zu schwer",
+        "body": "Höchstens 2 MB pro Bild. Ein zugeschnittenes Handyfoto passt problemlos."
+      },
+      "ai_unavailable": {
+        "title": "Noch nicht angeschlossen",
+        "body": "Es ist noch kein Leser konfiguriert. Ein Link oder die manuelle Eingabe funktionieren heute."
+      },
+      "upgrade_required": {
+        "title": "Dieses Lesen gehört zu einem kostenpflichtigen Plan",
+        "body": "Der Import über einen Link bleibt gratis und unbegrenzt."
+      },
+      "no_file": {
+        "title": "Kein Foto gewählt",
+        "body": "Wähle mindestens ein Bild des Rezepts."
+      }
+    },
+    "sources": {
+      "label": "Woher das Rezept kommt",
+      "URL": "Ein Link",
+      "PHOTO": "Ein Foto",
+      "SCREENSHOT": "Ein Screenshot",
+      "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo und die meisten Kochseiten.",
+      "photoHint": "Eine Buchseite, eine Rezeptkarte, etwas von Hand Geschriebenes. Zwei Fotos, wenn das Rezept über zwei Seiten geht.",
+      "screenshotHint": "Eine Aufnahme aus einer anderen App, einer Story oder einer Nachricht. Fotografiere das ganze Rezept, nicht nur die Zutaten.",
+      "files": "Fotos des Rezepts",
+      "filesHint": "JPEG, PNG oder WebP, höchstens 2 MB pro Bild.",
+      "submit": "Rezept lesen"
+    },
+    "closed": {
+      "PLAN": {
+        "title": "Dieses Lesen gehört zum Plan {tier}",
+        "body": "Ein Foto oder eine Aufnahme zu lesen braucht ein Modell, und jedes Lesen wird verrechnet. Es ist die einzige Funktion, die der Start nicht öffnet — der Import über einen Link bleibt gratis und unbegrenzt.",
+        "link": "Pläne ansehen"
+      },
+      "SOON": {
+        "title": "Noch nicht angeschlossen",
+        "body": "Dein Plan ist in Ordnung, wir sind noch nicht so weit: Es ist noch kein Leser konfiguriert. Nichts geht verloren — ein Link oder die manuelle Eingabe funktionieren heute.",
+        "link": "Pläne ansehen"
       }
     }
   },
