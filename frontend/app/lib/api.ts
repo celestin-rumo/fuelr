@@ -157,6 +157,8 @@ export type LogEntry = {
   estimated: boolean;
   source: "PLAN" | "RECIPE" | "FREE";
   recipeId: number | null;
+  /** Kept so an undo can put the entry back with its "cooked" mark intact. */
+  plannedMealId: number | null;
 };
 
 /**

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
+import { Dialog } from "@ui/dialog";
 import { Button } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
@@ -46,6 +47,8 @@ export function HouseholdPanel({
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
+  // Who is about to be removed, while the question is on screen.
+  const [removing, setRemoving] = useState<Household["members"][number] | null>(null);
 
   const seatsLeft = household.maxAccounts - household.members.length;
   const shared = household.members.length > 1;
@@ -155,7 +158,7 @@ export function HouseholdPanel({
             )}
             <Link
               href="/pricing"
-              className="text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+              className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
             >
               {t("plan.compare")}
             </Link>
@@ -176,6 +179,42 @@ export function HouseholdPanel({
           </div>
         )}
       </Card>
+
+      {/* Removing somebody is not undoable and not the person's own doing —
+          they lose the shared plan without ever touching the screen. Asked
+          once, with the name in the question, so a mis-tap on a 44px row
+          costs a tap rather than a household. */}
+      {removing && (
+        <Dialog
+          title={t("members.confirm.title", {
+            name: removing.name ?? removing.email,
+          })}
+          closeLabel={t("members.confirm.close")}
+          onClose={() => setRemoving(null)}
+          data-testid="remove-member-confirm"
+        >
+          <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+            {t("members.confirm.body")}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button
+              variant="danger"
+              loading={pending}
+              data-testid="remove-member-confirmed"
+              onClick={() => {
+                const member = removing;
+                setRemoving(null);
+                run(() => removeMember(member.userId));
+              }}
+            >
+              {t("members.confirm.confirm")}
+            </Button>
+            <Button variant="secondary" onClick={() => setRemoving(null)}>
+              {t("members.confirm.cancel")}
+            </Button>
+          </div>
+        </Dialog>
+      )}
 
       <Card as="panel">
         <CardTitle>
@@ -208,7 +247,7 @@ export function HouseholdPanel({
                   variant="dangerText"
                   size="sm"
                   aria-label={t("members.remove", { name: member.name ?? member.email })}
-                  onClick={() => run(() => removeMember(member.userId))}
+                  onClick={() => setRemoving(member)}
                 >
                   {t("members.removeShort")}
                 </Button>

@@ -23,6 +23,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 const logMeal = vi.fn(async () => ({ ok: true }));
 const removeEntry = vi.fn(async () => ({ ok: true }));
+const restoreEntry = vi.fn(async () => ({ ok: true }));
 const setTargets = vi.fn(async () => ({ ok: true, targets: {} }));
 const history = vi.fn(async () => null as LogHistory | null);
 const nutritionDetail = vi.fn(async () => ({ ok: false, reason: "failed" }));
@@ -30,6 +31,7 @@ const nutritionDetail = vi.fn(async () => ({ ok: false, reason: "failed" }));
 vi.mock("@app/[locale]/(app)/app/journal/actions", () => ({
   logMeal: (...args: unknown[]) => logMeal(...(args as [])),
   removeEntry: (...args: unknown[]) => removeEntry(...(args as [])),
+  restoreEntry: (...args: unknown[]) => restoreEntry(...(args as [])),
   setTargets: (...args: unknown[]) => setTargets(...(args as [])),
   history: (...args: unknown[]) => history(...(args as [])),
   nutritionDetail: (...args: unknown[]) => nutritionDetail(...(args as [])),
@@ -71,6 +73,7 @@ function weekWith(overrides: Partial<LogWeek> = {}): LogWeek {
         estimated: true,
         source: "FREE",
         recipeId: null,
+        plannedMealId: null,
       },
     ],
     average: { ...day(MONDAY, 1800), date: null },
@@ -206,6 +209,39 @@ describe("Journal", () => {
     );
 
     await waitFor(() => expect(removeEntry).toHaveBeenCalledWith(1));
+  });
+
+  it("puts a deleted entry back, with the figures it had", async () => {
+    const user = userEvent.setup();
+    renderJournal();
+
+    await user.click(
+      within(screen.getByTestId("entries")).getByRole("button", {
+        name: "Retirer Pizza chez Luigi du journal",
+      }),
+    );
+
+    // No confirmation on the way out; a way back afterwards instead.
+    const notice = await screen.findByTestId("entry-removed");
+    expect(notice).toHaveTextContent("Pizza chez Luigi");
+
+    await user.click(screen.getByTestId("undo-remove"));
+
+    await waitFor(() =>
+      expect(restoreEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Pizza chez Luigi",
+          date: MONDAY,
+          slot: "DINNER",
+          // The figures travel: a restore that recomputed from the recipe
+          // would give back a different meal than the one deleted.
+          kcal: 1800,
+          proteinG: 30,
+          source: "FREE",
+        }),
+      ),
+    );
+    expect(screen.queryByTestId("entry-removed")).not.toBeInTheDocument();
   });
 
   it("sets a target, which is the paid half", async () => {

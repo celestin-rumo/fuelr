@@ -200,7 +200,24 @@ describe("HouseholdPanel", () => {
 
     await user.click(screen.getByRole("button", { name: "Retirer Camille du foyer" }));
 
+    // Asked first, with the name in the question: somebody else loses their
+    // shared week, and they are not the one holding the phone.
+    expect(screen.getByTestId("remove-member-confirm")).toBeInTheDocument();
+    expect(removeMember).not.toHaveBeenCalled();
+
+    await user.click(screen.getByTestId("remove-member-confirmed"));
     await waitFor(() => expect(removeMember).toHaveBeenCalledWith(2));
+  });
+
+  it("a member stays when the question is answered no", async () => {
+    const user = userEvent.setup();
+    renderPanel(householdWith({ sharingOpen: true, members: [OWNER, GUEST] }));
+
+    await user.click(screen.getByRole("button", { name: "Retirer Camille du foyer" }));
+    await user.click(screen.getByRole("button", { name: "Annuler" }));
+
+    expect(screen.queryByTestId("remove-member-confirm")).not.toBeInTheDocument();
+    expect(removeMember).not.toHaveBeenCalled();
   });
 
   it("accepts an invitation carried in the link, then drops the spent token", async () => {

@@ -78,9 +78,27 @@ public class LogController {
                     entry.getId(), entry.getDate(), entry.getSlot(), entry.getTitle(),
                     entry.getServings(), entry.getKcal(), entry.getProteinG(),
                     entry.getCarbsG(), entry.getFatG(), entry.isEstimated(),
-                    entry.getSource().name(), entry.getRecipeId());
+                    entry.getSource().name(), entry.getRecipeId(), entry.getPlannedMealId());
         } catch (LogService.UnknownRecipeException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /** Undo of a delete: the row comes back as it was, not recomputed. */
+    @PostMapping("/restore")
+    @ResponseStatus(HttpStatus.CREATED)
+    public LogDtos.EntryView restore(
+            @AuthenticationPrincipal Jwt principal,
+            @Valid @RequestBody LogDtos.RestoreRequest body) {
+        try {
+            MealLogEntry entry = log.restore(userId(principal), body);
+            return new LogDtos.EntryView(
+                    entry.getId(), entry.getDate(), entry.getSlot(), entry.getTitle(),
+                    entry.getServings(), entry.getKcal(), entry.getProteinG(),
+                    entry.getCarbsG(), entry.getFatG(), entry.isEstimated(),
+                    entry.getSource().name(), entry.getRecipeId(), entry.getPlannedMealId());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

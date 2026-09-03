@@ -157,6 +157,69 @@ class MealLogApiTest {
     }
 
     @Test
+    void undoingADeleteBringsBackTheFiguresThatWereDeleted() throws Exception {
+        long curry = recipe();
+        mvc.perform(post("/api/log")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"date":"%s","slot":"DINNER","recipeId":%d,"servings":1}"""
+                                .formatted(today(), curry)))
+                .andExpect(status().isCreated());
+
+        String week = mvc.perform(get("/api/log").header("Authorization", "Bearer " + token))
+                .andReturn().getResponse().getContentAsString();
+        var entry = json.readTree(week).get("entries").get(0);
+        double kcal = entry.get("kcal").asDouble();
+
+        mvc.perform(delete("/api/log/" + entry.get("id").asLong())
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        // The recipe is corrected while the undo is still on screen. A restore
+        // that recomputed would hand back a different meal than the one that
+        // was removed — which is the whole reason it does not.
+        mvc.perform(put("/api/recipes/" + curry)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"title":"Curry","servings":4,
+                                 "ingredients":[{"name":"Lentilles","quantity":4000,"unit":"g"}],
+                                 "steps":["Cuire 20 min."]}"""))
+                .andExpect(status().isOk());
+
+        mvc.perform(post("/api/log/restore")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"date":"%s","slot":"DINNER","title":"Curry","servings":1,
+                                 "kcal":%s,"proteinG":%s,"carbsG":%s,"fatG":%s,
+                                 "estimated":%s,"source":"RECIPE","recipeId":%d}"""
+                                .formatted(today(), kcal,
+                                        entry.get("proteinG").asDouble(),
+                                        entry.get("carbsG").asDouble(),
+                                        entry.get("fatG").asDouble(),
+                                        entry.get("estimated").asBoolean(), curry)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.kcal").value(kcal))
+                .andExpect(jsonPath("$.source").value("RECIPE"));
+
+        mvc.perform(get("/api/log").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.entries.length()").value(1))
+                .andExpect(jsonPath("$.entries[0].kcal").value(kcal));
+    }
+
+    @Test
+    void aRestoredEntryIsNobodyElsesToRestore() throws Exception {
+        mvc.perform(post("/api/log/restore")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"date":"%s","title":"Pizza","kcal":900,"estimated":true}"""
+                                .formatted(today())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void cookingAPlannedMealWritesItDownOnceForWhoeverCookedIt() throws Exception {
         long curry = recipe();
         String created = mvc.perform(post("/api/plan")

@@ -9,12 +9,14 @@ import { Button } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
-import type { LogHistory, LogWeek } from "@app/lib/api";
+import type { LogEntry, LogHistory, LogWeek } from "@app/lib/api";
 import { addDays, formatDay } from "@app/lib/week";
+import { kcal as roundKcal } from "@app/lib/nutrition-format";
 import {
   history as loadHistory,
   logMeal,
   removeEntry,
+  restoreEntry,
   setTargets,
 } from "@app/[locale]/(app)/app/journal/actions";
 import { DayBars } from "./day-bars";
@@ -53,6 +55,8 @@ export function Journal({
   const [date, setDate] = useState(today);
   const [error, setError] = useState<string | null>(null);
   const [past, setPast] = useState<LogHistory | null>(null);
+  // What was just deleted, kept until the banner is answered or dismissed.
+  const [removed, setRemoved] = useState<LogEntry | null>(null);
   const [targetKcal, setTargetKcal] = useState(String(week.targets?.kcal ?? ""));
   const [targetProtein, setTargetProtein] = useState(
     String(week.targets?.proteinG ?? ""),
@@ -83,6 +87,49 @@ export function Journal({
       setTitle("");
       setKcal("");
       setProtein("");
+      router.refresh();
+    });
+  }
+
+  function remove(entry: LogEntry) {
+    startTransition(async () => {
+      const result = await removeEntry(entry.id);
+      if (!result.ok) {
+        setError(t("errors.failed"));
+        return;
+      }
+      setRemoved(entry);
+      router.refresh();
+    });
+  }
+
+  /*
+   * Deleting a meal is one tap and there is no confirmation, on purpose: a
+   * dialog on every row is a tax paid by everybody who meant it. What it costs
+   * when somebody did not mean it is undone here instead — the entry is put
+   * back with the figures it had, not recomputed from a recipe that may have
+   * been edited since.
+   */
+  function undoRemove() {
+    const entry = removed;
+    if (!entry) return;
+    setRemoved(null);
+    startTransition(async () => {
+      const result = await restoreEntry({
+        date: entry.date,
+        slot: entry.slot,
+        title: entry.title,
+        servings: entry.servings,
+        kcal: entry.kcal,
+        proteinG: entry.proteinG,
+        carbsG: entry.carbsG,
+        fatG: entry.fatG,
+        estimated: entry.estimated,
+        source: entry.source,
+        recipeId: entry.recipeId,
+        plannedMealId: entry.plannedMealId,
+      });
+      if (!result.ok) setError(t("errors.failed"));
       router.refresh();
     });
   }
@@ -119,6 +166,12 @@ export function Journal({
     });
   }
 
+  /*
+   * On a phone the diary came last: the form, then the charts, then the
+   * findings, then the targets, and 2 800px down, the meals. What somebody
+   * opens this screen to read now comes before what they configure once a
+   * month. `order` rather than two markups, so there is one component.
+   */
   return (
     <div className={cn("flex flex-col gap-6", pending && "opacity-[0.9]")}>
       {error && (
@@ -191,7 +244,7 @@ export function Journal({
 
       {week.tracking ? (
         <>
-          <Card as="panel" data-testid="charts">
+          <Card as="panel" data-testid="charts" className="order-3 sm:order-none">
             <CardTitle>{t("charts.title")}</CardTitle>
             <div className="mt-4">
               <DayBars
@@ -231,7 +284,7 @@ export function Journal({
             </div>
           </Card>
 
-          <Card as="panel" data-testid="insights">
+          <Card as="panel" data-testid="insights" className="order-4 sm:order-none">
             <CardTitle>{t("insights.title")}</CardTitle>
             <ul className="mt-4 flex flex-col gap-4">
               {week.insights.map((insight) => (
@@ -248,7 +301,7 @@ export function Journal({
             </ul>
           </Card>
 
-          <Card as="panel" data-testid="targets">
+          <Card as="panel" data-testid="targets" className="order-5 sm:order-none">
             <CardTitle>{t("targets.title")}</CardTitle>
             <p className="mt-2 text-[15px] leading-[1.5] font-medium text-text-dim">
               {week.targets?.chosen ? t("targets.chosen") : t("targets.computed")}
@@ -277,7 +330,7 @@ export function Journal({
           </Card>
         </>
       ) : (
-        <Card as="panel" data-testid="tracking-locked">
+        <Card as="panel" data-testid="tracking-locked" className="order-3 sm:order-none">
           <CardTitle>{t("locked.title")}</CardTitle>
           <p className="mt-2 text-[15px] leading-[1.5] font-medium text-text-dim">
             {t("locked.body")}
@@ -296,10 +349,32 @@ export function Journal({
         </Card>
       )}
 
-      <section data-testid="entries">
+      <section data-testid="entries" className="order-2 sm:order-none">
         <h2 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
           {t("entries.title")}
         </h2>
+
+        {removed && (
+          <Banner
+            tone="info"
+            className="mt-2"
+            data-testid="entry-removed"
+            dismissLabel={t("entries.undoDismiss")}
+            onDismiss={() => setRemoved(null)}
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                data-testid="undo-remove"
+                onClick={undoRemove}
+              >
+                {t("entries.undo")}
+              </Button>
+            }
+          >
+            {t("entries.removed", { title: removed.title })}
+          </Banner>
+        )}
         {week.entries.length === 0 ? (
           <p className="mt-2 text-[15px] font-medium text-text-dim">{t("entries.empty")}</p>
         ) : (
@@ -314,7 +389,7 @@ export function Journal({
                     {formatDay(entry.date, locale, { weekday: "short", day: "numeric" })}
                     {" · "}
                     {t("entries.figures", {
-                      kcal: entry.kcal,
+                      kcal: roundKcal(entry.kcal),
                       protein: entry.proteinG,
                     })}
                     {entry.estimated && (
@@ -328,12 +403,7 @@ export function Journal({
                   variant="dangerText"
                   size="sm"
                   aria-label={t("entries.remove", { title: entry.title })}
-                  onClick={() =>
-                    startTransition(async () => {
-                      const result = await removeEntry(entry.id);
-                      if (result.ok) router.refresh();
-                    })
-                  }
+                  onClick={() => remove(entry)}
                 >
                   ✕
                 </Button>
@@ -343,7 +413,7 @@ export function Journal({
         )}
       </section>
 
-      <Card as="panel" data-testid="history">
+      <Card as="panel" data-testid="history" className="order-6 sm:order-none">
         <CardTitle>{t("history.title")}</CardTitle>
         {past ? (
           <div className="mt-4 flex flex-col gap-3">
@@ -394,7 +464,7 @@ function WeekLink({
     <Link
       href={{ pathname: "/app/journal", query: { week } }}
       aria-label={label}
-      className="grid size-9 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+      className="grid size-11 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
     >
       {children}
     </Link>

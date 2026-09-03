@@ -24,6 +24,32 @@ export async function logMeal(input: LogInput) {
   return { ok: response.ok };
 }
 
+/**
+ * Undo of a delete. It sends the figures back rather than the recipe id alone,
+ * because logging from a recipe recomputes — and a recipe edited since would
+ * hand back a different meal than the one that was removed.
+ */
+export async function restoreEntry(entry: {
+  date: string;
+  slot: string;
+  title: string;
+  servings: number;
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  estimated: boolean;
+  source: string;
+  recipeId: number | null;
+  plannedMealId: number | null;
+}) {
+  const response = await apiFetch("/api/log/restore", {
+    method: "POST",
+    body: JSON.stringify(entry),
+  });
+  return { ok: response.ok };
+}
+
 export async function removeEntry(id: number) {
   const response = await apiFetch(`/api/log/${id}`, { method: "DELETE" });
   return { ok: response.ok };

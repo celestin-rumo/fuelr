@@ -56,6 +56,8 @@ export function ShoppingList({
 
   const [queue, setQueue] = useState(readQueue);
   const [error, setError] = useState<string | null>(null);
+  // The last hand-added line deleted, kept until the banner is answered.
+  const [removed, setRemoved] = useState<ShoppingItem | null>(null);
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [stockName, setStockName] = useState("");
@@ -153,8 +155,33 @@ export function ShoppingList({
   function remove(item: ShoppingItem) {
     startTransition(async () => {
       const result = await removeItem(item.id);
-      if (result.ok) router.refresh();
-      else setError(t("errors.planLine"));
+      if (!result.ok) {
+        setError(t("errors.planLine"));
+        return;
+      }
+      setRemoved(item);
+      router.refresh();
+    });
+  }
+
+  /*
+   * A line removed by mistake comes back as a line, not as an apology. Only
+   * hand-added lines can be removed at all — the ones the plan puts there go
+   * when the meal does — so putting one back is adding it again, with the
+   * quantity it had.
+   */
+  function undoRemove() {
+    const item = removed;
+    if (!item) return;
+    setRemoved(null);
+    startTransition(async () => {
+      const result = await addItem(week, {
+        name: item.name,
+        quantity: item.quantity ?? undefined,
+        unit: item.unit,
+      });
+      if (!result.ok) setError(t("errors.failed"));
+      router.refresh();
     });
   }
 
@@ -180,6 +207,27 @@ export function ShoppingList({
       {error && (
         <Banner tone="error" data-testid="shopping-error" onDismiss={() => setError(null)}>
           {error}
+        </Banner>
+      )}
+
+      {removed && (
+        <Banner
+          tone="info"
+          data-testid="item-removed"
+          dismissLabel={t("undoDismiss")}
+          onDismiss={() => setRemoved(null)}
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              data-testid="undo-remove"
+              onClick={undoRemove}
+            >
+              {t("undo")}
+            </Button>
+          }
+        >
+          {t("removed", { name: removed.name })}
         </Banner>
       )}
 
@@ -406,7 +454,7 @@ function WeekLink({
     <Link
       href={{ pathname: "/app/shopping", query: { week } }}
       aria-label={label}
-      className="grid size-9 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+      className="grid size-11 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
     >
       {children}
     </Link>
