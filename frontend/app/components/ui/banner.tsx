@@ -99,7 +99,8 @@ export function Banner({
           type="button"
           onClick={onDismiss}
           aria-label={dismissLabel}
-          className="-mt-1 -mr-1 grid size-7 shrink-0 place-items-center rounded-full text-gray transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          // 44px of target on a phone, 28 where there is a pointer.
+          className="-mt-2 -mr-2 grid size-11 shrink-0 place-items-center rounded-full sm:-mt-1 sm:-mr-1 sm:size-7 text-gray transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
         >
           <span aria-hidden>✕</span>
         </button>
