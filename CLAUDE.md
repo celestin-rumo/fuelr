@@ -236,12 +236,19 @@ only by us. That is the whole of the story "no AI feature is presented as
 available and then refused", and it is the same rule the plan already follows
 with `canOrder`.
 
-**A metered feature is never opened by the launch period.** `Feature` now
-carries whether using it costs money outside our own servers, and
-`Entitlements.has` opens only what does not: reading a photo is billed per
-call, so "everything is free" would be a sentence about somebody else's
-invoice. `AI_IMPORT` is the first of them, and the rule is in the one method
-that decides, not beside each feature that needs it.
+**The launch opens everything, and money is capped rather than gated.**
+`Feature` carries whether using a capability costs money outside our own
+servers — `AI_IMPORT` is the first that does — but that flag no longer decides
+whether it opens. It held metered features back for a while, on the grounds
+that giving away something billed per call is not a gesture but a bill. That
+was the wrong instrument: nobody can subscribe yet, so the exception protected
+no margin and only made the feature unreachable for the people the launch is
+for. What bounds it is `AiBudget`, per account and per month, including for an
+account with no plan at all — a ceiling in money is the right shape for that
+risk, because it bounds the loss from a stranger without being a paywall in
+front of a cook. `app.ai.budget.free-cents` is that ceiling, and it is
+configuration precisely so a household that is really testing can be given
+more without a deploy.
 
 `RecipeIntelligence` is the seam behind it — one interface for the three inputs
 no parser can read, written in nobody's SDK so the suite still touches no

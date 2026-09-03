@@ -330,16 +330,25 @@ export type ImportSource = {
   requiredTier: string | null;
 };
 
+export type ImportSources = {
+  /** True while nothing is charged, so the screen can say an open door is a gift. */
+  openPeriod: boolean;
+  sources: ImportSource[];
+};
+
 /**
  * Asked before anything is offered. A link always works, so a backend that
  * cannot answer still leaves the screen usable.
  */
-export async function importSources(): Promise<ImportSource[]> {
+export async function importSources(): Promise<ImportSources> {
   const response = await apiFetch("/api/recipes/import/sources");
   if (!response.ok) {
-    return [{ source: "URL", state: "OPEN", requiredTier: null }];
+    return {
+      openPeriod: false,
+      sources: [{ source: "URL", state: "OPEN", requiredTier: null }],
+    };
   }
-  return (await response.json()) as ImportSource[];
+  return (await response.json()) as ImportSources;
 }
 
 /**

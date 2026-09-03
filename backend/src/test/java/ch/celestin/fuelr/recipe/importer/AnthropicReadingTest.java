@@ -47,7 +47,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "app.ai.price.input-per-million=3.00",
         "app.ai.price.output-per-million=15.00",
         // One cent a month, so the ceiling is reachable in one read.
-        "app.ai.budget.plus-cents=1",
+        "app.ai.budget.free-cents=1",
+        // The shipped configuration: nothing is charged, so a plain account
+        // that ordered nothing can read a photo. What bounds it is the
+        // ceiling above, not a plan — AssistedImportTest covers the other
+        // half, with the boundary switched on.
+        "app.subscription.enforce=false",
+        "app.subscription.self-activate=false",
 })
 @AutoConfigureMockMvc
 @Testcontainers
@@ -120,13 +126,6 @@ class AnthropicReadingTest {
                 .andReturn().getResponse().getContentAsString();
         token = json.readTree(response).get("token").asText();
         userId = json.readTree(response).get("user").get("id").asLong();
-
-        mvc.perform(post("/api/subscription/orders")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"tier":"PLUS"}"""))
-                .andExpect(status().isAccepted());
     }
 
     /** The provider's shape: one tool call, and the tokens it counted. */
@@ -195,6 +194,15 @@ class AnthropicReadingTest {
         // it: the table is shared, the answer never is.
         assertThat(budget.spentMicros(userId)).isEqualTo(10_500L);
         assertThat(usage.spentIn(userId, AiBudget.period())).isEqualTo(10_500L);
+    }
+
+    @Test
+    void aPlainAccountCanReadAPhotoWhileNothingIsCharged() throws Exception {
+        // Nothing ordered, and the read goes through: that is what "everything
+        // is free" has to mean for a feature that costs money to run.
+        long id = importOne();
+        assertThat(id).isPositive();
+        assertThat(budget.budgetMicros(userId)).isPositive();
     }
 
     @Test

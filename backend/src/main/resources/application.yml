@@ -83,9 +83,15 @@ app:
     price:
       input-per-million: 3.00
       output-per-million: 15.00
-    # What a month of assisted reading may cost us per account, in US cents —
-    # roughly a fifth of a Plus plan. A ceiling on our exposure, not a feature.
+    # What a month of assisted reading may cost us per account, in US cents.
+    #
+    # A ceiling on our exposure, not a product feature. `free` matters while
+    # everything is free: it is the only thing between a stranger who registers
+    # and our invoice, so it is small — at about 1.8 ¢ a read, 50 ¢ is roughly
+    # thirty photos a month. Raise it for a household that is really testing;
+    # it is configuration for that reason.
     budget:
+      free-cents: 50
       plus-cents: 100
       family-cents: 200
 

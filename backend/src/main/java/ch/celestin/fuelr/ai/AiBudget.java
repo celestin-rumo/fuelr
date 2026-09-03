@@ -52,6 +52,7 @@ public class AiBudget {
     private final Entitlements entitlements;
 
     /** US cents per month, per tier. Cents because that is how it is billed. */
+    private final long freeCents;
     private final long plusCents;
     private final long familyCents;
 
@@ -62,12 +63,14 @@ public class AiBudget {
     public AiBudget(
             AiUsageRepository usage,
             Entitlements entitlements,
+            @Value("${app.ai.budget.free-cents:50}") long freeCents,
             @Value("${app.ai.budget.plus-cents:100}") long plusCents,
             @Value("${app.ai.budget.family-cents:200}") long familyCents,
             @Value("${app.ai.price.input-per-million:3.00}") double inputPerMillion,
             @Value("${app.ai.price.output-per-million:15.00}") double outputPerMillion) {
         this.usage = usage;
         this.entitlements = entitlements;
+        this.freeCents = freeCents;
         this.plusCents = plusCents;
         this.familyCents = familyCents;
         this.inputPerMillion = inputPerMillion;
@@ -82,11 +85,25 @@ public class AiBudget {
         return LocalDate.now().withDayOfMonth(1);
     }
 
+    /**
+     * What this account may spend this month.
+     *
+     * An account with no plan has one too, and that is deliberate: while
+     * everything is free, the ceiling is the only thing standing between a
+     * stranger who registers and our invoice. It is set small on purpose —
+     * enough to cook with, not enough to hurt — and it is configuration, so
+     * raising it for a household that is actually testing takes no deploy of
+     * new code.
+     *
+     * When the paid boundary is switched on this figure stops mattering:
+     * `Entitlements.has` refuses a free account the feature outright, and the
+     * budget is never consulted.
+     */
     public long budgetMicros(Long userId) {
         Tier tier = entitlements.tierOf(userId);
         long cents = tier.atLeast(Tier.FAMILY) ? familyCents
                 : tier.atLeast(Tier.PLUS) ? plusCents
-                : 0;
+                : freeCents;
         return cents * MICROS_PER_CENT;
     }
 

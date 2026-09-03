@@ -8,6 +8,7 @@ import { Banner } from "@ui/banner";
 import { Button } from "@ui/button";
 import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
+import { LaunchNote } from "./launch-note";
 import type { ImportSource, ImportSourceState } from "@app/lib/api";
 
 /**
@@ -20,7 +21,14 @@ import type { ImportSource, ImportSourceState } from "@app/lib/api";
  * refuse, and when it cannot offer one it says which of the two reasons it is:
  * a plan somebody can buy, or a provider only we can wire.
  */
-export function ImportForm({ sources }: { sources: ImportSource[] }) {
+export function ImportForm({
+  sources,
+  openPeriod = false,
+}: {
+  sources: ImportSource[];
+  /** True while nothing is charged. An open door is then worth naming. */
+  openPeriod?: boolean;
+}) {
   const t = useTranslations("import");
   const locale = useLocale();
   const router = useRouter();
@@ -160,6 +168,10 @@ export function ImportForm({ sources }: { sources: ImportSource[] }) {
             <span className="text-[12px] font-medium text-gray">
               {t("sources.filesHint")}
             </span>
+            {/* Reading an image is billed per read, and it is being given
+                away. Saying so is the difference between a gift and a
+                surprise on the day it stops being one. */}
+            {openPeriod && <LaunchNote className="mt-1" />}
           </div>
 
           {error && <Failure error={error} />}

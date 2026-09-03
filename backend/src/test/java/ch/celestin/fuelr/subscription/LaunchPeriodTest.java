@@ -43,6 +43,7 @@ class LaunchPeriodTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired Entitlements entitlements;
+    @Autowired ch.celestin.fuelr.ai.AiBudget budget;
 
     private String token;
     private long userId;
@@ -61,11 +62,10 @@ class LaunchPeriodTest {
     }
 
     @Test
-    void everyFeatureThatCostsNothingExtraIsOpenToAnAccountThatPaidNothing() {
+    void everyFeatureIsOpenToAnAccountThatPaidNothing() {
         // Still FREE — nothing was bought, and nothing pretends otherwise.
         assertThat(entitlements.tierOf(userId)).isEqualTo(Tier.FREE);
         for (Feature feature : Feature.values()) {
-            if (feature.metered()) continue;
             assertThat(entitlements.has(userId, feature))
                     .as("%s during the launch period", feature)
                     .isTrue();
@@ -73,12 +73,15 @@ class LaunchPeriodTest {
     }
 
     @Test
-    void aMeteredFeatureIsNotGivenAwayWithTheRest() {
-        // Reading a photo with a model is billed to us per call. "Everything
-        // is free" is a sentence about our own features, not about somebody
-        // else's invoice — so this one stays behind the plan.
+    void aMeteredFeatureIsCappedInMoneyRatherThanHeldBack() {
+        // Reading a photo is billed to us per call, and it is open anyway:
+        // holding it back protected no margin while nobody can subscribe, it
+        // only made the feature unreachable. What bounds it is a ceiling.
         assertThat(Feature.AI_IMPORT.metered()).isTrue();
-        assertThat(entitlements.has(userId, Feature.AI_IMPORT)).isFalse();
+        assertThat(entitlements.has(userId, Feature.AI_IMPORT)).isTrue();
+        assertThat(budget.budgetMicros(userId))
+                .as("an account with no plan can still spend something")
+                .isPositive();
     }
 
     @Test
@@ -103,15 +106,9 @@ class LaunchPeriodTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tier").value("FREE"))
                 .andExpect(jsonPath("$.openPeriod").value(true))
-                // Every feature that costs nothing extra is usable, so every
-                // one of them is listed: the screens ask what they may do,
-                // never what tier this is. The metered one is not among them.
-                .andExpect(jsonPath("$.features.length()").value(
-                        (int) java.util.Arrays.stream(Feature.values())
-                                .filter(feature -> !feature.metered()).count()))
-                .andExpect(jsonPath("$.features").value(
-                        org.hamcrest.Matchers.not(
-                                org.hamcrest.Matchers.hasItem(Feature.AI_IMPORT.name()))))
+                // Every feature is usable, so every feature is listed: the
+                // screens ask what they may do, never what tier this is.
+                .andExpect(jsonPath("$.features.length()").value(Feature.values().length))
                 // And nothing can be bought, which the screen says out loud.
                 .andExpect(jsonPath("$.canOrder").value(false));
     }

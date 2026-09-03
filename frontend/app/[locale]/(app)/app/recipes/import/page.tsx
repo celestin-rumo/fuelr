@@ -12,7 +12,7 @@ export default async function ImportRecipePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("import");
-  const sources = await importSources();
+  const available = await importSources();
 
   return (
     <Container className="py-12">
@@ -25,7 +25,10 @@ export default async function ImportRecipePage({
         </p>
 
         <div className="mt-8">
-          <ImportForm sources={sources} />
+          <ImportForm
+            sources={available.sources}
+            openPeriod={available.openPeriod}
+          />
         </div>
       </Card>
     </Container>

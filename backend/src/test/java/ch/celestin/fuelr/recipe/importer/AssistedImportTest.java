@@ -88,11 +88,11 @@ class AssistedImportTest {
         mvc.perform(get("/api/recipes/import/sources")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.source == 'URL')].state")
+                .andExpect(jsonPath("$.sources[?(@.source == 'URL')].state")
                         .value(org.hamcrest.Matchers.contains("OPEN")))
-                .andExpect(jsonPath("$[?(@.source == 'PHOTO')].state")
+                .andExpect(jsonPath("$.sources[?(@.source == 'PHOTO')].state")
                         .value(org.hamcrest.Matchers.contains("PLAN")))
-                .andExpect(jsonPath("$[?(@.source == 'PHOTO')].requiredTier")
+                .andExpect(jsonPath("$.sources[?(@.source == 'PHOTO')].requiredTier")
                         .value(org.hamcrest.Matchers.contains("PLUS")));
     }
 
@@ -104,7 +104,7 @@ class AssistedImportTest {
         // we can answer the second.
         mvc.perform(get("/api/recipes/import/sources")
                         .header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$[?(@.source == 'SCREENSHOT')].state")
+                .andExpect(jsonPath("$.sources[?(@.source == 'SCREENSHOT')].state")
                         .value(org.hamcrest.Matchers.contains("SOON")));
     }
 

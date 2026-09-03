@@ -71,11 +71,20 @@ public class Entitlements {
     }
 
     public boolean has(Long userId, Feature feature) {
-        // The launch period opens what costs nothing more to give away. A
-        // metered feature is billed to us per call, so it stays behind the
-        // plan whatever the flag says — otherwise "everything is free" is a
-        // sentence about somebody else's invoice.
-        if (!enforced && !feature.metered()) {
+        // The launch period opens everything, metered features included.
+        //
+        // It did hold those back for a while, on the grounds that giving away
+        // something billed per call is not a gesture but a bill. That was the
+        // wrong instrument: nobody can subscribe yet, so the exception did not
+        // protect a margin — it made the feature unreachable for everybody,
+        // including the people the launch is for.
+        //
+        // What a metered feature costs is capped instead, per account and per
+        // month, by AiBudget. A ceiling in money is the right shape for that
+        // risk: it bounds the loss from a stranger without being a paywall in
+        // front of a cook. `Feature.metered()` still says which features carry
+        // that cost — it is now read by the budget rather than by this check.
+        if (!enforced) {
             return true;
         }
         return tierOf(userId).atLeast(feature.required());

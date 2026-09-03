@@ -48,9 +48,30 @@ describe("ImportForm", () => {
 
     await user.click(screen.getByTestId("source-PHOTO"));
 
-    // Named, and priced: the reason somebody can act on says what to do.
+    // Named, and priced: the reason somebody can act on says what to do. This
+    // is the shape once the paid boundary is switched on; while nothing is
+    // charged the same source comes back OPEN — see the case below.
     expect(screen.getByTestId("import-closed-PLAN")).toHaveTextContent("plan PLUS");
     expect(screen.queryByLabelText("Photos de la recette")).not.toBeInTheDocument();
+  });
+
+  it("names the gift when an assisted source is open and nothing is charged", async () => {
+    const user = userEvent.setup();
+    renderWithIntl(
+      <ImportForm
+        openPeriod
+        sources={sources({
+          PHOTO: { source: "PHOTO", state: "OPEN", requiredTier: null },
+        })}
+      />,
+    );
+
+    await user.click(screen.getByTestId("source-PHOTO"));
+
+    expect(screen.getByLabelText("Photos de la recette")).toBeInTheDocument();
+    expect(screen.getByTestId("launch-note")).toHaveTextContent(
+      "Offert pendant le lancement",
+    );
   });
 
   it("tells a subscriber that nothing is wired, which is on us and not on them", async () => {

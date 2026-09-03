@@ -46,19 +46,24 @@ test("an unreachable page says so and is not a dead end", async ({ page }) => {
   await expect(page).toHaveURL(/\/fr\/app\/recettes\/\d+$/);
 });
 
-test("the three ways in are offered, and the paid ones say so", async ({ page }) => {
+test("the three ways in are offered, and the assisted one says it is a gift", async ({
+  page,
+}) => {
   await page.goto("/fr/app/recettes/importer");
 
   await expect(page.getByTestId("import-sources")).toBeVisible();
   await expect(page.getByTestId("source-URL")).toHaveAttribute("aria-pressed", "true");
 
-  // Reading a photo costs money per reading, so it is the one feature the
-  // launch period does not open — and the screen says that before offering it.
+  // Reading a photo is billed to us per read, and it is open anyway while
+  // nothing is charged. What bounds it is a monthly ceiling, not a plan — so
+  // the screen offers it, and says out loud that it will not always be free.
   await page.getByTestId("source-PHOTO").click();
-  await expect(page.getByTestId("import-closed-PLAN")).toContainText("plan PLUS");
-  await expect(page.getByLabel("Photos de la recette")).toHaveCount(0);
+  await expect(page.getByLabel("Photos de la recette")).toBeVisible();
+  await expect(page.getByTestId("launch-note")).toContainText(
+    "Offert pendant le lancement",
+  );
 
-  // The link is still one tap away: a closed door is never a dead end.
+  // The link is still one tap away.
   await page.getByTestId("source-URL").click();
   await expect(page.getByLabel("Lien de la recette")).toBeVisible();
 });

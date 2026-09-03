@@ -150,7 +150,7 @@ public class RecipeController {
      * answer the other.
      */
     @GetMapping("/import/sources")
-    public List<RecipeImportSources.SourceView> importSources(
+    public RecipeImportSources.SourcesView importSources(
             @AuthenticationPrincipal Jwt principal) {
         return importSources.forUser(userId(principal));
     }

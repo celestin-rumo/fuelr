@@ -34,6 +34,15 @@ public class RecipeImportSources {
     public record SourceView(String source, String state, String requiredTier) {
     }
 
+    /**
+     * The sources, and whether nothing is being charged for them yet.
+     *
+     * The screen needs both in one answer: which doors are open, and whether
+     * to say out loud that an open one will not always be free.
+     */
+    public record SourcesView(boolean openPeriod, List<SourceView> sources) {
+    }
+
     private final Entitlements entitlements;
     private final List<RecipeIntelligence> readers;
 
@@ -50,7 +59,7 @@ public class RecipeImportSources {
                 .orElse(readers.get(readers.size() - 1));
     }
 
-    public List<SourceView> forUser(Long userId) {
+    public SourcesView forUser(Long userId) {
         // A link needs no model and no plan: it is the free import, and it
         // stays the fallback the other two point at when they cannot help.
         List<SourceView> sources = new java.util.ArrayList<>();
@@ -63,7 +72,7 @@ public class RecipeImportSources {
                     aided.name(),
                     aided == Availability.PLAN ? Feature.AI_IMPORT.required().name() : null));
         }
-        return sources;
+        return new SourcesView(entitlements.openPeriod(), sources);
     }
 
     /**
