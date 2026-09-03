@@ -20,6 +20,33 @@ final class RecipeFields {
     private RecipeFields() {
     }
 
+    /**
+     * A URL as the page wrote it, made absolute against the page itself.
+     *
+     * Sites publish `/img/plat.jpg` as often as the full address, and a
+     * relative path is meaningless the moment it leaves the page it was on.
+     * Anything that will not parse comes back null: an unusable URL is a
+     * recipe without a photo, not a failed import.
+     */
+    static String absolute(String url, String baseUri) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+        String trimmed = url.trim();
+        try {
+            java.net.URI uri = java.net.URI.create(trimmed);
+            if (uri.isAbsolute()) {
+                return trimmed;
+            }
+            if (baseUri == null || baseUri.isBlank()) {
+                return null;
+            }
+            return java.net.URI.create(baseUri).resolve(uri).toString();
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     static void readServings(ParsedRecipe recipe, String yield) {
         if (yield == null || yield.isBlank()) {
             recipe.flag("servings");

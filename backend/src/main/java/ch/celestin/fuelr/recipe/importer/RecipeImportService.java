@@ -24,12 +24,15 @@ public class RecipeImportService {
 
     private final SafePageFetcher fetcher;
     private final RecipePageReader reader;
+    private final RecipePhotoFetcher photos;
     private final RecipeRepository recipes;
 
     public RecipeImportService(
-            SafePageFetcher fetcher, RecipePageReader reader, RecipeRepository recipes) {
+            SafePageFetcher fetcher, RecipePageReader reader,
+            RecipePhotoFetcher photos, RecipeRepository recipes) {
         this.fetcher = fetcher;
         this.reader = reader;
+        this.photos = photos;
         this.recipes = recipes;
     }
 
@@ -71,6 +74,13 @@ public class RecipeImportService {
         for (String step : parsed.getSteps()) {
             recipe.getSteps().add(new RecipeStep(step));
         }
+
+        // The photo is a bonus, so it never decides whether the import worked:
+        // a page with none, an image that is too heavy, or one that turns out
+        // to be something other than an image all leave the draft standing.
+        // Where it came from stays visible either way — the recipe carries its
+        // sourceUrl — and the cook can replace or remove it like any other.
+        photos.fetch(parsed.getImageUrl()).ifPresent(recipe::setPhotoPath);
 
         // A source that gives ingredients but withholds its method — Cookidoo
         // does exactly this, the steps being what the subscription pays for.

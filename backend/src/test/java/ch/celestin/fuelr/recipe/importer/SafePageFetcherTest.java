@@ -39,6 +39,18 @@ class SafePageFetcherTest {
     }
 
     @Test
+    void guardsTheImageTheSameWayAsThePage() {
+        // The photo's address comes off the page, so it is exactly as
+        // untrusted as the page — one guard, both doors.
+        assertThatThrownBy(() -> fetcher.fetchBytes("http://169.254.169.254/photo.jpg", 1024))
+                .isInstanceOf(SafePageFetcher.UnreadableSourceException.class)
+                .hasMessage("private_address");
+        assertThatThrownBy(() -> fetcher.fetchBytes("file:///etc/passwd", 1024))
+                .isInstanceOf(SafePageFetcher.UnreadableSourceException.class)
+                .hasMessage("unsupported_scheme");
+    }
+
+    @Test
     void refusesSchemesThatAreNotWeb() {
         refused("file:///etc/passwd", "unsupported_scheme");
         refused("ftp://example.com/x", "unsupported_scheme");

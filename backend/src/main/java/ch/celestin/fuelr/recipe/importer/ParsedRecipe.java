@@ -16,6 +16,7 @@ public class ParsedRecipe {
 
     private String title;
     private String description;
+    private String imageUrl;
     private Integer servings;
     private Integer totalMinutes;
     private final List<ParsedIngredient> ingredients = new ArrayList<>();
@@ -39,6 +40,21 @@ public class ParsedRecipe {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * The photo the page announced, as an absolute URL — never the bytes.
+     *
+     * A URL a stranger chose is the same server-side request forgery as the
+     * page itself, so whether it is fetched at all, and what happens to what
+     * comes back, is decided well away from a parser.
+     */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getServings() {

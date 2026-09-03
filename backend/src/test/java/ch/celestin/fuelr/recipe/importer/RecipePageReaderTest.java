@@ -44,6 +44,29 @@ class RecipePageReaderTest {
     }
 
     @Test
+    void readsThePhotoWhateverShapeTheSiteGaveIt() throws Exception {
+        // A bare string, which is the common case.
+        assertThat(read("fooby.html").recipe().getImageUrl())
+                .isEqualTo("https://recipecontent.fooby.ch/16210_3-2_1200-800.jpg");
+        // A reference: Marmiton's `image` is an `@id`, and the ImageObject it
+        // names sits beside it in the same @graph.
+        assertThat(read("marmiton.html").recipe().getImageUrl())
+                .startsWith("https://assets.afcdn.com/recipe/");
+        // Microdata puts it in a `content` attribute.
+        assertThat(read("swissmilk.html").recipe().getImageUrl())
+                .contains("swissmilk");
+        // And an array of ImageObjects yields the first of them, made absolute
+        // against the page it was published on.
+        assertThat(read("photo-array.html").recipe().getImageUrl())
+                .isEqualTo("https://example.test/photo.jpg");
+    }
+
+    @Test
+    void aPageWithNoPhotoSaysSoRatherThanGuessing() throws Exception {
+        assertThat(read("photo-none.html").recipe().getImageUrl()).isNull();
+    }
+
+    @Test
     void readsBettyBossi() throws Exception {
         var recipe = read("bettybossi.html").recipe();
 
