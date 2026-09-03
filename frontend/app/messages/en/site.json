@@ -359,7 +359,7 @@
   "footer": {
     "tagline": "Planifier, acheter, cuisiner, mesurer. Une boucle, pas dix applis.",
     "copyright": "© 2026 Fuelr — Lausanne",
-    "legal": "Conditions · Confidentialité · Cookies",
+    "legal": "Privacy",
     "columns": [
       {
         "title": "Produit",
@@ -423,6 +423,40 @@
             "href": "/contact"
           }
         ]
+      }
+    ]
+  },
+  "privacy": {
+    "label": "Data",
+    "title": "Where your data goes",
+    "text": "Fuelr is a cooking app, not an advertising business. This page says what is kept, what leaves the app, and where it goes.",
+    "updated": "Updated 3 September 2026",
+    "sections": [
+      {
+        "title": "What Fuelr keeps",
+        "text": "Your account — email address, first name, a one-way encrypted password — and what you write in the app: recipes and photos, the week's plan, the shopping list, the meal diary, the household and its invitations. Nothing else is collected: no advertising tracker, no audience measurement, no profile sold on."
+      },
+      {
+        "tone": "mint",
+        "title": "Artificial intelligence is processed abroad",
+        "text": "The AI features — reading a badly marked-up recipe page, estimating a photographed plate, transcribing a page of a book — rely on Anthropic, in the United States. What you submit to those features, the photo or the page's content, therefore leaves Switzerland for the length of the analysis. They are optional and part of a paid plan: until you use them, nothing is sent to Anthropic."
+      },
+      {
+        "title": "The two other ways out",
+        "items": [
+          "Emails — address confirmation, password reset — are sent through a delivery service based outside Switzerland, which sees your address and the content of the message.",
+          "When you import a recipe from a link, it is Fuelr that fetches the page and its photo. The site visited sees a request from our servers, never from your browser."
+        ]
+      },
+      {
+        "title": "What stays on your device",
+        "text": "Cooking mode and the offline shopping list keep a copy on the machine you are using, so that a kitchen with no signal is not a dead end; that copy is cleared when you sign out. One cookie is set, the one that keeps you signed in, and there is none for measurement or advertising."
+      },
+      {
+        "title": "Your recipes stay yours",
+        "text": "Exporting all of your recipes is available from the library, at any time and with no conditions — including after a cancellation, which deletes nothing. To have your account and its contents erased, write to us: it is done by hand today, and it is done.",
+        "link": "/contact",
+        "linkLabel": "Write to us"
       }
     ]
   }

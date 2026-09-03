@@ -359,7 +359,7 @@
   "footer": {
     "tagline": "Planifier, acheter, cuisiner, mesurer. Une boucle, pas dix applis.",
     "copyright": "© 2026 Fuelr — Lausanne",
-    "legal": "Conditions · Confidentialité · Cookies",
+    "legal": "Datenschutz",
     "columns": [
       {
         "title": "Produit",
@@ -423,6 +423,40 @@
             "href": "/contact"
           }
         ]
+      }
+    ]
+  },
+  "privacy": {
+    "label": "Daten",
+    "title": "Wohin deine Daten gehen",
+    "text": "Fuelr ist eine Koch-App, kein Werbeunternehmen. Diese Seite sagt, was gespeichert wird, was die App verlässt und wohin es geht.",
+    "updated": "Aktualisiert am 3. September 2026",
+    "sections": [
+      {
+        "title": "Was Fuelr speichert",
+        "text": "Dein Konto — E-Mail-Adresse, Vorname, ein unumkehrbar verschlüsseltes Passwort — und was du in der App schreibst: Rezepte und Fotos, den Wochenplan, die Einkaufsliste, das Mahlzeiten-Tagebuch, den Haushalt und seine Einladungen. Mehr wird nicht erhoben: kein Werbe-Tracker, keine Reichweitenmessung, kein weiterverkauftes Profil."
+      },
+      {
+        "tone": "mint",
+        "title": "Künstliche Intelligenz wird im Ausland verarbeitet",
+        "text": "Die KI-Funktionen — eine schlecht ausgezeichnete Rezeptseite lesen, einen fotografierten Teller schätzen, eine Buchseite abtippen — laufen über Anthropic in den USA. Was du diesen Funktionen übergibst, das Foto oder der Inhalt der Seite, verlässt also für die Dauer der Analyse die Schweiz. Sie sind freiwillig und Teil eines kostenpflichtigen Plans: Solange du sie nicht nutzt, wird nichts an Anthropic gesendet."
+      },
+      {
+        "title": "Die zwei anderen Ausgänge",
+        "items": [
+          "E-Mails — Adressbestätigung, Passwort zurücksetzen — gehen über einen Versanddienst ausserhalb der Schweiz, der deine Adresse und den Inhalt der Nachricht sieht.",
+          "Wenn du ein Rezept über einen Link importierst, holt Fuelr die Seite und ihr Foto. Die besuchte Website sieht eine Anfrage von unseren Servern, nie von deinem Browser."
+        ]
+      },
+      {
+        "title": "Was auf deinem Gerät bleibt",
+        "text": "Der Kochmodus und die Offline-Einkaufsliste behalten eine Kopie auf dem Gerät, das du benutzt, damit eine Küche ohne Empfang keine Sackgasse ist; diese Kopie wird beim Abmelden gelöscht. Es wird ein einziges Cookie gesetzt, das dich angemeldet hält, und keines für Messung oder Werbung."
+      },
+      {
+        "title": "Deine Rezepte bleiben deine",
+        "text": "Der Export all deiner Rezepte ist jederzeit und ohne Bedingungen aus der Bibliothek möglich — auch nach einer Kündigung, die nichts löscht. Um dein Konto und seinen Inhalt löschen zu lassen, schreib uns: Das geschieht heute von Hand, und es geschieht.",
+        "link": "/contact",
+        "linkLabel": "Schreib uns"
       }
     ]
   }
