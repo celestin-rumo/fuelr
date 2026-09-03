@@ -58,7 +58,8 @@
       "title": "Delete “{title}”?",
       "confirm": "Delete",
       "cancel": "Cancel",
-      "body": "The recipe leaves your library. Meals already cooked and logged are untouched."
+      "body": "The recipe leaves your library. Meals already cooked and logged are untouched.",
+      "close": "Close"
     },
     "importRecipe": "Import",
     "nav": {
@@ -133,7 +134,9 @@
       "title": "The plan cannot be reached",
       "body": "This week could not be loaded. Reload the page — nothing already planned is lost."
     },
-    "sharedWith": "Household · {count} accounts"
+    "sharedWith": "Household · {count} accounts",
+    "addToDay": "+ Add a meal",
+    "addToDayLabel": "Add a meal — {day}"
   },
   "household": {
     "label": "Household",
@@ -162,7 +165,14 @@
       "you": "you",
       "owner": "household owner",
       "remove": "Remove {name} from the household",
-      "removeShort": "Remove"
+      "removeShort": "Remove",
+      "confirm": {
+        "title": "Remove {name} from the household?",
+        "body": "They keep their account and their recipes. They lose the shared plan and the Family subscription, and it takes a new invitation to bring them back.",
+        "confirm": "Remove",
+        "cancel": "Cancel",
+        "close": "Close"
+      }
     },
     "invite": {
       "label": "Invite by email",
@@ -235,7 +245,10 @@
     "unavailable": {
       "title": "The list cannot be reached",
       "body": "The list could not be loaded. Reload the page — nothing is lost."
-    }
+    },
+    "removed": "“{name}” removed from the list.",
+    "undo": "Undo",
+    "undoDismiss": "Close"
   },
   "journal": {
     "label": "Nutrition & tracking",
@@ -306,7 +319,10 @@
       "title": "Meals written down",
       "empty": "Nothing written down this week.",
       "figures": "{kcal} kcal · {protein} g of protein",
-      "remove": "Remove {title} from the diary"
+      "remove": "Remove {title} from the diary",
+      "removed": "“{title}” removed from the diary.",
+      "undo": "Undo",
+      "undoDismiss": "Close"
     },
     "history": {
       "title": "History",
@@ -391,7 +407,7 @@
       "add": "Add",
       "hint": "Press Enter to chain ingredients.",
       "empty": "No ingredients yet.",
-      "remove": "Remove {name}"
+      "remove": "Delete {name}"
     },
     "steps": {
       "hint": "One action per step · durations become timers.",
@@ -451,7 +467,7 @@
       "field": "Choose a photo",
       "add": "Add a photo",
       "replace": "Replace",
-      "remove": "Remove",
+      "remove": "Delete the photo",
       "constraints": "JPEG, PNG or WebP · {megabytes} MB maximum. The image is shrunk on your device before upload.",
       "errors": {
         "unsupported_format": "Format not accepted. Choose a JPEG, PNG or WebP.",
@@ -482,7 +498,7 @@
     },
     "detail": {
       "title": "Nutrition detail",
-      "open": "Show the detail (fibre, minerals, vitamins)",
+      "open": "Show the detail",
       "locked": "Macros and micronutrients in detail are part of the Plus plan. Energy and the three macros stay free.",
       "lockedLink": "See my plan",
       "estimated": "At least one ingredient was not recognised: it counts towards none of the vitamins above.",
@@ -515,7 +531,8 @@
         "vitamin_d": "Vitamin D",
         "vitamin_e": "Vitamin E",
         "zinc": "Zinc"
-      }
+      },
+      "openHint": "Fibre, minerals and vitamins per serving."
     },
     "seasons": {
       "now": "In season",
@@ -523,6 +540,9 @@
       "SUMMER": "Summer",
       "AUTUMN": "Autumn",
       "WINTER": "Winter"
+    },
+    "filters": {
+      "toggle": "Filter"
     }
   },
   "cook": {
@@ -660,7 +680,7 @@
     "noToken": "This link is incomplete. Open it from the email you received."
   },
   "verifyBanner": {
-    "message": "Confirm your address {email} so Fuelr can reach you.",
+    "message": "Confirm your address so Fuelr can reach you.",
     "resend": "Send again",
     "sent": "Email sent. Check your inbox.",
     "dismiss": "Later"

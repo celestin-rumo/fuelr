@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@ui/cn";
+import { kcal } from "@app/lib/nutrition-format";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 
 /**
@@ -19,7 +20,7 @@ export function NutritionPanel({ nutrition }: { nutrition: Nutrition | null }) {
   }
 
   const figures = [
-    { key: "kcal", value: nutrition.perServing.kcal, unit: "" },
+    { key: "kcal", value: kcal(nutrition.perServing.kcal), unit: "" },
     { key: "protein", value: nutrition.perServing.proteinG, unit: "g" },
     { key: "carbs", value: nutrition.perServing.carbsG, unit: "g" },
     { key: "fat", value: nutrition.perServing.fatG, unit: "g" },

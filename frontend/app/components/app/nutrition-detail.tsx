@@ -64,10 +64,13 @@ export function NutritionDetailPanel({
 
   if (!detail) {
     return (
-      <div className="border-t border-line pt-4">
+      <div className="flex flex-col items-start gap-1 border-t border-line pt-4">
         <Button variant="text" size="sm" loading={pending} onClick={open}>
           {t("open")}
         </Button>
+        {/* What the detail contains belongs beside the button, not inside it:
+            a label long enough to explain itself is a label too long to fit. */}
+        <span className="text-[12px] font-medium text-gray">{t("openHint")}</span>
       </div>
     );
   }

@@ -63,7 +63,7 @@ export function RecipeCard({
             aria-pressed={favorite}
             onClick={onToggleFavorite}
             className={cn(
-              "absolute top-3 right-3 grid size-9 place-items-center rounded-full text-sm",
+              "absolute top-3 right-3 grid size-11 place-items-center rounded-full text-sm",
               "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
               favorite

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { Chip } from "@ui/chip";
+import { cn } from "@ui/cn";
 import { Input } from "@ui/input";
 import { SEASONS, seasonOf } from "@app/lib/seasons";
 import type { Season } from "@app/lib/seasons";
@@ -81,6 +82,13 @@ export function RecipeFilters({
   const onlyCurrent =
     selectedSeasons.length === 1 && selectedSeasons[0] === current;
 
+  // Eleven rows of chips stood between somebody opening the app and seeing a
+  // single recipe. They fold on a phone and are open at every other width;
+  // the count on the button is what keeps a hidden filter from being a
+  // forgotten one.
+  const active = selectedTags.length + selectedSeasons.length;
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="max-w-md">
@@ -94,6 +102,23 @@ export function RecipeFilters({
         />
       </div>
 
+      <div className="sm:hidden">
+        <Chip
+          active={active > 0}
+          count={active > 0 ? active : undefined}
+          aria-expanded={open}
+          aria-controls="recipe-filters"
+          data-testid="toggle-filters"
+          onClick={() => setOpen((current) => !current)}
+        >
+          {t("filters.toggle")}
+        </Chip>
+      </div>
+
+      <div
+        id="recipe-filters"
+        className={cn("flex-col gap-4 sm:flex", open ? "flex" : "hidden")}
+      >
       <div className="flex flex-wrap gap-2">
         {TAGS.map((tag) => (
           <Chip
@@ -135,6 +160,7 @@ export function RecipeFilters({
             {tApp("search.clear")}
           </Chip>
         )}
+      </div>
       </div>
     </div>
   );

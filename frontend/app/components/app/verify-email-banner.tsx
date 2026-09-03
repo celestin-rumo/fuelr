@@ -34,9 +34,15 @@ export function VerifyEmailBanner({ email }: { email: string }) {
       className="border-b border-line bg-bg-raised-2"
     >
       <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center sm:gap-4 md:px-10">
-        <p className="flex-1 text-[13px] leading-[1.5] font-medium text-text">
-          {state === "sent" ? t("sent") : t("message", { email })}
-        </p>
+        {/* The address is its own line and breaks anywhere: inline in the
+            sentence it is one unbreakable 30-character word, which is what
+            pushed this banner past a 360px screen. */}
+        <div className="flex-1 text-[13px] leading-[1.5] font-medium">
+          <p className="text-text">{state === "sent" ? t("sent") : t("message")}</p>
+          {state !== "sent" && (
+            <p className="wrap-anywhere text-text-dim">{email}</p>
+          )}
+        </div>
 
         <div className="flex shrink-0 items-center gap-2">
           {state !== "sent" && (

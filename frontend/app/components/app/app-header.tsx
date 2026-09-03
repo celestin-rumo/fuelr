@@ -20,7 +20,10 @@ export function AppHeader({
   return (
     <header className="border-b border-line bg-bg-raised">
       <Container className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2 sm:h-16 sm:flex-nowrap sm:py-0">
-        <Link href="/app" className="flex shrink-0 items-center gap-2.5">
+        <Link
+          href="/app"
+          className="flex min-h-11 shrink-0 items-center gap-2.5 sm:min-h-0"
+        >
           <span className="grid size-8 place-items-center rounded-full bg-accent">
             <svg viewBox="0 0 24 24" fill="var(--on-accent)" className="size-4">
               <path d="M13 2 3 14h7l-1 8 11-13h-7l1-7z" />
@@ -42,31 +45,31 @@ export function AppHeader({
         >
           <Link
             href="/app"
-            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
           >
             {t("nav.recipes")}
           </Link>
           <Link
             href="/app/plan"
-            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
           >
             {t("nav.plan")}
           </Link>
           <Link
             href="/app/shopping"
-            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
           >
             {t("nav.shopping")}
           </Link>
           <Link
             href="/app/journal"
-            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
           >
             {t("nav.journal")}
           </Link>
           <Link
             href="/app/household"
-            className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
           >
             {t("nav.household")}
           </Link>

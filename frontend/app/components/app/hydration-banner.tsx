@@ -43,7 +43,9 @@ export function HydrationBanner() {
         // href is the current URL, so this reloads with no JavaScript at all.
         <a
           href=""
-          className="text-[13px] font-semibold text-accent-ink underline"
+          // The one control on a page where nothing else works, so it gets a
+          // full-sized target rather than a line of underlined text.
+          className="inline-flex min-h-11 items-center text-[13px] font-semibold text-accent-ink underline"
         >
           {t("reload")}
         </a>

@@ -314,7 +314,9 @@ function CookingSurface({
           ✕
         </Link>
 
-        <h1 className="min-w-0 flex-1 truncate font-display text-[16px] leading-[1.2] font-extrabold text-text sm:text-[18px]">
+        {/* Two lines rather than one ellipsis: at 360px "Gratin de courge
+            butternut au…" is not a title anybody recognises. */}
+        <h1 className="line-clamp-2 min-w-0 flex-1 font-display text-[16px] leading-[1.2] font-extrabold text-text sm:text-[18px]">
           {title}
         </h1>
 
@@ -560,20 +562,31 @@ function CookingSurface({
         {announcement}
       </p>
 
-      {/* Tight on a narrow phone: three 56px controls and the word
-          "Ingrédients" do not leave 24px of padding to spare at 375px. */}
-      <footer className="flex shrink-0 items-center gap-2 border-t border-line px-2 py-3 sm:gap-3 sm:px-4">
+      {/*
+        Three 56px controls and the word "Ingrédients" need 380px on one line,
+        and a phone has 360. They stack instead: the step navigation keeps its
+        own row, full width, and the ingredients sheet sits above it. Nothing
+        shrinks and nothing is truncated — the primary action of the screen was
+        being cut off at the right edge.
+      */}
+      <footer className="flex shrink-0 flex-col gap-2 border-t border-line px-3 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-4">
         <div className="lg:hidden">
           <button
             ref={opener}
             type="button"
             onClick={() => setSheet(true)}
-            className={buttonClasses({ variant: "secondary", size: "xl" })}
+            className={buttonClasses({
+              variant: "secondary",
+              size: "xl",
+              fullWidth: true,
+            })}
           >
             {t("ingredients.open")}
           </button>
         </div>
 
+        {/* Dissolves into the row above from `sm`, where it all fits again. */}
+        <div className="flex items-center gap-2 sm:contents">
         <IconButton
           aria-label={t("previous")}
           variant="secondary"
@@ -594,6 +607,7 @@ function CookingSurface({
             {t("next")} →
           </Button>
         )}
+        </div>
       </footer>
     </div>
   );

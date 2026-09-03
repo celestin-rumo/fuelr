@@ -58,7 +58,8 @@
       "title": "„{title}“ löschen?",
       "confirm": "Löschen",
       "cancel": "Abbrechen",
-      "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt."
+      "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt.",
+      "close": "Schliessen"
     },
     "importRecipe": "Importieren",
     "nav": {
@@ -133,7 +134,9 @@
       "title": "Der Plan ist nicht erreichbar",
       "body": "Diese Woche konnte nicht geladen werden. Lade die Seite neu — nichts Geplantes geht verloren."
     },
-    "sharedWith": "Haushalt · {count} Konten"
+    "sharedWith": "Haushalt · {count} Konten",
+    "addToDay": "+ Mahlzeit hinzufügen",
+    "addToDayLabel": "Mahlzeit hinzufügen — {day}"
   },
   "household": {
     "label": "Haushalt",
@@ -162,7 +165,14 @@
       "you": "du",
       "owner": "Haushaltsinhaber",
       "remove": "{name} aus dem Haushalt entfernen",
-      "removeShort": "Entfernen"
+      "removeShort": "Entfernen",
+      "confirm": {
+        "title": "{name} aus dem Haushalt entfernen?",
+        "body": "Konto und Rezepte bleiben bestehen. Der gemeinsame Wochenplan und das Familien-Abo gehen verloren, und eine neue Einladung ist nötig, um die Person zurückzuholen.",
+        "confirm": "Entfernen",
+        "cancel": "Abbrechen",
+        "close": "Schliessen"
+      }
     },
     "invite": {
       "label": "Per E-Mail einladen",
@@ -235,7 +245,10 @@
     "unavailable": {
       "title": "Die Liste ist nicht erreichbar",
       "body": "Die Liste konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
-    }
+    },
+    "removed": "„{name}“ von der Liste entfernt.",
+    "undo": "Rückgängig",
+    "undoDismiss": "Schliessen"
   },
   "journal": {
     "label": "Ernährung & Verlauf",
@@ -306,7 +319,10 @@
       "title": "Notierte Mahlzeiten",
       "empty": "Diese Woche ist nichts notiert.",
       "figures": "{kcal} kcal · {protein} g Protein",
-      "remove": "{title} aus dem Tagebuch entfernen"
+      "remove": "{title} aus dem Tagebuch entfernen",
+      "removed": "„{title}“ aus dem Tagebuch entfernt.",
+      "undo": "Rückgängig",
+      "undoDismiss": "Schliessen"
     },
     "history": {
       "title": "Verlauf",
@@ -391,7 +407,7 @@
       "add": "Hinzufügen",
       "hint": "Enter drücken, um Zutaten aneinanderzureihen.",
       "empty": "Noch keine Zutaten.",
-      "remove": "{name} entfernen"
+      "remove": "{name} löschen"
     },
     "steps": {
       "hint": "Ein Handgriff pro Schritt · Zeitangaben werden zu Timern.",
@@ -451,7 +467,7 @@
       "field": "Foto auswählen",
       "add": "Foto hinzufügen",
       "replace": "Ersetzen",
-      "remove": "Entfernen",
+      "remove": "Foto löschen",
       "constraints": "JPEG, PNG oder WebP · maximal {megabytes} MB. Das Bild wird vor dem Hochladen auf deinem Gerät verkleinert.",
       "errors": {
         "unsupported_format": "Format nicht akzeptiert. Wähle JPEG, PNG oder WebP.",
@@ -482,7 +498,7 @@
     },
     "detail": {
       "title": "Nährwertdetails",
-      "open": "Details anzeigen (Ballaststoffe, Mineralstoffe, Vitamine)",
+      "open": "Details anzeigen",
       "locked": "Makros und Mikronährstoffe im Detail gehören zum Plus-Plan. Energie und die drei Makros bleiben gratis.",
       "lockedLink": "Meinen Plan ansehen",
       "estimated": "Mindestens eine Zutat wurde nicht erkannt: Sie zählt zu keinem der Vitamine oben.",
@@ -515,7 +531,8 @@
         "vitamin_d": "Vitamin D",
         "vitamin_e": "Vitamin E",
         "zinc": "Zink"
-      }
+      },
+      "openHint": "Ballaststoffe, Mineralstoffe und Vitamine pro Portion."
     },
     "seasons": {
       "now": "Saisonal",
@@ -523,6 +540,9 @@
       "SUMMER": "Sommer",
       "AUTUMN": "Herbst",
       "WINTER": "Winter"
+    },
+    "filters": {
+      "toggle": "Filtern"
     }
   },
   "cook": {
@@ -660,7 +680,7 @@
     "noToken": "Dieser Link ist unvollständig. Öffne ihn aus der erhaltenen E-Mail."
   },
   "verifyBanner": {
-    "message": "Bestätige deine Adresse {email}, damit Fuelr dich erreichen kann.",
+    "message": "Bestätige deine Adresse, damit Fuelr dich erreichen kann.",
     "resend": "Erneut senden",
     "sent": "E-Mail gesendet. Schau in deinen Posteingang.",
     "dismiss": "Später"
