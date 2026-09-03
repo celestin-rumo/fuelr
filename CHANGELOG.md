@@ -6,6 +6,203 @@ this file collects them newest first.
 
 ---
 
+# v2.0.0 — 2026-09-03
+
+The release where Fuelr stops being a recipe box. A week can be planned, turned
+into a shopping list, cooked with no signal, written down and measured — and a
+recipe can now arrive from a link, a photo or a screenshot.
+
+It is a major version for one reason beyond the size: **every paid feature is
+open to everybody, and one flag starts charging.** Nothing about the boundary
+was removed, and nothing that gets turned on later takes away what was written
+in the meantime.
+
+## The week
+
+- **A week of meals.** Seven days, three slots, drag on a desktop and tap on a
+  phone. A planned meal points at the recipe rather than copying it — a recipe
+  corrected on Tuesday is the one cooked on Thursday — but its `servings`
+  belong to that evening and never move again, so changing the household does
+  not silently rewrite what a dinner for eight needs bought.
+- **A day is a calendar day, not an instant.** Every date is computed in UTC
+  and formatted in UTC. Local arithmetic gets this wrong twice a year: 2026-03-29
+  is 23 hours long in Zurich, so "add one day" lands on the 29th again and
+  Sunday's dinner becomes Saturday's.
+- **The plan belongs to a household**, not to a person. Everyone owns exactly
+  one, and `planned_meals.household_id` is the whole of sharing — everybody
+  looking at the same household sees the same rows, with no query anywhere
+  having to remember to widen itself.
+
+## The shopping list
+
+- **Generated from the plan, and stored rather than derived.** A ticked box is
+  a fact about somebody standing in a shop, so it survives the plan changing
+  under it: reading the list regenerates it, and the merge leaves every tick and
+  every hand-added line exactly where they were. That is why there is no
+  "regenerate" button — a list that only followed the plan when somebody
+  remembered to press one would be wrong most of the time.
+- **A cupboard.** What is already at home is deducted from what has to be
+  bought, and cooking a planned meal takes it off the shelf.
+- **It works with no signal.** Every tick is attempted against the server and
+  whatever fails is kept on the device until a later attempt succeeds. Each tick
+  carries the instant it happened, not the instant it syncs, so a phone coming
+  back from a basement cannot undo a tick made after it.
+
+## Cooking mode
+
+One step per screen, 56px controls for a hand covered in flour, timers read out
+of the step's own text, and a screen that stays awake. It reads the recipe and
+never writes to it, which is what lets it scale the quantities for six people
+without touching a recipe written for four — and what lets it work with no
+network at all.
+
+## Nutrition, and a diary
+
+- **A real food table**: 1 216 foods from the Swiss Food Composition Database,
+  with names in three languages, macros and twenty-odd micronutrients. It is
+  imported from the published workbooks and re-imported when their checksum
+  changes, so following an upstream release is a regenerate and a boot, never a
+  hand-edited migration.
+- **More data made matching harder, not easier**, and that was the real work.
+  The matcher normalises, cuts a written name into words and tries every run of
+  consecutive words longest-first against three indexes. It is held to 90% over
+  288 real ingredient lines and sits at 91.3%, printed on every run.
+- **A diary that copies its values.** A logged meal stores the figures as they
+  were at the moment of logging, so correcting a recipe in June cannot rewrite
+  what was eaten in March. Writing the diary is free; measuring yourself against
+  a target is what the paid plan adds.
+- **Nothing on that screen congratulates, blames or counts a streak.** An
+  average is taken over the days that were written down, never over seven — a
+  blank day is a day nobody recorded, not a day of eating nothing.
+
+## Recipes
+
+- **Seasons**, as four closed values rather than a tag: "show me what is in
+  season" has to be derivable from the date, and it cannot be if the value is
+  whatever somebody typed. Filtering by two seasons asks for *either*.
+- **Step suggestions** on `/`, from a catalogue written in advance in three
+  languages. The trigger only fires at the start of a field or after a space,
+  which is what keeps "1/2 citron" typable.
+
+## Importing a recipe: three ways in
+
+- **A link**, free and unlimited, read as schema.org — JSON-LD and microdata.
+  That is why Fooby and Cookidoo worked without anybody writing a line for
+  them: site-specific parsers rot at the first redesign, format parsers do not.
+- **The photo the page published** now comes with it, in all four shapes
+  schema.org allows for `image`, including an `@id` pointing at an ImageObject
+  elsewhere in the graph.
+- **A photo or a screenshot**, read by Claude. A page of a cookbook, a recipe
+  card, a capture of another app. What comes back is a draft with its guesses
+  flagged — a line the model could not split keeps the whole line and says
+  `needsReview` — because a model is not a reason to start presenting an
+  invention as a measurement.
+
+Two rules bind that last one. The images are written by a stranger: a page can
+be photographed with "ignore your instructions" written across it, so the model
+may only answer through a declared tool schema and nothing it returns is ever
+treated as an instruction. And the URL of an imported photo is as untrusted as
+the page it came from, so it is fetched through the same guard — http(s) only,
+every redirect re-checked, any host resolving to a private address refused —
+with the file's real type read from its first bytes rather than from a header
+anybody could write.
+
+## The offer
+
+- **Everything is free right now, and that is one flag.**
+  `app.subscription.enforce` is off, so every feature is open and no screen
+  shows a wall. Where a paywall used to be there is a note saying the feature
+  will be paid for later: a target somebody will pay for is not a target they
+  own, and finding that out on the day it stops being free is the version of
+  this that breaks trust.
+- **The exception is anything metered.** Reading a photo is billed to us per
+  call, so it stays behind the plan whatever the flag says — "everything is
+  free" is a sentence about our own features, not about somebody else's
+  invoice.
+- **A budget in money, not a count of calls.** `ai_usage` keeps one row per
+  read with the tokens the provider counted; a two-page recipe costs twice a
+  one-page one and says so, a price change does not silently double what
+  everybody gets, and a new kind of read needs no new counter. A spent month is
+  429, not 402: the plan is paid for, and the wait has a date.
+- **The payment seam is in place and inert.** `PaymentProvider` is written in
+  the vocabulary every provider shares and in nobody's SDK; the webhook is
+  public by necessity and answers 501 while nothing is wired. Prices moved out
+  of the message catalogues — three strings in three languages — into
+  configuration, served by `GET /api/plans` without a session.
+
+## Interface
+
+- **360px is the floor, and it is measured rather than argued about.** A suite
+  opens every screen at 360×640 and asserts three things: no sideways scroll,
+  no control under 44px, and the bottom of a dialog reachable on a 360×480
+  screen. It found four targets nothing else had.
+- **A phone is not a small desktop.** Below `lg` the planner offers one add
+  button per day instead of 21 empty slots; below `sm` the library folds eleven
+  rows of filters behind one chip that carries the count. The journal puts the
+  meals somebody came to read above the targets they set once a month.
+- **One dialog for the whole app.** The version each screen wrote for itself
+  centred a card and let it grow: on a short screen that put "Retirer du
+  planning" 218px below the fold with nothing to scroll.
+- **Undo where it is cheap, a question where it is not.** Deleting a meal or a
+  hand-added shopping line is one tap with a way back; showing a household
+  member out is asked first, with the name in the question.
+
+## Operations
+
+- **`/privacy`** says what leaves the app and where it goes: the AI features,
+  processed by Anthropic in the United States; the mail relay; and the import,
+  which fetches a page from our servers rather than the visitor's browser. It
+  claims nothing the code does not do — no hosting country, no retention
+  period, and account deletion described as what it currently is.
+- **`/total-costs`**, admin only, reads the usage rows back: the month beside
+  the total, per operation and per account, with each account's ceiling on its
+  own line. Figures in dollars, as the provider bills them.
+
+## Verification
+
+Backend 257, frontend unit 199, e2e 182 — all green on the merge commit. The
+assisted read was also exercised end to end against the real API on a generated
+cookbook page: eight ingredients, six steps, the two unsplittable lines flagged,
+1.76 US cents and nine seconds.
+
+The suite itself touches no network anywhere. The provider, the recipe sites and
+the mail relay all have local stand-ins, which is what makes it possible to
+assert that the tokens a provider reports are the ones billed.
+
+## What is left
+
+**Nothing about payment works yet.** A plan cannot be bought: no provider is
+chosen, so `canOrder` is false and the screen says the plan is not open yet.
+Choosing one means writing one class behind `PaymentProvider` — the checkout,
+the signed webhook and the invoices are the remaining work, and they are the
+largest ticket in the backlog.
+
+**The assisted import needs its key in place per environment.** Without one it
+reports itself unwired, which is a working state and not a broken one. CI
+deliberately has no key: every read is billed, and a key in the pipeline would
+mean a paid request on every push.
+
+**Three AI features are specified and unbuilt**: reading a blog that publishes
+no structured data, estimating a photographed plate, and transcribing a page of
+a book. The seam they plug into exists; what is missing is the prompt, the
+fixtures and — for the last two — the patience to get them right.
+
+**The backup is the gap that costs data.** The `recipe_media` volume is in no
+backup today, and neither is Postgres. Losing the volume loses the photos
+without the database saying anything: the rows would point at files that are no
+longer there. That is a ticket, and it is the one where waiting has a price.
+
+**Two smaller things worth naming.** The marketing catalogues (`site.json`) are
+French in all three locales, so the public site is not actually translated. And
+no page on the public site carries an `h1` — `SectionHead` renders an `h2`
+everywhere — which belongs with the accessibility ticket rather than with a
+one-line fix.
+
+**Household profiles are half done.** Sharing works, invitations work, and
+per-person preferences and allergies do not exist at all.
+
+---
+
 # v1.0.3 — 2026-09-02
 
 Four deployment faults, all invisible from the code and all found by looking at
