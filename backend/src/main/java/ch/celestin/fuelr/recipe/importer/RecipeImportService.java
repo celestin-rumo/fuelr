@@ -111,6 +111,9 @@ public class RecipeImportService {
         for (String step : parsed.getSteps()) {
             recipe.getSteps().add(new RecipeStep(step));
         }
+        // Only ever the library's own filter values: a tag outside that list
+        // is a recipe no filter will ever find.
+        recipe.getTags().addAll(parsed.getTags());
 
         // The photo is a bonus, so it never decides whether the import worked:
         // a page with none, an image that is too heavy, or one that turns out

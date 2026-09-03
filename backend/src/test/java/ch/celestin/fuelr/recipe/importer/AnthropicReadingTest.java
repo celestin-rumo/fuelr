@@ -135,10 +135,13 @@ class AnthropicReadingTest {
         return """
                 {"type":"message","role":"assistant","model":"claude-sonnet-5",
                  "content":[{"type":"tool_use","id":"toolu_1","name":"enregistrer_recette",
-                   "input":{"title":"Tarte aux pommes","servings":6,"totalMinutes":60,
+                   "input":{"title":"Tarte aux pommes","description":"Une tarte simple.",
+                     "servings":6,"totalMinutes":60,
                      "ingredients":[
                        {"name":"Pommes","quantity":4,"unit":"piece","needsReview":false},
+                       {"name":"Farine","quantity":200,"unit":"g","needsReview":false},
                        {"name":"une pincée de sel","quantity":0,"unit":"","needsReview":true}],
+                     "tags":["vegetarian","soupe"],
                      "steps":["Éplucher les pommes.","Cuire 40 min à 180 °C."]}}],
                  "usage":{"input_tokens":%d,"output_tokens":%d}}"""
                 .formatted(inputTokens, outputTokens);
@@ -165,9 +168,39 @@ class AnthropicReadingTest {
                 .andExpect(jsonPath("$.title").value("Tarte aux pommes"))
                 .andExpect(jsonPath("$.servings").value(6))
                 .andExpect(jsonPath("$.steps.length()").value(2))
+                // The introduction is read too: a card with no description is
+                // a card that says nothing about the dish.
+                .andExpect(jsonPath("$.description").value("Une tarte simple."))
+                // The library's own filters get filled, and an invented tag
+                // is dropped: a chip that does not exist filters nothing.
+                .andExpect(jsonPath("$.tags").value(
+                        org.hamcrest.Matchers.contains("vegetarian")))
                 // A line it could not split keeps the whole line and says so.
-                .andExpect(jsonPath("$.ingredients[?(@.needsReview == true)].name")
-                        .value(org.hamcrest.Matchers.contains("une pincée de sel")));
+                .andExpect(jsonPath("$.ingredients[?(@.name == 'une pincée de sel')].needsReview")
+                        .value(org.hamcrest.Matchers.contains(true)));
+    }
+
+    @Test
+    void aUnitThisAppDoesNotKnowIsNotWrittenIntoARecipe() throws Exception {
+        // The model answered "piece". Nothing downstream can measure that, and
+        // one such line once made a whole library report itself empty.
+        long id = importOne();
+
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/recipes/" + id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.ingredients[?(@.name == 'Pommes')].unit")
+                        .value(org.hamcrest.Matchers.contains("pcs")))
+                .andExpect(jsonPath("$.ingredients[?(@.name == 'Pommes')].needsReview")
+                        .value(org.hamcrest.Matchers.contains(false)));
+
+        // And the library still lists it, which is the half that broke.
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/recipes")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()")
+                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(1)));
     }
 
     @Test

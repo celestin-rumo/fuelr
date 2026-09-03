@@ -1,5 +1,7 @@
 package ch.celestin.fuelr.nutrition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ import java.util.Optional;
  */
 @Service
 public class NutritionService {
+
+    private static final Logger log = LoggerFactory.getLogger(NutritionService.class);
 
     /**
      * Used when no reference food matches; the result is flagged as guessed.
@@ -44,15 +48,51 @@ public class NutritionService {
      * Grams and millilitres are read against the per-100 reference. The other
      * units are conversions to that same scale: one piece counts as 120 g, a
      * tablespoon as 15 g, a teaspoon as 5 g.
+     *
+     * No unit at all counts as nothing, and that is not a hole. Every import
+     * in this app produces such lines on purpose — "sel, poivre", "une poignée
+     * de coriandre" — as a line it could not split, marked for review and left
+     * whole. They are a pinch of something either way; refusing to compute a
+     * recipe because one of them is in it would deny figures to most imported
+     * recipes, which is a worse answer than figures that ignore a pinch. The
+     * breakdown says the recipe contains estimates regardless.
      */
     static double factorFor(String unit, double quantity) {
-        return switch (unit) {
+        return switch (unit == null ? "" : unit.trim()) {
+            case "" -> 0d;
             case "g", "ml" -> quantity / 100d;
             case "pcs" -> quantity * 1.2d;
             case "c.à.s" -> quantity * 0.15d;
             case "c.à.c" -> quantity * 0.05d;
             default -> throw new IllegalArgumentException("Unité inconnue : " + unit);
         };
+    }
+
+    /**
+     * The same figures, for a screen that is showing a recipe rather than
+     * editing one.
+     *
+     * An ingredient measured in a unit this app does not know cannot be
+     * turned into a number, and {@link #compute} says so with an exception —
+     * which is right in an editor, where somebody typed it and can fix it. It
+     * is wrong everywhere else: a library, a week's plan or a shopping list
+     * that refuses to render because one line of one recipe is unreadable is
+     * the whole screen taken down by one row. That happened: an import wrote
+     * `piece` instead of `pcs` and the library reported itself empty, for
+     * good, with every recipe still in the database.
+     *
+     * So a display asks for the figures and accepts not getting them. No
+     * figures is a state the screens already know how to show — it is what a
+     * recipe with no ingredients looks like.
+     */
+    public Optional<NutritionDtos.Breakdown> computeForDisplay(
+            List<NutritionDtos.IngredientInput> ingredients, int servings) {
+        try {
+            return Optional.of(compute(ingredients, servings));
+        } catch (IllegalArgumentException e) {
+            log.warn("No figures for a recipe: {}", e.getMessage());
+            return Optional.empty();
+        }
     }
 
     public NutritionDtos.Breakdown compute(List<NutritionDtos.IngredientInput> ingredients, int servings) {

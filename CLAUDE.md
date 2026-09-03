@@ -228,6 +228,31 @@ none of them is an import failure, because the cook asked for the recipe. The
 suite stays hermetic by having its own server rewrite the captures' remote
 image addresses to its own; nothing in it reaches the network.
 
+**One unreadable row must never empty a screen.** An import wrote `piece`
+where this app knows `pcs`, and from then on `GET /api/recipes` answered 400
+for that account: the library reported itself empty, permanently, with every
+recipe still in the database. Two things were wrong and both are fixed. The
+reader now speaks the app's five units — `g`, `ml`, `pcs`, `c.à.s`, `c.à.c` —
+and checks what comes back against them, because a schema is a request and not
+a promise. And `NutritionService.computeForDisplay` is what a *display* calls:
+it answers "no figures" where `compute` throws, so a library, a week or a card
+loses its numbers rather than its existence. `compute` still throws for the
+editor, where somebody typed the unit and can correct it — and that path
+answers 400, not 500.
+
+A missing unit is not an error at all: every import produces such lines on
+purpose — "sel, poivre", "une poignée de coriandre" — as a line it could not
+split, marked for review and left whole. They count as nothing and the recipe
+keeps its figures, because denying figures to most imported recipes is a worse
+answer than figures that ignore a pinch.
+
+**What a model writes has to be in the app's vocabulary.** Units, and tags too:
+the library's chips are a fixed list, so a recipe tagged "soupe" is a recipe no
+filter will ever find. The reader offers the model that list and drops anything
+outside it. Seasons are deliberately not asked for — `Season` is a closed
+domain on purpose, and having a model guess one is a product decision nobody
+has made.
+
 **Three doors into the editor, and the screen asks before it offers.**
 `GET /api/recipes/import/sources` answers what this account may import from — a
 link, a photo, a screenshot — and the two refusals are named apart, because

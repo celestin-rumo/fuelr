@@ -381,13 +381,16 @@ public class PlanService {
         if (recipe == null) {
             return null;
         }
+        // For display: a meal whose recipe holds a line we cannot measure
+        // shows no calories, rather than taking the week's grid down with it.
         NutritionDtos.Breakdown breakdown = recipe.getIngredients().isEmpty() ? null
-                : nutrition.compute(
+                : nutrition.computeForDisplay(
                         recipe.getIngredients().stream()
                                 .map(i -> new NutritionDtos.IngredientInput(
                                         i.getName(), i.getQuantity().doubleValue(), i.getUnit()))
                                 .toList(),
-                        Math.max(1, recipe.getServings()));
+                        Math.max(1, recipe.getServings()))
+                .orElse(null);
 
         return new PlannedMealView(
                 meal.getId(), meal.getDate(), meal.getSlot().name(), meal.getPosition(),

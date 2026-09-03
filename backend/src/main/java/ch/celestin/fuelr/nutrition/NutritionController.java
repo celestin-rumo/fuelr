@@ -22,10 +22,21 @@ public class NutritionController {
         this.entitlements = entitlements;
     }
 
-    /** Requires a token: the resource server rejects anonymous callers. */
+    /**
+     * Requires a token: the resource server rejects anonymous callers.
+     *
+     * A unit this app cannot measure is a 400 and not a 500: the editor is
+     * where somebody typed it and where they can fix it, so the answer names
+     * what is wrong instead of reporting a fault of ours.
+     */
     @PostMapping("/compute")
     public NutritionDtos.Breakdown compute(@Valid @RequestBody NutritionDtos.ComputeRequest body) {
-        return nutrition.compute(body.ingredients(), body.servings());
+        try {
+            return nutrition.compute(body.ingredients(), body.servings());
+        } catch (IllegalArgumentException e) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     /**

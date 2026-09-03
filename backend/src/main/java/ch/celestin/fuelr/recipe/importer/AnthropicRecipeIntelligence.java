@@ -58,6 +58,16 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
 
     private static final String TOOL = "enregistrer_recette";
 
+    /**
+     * The library's own filters, and nothing else.
+     *
+     * A tag the model invents filters nothing: the chips are a fixed list, so
+     * a recipe tagged "soupe" is a recipe that no filter will ever find. The
+     * model chooses from these or chooses none.
+     */
+    private static final List<String> TAGS =
+            List.of("vegetarian", "quick", "batch", "protein", "glutenFree", "cheap");
+
     private static final String SYSTEM = """
             Tu lis une recette de cuisine sur une ou plusieurs images et tu la \
             transcris, sans rien inventer.
@@ -177,6 +187,10 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
 
         props.putObject("title").put("type", "string")
                 .put("description", "Le titre écrit sur l'image, ou une chaîne vide.");
+        props.putObject("description").put("type", "string")
+                .put("description",
+                        "La phrase d'introduction si la page en a une, sinon une "
+                                + "chaîne vide. N'en invente pas.");
         props.putObject("servings").put("type", "integer")
                 .put("description", "Nombre de portions annoncé, ou 0 si absent.");
         props.putObject("totalMinutes").put("type", "integer")
@@ -189,11 +203,30 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
         ObjectNode lineProps = line.putObject("properties");
         lineProps.putObject("name").put("type", "string");
         lineProps.putObject("quantity").put("type", "number");
-        lineProps.putObject("unit").put("type", "string")
-                .put("description", "g, ml, cs, cc, piece — vide si non dit.");
+        // The app's own five, and no others. What the model returns is
+        // checked against them anyway — a schema is a request, not a promise.
+        var unit = lineProps.putObject("unit");
+        unit.put("type", "string");
+        unit.put("description",
+                "L'unité, parmi : g, ml, pcs (pièces), c.à.s, c.à.c. "
+                        + "Vide si la ligne n'en donne pas.");
+        unit.putArray("enum").add("g").add("ml").add("pcs").add("c.à.s").add("c.à.c").add("");
         lineProps.putObject("needsReview").put("type", "boolean")
                 .put("description", "Vrai si la quantité ou l'unité est incertaine.");
         line.putArray("required").add("name").add("needsReview");
+
+        var tags = props.putObject("tags");
+        tags.put("type", "array");
+        tags.put("description",
+                "Les étiquettes qui s'appliquent vraiment, parmi la liste. "
+                        + "vegetarian : aucune viande ni poisson. quick : moins de "
+                        + "30 minutes en tout. batch : se conserve et se réchauffe. "
+                        + "protein : riche en protéines. glutenFree : sans gluten. "
+                        + "cheap : ingrédients bon marché. Aucune si tu hésites.");
+        var tagItems = tags.putObject("items");
+        tagItems.put("type", "string");
+        var allowed = tagItems.putArray("enum");
+        TAGS.forEach(allowed::add);
 
         ObjectNode steps = props.putObject("steps");
         steps.put("type", "array");
@@ -263,6 +296,10 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
         if (!title.isBlank()) {
             recipe.setTitle(title);
         }
+        String description = text(input.get("description"));
+        if (!description.isBlank()) {
+            recipe.setDescription(description);
+        }
 
         int servings = input.path("servings").asInt(0);
         if (servings > 0) {
@@ -278,11 +315,24 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
             if (name.isBlank()) {
                 continue;
             }
+            String unit = known(text(line.get("unit")));
             recipe.getIngredients().add(new ParsedRecipe.ParsedIngredient(
                     name,
                     line.path("quantity").asDouble(0),
-                    text(line.get("unit")),
-                    line.path("needsReview").asBoolean(true)));
+                    unit,
+                    // A unit we had to drop is a line worth a second look, and
+                    // an empty one is what the rest of the app understands.
+                    line.path("needsReview").asBoolean(true)
+                            || (unit.isEmpty() && !text(line.get("unit")).isEmpty())));
+        }
+
+        for (JsonNode tag : input.path("tags")) {
+            // Checked against the list anyway: a schema is a request, not a
+            // promise, and a tag outside it filters nothing.
+            String written = text(tag);
+            if (TAGS.contains(written)) {
+                recipe.getTags().add(written);
+            }
         }
 
         for (JsonNode step : input.path("steps")) {
@@ -305,6 +355,29 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
             recipe.flag("servings");
         }
         return recipe;
+    }
+
+    /**
+     * The app's units, and nothing else.
+     *
+     * A model answers with what it thinks a unit is — `piece`, `cs`, `cuillère`
+     * — and a schema does not stop it. Storing one of those is not a cosmetic
+     * problem: nothing downstream can measure it, and a single such line once
+     * made an entire library report itself empty. Anything unrecognised
+     * becomes no unit at all, which every screen already handles.
+     */
+    private static String known(String written) {
+        String cleaned = written.trim().toLowerCase();
+        return switch (cleaned) {
+            case "g", "ml", "pcs", "c.à.s", "c.à.c" -> cleaned;
+            // The spellings a model reaches for, mapped rather than dropped.
+            case "gr", "gramme", "grammes" -> "g";
+            case "cl" -> "ml";
+            case "piece", "pièce", "pieces", "pièces", "pc", "unité", "unite" -> "pcs";
+            case "cs", "c.s", "cuillère à soupe", "cuillere a soupe", "càs" -> "c.à.s";
+            case "cc", "c.c", "cuillère à café", "cuillere a cafe", "càc" -> "c.à.c";
+            default -> "";
+        };
     }
 
     /** The one tool call we asked for, or nothing. */

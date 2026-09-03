@@ -291,13 +291,17 @@ public class RecipeController {
     private RecipeSummary toSummary(Recipe recipe) {
         // A recipe with no ingredients has no figures to show — null rather
         // than a misleading zero.
+        // For display, so a line this app cannot measure costs the card its
+        // figures and nothing else. Asking for them and refusing to render
+        // without them is how one bad row emptied a whole library.
         NutritionDtos.Breakdown breakdown = recipe.getIngredients().isEmpty() ? null
-                : nutrition.compute(
+                : nutrition.computeForDisplay(
                         recipe.getIngredients().stream()
                                 .map(i -> new NutritionDtos.IngredientInput(
                                         i.getName(), i.getQuantity().doubleValue(), i.getUnit()))
                                 .toList(),
-                        recipe.getServings());
+                        recipe.getServings())
+                .orElse(null);
 
         return new RecipeSummary(
                 recipe.getId(), recipe.getTitle(), recipe.getStatus().name(),

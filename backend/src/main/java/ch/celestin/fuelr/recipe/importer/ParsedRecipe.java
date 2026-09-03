@@ -21,6 +21,8 @@ public class ParsedRecipe {
     private Integer totalMinutes;
     private final List<ParsedIngredient> ingredients = new ArrayList<>();
     private final List<String> steps = new ArrayList<>();
+    /** Only ever the library's own filter values — see the readers. */
+    private final Set<String> tags = new LinkedHashSet<>();
     private final Set<String> unverified = new LinkedHashSet<>();
 
     public record ParsedIngredient(String name, double quantity, String unit, boolean needsReview) {
@@ -79,6 +81,10 @@ public class ParsedRecipe {
 
     public List<String> getSteps() {
         return steps;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 
     public Set<String> getUnverified() {
