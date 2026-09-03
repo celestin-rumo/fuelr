@@ -24,7 +24,9 @@ public final class SubscriptionDtos {
             Instant currentPeriodEnd,
             List<String> features,
             /** False while no plan can actually be paid for. */
-            boolean canOrder) {
+            boolean canOrder,
+            /** True while every feature is open and nothing is charged. */
+            boolean openPeriod) {
     }
 
     public record OrderRequest(

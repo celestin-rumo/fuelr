@@ -59,7 +59,13 @@ public final class LogDtos {
             /** Null until the plan that includes targets is paid for. */
             Targets targets,
             List<Insight> insights,
-            boolean tracking) {
+            boolean tracking,
+            /**
+             * True while nothing is charged and every feature is open. The
+             * screen says which it is: a chart somebody will pay for later is
+             * not the same thing as a chart they own.
+             */
+            boolean openPeriod) {
     }
 
     public record HistoryView(

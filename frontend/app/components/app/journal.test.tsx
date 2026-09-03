@@ -81,6 +81,7 @@ function weekWith(overrides: Partial<LogWeek> = {}): LogWeek {
     targets: null,
     insights: [],
     tracking: false,
+    openPeriod: false,
     ...overrides,
   };
 }
@@ -242,6 +243,18 @@ describe("Journal", () => {
       ),
     );
     expect(screen.queryByTestId("entry-removed")).not.toBeInTheDocument();
+  });
+
+  it("says a target is open for now rather than letting it look owned", () => {
+    renderJournal(
+      weekWith({
+        tracking: true,
+        openPeriod: true,
+        targets: { kcal: 2000, proteinG: 100, carbsG: 250, fatG: 70, chosen: true },
+      }),
+    );
+
+    expect(screen.getByTestId("launch-note")).toHaveTextContent("Offert pendant le lancement");
   });
 
   it("sets a target, which is the paid half", async () => {

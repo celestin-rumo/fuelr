@@ -20,6 +20,7 @@ import {
   setTargets,
 } from "@app/[locale]/(app)/app/journal/actions";
 import { DayBars } from "./day-bars";
+import { LaunchNote } from "./launch-note";
 
 /**
  * The food diary.
@@ -306,6 +307,9 @@ export function Journal({
             <p className="mt-2 text-[15px] leading-[1.5] font-medium text-text-dim">
               {week.targets?.chosen ? t("targets.chosen") : t("targets.computed")}
             </p>
+            {/* A target somebody will pay for later is not a target they own.
+                The screen says which, once, where the wall used to be. */}
+            {week.openPeriod && <LaunchNote className="mt-3" />}
             <form className="mt-4 flex flex-wrap items-end gap-3" onSubmit={saveTargets}>
               <div className="w-32">
                 <Input

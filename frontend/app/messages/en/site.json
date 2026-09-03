@@ -143,10 +143,9 @@
     },
     "plans": [
       {
+        "tier": "FREE",
         "name": "Cuisine",
         "badge": "Gratuit",
-        "priceMonthly": "0",
-        "priceYearly": "0",
         "perMonthly": "pour toujours",
         "perYearly": "pour toujours",
         "pitch": "Recettes illimitées, planning de la semaine, liste de courses.",
@@ -175,10 +174,9 @@
         ]
       },
       {
+        "tier": "PLUS",
         "name": "Fuelr Plus",
         "badge": "Populaire",
-        "priceMonthly": "6,90",
-        "priceYearly": "69",
         "perMonthly": "CHF / mois",
         "perYearly": "CHF / an",
         "pitch": "La nutrition complète : macros, objectifs, historique et graphiques.",
@@ -208,10 +206,9 @@
         ]
       },
       {
+        "tier": "FAMILY",
         "name": "Famille",
         "badge": "Jusqu'à 6",
-        "priceMonthly": "11,90",
-        "priceYearly": "119",
         "perMonthly": "CHF / mois",
         "perYearly": "CHF / an",
         "pitch": "Un foyer, un planning, six profils nutritionnels distincts.",
@@ -260,6 +257,10 @@
           "answer": "Depuis une base d'aliments de référence. Un ingrédient non reconnu est marqué « estimé » — une valeur devinée n'est jamais présentée comme mesurée."
         }
       ]
+    },
+    "launch": {
+      "title": "Everything is open during the launch",
+      "body": "The plans below describe what will become paid. Today, Fuelr Plus and Famille are open to everybody, with no card. We will say so before that changes, and nothing already written will be deleted."
     }
   },
   "about": {

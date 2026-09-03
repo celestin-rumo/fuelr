@@ -1,5 +1,6 @@
 package ch.celestin.fuelr.subscription;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,8 +34,33 @@ public class Entitlements {
 
     private final SubscriptionRepository subscriptions;
 
-    public Entitlements(SubscriptionRepository subscriptions) {
+    /**
+     * Whether the paid boundary is being enforced at all.
+     *
+     * Off, every feature is open to every account: that is the launch period,
+     * where the plans are described and nothing is charged. On, {@link Feature}
+     * decides as it always has. It is one flag in one method on purpose — a
+     * second place deciding whether something is free is a second place to
+     * disagree with the pricing page.
+     *
+     * Turning it on takes nothing away that was paid for: an account that
+     * ordered a plan keeps it, and one that never did falls back to what the
+     * free plan has always included. The household is the delicate case, and
+     * it is already handled — a member whose owner is no longer entitled falls
+     * back to their own plan, which was there the whole time.
+     */
+    private final boolean enforced;
+
+    public Entitlements(
+            SubscriptionRepository subscriptions,
+            @Value("${app.subscription.enforce:false}") boolean enforced) {
         this.subscriptions = subscriptions;
+        this.enforced = enforced;
+    }
+
+    /** True while everything is free — the screens say so rather than pretend. */
+    public boolean openPeriod() {
+        return !enforced;
     }
 
     /** An account with no row has never subscribed, which is FREE. */
@@ -45,7 +71,7 @@ public class Entitlements {
     }
 
     public boolean has(Long userId, Feature feature) {
-        return tierOf(userId).atLeast(feature.required());
+        return !enforced || tierOf(userId).atLeast(feature.required());
     }
 
     public void require(Long userId, Feature feature) {

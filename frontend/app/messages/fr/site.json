@@ -20,21 +20,53 @@
     ]
   },
   "stats": [
-    { "value": "12 min", "label": "pour planifier une semaine complète, courses incluses" },
-    { "value": "4 500", "label": "aliments de référence pour le calcul nutritionnel" },
-    { "value": "0 €", "label": "pour les recettes, le planning et la liste de courses" },
-    { "value": "100 %", "label": "des fonctions de cuisine utilisables hors ligne" }
+    {
+      "value": "12 min",
+      "label": "pour planifier une semaine complète, courses incluses"
+    },
+    {
+      "value": "4 500",
+      "label": "aliments de référence pour le calcul nutritionnel"
+    },
+    {
+      "value": "0 €",
+      "label": "pour les recettes, le planning et la liste de courses"
+    },
+    {
+      "value": "100 %",
+      "label": "des fonctions de cuisine utilisables hors ligne"
+    }
   ],
   "loop": {
     "label": "La boucle Fuelr",
     "title": "Cinq étapes qui se referment sur elles-mêmes",
     "text": "Chaque étape alimente la suivante : ce que tu planifies devient ta liste de courses, ce que tu cuisines devient ton journal, ce que tu mesures corrige le plan.",
     "steps": [
-      { "num": "01", "title": "Planifier", "text": "Glisse tes recettes sur les jours de la semaine. Les portions suivent le foyer." },
-      { "num": "02", "title": "Acheter", "text": "La liste de courses se génère et se regroupe par rayon, hors ligne en magasin." },
-      { "num": "03", "title": "Cuisiner", "text": "Une étape par écran, minuteurs détectés, veille désactivée." },
-      { "num": "04", "title": "Mesurer", "text": "Le repas cuisiné est journalisé automatiquement, sans double saisie." },
-      { "num": "05", "title": "Corriger", "text": "Les graphiques de la semaine ajustent le plan suivant." }
+      {
+        "num": "01",
+        "title": "Planifier",
+        "text": "Glisse tes recettes sur les jours de la semaine. Les portions suivent le foyer."
+      },
+      {
+        "num": "02",
+        "title": "Acheter",
+        "text": "La liste de courses se génère et se regroupe par rayon, hors ligne en magasin."
+      },
+      {
+        "num": "03",
+        "title": "Cuisiner",
+        "text": "Une étape par écran, minuteurs détectés, veille désactivée."
+      },
+      {
+        "num": "04",
+        "title": "Mesurer",
+        "text": "Le repas cuisiné est journalisé automatiquement, sans double saisie."
+      },
+      {
+        "num": "05",
+        "title": "Corriger",
+        "text": "Les graphiques de la semaine ajustent le plan suivant."
+      }
     ]
   },
   "testimonial": {
@@ -47,12 +79,48 @@
     "title": "Tout ce qu'il faut, rien de décoratif",
     "text": "Neuf parcours produits, une seule règle : chaque écran a une action évidente. Voici ce que tu utiliseras vraiment chaque semaine.",
     "items": [
-      { "icon": "◷", "tone": "accent", "title": "Éditeur de recette", "text": "Titre, photo, portions, ingrédients, étapes réordonnables. Le brouillon existe dès le premier clic — aucune modale « voulez-vous enregistrer ».", "meta": "création · 3 min" },
-      { "icon": "↧", "tone": "mint", "title": "Import depuis un lien", "text": "Colle l'URL d'une recette : ingrédients et étapes sont extraits, les champs devinés sont marqués « à vérifier ».", "meta": "gain moyen · 4 min" },
-      { "icon": "▦", "tone": "accent", "title": "Planning de la semaine", "text": "Sept jours, quatre repas, glisser-déposer. Les portions s'adaptent au nombre de convives.", "meta": "planning · hebdomadaire" },
-      { "icon": "◔", "tone": "mint", "title": "Nutrition en continu", "text": "Kcal et macros par portion recalculés à chaque ajout. Jamais sur demande, jamais approximatif sans le dire.", "meta": "nutrition · temps réel" },
-      { "icon": "☰", "tone": "accent", "title": "Liste de courses", "text": "Générée depuis le planning, regroupée par rayon, cochable d'une main, fonctionnelle sans réseau.", "meta": "courses · hors ligne" },
-      { "icon": "◉", "tone": "coral", "title": "Analyse photo d'un plat", "text": "Une photo, une estimation éditable en moins de 20 secondes. Estimé et mesuré restent visuellement distincts.", "meta": "journal · 20 s" }
+      {
+        "icon": "◷",
+        "tone": "accent",
+        "title": "Éditeur de recette",
+        "text": "Titre, photo, portions, ingrédients, étapes réordonnables. Le brouillon existe dès le premier clic — aucune modale « voulez-vous enregistrer ».",
+        "meta": "création · 3 min"
+      },
+      {
+        "icon": "↧",
+        "tone": "mint",
+        "title": "Import depuis un lien",
+        "text": "Colle l'URL d'une recette : ingrédients et étapes sont extraits, les champs devinés sont marqués « à vérifier ».",
+        "meta": "gain moyen · 4 min"
+      },
+      {
+        "icon": "▦",
+        "tone": "accent",
+        "title": "Planning de la semaine",
+        "text": "Sept jours, quatre repas, glisser-déposer. Les portions s'adaptent au nombre de convives.",
+        "meta": "planning · hebdomadaire"
+      },
+      {
+        "icon": "◔",
+        "tone": "mint",
+        "title": "Nutrition en continu",
+        "text": "Kcal et macros par portion recalculés à chaque ajout. Jamais sur demande, jamais approximatif sans le dire.",
+        "meta": "nutrition · temps réel"
+      },
+      {
+        "icon": "☰",
+        "tone": "accent",
+        "title": "Liste de courses",
+        "text": "Générée depuis le planning, regroupée par rayon, cochable d'une main, fonctionnelle sans réseau.",
+        "meta": "courses · hors ligne"
+      },
+      {
+        "icon": "◉",
+        "tone": "coral",
+        "title": "Analyse photo d'un plat",
+        "text": "Une photo, une estimation éditable en moins de 20 secondes. Estimé et mesuré restent visuellement distincts.",
+        "meta": "journal · 20 s"
+      }
     ],
     "cooking": {
       "title": "Le mode cuisine",
@@ -68,69 +136,130 @@
     "label": "Tarifs",
     "title": "Un prix, pas un labyrinthe",
     "text": "Le gratuit est utilisable pour de vrai : recettes illimitées et planning complet. On paie pour la nutrition avancée et le partage familial.",
-    "cycles": { "monthly": "Mensuel", "yearly": "Annuel · 2 mois offerts" },
+    "cycles": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel · 2 mois offerts"
+    },
     "plans": [
       {
+        "tier": "FREE",
         "name": "Cuisine",
         "badge": "Gratuit",
-        "priceMonthly": "0",
-        "priceYearly": "0",
         "perMonthly": "pour toujours",
         "perYearly": "pour toujours",
         "pitch": "Recettes illimitées, planning de la semaine, liste de courses.",
         "cta": "Commencer",
         "lines": [
-          { "ok": true, "text": "Recettes et import de liens illimités" },
-          { "ok": true, "text": "Planning 7 jours + liste de courses" },
-          { "ok": true, "text": "Mode cuisine hors ligne" },
-          { "ok": false, "text": "Macros détaillées par repas" },
-          { "ok": false, "text": "Partage familial" }
+          {
+            "ok": true,
+            "text": "Recettes et import de liens illimités"
+          },
+          {
+            "ok": true,
+            "text": "Planning 7 jours + liste de courses"
+          },
+          {
+            "ok": true,
+            "text": "Mode cuisine hors ligne"
+          },
+          {
+            "ok": false,
+            "text": "Macros détaillées par repas"
+          },
+          {
+            "ok": false,
+            "text": "Partage familial"
+          }
         ]
       },
       {
+        "tier": "PLUS",
         "name": "Fuelr Plus",
         "badge": "Populaire",
-        "priceMonthly": "6,90",
-        "priceYearly": "69",
         "perMonthly": "CHF / mois",
         "perYearly": "CHF / an",
         "pitch": "La nutrition complète : macros, objectifs, historique et graphiques.",
         "cta": "Essayer 14 jours",
         "featured": true,
         "lines": [
-          { "ok": true, "text": "Tout le plan Cuisine" },
-          { "ok": true, "text": "Macros et micronutriments par portion" },
-          { "ok": true, "text": "Objectifs et suivi de la semaine" },
-          { "ok": true, "text": "Analyse photo d'un plat" },
-          { "ok": false, "text": "Comptes partagés" }
+          {
+            "ok": true,
+            "text": "Tout le plan Cuisine"
+          },
+          {
+            "ok": true,
+            "text": "Macros et micronutriments par portion"
+          },
+          {
+            "ok": true,
+            "text": "Objectifs et suivi de la semaine"
+          },
+          {
+            "ok": true,
+            "text": "Analyse photo d'un plat"
+          },
+          {
+            "ok": false,
+            "text": "Comptes partagés"
+          }
         ]
       },
       {
+        "tier": "FAMILY",
         "name": "Famille",
         "badge": "Jusqu'à 6",
-        "priceMonthly": "11,90",
-        "priceYearly": "119",
         "perMonthly": "CHF / mois",
         "perYearly": "CHF / an",
         "pitch": "Un foyer, un planning, six profils nutritionnels distincts.",
         "cta": "Choisir Famille",
         "lines": [
-          { "ok": true, "text": "Tout le plan Plus, pour 6 personnes" },
-          { "ok": true, "text": "Planning et courses partagés en direct" },
-          { "ok": true, "text": "Portions par personne" },
-          { "ok": true, "text": "Préférences et allergies par profil" },
-          { "ok": true, "text": "Support prioritaire" }
+          {
+            "ok": true,
+            "text": "Tout le plan Plus, pour 6 personnes"
+          },
+          {
+            "ok": true,
+            "text": "Planning et courses partagés en direct"
+          },
+          {
+            "ok": true,
+            "text": "Portions par personne"
+          },
+          {
+            "ok": true,
+            "text": "Préférences et allergies par profil"
+          },
+          {
+            "ok": true,
+            "text": "Support prioritaire"
+          }
         ]
       }
     ],
     "faq": {
       "title": "Questions fréquentes",
       "items": [
-        { "question": "Le plan gratuit est-il limité dans le temps ?", "answer": "Non. Recettes, planning et liste de courses restent gratuits sans limite de durée ni de nombre. On ne coupe rien après 14 jours." },
-        { "question": "Mes recettes m'appartiennent-elles ?", "answer": "Oui, et tu peux tout exporter en un fichier lisible à tout moment, y compris après avoir résilié." },
-        { "question": "Est-ce que ça marche sans réseau ?", "answer": "Le mode cuisine, la liste de courses et les photos fonctionnent hors ligne. La synchronisation se fait au retour du réseau." },
-        { "question": "Comment sont calculées les valeurs nutritionnelles ?", "answer": "Depuis une base d'aliments de référence. Un ingrédient non reconnu est marqué « estimé » — une valeur devinée n'est jamais présentée comme mesurée." }
+        {
+          "question": "Le plan gratuit est-il limité dans le temps ?",
+          "answer": "Non. Recettes, planning et liste de courses restent gratuits sans limite de durée ni de nombre. On ne coupe rien après 14 jours."
+        },
+        {
+          "question": "Mes recettes m'appartiennent-elles ?",
+          "answer": "Oui, et tu peux tout exporter en un fichier lisible à tout moment, y compris après avoir résilié."
+        },
+        {
+          "question": "Est-ce que ça marche sans réseau ?",
+          "answer": "Le mode cuisine, la liste de courses et les photos fonctionnent hors ligne. La synchronisation se fait au retour du réseau."
+        },
+        {
+          "question": "Comment sont calculées les valeurs nutritionnelles ?",
+          "answer": "Depuis une base d'aliments de référence. Un ingrédient non reconnu est marqué « estimé » — une valeur devinée n'est jamais présentée comme mesurée."
+        }
       ]
+    },
+    "launch": {
+      "title": "Tout est ouvert pendant le lancement",
+      "body": "Les plans ci-dessous décrivent ce qui deviendra payant. Aujourd'hui, Fuelr Plus et Famille sont accessibles à tout le monde, sans carte bancaire. On préviendra avant que cela change, et rien de ce qui aura été écrit ne sera supprimé."
     }
   },
   "about": {
@@ -138,18 +267,45 @@
     "title": "On voulait juste savoir quoi manger mardi soir",
     "text": "Fuelr est né d'un tableur partagé entre quatre colocataires qui cuisinaient beaucoup et mesuraient mal. On a gardé la rigueur du tableur et jeté sa laideur : des chiffres honnêtes, des recettes qui se planifient, et zéro culpabilisation.",
     "principles": [
-      { "tag": "honnêteté", "tone": "mint", "title": "Estimé n'est pas mesuré", "text": "Une valeur devinée est signalée partout où elle apparaît. On préfère « je ne sais pas » à un chiffre faux." },
-      { "tag": "sobriété", "tone": "accent", "title": "Un écran, une action", "text": "Un seul bouton primaire par vue. Les alternatives sont secondaires ou textuelles, jamais criardes." },
-      { "tag": "respect", "tone": "coral", "title": "Aucune culpabilisation", "text": "Pas de série à ne pas briser, pas de notification honteuse. Les données servent à décider, pas à punir." }
+      {
+        "tag": "honnêteté",
+        "tone": "mint",
+        "title": "Estimé n'est pas mesuré",
+        "text": "Une valeur devinée est signalée partout où elle apparaît. On préfère « je ne sais pas » à un chiffre faux."
+      },
+      {
+        "tag": "sobriété",
+        "tone": "accent",
+        "title": "Un écran, une action",
+        "text": "Un seul bouton primaire par vue. Les alternatives sont secondaires ou textuelles, jamais criardes."
+      },
+      {
+        "tag": "respect",
+        "tone": "coral",
+        "title": "Aucune culpabilisation",
+        "text": "Pas de série à ne pas briser, pas de notification honteuse. Les données servent à décider, pas à punir."
+      }
     ],
     "team": {
       "title": "L'équipe",
       "text": "Quatre personnes, un bureau, beaucoup de vaisselle.",
       "members": [
-        { "name": "Salomé", "role": "Produit & design" },
-        { "name": "Noé", "role": "Ingénierie" },
-        { "name": "Yara", "role": "Nutrition" },
-        { "name": "Ilan", "role": "Contenu & recettes" }
+        {
+          "name": "Salomé",
+          "role": "Produit & design"
+        },
+        {
+          "name": "Noé",
+          "role": "Ingénierie"
+        },
+        {
+          "name": "Yara",
+          "role": "Nutrition"
+        },
+        {
+          "name": "Ilan",
+          "role": "Contenu & recettes"
+        }
       ]
     }
   },
@@ -158,16 +314,29 @@
     "title": "Écris-nous, on répond vraiment",
     "text": "Un bug, une recette qui s'importe mal, une idée de fonctionnalité : tout arrive dans la même boîte, lue chaque matin.",
     "links": [
-      { "label": "Écrire", "value": "bonjour@fuelr.app" },
-      { "label": "Support", "value": "support@fuelr.app · 24 h ouvrées" },
-      { "label": "Adresse", "value": "Rue du Petit-Chêne 12, 1003 Lausanne" }
+      {
+        "label": "Écrire",
+        "value": "bonjour@fuelr.app"
+      },
+      {
+        "label": "Support",
+        "value": "support@fuelr.app · 24 h ouvrées"
+      },
+      {
+        "label": "Adresse",
+        "value": "Rue du Petit-Chêne 12, 1003 Lausanne"
+      }
     ],
     "form": {
       "name": "Nom",
       "email": "Email",
       "subject": "Sujet",
       "message": "Message",
-      "subjects": ["Un bug", "Une idée", "Facturation"],
+      "subjects": [
+        "Un bug",
+        "Une idée",
+        "Facturation"
+      ],
       "emailHint": "Utilisé uniquement pour te répondre.",
       "submit": "Envoyer le message",
       "sending": "Envoi…",
@@ -194,28 +363,64 @@
       {
         "title": "Produit",
         "links": [
-          { "label": "Fonctionnalités", "href": "/features" },
-          { "label": "Tarifs", "href": "/pricing" },
-          { "label": "Mode cuisine", "href": "/features" },
-          { "label": "Analyse photo", "href": "/features" }
+          {
+            "label": "Fonctionnalités",
+            "href": "/features"
+          },
+          {
+            "label": "Tarifs",
+            "href": "/pricing"
+          },
+          {
+            "label": "Mode cuisine",
+            "href": "/features"
+          },
+          {
+            "label": "Analyse photo",
+            "href": "/features"
+          }
         ]
       },
       {
         "title": "Entreprise",
         "links": [
-          { "label": "À propos", "href": "/about" },
-          { "label": "Contact", "href": "/contact" },
-          { "label": "Presse", "href": "/about" },
-          { "label": "Nous rejoindre", "href": "/about" }
+          {
+            "label": "À propos",
+            "href": "/about"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Presse",
+            "href": "/about"
+          },
+          {
+            "label": "Nous rejoindre",
+            "href": "/about"
+          }
         ]
       },
       {
         "title": "Ressources",
         "links": [
-          { "label": "Design system", "href": "/design-system" },
-          { "label": "Journal des versions", "href": "/about" },
-          { "label": "Statut", "href": "/contact" },
-          { "label": "Aide", "href": "/contact" }
+          {
+            "label": "Design system",
+            "href": "/design-system"
+          },
+          {
+            "label": "Journal des versions",
+            "href": "/about"
+          },
+          {
+            "label": "Statut",
+            "href": "/contact"
+          },
+          {
+            "label": "Aide",
+            "href": "/contact"
+          }
         ]
       }
     ]

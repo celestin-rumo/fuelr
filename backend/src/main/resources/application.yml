@@ -45,6 +45,28 @@ app:
     # this address is not cosmetic: it has to be on the verified domain.
     from: ${MAIL_FROM:fuelr@localhost}
 
+  subscription:
+    # Whether the paid boundary is enforced at all. Off, every feature is open
+    # to every account and nothing is charged — the launch period. On, Feature
+    # decides. Turning it on takes nothing away that was paid for.
+    # Set APP_SUBSCRIPTION_ENFORCE=true to start charging.
+    enforce: false
+    # Hands out paid plans for free. For the tests and for development, where
+    # a paid feature has to be exercisable and no provider exists to pay one
+    # through. It must stay false anywhere a real person can reach.
+    self-activate: false
+    # What the pricing page shows. Said once, as numbers, and formatted for
+    # whoever is reading — the three message catalogues used to carry three
+    # copies of them as strings.
+    currency: CHF
+    prices:
+      plus:
+        monthly: 6.90
+        yearly: 69.00
+      family:
+        monthly: 11.90
+        yearly: 119.00
+
   media:
     # Mounted Docker volume. The container must be able to write here.
     dir: ${MEDIA_DIR:/var/lib/fuelr/media}

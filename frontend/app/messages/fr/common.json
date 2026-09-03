@@ -780,5 +780,10 @@
     "name": "Fuelr · recettes et repas de la semaine",
     "shortName": "Fuelr",
     "description": "Tes recettes, ton plan de la semaine et le mode cuisine, même sans réseau."
+  },
+  "launch": {
+    "badge": "Offert pendant le lancement",
+    "note": "Cette fonction fera partie d'un plan payant. Elle est ouverte à tout le monde pour l'instant.",
+    "compare": "Voir les plans"
   }
 }
