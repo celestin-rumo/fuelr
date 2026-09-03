@@ -1,5 +1,6 @@
 package ch.celestin.fuelr.recipe.importer;
 
+import ch.celestin.fuelr.ai.AiBudget;
 import ch.celestin.fuelr.recipe.Recipe;
 import ch.celestin.fuelr.recipe.RecipeIngredient;
 import ch.celestin.fuelr.recipe.RecipeRepository;
@@ -26,16 +27,18 @@ public class RecipeImportService {
     private final RecipePageReader reader;
     private final RecipePhotoFetcher photos;
     private final RecipeImportSources sources;
+    private final AiBudget budget;
     private final RecipeRepository recipes;
 
     public RecipeImportService(
             SafePageFetcher fetcher, RecipePageReader reader,
             RecipePhotoFetcher photos, RecipeImportSources sources,
-            RecipeRepository recipes) {
+            AiBudget budget, RecipeRepository recipes) {
         this.fetcher = fetcher;
         this.reader = reader;
         this.photos = photos;
         this.sources = sources;
+        this.budget = budget;
         this.recipes = recipes;
     }
 
@@ -64,10 +67,22 @@ public class RecipeImportService {
     @Transactional
     public Recipe importFromImages(
             Long userId, List<byte[]> images, RecipeIntelligence.Source source) {
-        // The first photo would make a decent recipe photo, and will once
-        // something can read the rest of it. Storing an illustration for a
-        // recipe that failed to import would be worse than storing nothing.
-        return draftFrom(userId, sources.reader().read(images, source), null);
+        // Asked before the call, because afterwards the money is spent.
+        budget.require(userId);
+
+        RecipeIntelligence reader = sources.reader();
+        RecipeIntelligence.Reading reading = reader.read(images, source);
+
+        // Recorded in its own transaction: what comes next can fail — a photo
+        // of a blank page produces nothing — and the provider has been paid
+        // either way.
+        budget.record(userId, "IMPORT_" + source.name(), reader.name(),
+                reading.usage().inputTokens(), reading.usage().outputTokens());
+
+        // The first photo would make a decent recipe photo, and probably will.
+        // Storing an illustration for a recipe that failed to import would be
+        // worse than storing nothing.
+        return draftFrom(userId, reading.recipe(), null);
     }
 
     private Recipe draftFrom(Long userId, ParsedRecipe parsed, String url) {

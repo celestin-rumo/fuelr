@@ -793,6 +793,14 @@
       "no_file": {
         "title": "Aucune photo choisie",
         "body": "Choisis au moins une image de la recette."
+      },
+      "ai_budget_exhausted": {
+        "title": "Budget de lecture épuisé pour ce mois",
+        "body": "Les lectures d'images sont facturées à l'unité, et celles de ce mois sont utilisées. Le compteur repart le 1er. L'import depuis un lien reste gratuit et sans limite."
+      },
+      "provider": {
+        "title": "La lecture a échoué",
+        "body": "Le service de lecture n'a pas répondu correctement. Tes photos sont toujours là : réessaie, ou saisis la recette à la main."
       }
     },
     "sources": {

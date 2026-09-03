@@ -29,7 +29,7 @@ public class NoRecipeIntelligence implements RecipeIntelligence {
     }
 
     @Override
-    public ParsedRecipe read(List<byte[]> images, Source source) {
+    public Reading read(List<byte[]> images, Source source) {
         throw new NotAvailableException();
     }
 }

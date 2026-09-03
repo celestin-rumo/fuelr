@@ -34,6 +34,21 @@ public interface RecipeIntelligence {
         SCREENSHOT
     }
 
+    /**
+     * What a read produced, and what it cost.
+     *
+     * The cost travels with the answer because it is only known afterwards:
+     * the provider counts the tokens, and a budget that guessed them would be
+     * wrong in whichever direction is convenient.
+     */
+    record Reading(ParsedRecipe recipe, Usage usage) {
+    }
+
+    /** Tokens as the provider counted them, not as we estimated them. */
+    record Usage(long inputTokens, long outputTokens) {
+        public static final Usage NONE = new Usage(0, 0);
+    }
+
     /** Raised when a read is asked for and no provider is wired. */
     class NotAvailableException extends RuntimeException {
         public NotAvailableException() {
@@ -59,5 +74,5 @@ public interface RecipeIntelligence {
      * Several because a recipe rarely fits on one page, and the second photo
      * is usually the half of the method that was cut off.
      */
-    ParsedRecipe read(List<byte[]> images, Source source);
+    Reading read(List<byte[]> images, Source source);
 }

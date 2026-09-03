@@ -793,6 +793,14 @@
       "no_file": {
         "title": "No photo chosen",
         "body": "Pick at least one image of the recipe."
+      },
+      "ai_budget_exhausted": {
+        "title": "This month's reading budget is spent",
+        "body": "Image readings are billed one by one, and this month's are used up. The counter restarts on the 1st. Importing from a link stays free and unlimited."
+      },
+      "provider": {
+        "title": "The reading failed",
+        "body": "The reading service did not answer properly. Your photos are still there: try again, or type the recipe in."
       }
     },
     "sources": {

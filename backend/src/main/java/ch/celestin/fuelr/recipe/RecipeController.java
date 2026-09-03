@@ -7,6 +7,7 @@ import ch.celestin.fuelr.recipe.RecipeDtos.ImportRequest;
 import ch.celestin.fuelr.recipe.importer.RecipeImportSources;
 import ch.celestin.fuelr.subscription.Entitlements;
 import ch.celestin.fuelr.subscription.Feature;
+import ch.celestin.fuelr.recipe.importer.AnthropicRecipeIntelligence;
 import ch.celestin.fuelr.recipe.importer.RecipeIntelligence;
 import ch.celestin.fuelr.recipe.importer.RecipeImportService;
 import ch.celestin.fuelr.recipe.importer.SafePageFetcher;
@@ -204,6 +205,14 @@ public class RecipeController {
         } catch (RecipeIntelligence.NotAvailableException e) {
             // 503 rather than 500: nothing is broken, nothing is configured.
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+        } catch (ch.celestin.fuelr.ai.AiBudget.ExhaustedException e) {
+            // 429, not 402: the plan is paid for and the month is spent. It is
+            // a wait, and it has a date — the first of next month.
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+        } catch (AnthropicRecipeIntelligence.UnreadableImagesException e) {
+            // The provider answered something unusable. Not the cook's doing,
+            // and not worth a 500 either — the photos are still there to retry.
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, e.getMessage());
         } catch (RecipeImportService.NothingToImportException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }

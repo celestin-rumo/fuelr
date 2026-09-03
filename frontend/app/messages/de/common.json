@@ -793,6 +793,14 @@
       "no_file": {
         "title": "Kein Foto gewählt",
         "body": "Wähle mindestens ein Bild des Rezepts."
+      },
+      "ai_budget_exhausted": {
+        "title": "Das Lesebudget dieses Monats ist aufgebraucht",
+        "body": "Bild-Lesungen werden einzeln verrechnet, und die dieses Monats sind aufgebraucht. Der Zähler startet am 1. neu. Der Import über einen Link bleibt gratis und unbegrenzt."
+      },
+      "provider": {
+        "title": "Das Lesen ist fehlgeschlagen",
+        "body": "Der Lesedienst hat nicht richtig geantwortet. Deine Fotos sind noch da: versuch es erneut oder tippe das Rezept ein."
       }
     },
     "sources": {

@@ -67,6 +67,28 @@ app:
         monthly: 11.90
         yearly: 119.00
 
+  ai:
+    # Anthropic. Without a key the assisted import says it is not wired rather
+    # than failing — see RecipeIntelligence. Never in this file: the key is an
+    # environment variable, and the dev one lives in the ignored `.env`.
+    api-key: ${ANTHROPIC_API_KEY:}
+    # Identity-linked keys act inside one workspace and are refused without it.
+    # An organisation key needs no such header, so this stays empty for one.
+    workspace-id: ${ANTHROPIC_WORKSPACE_ID:}
+    base-url: https://api.anthropic.com
+    model: claude-sonnet-5
+    max-output-tokens: 2000
+    # The provider's list price, in dollars per million tokens. Configuration
+    # rather than code, because it changes without us.
+    price:
+      input-per-million: 3.00
+      output-per-million: 15.00
+    # What a month of assisted reading may cost us per account, in US cents —
+    # roughly a fifth of a Plus plan. A ceiling on our exposure, not a feature.
+    budget:
+      plus-cents: 100
+      family-cents: 200
+
   media:
     # Mounted Docker volume. The container must be able to write here.
     dir: ${MEDIA_DIR:/var/lib/fuelr/media}
