@@ -92,9 +92,14 @@ async function openWeek(page: Page, week = MONDAY) {
   await expect(page.getByTestId("week-grid")).toBeVisible();
 }
 
-// --- the paid boundary ------------------------------------------------------
+// --- while nothing is charged -----------------------------------------------
+//
+// The app ships with `app.subscription.enforce` off: every feature is open and
+// nothing is billed. What these two describe is therefore the launch, not the
+// boundary — the boundary itself is proven with the flag on, in
+// HouseholdSharingTest and the 402 paths of the backend suite.
 
-test("without the Family plan the household explains it instead of hiding it", async ({
+test("a household is shared without anybody having paid, and says so", async ({
   request,
   context,
   page,
@@ -102,28 +107,35 @@ test("without the Family plan the household explains it instead of hiding it", a
   await signIn(context, await register(request, "solo"));
   await page.goto("/fr/app/foyer");
 
-  await expect(page.getByTestId("plan")).toContainText("plan Famille");
-  // Nothing to invite anyone with, and nothing pretending otherwise.
-  await expect(page.getByLabel("Inviter par email")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Comparer les plans" })).toBeVisible();
+  // Nothing was ordered and the invitation field is there all the same.
+  await expect(page.getByLabel("Inviter par email")).toBeVisible();
+  // And the screen says it is a launch rather than letting it look owned.
+  await expect(page.getByTestId("launch-note")).toContainText(
+    "Offert pendant le lancement",
+  );
+  // And the way to what it will cost is on the note, since the card that used
+  // to carry it is the one that disappears while everything is open.
+  await expect(page.getByRole("link", { name: "Voir les plans" })).toBeVisible();
 });
 
-test("taking the Family plan opens sharing, and cancelling closes it again", async ({
+test("cancelling during the launch takes nothing away", async ({
   request,
   context,
   page,
 }) => {
-  await signIn(context, await register(request, "host"));
+  const host = await register(request, "host");
+  // Through the API: while everything is open there is nothing to buy, so the
+  // screen offers no order button — which is the point of `canOrder`.
+  await subscribeToFamily(request, host);
+  await signIn(context, host);
   await page.goto("/fr/app/foyer");
-
-  await page.getByTestId("order-family").click();
-
-  await expect(page.getByLabel("Inviter par email")).toBeVisible();
 
   await page.getByTestId("cancel-plan").click();
 
-  await expect(page.getByLabel("Inviter par email")).toHaveCount(0);
-  await expect(page.getByTestId("plan")).toContainText("plan Famille");
+  // The promise the pricing page makes, in its easiest place to break: the
+  // household is still there, and so is everything in it.
+  await expect(page.getByLabel("Inviter par email")).toBeVisible();
+  await expect(page.getByTestId("members")).toBeVisible();
 });
 
 // --- one plan, two people ---------------------------------------------------
@@ -204,7 +216,7 @@ test("what a member plans shows up for everyone", async ({ request, context, pag
 
 // --- losing the plan --------------------------------------------------------
 
-test("cancelling the plan gives everyone their own week back, losing nothing", async ({
+test("cancelling the plan deletes nothing, for anybody", async ({
   request,
   context,
   page,
@@ -214,15 +226,15 @@ test("cancelling the plan gives everyone their own week back, losing nothing", a
   await signIn(context, host);
   await page.goto("/fr/app/foyer");
   await page.getByTestId("cancel-plan").click();
-  await expect(page.getByLabel("Inviter par email")).toHaveCount(0);
 
-  // The guest is back on their own plan, which was never touched.
+  // Nothing is charged, so cancelling changes no access — and that is the
+  // half worth asserting here anyway: every row is still where it was. That
+  // a lapsed member falls back to their own untouched plan is the boundary's
+  // own behaviour, and HouseholdSharingTest proves it with the flag on.
   await signIn(context, guest);
   await openWeek(page);
-  await expect(page.getByTestId("shared-plan")).toHaveCount(0);
-  await expect(page.getByTestId(`slot-${WEDNESDAY}-DINNER`)).toContainText("Rien de prévu");
+  await expect(page.getByTestId(`slot-${WEDNESDAY}-DINNER`)).toContainText("Curry du foyer");
 
-  // The owner keeps every meal: the household was theirs all along.
   await signIn(context, host);
   await openWeek(page);
   await expect(page.getByTestId(`slot-${WEDNESDAY}-DINNER`)).toContainText("Curry du foyer");

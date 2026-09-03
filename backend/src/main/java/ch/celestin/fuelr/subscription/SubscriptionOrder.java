@@ -72,6 +72,18 @@ public class SubscriptionOrder {
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Names the provider and the checkout before anything is paid.
+     *
+     * Written on the way out rather than on the way back: a webhook can arrive
+     * before the customer returns from the checkout, and an order that cannot
+     * be recognised then is a payment nobody can match to anybody.
+     */
+    public void awaitPayment(String provider, String providerRef) {
+        this.provider = provider;
+        this.providerRef = providerRef;
+    }
+
     public void markPaid(String provider, String providerRef) {
         this.status = Status.PAID;
         this.provider = provider;
@@ -96,5 +108,13 @@ public class SubscriptionOrder {
 
     public Status getStatus() {
         return status;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public String getProviderRef() {
+        return providerRef;
     }
 }

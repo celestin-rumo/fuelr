@@ -116,7 +116,8 @@ class SubscriptionApiTest {
 
     @Test
     void confirmingTheSameOrderTwiceChangesNothing() {
-        SubscriptionOrder order = subscriptions.order(userId, Tier.FAMILY, BillingPeriod.MONTHLY);
+        SubscriptionOrder order =
+                subscriptions.order(userId, Tier.FAMILY, BillingPeriod.MONTHLY).order();
 
         // A provider retries its webhook. The second delivery must not extend
         // anything, which is why confirm is written to be idempotent.

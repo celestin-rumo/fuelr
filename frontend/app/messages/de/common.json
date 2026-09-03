@@ -780,5 +780,10 @@
     "name": "Fuelr · Rezepte und Wochenplan",
     "shortName": "Fuelr",
     "description": "Deine Rezepte, dein Wochenplan und der Kochmodus – auch ohne Netz."
+  },
+  "launch": {
+    "badge": "Zum Start gratis",
+    "note": "Diese Funktion wird Teil eines kostenpflichtigen Plans. Vorerst ist sie für alle offen.",
+    "compare": "Pläne ansehen"
   }
 }

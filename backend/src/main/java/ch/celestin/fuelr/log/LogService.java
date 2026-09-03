@@ -259,7 +259,7 @@ public class LogService {
                 start, days, logged.stream().map(LogService::toView).toList(),
                 average, loggedDays, targets,
                 tracking ? insights(days, average, loggedDays, targets) : List.of(),
-                tracking);
+                tracking, entitlements.openPeriod());
     }
 
     /**

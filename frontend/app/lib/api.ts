@@ -199,6 +199,8 @@ export type LogWeek = {
   insights: Insight[];
   /** Whether the plan that includes targets and findings is paid for. */
   tracking: boolean;
+  /** True while every feature is open and nothing is charged. */
+  openPeriod: boolean;
 };
 
 export type LogHistory = {
@@ -272,7 +274,46 @@ export type Subscription = {
   features: string[];
   /** False while no plan can actually be paid for. */
   canOrder: boolean;
+  /** True while every feature is open and nothing is charged. */
+  openPeriod: boolean;
 };
+
+/**
+ * What the plans cost, straight from the backend's configuration.
+ *
+ * The prices used to sit in the three message catalogues as strings, which is
+ * three places to change a price and three chances to disagree. Here they are
+ * numbers, said once, and each locale formats them for its own reader.
+ */
+export type PlanPrices = {
+  currency: string;
+  openPeriod: boolean;
+  canOrder: boolean;
+  plans: {
+    tier: "FREE" | "PLUS" | "FAMILY";
+    monthly: number;
+    yearly: number;
+    features: string[];
+  }[];
+};
+
+/**
+ * The same answer for everybody, and readable without an account — so it
+ * carries no token and is fetched fresh rather than baked into the build. A
+ * marketing page rendered per request costs one internal call; a price that is
+ * months out of date costs more.
+ */
+export async function fetchPlans(): Promise<PlanPrices | null> {
+  try {
+    const response = await fetch(`${backendUrl()}/api/plans`, { cache: "no-store" });
+    if (!response.ok) return null;
+    return (await response.json()) as PlanPrices;
+  } catch {
+    // The pricing page still sells without its figures; it does not still
+    // sell as a stack trace.
+    return null;
+  }
+}
 
 export type RecipeSummary = {
   id: number;

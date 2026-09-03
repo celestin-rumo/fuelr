@@ -68,15 +68,20 @@ test("a meal at a restaurant is written down without a recipe", async ({ page })
   await expect(page.getByTestId("entries")).toContainText("Pizza chez Luigi");
 });
 
-test("the free plan keeps the diary and explains what the paid one adds", async ({
+test("during the launch the whole diary is open, and says it is", async ({
   page,
 }) => {
   await openJournal(page);
 
+  // Nothing is charged yet, so nothing is withheld: the charts and the target
+  // are there for an account that ordered nothing.
   await expect(page.getByTestId("log-form")).toBeVisible();
-  await expect(page.getByTestId("charts")).toHaveCount(0);
-  await expect(page.getByTestId("tracking-locked")).toContainText(
-    "Le journal reste gratuit",
+  await expect(page.getByTestId("charts")).toBeVisible();
+  await expect(page.getByTestId("tracking-locked")).toHaveCount(0);
+
+  // And the screen says it is a launch rather than letting it look owned.
+  await expect(page.getByTestId("launch-note")).toContainText(
+    "Offert pendant le lancement",
   );
 });
 
@@ -119,19 +124,15 @@ test("with the plan the week is drawn, against a target that can be set", async 
   );
 });
 
-test("history is windowed for free and whole with the plan", async ({
-  request,
-  page,
-}) => {
+test("the whole history is open while nothing is charged", async ({ page }) => {
   await openJournal(page);
   await page.getByRole("button", { name: "Voir les 90 derniers jours" }).click();
-  await expect(page.getByTestId("history-windowed")).toContainText("30 jours");
-  await expect(page.getByTestId("history-windowed")).toContainText("Rien n'est supprimé");
 
-  await subscribe(request);
-  await page.reload();
-  await page.getByRole("button", { name: "Voir les 90 derniers jours" }).click();
+  // The 30-day window is a clamp the paid boundary applies, and the boundary
+  // is off: ninety days means ninety days. That the window works, and gives
+  // back everything it hid, is proven with the flag on in MealLogApiTest.
   await expect(page.getByTestId("history-windowed")).toHaveCount(0);
+  await expect(page.getByTestId("history")).toBeVisible();
 });
 
 // --- energy on the recipe, which is free ------------------------------------
@@ -152,7 +153,7 @@ test("energy per serving is on the card, and a guess is marked as one", async ({
   await expect(page.getByTestId(`estimated-${guessed}`)).toBeVisible();
 });
 
-test("the nutrition detail is behind the plan, and opens with it", async ({
+test("the nutrition detail opens without anybody having paid", async ({
   request,
   page,
 }) => {
@@ -160,13 +161,10 @@ test("the nutrition detail is behind the plan, and opens with it", async ({
   await page.goto(`/fr/app/recettes/${curry}`);
   await page.getByRole("button", { name: /Ingrédients/ }).click();
 
+  // It is a paid feature in the enum and an open one on the screen: which of
+  // the two is one flag, and the flag is off while nothing is charged.
   await page.getByRole("button", { name: /Voir le détail/ }).click();
-  await expect(page.getByTestId("detail-locked")).toContainText("plan Plus");
-
-  await subscribe(request);
-  await page.reload();
-  await page.getByRole("button", { name: /Ingrédients/ }).click();
-  await page.getByRole("button", { name: /Voir le détail/ }).click();
+  await expect(page.getByTestId("detail-locked")).toHaveCount(0);
 
   const detail = page.getByTestId("nutrition-detail");
   await expect(detail).toContainText("Fibres");

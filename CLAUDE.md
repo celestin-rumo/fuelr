@@ -297,6 +297,44 @@ payment webhook will call and is idempotent because providers retry. The screen
 asks `canOrder` before offering anything — a button that takes an order nobody
 can settle is worse than a screen saying the plan is not open yet.
 
+**Everything is free right now, and that is one flag.**
+`app.subscription.enforce` is off, so `Entitlements.has` answers yes to
+everything and no screen shows a wall. It is a single condition in a single
+method because a second place deciding what is free is a second place to
+disagree with the pricing page. Turning it on takes nothing away that was paid
+for: an account that ordered a plan keeps it, one that never did falls back to
+what the free plan has always included, and a member whose owner is no longer
+entitled falls back to their own untouched plan.
+
+The screens do not stay silent about it. `openPeriod` travels on the
+subscription, the week and `/api/plans`, and where a paywall used to be there
+is now a `LaunchNote` saying the feature will be paid for later — a target
+somebody will pay for is not a target they own, and finding that out on the day
+it stops being free is the version of this that breaks trust.
+
+Everything else in the suite runs with the flag **on**: the backend test
+properties set it, so every 402 path, the 30-day window and the household
+fallback are still proven. The e2e suite runs with it off, like production, and
+describes what a visitor actually meets. Both halves are covered; neither can
+be checked twice in one process, since the flag is read once per boot.
+
+**One interface stands where a payment provider will.** `PaymentProvider` is
+written in the vocabulary all of them share — send the customer to a checkout,
+be told over a webhook that they paid — and in nobody's SDK, so choosing Stripe
+or Payrexx later is adding one `@Component`. `NoPaymentProvider` is ordered
+last and is what is left while none exists: no checkout, so `canOrder` is
+false, and no delivery accepted, so `/api/subscription/webhook` — public by
+necessity, because a provider has no session — answers 501 and reads nothing.
+When a real one arrives, its signature check is the whole of the security
+there; a delivery it cannot vouch for must come back empty.
+
+**Prices live in configuration, not in the message catalogues.** They were
+three strings in three languages, which is three places to change a price and
+three chances for the pricing page to disagree with what a checkout charges.
+`PlanCatalogue` holds them as numbers, `GET /api/plans` serves them without a
+session (the pricing page is read by people who have no account), and each
+locale formats them for its own reader.
+
 **The shopping list is stored, not derived.** A ticked box is a fact about
 somebody standing in a shop, so it has to survive the plan changing under it.
 Reading the list regenerates it — quantities recomputed, lines the week no

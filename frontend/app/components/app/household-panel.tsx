@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
 import { Dialog } from "@ui/dialog";
+import { LaunchNote } from "./launch-note";
 import { Button } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
@@ -139,6 +140,10 @@ export function HouseholdPanel({
             ? t(household.owner ? "plan.openOwner" : "plan.openMember")
             : t("plan.closed")}
         </p>
+
+        {/* Sharing is open to everybody today. Saying so is the difference
+            between a gift and a surprise on the day it stops being one. */}
+        {subscription.openPeriod && <LaunchNote className="mt-3" />}
 
         {household.owner && !household.sharingOpen && (
           <div className="mt-6 flex flex-wrap items-center gap-3">

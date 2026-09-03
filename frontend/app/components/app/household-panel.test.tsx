@@ -78,6 +78,7 @@ function subscriptionWith(overrides: Partial<Subscription> = {}): Subscription {
     currentPeriodEnd: null,
     features: [],
     canOrder: false,
+    openPeriod: false,
     ...overrides,
   };
 }
@@ -188,6 +189,12 @@ describe("HouseholdPanel", () => {
     await user.click(screen.getByRole("button", { name: "Quitter" }));
 
     await waitFor(() => expect(leaveHousehold).toHaveBeenCalled());
+  });
+
+  it("says the sharing is open for now, where the plan would be sold", () => {
+    renderPanel(householdWith(), subscriptionWith({ openPeriod: true }));
+
+    expect(screen.getByTestId("launch-note")).toBeInTheDocument();
   });
 
   it("lets the owner show a member out, and never themselves", async () => {

@@ -67,6 +67,23 @@ async function tickRow(row: Locator) {
   await row.locator("label").first().click();
 }
 
+/**
+ * Ticks, and waits for the server to have been told.
+ *
+ * The box goes on optimistically, so `toBeChecked` passes before anything has
+ * left the browser. A test that then navigates cancels the request in flight
+ * and loses the tick — which is a race in the test, not in the app, and it is
+ * the one that made this file flaky under load.
+ */
+async function tickAndSettle(page: Page, row: Locator) {
+  await Promise.all([
+    page.waitForResponse(
+      (response) => response.request().method() === "POST" && response.ok(),
+    ),
+    tickRow(row),
+  ]);
+}
+
 /** The worker only takes over once it has installed and claimed the page. */
 async function waitForServiceWorker(page: Page) {
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null, undefined, {
@@ -123,7 +140,7 @@ test("a line is ticked with a thumb, stays visible, and survives a reload", asyn
   const target = await row.locator("label").boundingBox();
   expect(target?.height ?? 0).toBeGreaterThanOrEqual(56);
 
-  await tickRow(row);
+  await tickAndSettle(page, row);
   await expect(box).toBeChecked();
   // Still there, struck through: it is the record of the trip.
   await expect(row).toContainText("Lentilles");
@@ -141,7 +158,7 @@ test("regenerating from a changed plan keeps the boxes already ticked", async ({
   ]);
   await planMeal(request, WEDNESDAY, "DINNER", curry);
   await openList(page);
-  await tickRow(page.getByTestId("aisles").getByRole("listitem").first());
+  await tickAndSettle(page, page.getByTestId("aisles").getByRole("listitem").first());
   await expect(page.getByTestId("aisles").getByRole("checkbox").first()).toBeChecked();
 
   // The plan changes under the list.

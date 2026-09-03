@@ -47,15 +47,17 @@ public class SubscriptionController {
             @AuthenticationPrincipal Jwt principal,
             @Valid @RequestBody OrderRequest body) {
         try {
-            SubscriptionOrder order = subscriptions.order(
+            SubscriptionService.Ordered placed = subscriptions.order(
                     userId(principal),
                     Tier.parse(body.tier()),
                     body.period() == null ? BillingPeriod.MONTHLY : BillingPeriod.parse(body.period()));
+            SubscriptionOrder order = placed.order();
             return new OrderView(
                     order.getId(), order.getTier().name(), order.getPeriod().name(),
                     order.getStatus().name(),
-                    // Filled in by whichever provider ends up taking the money.
-                    null);
+                    // Null while no provider takes money, which is the state
+                    // the screen already knows how to say out loud.
+                    placed.checkoutUrl());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -71,18 +73,21 @@ public class SubscriptionController {
 
     private SubscriptionView view(Long userId) {
         Tier tier = entitlements.tierOf(userId);
+        // What the account may do, asked the way every screen asks it. During
+        // the launch period that is every feature, whatever the tier says.
         List<String> features = Arrays.stream(Feature.values())
-                .filter(feature -> tier.atLeast(feature.required()))
+                .filter(feature -> entitlements.has(userId, feature))
                 .map(Enum::name)
                 .toList();
         return subscriptions.find(userId)
                 .map(subscription -> new SubscriptionView(
                         tier.name(), subscription.getStatus().name(),
                         subscription.getPeriod().name(), subscription.getCurrentPeriodEnd(),
-                        features, subscriptions.canOrder()))
+                        features, subscriptions.canOrder(), entitlements.openPeriod()))
                 .orElseGet(() -> new SubscriptionView(
                         tier.name(), Subscription.Status.CANCELED.name(),
-                        BillingPeriod.MONTHLY.name(), null, features, subscriptions.canOrder()));
+                        BillingPeriod.MONTHLY.name(), null, features,
+                        subscriptions.canOrder(), entitlements.openPeriod()));
     }
 
     private static Long userId(Jwt principal) {

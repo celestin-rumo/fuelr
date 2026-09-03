@@ -780,5 +780,10 @@
     "name": "Fuelr · recipes and the week's meals",
     "shortName": "Fuelr",
     "description": "Your recipes, your week's plan and cooking mode, network or no network."
+  },
+  "launch": {
+    "badge": "Free during the launch",
+    "note": "This will be part of a paid plan. It is open to everybody for now.",
+    "compare": "See the plans"
   }
 }

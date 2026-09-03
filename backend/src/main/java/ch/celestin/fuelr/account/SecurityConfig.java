@@ -39,10 +39,18 @@ public class SecurityConfig {
                 // registration reported itself as "unauthenticated".
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers("/api/health").permitAll()
+                // What the plans cost is the same answer for everybody, and
+                // the pricing page is read by people with no account at all.
+                .requestMatchers(HttpMethod.GET, "/api/plans").permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/register", "/api/auth/login",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
                         "/api/auth/verify-email",
+                        // A payment provider calls this one, and has no
+                        // session to call it with. It is public by necessity
+                        // and refuses anything it cannot verify — see
+                        // PaymentWebhookController.
+                        "/api/subscription/webhook",
                         // Arithmetic on figures the caller typed; nothing is stored.
                         "/api/nutrition/target").permitAll()
                 .anyRequest().authenticated())
