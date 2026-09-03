@@ -43,6 +43,8 @@ export async function POST(request: Request) {
     413: "file_too_large",
     415: "unsupported_format",
     422: "unreadable",
+    429: "ai_budget_exhausted",
+    502: "provider",
     503: "ai_unavailable",
   };
   return Response.json(

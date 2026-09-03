@@ -50,6 +50,10 @@ services:
       # while they are built. With this on, asking for a plan is enough to get
       # it — so it belongs here and in the test run, and nowhere else.
       APP_SUBSCRIPTION_SELF_ACTIVATE: "true"
+      # From the ignored `.env`. Empty here means the assisted import says it
+      # is not wired, which is a working state and not a broken one.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
 
     depends_on:
       database:

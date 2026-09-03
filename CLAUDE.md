@@ -246,11 +246,33 @@ that decides, not beside each feature that needs it.
 `RecipeIntelligence` is the seam behind it — one interface for the three inputs
 no parser can read, written in nobody's SDK so the suite still touches no
 network, with `NoRecipeIntelligence` ordered last while no provider is wired.
-Whatever implements it owes two things: a `ParsedRecipe` like any other, so a
-guess arrives flagged rather than looking measured, and an answer treated as
-data validated against a schema — a page a stranger wrote can say "ignore the
-previous instructions", which is the same lesson as the import's SSRF in a new
-costume.
+`AnthropicRecipeIntelligence` is the one that reads: plain HTTP like every
+other outbound call here, and a key is the whole of `available()`, so an
+environment without one offers nothing rather than failing once somebody has
+chosen their photos.
+
+Two rules bind it. The model may only answer through a declared tool schema,
+so what comes back is a shape we asked for rather than prose to be parsed —
+and that is what makes the second rule enforceable: **the images are written
+by a stranger.** A cookbook page can be photographed with "ignore your
+instructions" written across it. The system prompt says so, the tool is the
+only exit, and nothing that returns is ever treated as an instruction. It is
+the import's SSRF lesson in a new costume. What it produces is a `ParsedRecipe`
+like any other, so a guess arrives flagged and a line it could not split keeps
+`needsReview` — the editor has known how to show both since the first import.
+
+**The budget is in money, and it is decremented by what was actually spent.**
+`ai_usage` keeps one row per call — never a running total, which cannot be
+re-derived when a price changes — and `AiBudget` sums the month. A count of
+calls would have been wrong three ways: a two-page recipe costs twice a
+one-page one and should say so, a price change would silently double what
+everybody gets, and a new kind of read would need a new counter. The provider
+returns the tokens it counted, so nothing is estimated before the call; the
+check before it is on what is already spent, which lets one read carry the
+month slightly over rather than guess a price. `record` runs in its own
+transaction on purpose: a draft that fails afterwards rolls back, and the money
+does not. A spent month is **429**, not 402 — the plan is paid for, and the
+wait has a date.
 
 **A logged meal must copy its values, never reference the recipe.** Recipes get
 edited after they have been used, so a meal log pointing at the live recipe

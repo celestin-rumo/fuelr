@@ -3,6 +3,9 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.next/
+# The e2e run builds into its own directory — never the dev server's, or it
+# wipes the chunks the loaded pages reference. See next.config.ts.
+frontend/.next-e2e/
 frontend/.nuxt/
 frontend/.output/
 frontend/coverage/
