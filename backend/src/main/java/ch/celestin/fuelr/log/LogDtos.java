@@ -15,7 +15,7 @@ public final class LogDtos {
     public record EntryView(
             Long id, LocalDate date, String slot, String title, double servings,
             double kcal, double proteinG, double carbsG, double fatG,
-            boolean estimated, String source, Long recipeId) {
+            boolean estimated, String source, Long recipeId, Long plannedMealId) {
     }
 
     /**
@@ -87,6 +87,30 @@ public final class LogDtos {
             @PositiveOrZero Double proteinG,
             @PositiveOrZero Double carbsG,
             @PositiveOrZero Double fatG) {
+    }
+
+    /**
+     * An entry put back exactly as it was.
+     *
+     * Not a {@link LogRequest} with the same fields: that one recomputes from
+     * the recipe when it is given one, and a restore that recomputed would
+     * hand back different figures than the ones deleted the moment the recipe
+     * had been edited since. Undo means "as it was", so every figure travels
+     * and nothing is derived.
+     */
+    public record RestoreRequest(
+            @NotNull LocalDate date,
+            String slot,
+            @NotNull String title,
+            Long recipeId,
+            Long plannedMealId,
+            @Min(1) Double servings,
+            @PositiveOrZero Double kcal,
+            @PositiveOrZero Double proteinG,
+            @PositiveOrZero Double carbsG,
+            @PositiveOrZero Double fatG,
+            boolean estimated,
+            String source) {
     }
 
     public record TargetRequest(

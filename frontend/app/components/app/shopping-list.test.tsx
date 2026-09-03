@@ -180,6 +180,19 @@ describe("ShoppingList", () => {
       screen.getByRole("button", { name: "Retirer Papier toilette de la liste" }),
     );
     await waitFor(() => expect(removeItem).toHaveBeenCalledWith(20));
+
+    // Removed by mistake, put back as a line rather than as an apology.
+    const notice = await screen.findByTestId("item-removed");
+    expect(notice).toHaveTextContent("Papier toilette");
+
+    await user.click(screen.getByTestId("undo-remove"));
+    await waitFor(() =>
+      expect(addItem).toHaveBeenCalledWith("2026-03-02", {
+        name: "Papier toilette",
+        quantity: undefined,
+        unit: "g",
+      }),
+    );
   });
 
   it("shows what the cupboard already covers rather than hiding it", () => {

@@ -152,4 +152,8 @@ public class MealLogEntry {
     public Long getRecipeId() {
         return recipeId;
     }
+
+    public Long getPlannedMealId() {
+        return plannedMealId;
+    }
 }

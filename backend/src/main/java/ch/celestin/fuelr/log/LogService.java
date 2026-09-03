@@ -160,6 +160,38 @@ public class LogService {
         return Optional.of(entries.save(entry));
     }
 
+    /**
+     * Puts a deleted entry back, figure for figure.
+     *
+     * The link to a planned meal comes back with it, so the evening stays
+     * marked cooked — unless something has been logged against that meal in
+     * the meantime, in which case the row still returns and only the link is
+     * dropped. A unique index guards the pair, and an undo is not the place
+     * to meet it.
+     */
+    @Transactional
+    public MealLogEntry restore(Long userId, LogDtos.RestoreRequest request) {
+        String title = request.title().trim();
+        if (title.isEmpty()) {
+            throw new IllegalArgumentException("title_required");
+        }
+        MealLogEntry entry = new MealLogEntry(
+                userId, title, request.date(), slotOf(request.slot()),
+                BigDecimal.valueOf(request.servings() == null ? 1 : request.servings()),
+                BigDecimal.valueOf(orZero(request.kcal())),
+                BigDecimal.valueOf(orZero(request.proteinG())),
+                BigDecimal.valueOf(orZero(request.carbsG())),
+                BigDecimal.valueOf(orZero(request.fatG())),
+                request.estimated(), sourceOf(request.source()));
+        Long plannedMealId = request.plannedMealId();
+        if (plannedMealId != null
+                && entries.findByUserIdAndPlannedMealId(userId, plannedMealId).isPresent()) {
+            plannedMealId = null;
+        }
+        entry.from(request.recipeId(), plannedMealId);
+        return entries.save(entry);
+    }
+
     @Transactional
     public boolean remove(Long userId, Long id) {
         return entries.findByIdAndUserId(id, userId)
@@ -347,7 +379,17 @@ public class LogService {
                 entry.getId(), entry.getDate(), entry.getSlot(), entry.getTitle(),
                 entry.getServings(), entry.getKcal(), entry.getProteinG(),
                 entry.getCarbsG(), entry.getFatG(), entry.isEstimated(),
-                entry.getSource().name(), entry.getRecipeId());
+                entry.getSource().name(), entry.getRecipeId(), entry.getPlannedMealId());
+    }
+
+    /** An unknown source is a free entry: the label is not worth a 400. */
+    private static MealLogEntry.Source sourceOf(String source) {
+        if (source == null) return MealLogEntry.Source.FREE;
+        try {
+            return MealLogEntry.Source.valueOf(source.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return MealLogEntry.Source.FREE;
+        }
     }
 
     private static String slotOf(String slot) {
