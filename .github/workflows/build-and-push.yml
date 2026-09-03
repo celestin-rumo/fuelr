@@ -327,6 +327,11 @@ jobs:
           BACKEND_INTERNAL_URL: http://localhost:8080
           E2E_BACKEND_URL: http://localhost:8080
           E2E_MAILPIT_URL: http://localhost:8025
+          # The account the backend above was started with. The operator's
+          # cost page is admin-only, so its spec has to sign in as one — and
+          # CI's admin is not the development one.
+          E2E_ADMIN_EMAIL: admin@fuelr.test
+          E2E_ADMIN_PASSWORD: changeme
         run: npm run test:e2e
 
       - name: Backend logs on failure

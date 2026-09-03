@@ -3,7 +3,14 @@ import type { APIRequestContext, BrowserContext } from "@playwright/test";
 
 const BACKEND = process.env.E2E_BACKEND_URL ?? "http://localhost:8090";
 
-/** The account the backend creates at boot, from ADMIN_EMAIL / ADMIN_PASSWORD. */
+/**
+ * The account the backend creates at boot, from ADMIN_EMAIL / ADMIN_PASSWORD.
+ *
+ * The defaults are the development compose file's. CI starts its backend with
+ * a different address and passes it in — which is the bug this comment now
+ * stands in front of: a default that was right in one environment only turned
+ * an admin-only page into a red pipeline.
+ */
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? "admin@celestinrumo.ch";
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? "changeme";
 
