@@ -274,6 +274,15 @@ transaction on purpose: a draft that fails afterwards rolls back, and the money
 does not. A spent month is **429**, not 402 — the plan is paid for, and the
 wait has a date.
 
+`/total-costs` is where those rows are read: an operator's page, admin only,
+answering `notFound` rather than 403 in both the page and the endpoint — a
+screen that exists only for operators has no reason to confirm to anybody else
+that it exists. It shows the month beside the whole of it, because they answer
+different questions, and totals are summed from the rows on screen so the
+headline and the table cannot disagree. Figures are in dollars, as the provider
+bills them. Like `/design-system` it is internal, so its copy is English and it
+is deliberately not translated.
+
 **A logged meal must copy its values, never reference the recipe.** Recipes get
 edited after they have been used, so a meal log pointing at the live recipe
 would silently rewrite someone's nutritional history every time they fix a typo
