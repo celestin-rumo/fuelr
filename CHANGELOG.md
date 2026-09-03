@@ -6,6 +6,60 @@ this file collects them newest first.
 
 ---
 
+# v2.1.1 — 2026-09-03
+
+One unreadable ingredient emptied a whole library, and it stayed empty.
+
+## What happened
+
+An import from a photo wrote `piece` as a unit. This app knows five — `g`,
+`ml`, `pcs`, `c.à.s`, `c.à.c` — and the tool schema handed to the model said
+"g, ml, cs, cc, piece", three of which do not exist here.
+
+From then on `GET /api/recipes` answered 400 for that account. The library
+reported itself empty, with every recipe still in the database, and reloading
+changed nothing: the unit is written into the row, so the damage outlived the
+import that caused it. The recipe had no description either — the schema never
+asked for one — and the filter chips were gone with the grid they belong to.
+
+## Fixed
+
+**A display no longer refuses to render because one line is unreadable.**
+`NutritionService.computeForDisplay` answers "no figures" where `compute`
+throws, and the library and the week's plan ask through it: a card loses its
+numbers rather than its existence. `compute` still throws for the editor, where
+somebody typed the unit and can correct it — and that path answers 400 rather
+than the 500 it used to.
+
+**A missing unit stops being an error.** Every import produces such lines on
+purpose — "sel, poivre", "une poignée de coriandre" — as a line it could not
+split, marked for review and left whole. They count as nothing and the recipe
+keeps its figures: denying figures to most imported recipes is a worse answer
+than figures that ignore a pinch.
+
+**The reader speaks the app's vocabulary.** The five real units, checked
+against on the way in, because a schema is a request and not a promise. Tags
+too: the library's chips are a fixed list, so a recipe tagged "soupe" is a
+recipe no filter will ever find — the model picks from the list or picks none.
+And the description is asked for, which was simply missing.
+
+**The rows already written are repaired.** `V22__imported_units.sql` maps the
+spellings this app has never been able to read onto the ones it can. It touches
+nothing it could already measure, which makes it a repair rather than a change.
+
+## Verification
+
+Backend 265, frontend unit 200, e2e 183. The regression test inserts a bad unit
+straight into the database rather than through the import: the door is fixed,
+but the door is not the only way a row gets written, and the state is what the
+fix has to survive.
+
+Seasons are deliberately still not asked of the model. `Season` is a closed
+domain on purpose, and letting something guess one is a product decision nobody
+has made.
+
+---
+
 # v2.1.0 — 2026-09-03
 
 Everything is free, including the parts that cost money to run — and what
