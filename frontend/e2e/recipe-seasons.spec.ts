@@ -160,6 +160,10 @@ test("the season filters hold up on a phone", async ({ request, page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/fr/app");
 
+  // Folded away until asked for: eleven rows of chips are not what somebody
+  // opens the app to read.
+  await expect(page.getByTestId("season-filters")).toBeHidden();
+  await page.getByTestId("toggle-filters").click();
   await expect(page.getByTestId("season-filters")).toBeVisible();
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

@@ -468,6 +468,41 @@ When a control loses its visible label that way, give it an explicit
 twice: the button keeps its name, but a button whose label is `hidden` has none
 at all.
 
+**360px is the floor, and it is measured rather than argued about.**
+`e2e/mobile-360.spec.ts` opens every screen at 360×640 and asserts three
+things: the page does not scroll sideways, every control the browser painted is
+at least 44px tall, and the bottom of a dialog is reachable on a 360×480
+screen. It measures the rendered box on purpose — which of two competing
+Tailwind heights wins is decided by the stylesheet's order, so a class list
+proves nothing and jsdom, which loads no stylesheet, cannot tell at all. Add
+each new screen to that spec; a control written into a sentence is exempt
+(`display: inline`), a control with a box of its own is not.
+
+Three habits come out of it. **A phone is not a small desktop**: below `lg` the
+planner offers one add button per day instead of 21 empty slots, and below `sm`
+the library folds eleven rows of filters behind one chip that carries the count
+— hiding a filter is only allowed while it still says it is on. **Order is part
+of the layout**: the journal puts the meals somebody came to read before the
+targets they set once a month, with `order-*` rather than a second markup.
+And **a dialog is one component** — `@ui/dialog` — because the meal sheet that
+centred itself put "Retirer du planning" 218px below the fold with nothing to
+scroll.
+
+**Destructive actions: `Supprimer` destroys, `Retirer` takes out of a list.**
+An ingredient line or a step is deleted; a favourite, a planned meal or a
+household member is removed from something and goes on existing. Where the
+action cannot be undone and lands on somebody else — showing a member out of
+the household — it is asked first, with the name in the question. Where it is
+frequent and the row can be recreated exactly — a journal entry, a hand-added
+shopping line — there is no confirmation and an undo banner instead: a dialog
+on every row is a tax paid by everyone who meant it.
+
+The journal's undo is why `POST /api/log/restore` exists. Logging a meal from a
+recipe recomputes its figures from that recipe, so a restore that reused it
+would hand back a different meal the moment the recipe had been edited since.
+The restore takes every figure instead, which is the same rule as the log
+itself: **a logged meal copies its values, never references the recipe.**
+
 **A green local suite can be testing files the repository does not have.**
 `.gitignore` carried a bare `target/` for Maven, which is unanchored and so
 swallowed `app/api/nutrition/target/` too: the onboarding preview route lived

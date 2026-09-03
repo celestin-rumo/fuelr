@@ -104,7 +104,7 @@ test("a photo can be added, replaced and removed", async ({ page }) => {
   await pickImage(page, "autre.jpg", "image/jpeg");
   await expect(page.getByTestId("recipe-photo")).toBeVisible();
 
-  await page.getByRole("button", { name: "Retirer" }).click();
+  await page.getByRole("button", { name: "Supprimer la photo" }).click();
   await expect(page.getByTestId("recipe-photo-placeholder")).toBeVisible();
   await expect(page.getByRole("button", { name: "Ajouter une photo" })).toBeVisible();
 });

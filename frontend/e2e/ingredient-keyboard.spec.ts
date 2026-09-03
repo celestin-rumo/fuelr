@@ -104,12 +104,12 @@ test("every line can be removed", async ({ page }) => {
     await page.getByLabel("Quantité").press("Enter");
   }
 
-  await page.getByRole("button", { name: "Retirer Ail" }).click();
+  await page.getByRole("button", { name: "Supprimer Ail" }).click();
   await expect(page.getByText("Ail", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Oignon", { exact: true })).toBeVisible();
   await expect(page.getByText("Curry", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Retirer Oignon" }).click();
-  await page.getByRole("button", { name: "Retirer Curry" }).click();
+  await page.getByRole("button", { name: "Supprimer Oignon" }).click();
+  await page.getByRole("button", { name: "Supprimer Curry" }).click();
   await expect(page.getByText("Aucun ingrédient pour l'instant.")).toBeVisible();
 });
