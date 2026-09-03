@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
-import { Button } from "@ui/button";
+import { Button, buttonClasses } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Checkbox } from "@ui/checkbox";
 import { Input } from "@ui/input";
@@ -256,8 +256,17 @@ export function ShoppingList({
           <span data-testid="remaining" className="tnum font-mono text-[13px] text-gray">
             {t("remaining", { count: shown.remaining })}
           </span>
+          {/* Its own page: the sheet can be looked at before it is printed. */}
+          <Link
+            href={{ pathname: "/app/shopping/print", query: { week } }}
+            data-testid="print-shopping"
+            className={buttonClasses({ variant: "tertiary", size: "sm" })}
+          >
+            {t("print.button")}
+          </Link>
         </div>
       )}
+
 
       {shown.aisles.length === 0 && shown.covered.length === 0 ? (
         <p data-testid="shopping-empty" className="text-[15px] font-medium text-text-dim">

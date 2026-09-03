@@ -248,7 +248,14 @@
     },
     "removed": "“{name}” removed from the list.",
     "undo": "Undo",
-    "undoDismiss": "Close"
+    "undoDismiss": "Close",
+    "print": {
+      "button": "Print",
+      "title": "Shopping list",
+      "week": "Week of {date}",
+      "covered": "Already in the cupboard",
+      "empty": "Nothing to buy this week."
+    }
   },
   "journal": {
     "label": "Nutrition & tracking",
@@ -543,6 +550,16 @@
     },
     "filters": {
       "toggle": "Filter"
+    },
+    "print": {
+      "button": "Print",
+      "servings": "{count} servings",
+      "minutes": "{count} min",
+      "ingredients": "Ingredients",
+      "steps": "Method",
+      "toCheck": "to check",
+      "unverified": "The import could not read: {fields}. Worth checking.",
+      "source": "Imported from {url}"
     }
   },
   "cook": {
@@ -837,5 +854,10 @@
     "badge": "Free during the launch",
     "note": "This will be part of a paid plan. It is open to everybody for now.",
     "compare": "See the plans"
+  },
+  "print": {
+    "action": "Print",
+    "back": "Back",
+    "hint": "The print dialog also offers “Save as PDF”."
   }
 }

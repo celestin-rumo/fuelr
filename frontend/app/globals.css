@@ -199,3 +199,74 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/**
+ * Paper.
+ *
+ * The sheet has its own page — see `print-page.tsx` — so printing does not
+ * have to hide a screen: the page already is the sheet, and everything on it
+ * except the toolbar is meant to be printed.
+ *
+ * Ink is the constraint that shapes the rest. Fuelr is a near-black interface
+ * and a laser printer would empty a cartridge rendering it, so the sheet is
+ * black on white on screen too, the accent becomes weight rather than colour,
+ * and the photo is not printed at all: it says nothing a cook standing at a
+ * worktop needs, and it costs a page.
+ */
+@media print {
+  /* The app around the sheet. Named by element rather than by position: the
+     layout wraps everything in one div, so "every child of body except the
+     one holding the sheet" hides nothing at all. A header, a navigation and a
+     footer have no meaning on a sheet of paper anyway. */
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  .print-sheet {
+    color: #000;
+    background: #fff;
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  /* Rules the browser would otherwise decide for us, badly: never break a
+     step, a line of shopping or a heading away from what follows it. */
+  .print-sheet li,
+  .print-sheet h1,
+  .print-sheet h2,
+  .print-sheet h3 {
+    break-inside: avoid;
+  }
+
+  .print-sheet h2,
+  .print-sheet h3 {
+    break-after: avoid;
+  }
+
+  /* A section is a rayon, or the method. Keep one whole where it fits. */
+  .print-sheet section {
+    break-inside: avoid-page;
+  }
+
+  /* The global reset strips list markers, which is right on screen and wrong
+     here: a method without its numbers is a paragraph in disguise. */
+  .print-sheet ol {
+    list-style: decimal;
+  }
+
+  .print-sheet ol li::marker {
+    font-weight: 700;
+  }
+}

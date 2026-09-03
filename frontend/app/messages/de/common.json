@@ -248,7 +248,14 @@
     },
     "removed": "„{name}“ von der Liste entfernt.",
     "undo": "Rückgängig",
-    "undoDismiss": "Schliessen"
+    "undoDismiss": "Schliessen",
+    "print": {
+      "button": "Drucken",
+      "title": "Einkaufsliste",
+      "week": "Woche vom {date}",
+      "covered": "Schon im Vorrat",
+      "empty": "Diese Woche nichts zu kaufen."
+    }
   },
   "journal": {
     "label": "Ernährung & Verlauf",
@@ -543,6 +550,16 @@
     },
     "filters": {
       "toggle": "Filtern"
+    },
+    "print": {
+      "button": "Drucken",
+      "servings": "{count} Personen",
+      "minutes": "{count} Min.",
+      "ingredients": "Zutaten",
+      "steps": "Zubereitung",
+      "toCheck": "zu prüfen",
+      "unverified": "Der Import konnte nicht lesen: {fields}. Bitte prüfen.",
+      "source": "Importiert von {url}"
     }
   },
   "cook": {
@@ -837,5 +854,10 @@
     "badge": "Zum Start gratis",
     "note": "Diese Funktion wird Teil eines kostenpflichtigen Plans. Vorerst ist sie für alle offen.",
     "compare": "Pläne ansehen"
+  },
+  "print": {
+    "action": "Drucken",
+    "back": "Zurück",
+    "hint": "Der Druckdialog bietet auch „Als PDF speichern“."
   }
 }
