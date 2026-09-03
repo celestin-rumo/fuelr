@@ -214,7 +214,15 @@ test("the week holds up on a phone", async ({ request, page }) => {
   await seed(request, "Curry de lentilles");
   await page.setViewportSize({ width: 375, height: 812 });
   await openWeek(page);
-  await planInto(page, "Dîner", "mercredi", "Curry de lentilles");
+
+  // A phone plans by the day: 21 empty slots are 21 rows of nothing, so the
+  // day carries one button and the meal is chosen in the sheet.
+  await page.getByTestId(`add-day-${WEDNESDAY}`).click();
+  await page.getByTestId("picker-slots").getByRole("button", { name: "Dîner" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: /Curry de lentilles/ })
+    .click();
 
   // The grid stacks instead of pushing the page sideways.
   const overflow = await page.evaluate(

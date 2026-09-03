@@ -150,7 +150,7 @@ test("an ingredient can be removed", async ({ page }) => {
   await page.getByRole("button", { name: "Ajouter", exact: true }).click();
   await expect(page.getByText("Oignon")).toBeVisible();
 
-  await page.getByRole("button", { name: "Retirer Oignon" }).click();
+  await page.getByRole("button", { name: "Supprimer Oignon" }).click();
   await expect(page.getByText("Aucun ingrédient pour l'instant.")).toBeVisible();
 });
 
