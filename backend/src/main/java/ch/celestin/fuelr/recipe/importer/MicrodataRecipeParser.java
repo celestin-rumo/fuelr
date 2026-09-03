@@ -36,6 +36,7 @@ public class MicrodataRecipeParser implements RecipePageParser {
 
         recipe.setTitle(prop(scope, "name"));
         recipe.setDescription(prop(scope, "description"));
+        recipe.setImageUrl(image(scope));
         RecipeFields.readServings(recipe, prop(scope, "recipeYield"));
         recipe.setTotalMinutes(RecipeFields.firstDuration(
                 prop(scope, "totalTime"), prop(scope, "cookTime"), prop(scope, "prepTime")));
@@ -47,6 +48,28 @@ public class MicrodataRecipeParser implements RecipePageParser {
             RecipeFields.addProse(recipe, element.text());
         }
         return recipe;
+    }
+
+    /**
+     * The photo, wherever this dialect put it: a `content` attribute on a meta
+     * tag, the `src` of an `img`, or the `href` of a `link`. Jsoup resolves
+     * the last two against the page, which is what makes a relative path
+     * usable once the page is no longer being read from its own site.
+     */
+    private String image(Element scope) {
+        for (Element element : scope.select("[itemprop=image]")) {
+            String content = element.attr("content").trim();
+            if (!content.isBlank()) {
+                return RecipeFields.absolute(content, scope.baseUri());
+            }
+            for (String attribute : new String[] {"src", "href"}) {
+                String url = element.absUrl(attribute);
+                if (!url.isBlank()) {
+                    return url;
+                }
+            }
+        }
+        return null;
     }
 
     /** Durations live in `content`; everything else is the element's text. */

@@ -212,6 +212,22 @@ own parser later without touching a registry. But the two that exist read
 worked without anyone writing a line for them. Site-specific parsers rot at the
 first redesign; format parsers do not.
 
+**The imported photo is a bonus, and its URL is as untrusted as the page.**
+An import now fetches what the page announced as its `image` — a string, an
+array, an `ImageObject`, or an `@id` pointing at one elsewhere in the `@graph`,
+all four of which are in the fixtures. That address was written by the same
+stranger as the page, so the download goes through `SafePageFetcher` and no
+further: same schemes, same re-check on every redirect hop, same refusal of any
+host resolving to a private address. On top of that `MediaStorage.sniff` reads
+the first bytes rather than the content type or the extension — a `.jpg` can be
+a login page, and `image/svg+xml` is a document that executes script.
+
+Every refusal ends the same way: a draft with no photo. A page that publishes
+none, an image behind a 404, one that is too heavy, one that is not an image —
+none of them is an import failure, because the cook asked for the recipe. The
+suite stays hermetic by having its own server rewrite the captures' remote
+image addresses to its own; nothing in it reaches the network.
+
 **A logged meal must copy its values, never reference the recipe.** Recipes get
 edited after they have been used, so a meal log pointing at the live recipe
 would silently rewrite someone's nutritional history every time they fix a typo

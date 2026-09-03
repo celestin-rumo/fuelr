@@ -55,9 +55,35 @@ public class SafePageFetcher {
     }
 
     public String fetch(String rawUrl) {
+        try (InputStream stream = open(rawUrl, "text/html,application/xhtml+xml")) {
+            return new String(stream.readNBytes(MAX_BYTES), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UnreadableSourceException("unreachable");
+        }
+    }
+
+    /**
+     * The same walk, for something that is not a page.
+     *
+     * An image URL comes off a page a stranger chose, so it is exactly as
+     * untrusted as the page: same schemes, same re-check on every redirect
+     * hop, same refusal of any host that resolves to a private address. What
+     * differs is only the ceiling and what the caller does with the bytes —
+     * this returns at most {@code maxBytes} and says nothing about what they
+     * contain.
+     */
+    public byte[] fetchBytes(String rawUrl, int maxBytes) {
+        try (InputStream stream = open(rawUrl, "image/*")) {
+            return stream.readNBytes(maxBytes);
+        } catch (IOException e) {
+            throw new UnreadableSourceException("unreachable");
+        }
+    }
+
+    private InputStream open(String rawUrl, String accept) {
         URI uri = validated(rawUrl);
         for (int hop = 0; hop < 4; hop++) {
-            HttpResponse<InputStream> response = send(uri);
+            HttpResponse<InputStream> response = send(uri, accept);
             int status = response.statusCode();
             if (status >= 300 && status < 400) {
                 String location = response.headers().firstValue("location")
@@ -68,18 +94,18 @@ public class SafePageFetcher {
             if (status != 200) {
                 throw new UnreadableSourceException("http_" + status);
             }
-            return body(response);
+            return response.body();
         }
         throw new UnreadableSourceException("too_many_redirects");
     }
 
-    private HttpResponse<InputStream> send(URI uri) {
+    private HttpResponse<InputStream> send(URI uri, String accept) {
         HttpRequest request = HttpRequest.newBuilder(uri)
                 .timeout(TIMEOUT)
                 // Some sites serve a stub to unknown agents; say who we are
                 // rather than pretending to be a browser.
                 .header("User-Agent", "FuelrBot/1.0 (+https://fuelr.celestinrumo.ch)")
-                .header("Accept", "text/html,application/xhtml+xml")
+                .header("Accept", accept)
                 .GET()
                 .build();
         try {
@@ -89,15 +115,6 @@ public class SafePageFetcher {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UnreadableSourceException("interrupted");
-        }
-    }
-
-    private String body(HttpResponse<InputStream> response) {
-        try (InputStream stream = response.body()) {
-            byte[] bytes = stream.readNBytes(MAX_BYTES);
-            return new String(bytes, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UnreadableSourceException("unreachable");
         }
     }
 

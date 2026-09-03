@@ -34,11 +34,21 @@ public class JsonLdRecipeParser implements RecipePageParser {
 
     @Override
     public ParsedRecipe parse(Document document) {
-        JsonNode node = findRecipe(document);
-        return node == null ? new ParsedRecipe() : read(node);
+        Found found = findRecipe(document);
+        return found == null ? new ParsedRecipe() : read(found, document.baseUri());
     }
 
-    private JsonNode findRecipe(Document document) {
+    /**
+     * The recipe, and the block it was found in.
+     *
+     * The block matters because schema.org lets a value be a reference: the
+     * recipe's `image` is often `{"@id": "…#primaryimage"}`, and the
+     * ImageObject it names is a sibling in the same `@graph`.
+     */
+    private record Found(JsonNode recipe, JsonNode block) {
+    }
+
+    private Found findRecipe(Document document) {
         for (Element script : document.select("script[type=application/ld+json]")) {
             JsonNode root;
             try {
@@ -50,7 +60,7 @@ public class JsonLdRecipeParser implements RecipePageParser {
             }
             JsonNode found = walk(root);
             if (found != null) {
-                return found;
+                return new Found(found, root);
             }
         }
         return null;
@@ -95,10 +105,12 @@ public class JsonLdRecipeParser implements RecipePageParser {
         return wanted.equals(type.asText());
     }
 
-    private ParsedRecipe read(JsonNode node) {
+    private ParsedRecipe read(Found found, String baseUri) {
+        JsonNode node = found.recipe();
         ParsedRecipe recipe = new ParsedRecipe();
         recipe.setTitle(text(node.get("name")));
         recipe.setDescription(text(node.get("description")));
+        recipe.setImageUrl(RecipeFields.absolute(image(found), baseUri));
 
         RecipeFields.readServings(recipe, text(node.get("recipeYield")));
         recipe.setTotalMinutes(RecipeFields.firstDuration(
@@ -154,6 +166,77 @@ public class JsonLdRecipeParser implements RecipePageParser {
         String only = recipe.getSteps().get(0);
         recipe.getSteps().clear();
         RecipeFields.addProse(recipe, only);
+    }
+
+    /**
+     * `image` is a string on one site, an array on the next, an ImageObject on
+     * a third and a bare `@id` pointing at one on a fourth. All four are in
+     * the fixtures, so all four are read here rather than in four callers.
+     */
+    private String image(Found found) {
+        String url = urlOf(found.recipe().get("image"), found.block());
+        // A thumbnail is a poor photo and a good last resort: it is what
+        // Marmiton publishes beside the reference it also publishes.
+        return url != null ? url : text(found.recipe().get("thumbnailUrl"));
+    }
+
+    private String urlOf(JsonNode node, JsonNode block) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        if (node.isTextual()) {
+            return blank(node.asText()) ? null : node.asText();
+        }
+        if (node.isArray()) {
+            for (JsonNode entry : node) {
+                String url = urlOf(entry, block);
+                if (url != null) {
+                    return url;
+                }
+            }
+            return null;
+        }
+        if (!node.isObject()) {
+            return null;
+        }
+        for (String field : new String[] {"url", "contentUrl"}) {
+            String url = text(node.get(field));
+            if (!blank(url)) {
+                return url;
+            }
+        }
+        // A reference: the object with that identity is elsewhere in the block.
+        String id = text(node.get("@id"));
+        return blank(id) ? null : urlOf(byId(block, id), null);
+    }
+
+    /** Finds the node carrying an `@id`, without following a reference twice. */
+    private JsonNode byId(JsonNode block, String id) {
+        if (block == null) {
+            return null;
+        }
+        Deque<JsonNode> stack = new ArrayDeque<>();
+        stack.push(block);
+        while (!stack.isEmpty()) {
+            JsonNode node = stack.pop();
+            if (node.isArray()) {
+                node.forEach(stack::push);
+                continue;
+            }
+            if (!node.isObject()) {
+                continue;
+            }
+            // A node that is only an `@id` is the reference, not the target.
+            if (id.equals(text(node.get("@id"))) && node.size() > 1) {
+                return node;
+            }
+            node.forEach(stack::push);
+        }
+        return null;
+    }
+
+    private static boolean blank(String value) {
+        return value == null || value.isBlank();
     }
 
     private String text(JsonNode node) {

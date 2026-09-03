@@ -755,7 +755,7 @@
   },
   "import": {
     "title": "Importer une recette",
-    "intro": "Colle le lien d'une recette. On lit la page, tu corriges ce qui manque.",
+    "intro": "Colle le lien d'une recette. On lit la page, photo comprise, tu corriges ce qui manque.",
     "url": "Lien de la recette",
     "urlHint": "Marmiton, Betty Bossi, Swissmilk, Fooby, Cookidoo et la plupart des sites de cuisine.",
     "submit": "Importer",

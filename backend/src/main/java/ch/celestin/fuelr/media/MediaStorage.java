@@ -65,6 +65,58 @@ public class MediaStorage {
         return name;
     }
 
+    /**
+     * Stores bytes whose type is read from the bytes themselves.
+     *
+     * An upload arrives with a declared content type and a browser that meant
+     * it. Bytes fetched from a page a stranger chose arrive with a header
+     * anybody could have written and a file extension that means nothing: a
+     * `.jpg` can be HTML, and `image/svg+xml` is a document that executes
+     * script. So nothing announced is believed — only the first bytes are.
+     */
+    public String store(byte[] bytes) {
+        String type = sniff(bytes);
+        if (type == null) {
+            throw new UnsupportedMediaException();
+        }
+        if (bytes.length > MAX_BYTES) {
+            throw new FileTooLargeException();
+        }
+        String name = UUID.randomUUID() + ALLOWED.get(type);
+        try {
+            Files.write(root.resolve(name), bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return name;
+    }
+
+    /**
+     * What the bytes actually are, or null for anything not on the list.
+     *
+     * The three signatures are fixed by their formats: JPEG opens FF D8 FF,
+     * PNG has its eight-byte header, and WebP is a RIFF container that names
+     * itself at offset 8.
+     */
+    public static String sniff(byte[] bytes) {
+        if (bytes == null || bytes.length < 12) {
+            return null;
+        }
+        if ((bytes[0] & 0xFF) == 0xFF && (bytes[1] & 0xFF) == 0xD8 && (bytes[2] & 0xFF) == 0xFF) {
+            return "image/jpeg";
+        }
+        if ((bytes[0] & 0xFF) == 0x89 && bytes[1] == 'P' && bytes[2] == 'N' && bytes[3] == 'G'
+                && (bytes[4] & 0xFF) == 0x0D && (bytes[5] & 0xFF) == 0x0A
+                && (bytes[6] & 0xFF) == 0x1A && (bytes[7] & 0xFF) == 0x0A) {
+            return "image/png";
+        }
+        if (bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
+                && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P') {
+            return "image/webp";
+        }
+        return null;
+    }
+
     public Path resolve(String name) {
         // Reject anything that could climb out of the media directory.
         Path resolved = root.resolve(name).normalize();
