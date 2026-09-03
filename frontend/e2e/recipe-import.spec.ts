@@ -55,13 +55,28 @@ test("the three ways in are offered, and the assisted one says it is a gift", as
   await expect(page.getByTestId("source-URL")).toHaveAttribute("aria-pressed", "true");
 
   // Reading a photo is billed to us per read, and it is open anyway while
-  // nothing is charged. What bounds it is a monthly ceiling, not a plan — so
-  // the screen offers it, and says out loud that it will not always be free.
+  // nothing is charged: what bounds it is a monthly ceiling, not a plan.
+  //
+  // Whether a reader is actually wired is an environment fact — CI runs with
+  // no key on purpose, since every read is billed — so what is asserted is the
+  // rule rather than one configuration: picking the source never yields a dead
+  // button, and never a paywall while nothing is charged.
   await page.getByTestId("source-PHOTO").click();
-  await expect(page.getByLabel("Photos de la recette")).toBeVisible();
-  await expect(page.getByTestId("launch-note")).toContainText(
-    "Offert pendant le lancement",
-  );
+  await expect(page.getByTestId("import-closed-PLAN")).toHaveCount(0);
+
+  const files = page.getByLabel("Photos de la recette");
+  if (await files.count()) {
+    // A reader is wired: the form is offered, and says it is a gift.
+    await expect(files).toBeVisible();
+    await expect(page.getByTestId("launch-note")).toContainText(
+      "Offert pendant le lancement",
+    );
+  } else {
+    // None is: the reason is named, and it is ours rather than the cook's.
+    await expect(page.getByTestId("import-closed-SOON")).toContainText(
+      "Pas encore branché",
+    );
+  }
 
   // The link is still one tap away.
   await page.getByTestId("source-URL").click();
