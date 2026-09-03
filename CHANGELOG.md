@@ -182,10 +182,13 @@ reports itself unwired, which is a working state and not a broken one. CI
 deliberately has no key: every read is billed, and a key in the pipeline would
 mean a paid request on every push.
 
-**Three AI features are specified and unbuilt**: reading a blog that publishes
-no structured data, estimating a photographed plate, and transcribing a page of
-a book. The seam they plug into exists; what is missing is the prompt, the
-fixtures and — for the last two — the patience to get them right.
+**Two AI features are specified and unbuilt**: reading a blog that publishes no
+structured data, and estimating a photographed plate. The seam they plug into
+exists — what is missing is the prompt and the fixtures. Reading a page of a
+book is *not* among them: that is the photo import above, and it works. The
+reader only takes images today, which is exactly why the unstructured page is
+still a story: it needs the same model reading text, tried after the two
+schema.org parsers.
 
 **The backup is the gap that costs data.** The `recipe_media` volume is in no
 backup today, and neither is Postgres. Losing the volume loses the photos
