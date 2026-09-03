@@ -118,6 +118,16 @@ Expected GitHub secrets (`Settings > Secrets and variables > Actions`):
 - `RESEND_API_KEY` — the SMTP password for both environments
 - `MAIL_USERNAME`, `STAGING_MAIL_USERNAME` — the Resend SMTP user
 - `JWT_SECRET` — shared by both environments; rotating it signs every user out
+- `ANTHROPIC_API_KEY` — the assisted import (a recipe read from photos). Absent,
+  that import says it is not wired instead of failing, so a deployment without
+  it is degraded and not broken.
+- `ANTHROPIC_WORKSPACE_ID` — required alongside an identity-linked key, which
+  the API refuses without it. An organisation-level key needs no such header;
+  leave the secret empty then.
+
+The key is deliberately **not** available to CI: every read is billed per call,
+and a key there would mean a paid request on every push. The reader is
+exercised against a local stand-in in `AnthropicReadingTest`.
 
 `MAIL_PASSWORD` and `STAGING_MAIL_PASSWORD` are no longer read by anything: the
 deploy workflow takes the key from `RESEND_API_KEY` instead. They can be
