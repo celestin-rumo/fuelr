@@ -32,4 +32,9 @@ public class NoRecipeIntelligence implements RecipeIntelligence {
     public Reading read(List<byte[]> images, Source source) {
         throw new NotAvailableException();
     }
+
+    @Override
+    public Reading read(String text) {
+        throw new NotAvailableException();
+    }
 }

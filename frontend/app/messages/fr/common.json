@@ -347,6 +347,21 @@
     "unavailable": {
       "title": "Le journal n'est pas joignable",
       "body": "Le journal n'a pas pu être chargé. Recharge la page ; rien n'est perdu."
+    },
+    "photo": {
+      "button": "Estimer depuis une photo",
+      "hint": "Photographie ton assiette : les chiffres arrivent dans le formulaire, à corriger avant de noter.",
+      "reading": "Lecture de la photo…",
+      "done": "Estimation reprise dans le formulaire. Corrige ce qui te semble faux avant de noter.",
+      "errors": {
+        "not_recognised": "La photo n'a pas suffi pour estimer. Écris le repas à la main : c'est gratuit et sans limite.",
+        "ai_unavailable": "Pas encore branché. Écris le repas à la main en attendant.",
+        "upgrade_required": "L'estimation par photo fait partie d'un plan payant. Écrire un repas reste gratuit.",
+        "ai_budget_exhausted": "Budget de lecture épuisé pour ce mois. Le compteur repart le 1er.",
+        "unsupported_format": "Ce fichier n'est pas une image. JPEG, PNG ou WebP.",
+        "file_too_large": "Image trop lourde : 2 Mo au maximum.",
+        "provider": "La lecture a échoué. Réessaie, ou écris le repas à la main."
+      }
     }
   },
   "auth": {

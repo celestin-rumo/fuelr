@@ -347,6 +347,21 @@
     "unavailable": {
       "title": "Das Tagebuch ist nicht erreichbar",
       "body": "Das Tagebuch konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
+    },
+    "photo": {
+      "button": "Aus einem Foto schätzen",
+      "hint": "Fotografiere deinen Teller: Die Zahlen landen im Formular und lassen sich vor dem Eintragen korrigieren.",
+      "reading": "Foto wird gelesen…",
+      "done": "Die Schätzung steht im Formular. Korrigiere, was dir falsch vorkommt, bevor du sie einträgst.",
+      "errors": {
+        "not_recognised": "Das Foto hat für eine Schätzung nicht gereicht. Trag die Mahlzeit von Hand ein — das ist gratis und unbegrenzt.",
+        "ai_unavailable": "Noch nicht angeschlossen. Trag die Mahlzeit solange von Hand ein.",
+        "upgrade_required": "Das Schätzen aus einem Foto gehört zu einem kostenpflichtigen Plan. Eintragen bleibt gratis.",
+        "ai_budget_exhausted": "Das Lesebudget dieses Monats ist aufgebraucht. Der Zähler startet am 1. neu.",
+        "unsupported_format": "Diese Datei ist kein Bild. JPEG, PNG oder WebP.",
+        "file_too_large": "Bild zu schwer: höchstens 2 MB.",
+        "provider": "Das Lesen ist fehlgeschlagen. Versuch es erneut oder trag die Mahlzeit von Hand ein."
+      }
     }
   },
   "auth": {

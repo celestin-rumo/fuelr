@@ -1,6 +1,12 @@
 package ch.celestin.fuelr.recipe.importer;
 
 import ch.celestin.fuelr.ai.AiBudget;
+import ch.celestin.fuelr.subscription.Entitlements;
+import ch.celestin.fuelr.subscription.Feature;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ch.celestin.fuelr.recipe.Recipe;
 import ch.celestin.fuelr.recipe.RecipeIngredient;
 import ch.celestin.fuelr.recipe.RecipeRepository;
@@ -10,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Turns a link into a draft the cook can correct.
@@ -23,22 +30,26 @@ import java.util.List;
 @Service
 public class RecipeImportService {
 
+    private static final Logger log = LoggerFactory.getLogger(RecipeImportService.class);
+
     private final SafePageFetcher fetcher;
     private final RecipePageReader reader;
     private final RecipePhotoFetcher photos;
     private final RecipeImportSources sources;
     private final AiBudget budget;
+    private final Entitlements entitlements;
     private final RecipeRepository recipes;
 
     public RecipeImportService(
             SafePageFetcher fetcher, RecipePageReader reader,
             RecipePhotoFetcher photos, RecipeImportSources sources,
-            AiBudget budget, RecipeRepository recipes) {
+            AiBudget budget, Entitlements entitlements, RecipeRepository recipes) {
         this.fetcher = fetcher;
         this.reader = reader;
         this.photos = photos;
         this.sources = sources;
         this.budget = budget;
+        this.entitlements = entitlements;
         this.recipes = recipes;
     }
 
@@ -49,11 +60,74 @@ public class RecipeImportService {
         }
     }
 
+    /**
+     * Imports from a link.
+     *
+     * The two schema.org readers run first, always, and they are free. A page
+     * that publishes nothing they can find then gets one more chance, from a
+     * model reading the page's own words — but only for an account that may
+     * use it and has budget left. For everybody else the answer is what it has
+     * always been: this page holds nothing we can read, here is manual entry.
+     *
+     * That order is the whole design. The paid reading is a last resort, never
+     * a first one: the parsers cost nothing, are right more often, and a page
+     * that publishes its recipe properly should never cost anybody a cent.
+     */
     @Transactional
     public Recipe importFrom(Long userId, String url) {
         String html = fetcher.fetch(url);
         RecipePageReader.Reading reading = reader.read(html, url);
-        return draftFrom(userId, reading.recipe(), url);
+        ParsedRecipe parsed = reading.recipe();
+
+        if (parsed.isEmpty()) {
+            parsed = assisted(userId, html).orElseThrow(NothingToImportException::new);
+        }
+        return draftFrom(userId, parsed, url);
+    }
+
+    /**
+     * One more attempt, with a model, on a page no parser could read.
+     *
+     * Every reason to decline is a quiet one: no entitlement, nothing wired,
+     * no budget left, or a reading that came back empty anyway. The caller
+     * turns all of them into the same answer — the page holds nothing — because
+     * from where somebody stands that is what happened, and offering to sell
+     * them a plan in the middle of a failed import would be reading the room
+     * badly.
+     */
+    private Optional<ParsedRecipe> assisted(Long userId, String html) {
+        RecipeIntelligence intelligence = sources.reader();
+        if (!entitlements.has(userId, Feature.AI_IMPORT) || !intelligence.available()) {
+            return Optional.empty();
+        }
+        try {
+            budget.require(userId);
+        } catch (AiBudget.ExhaustedException e) {
+            return Optional.empty();
+        }
+
+        try {
+            RecipeIntelligence.Reading read = intelligence.read(textOf(html));
+            budget.record(userId, "IMPORT_PAGE", intelligence.name(),
+                    read.usage().inputTokens(), read.usage().outputTokens());
+            return read.recipe().isEmpty() ? Optional.empty() : Optional.of(read.recipe());
+        } catch (RuntimeException e) {
+            log.warn("The assisted reading of a page failed: {}", e.toString());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * The page's words, without its plumbing.
+     *
+     * Scripts and styles are dropped because they are never the recipe and are
+     * most of the bytes. Everything else stays, menus and comments included:
+     * deciding what is the recipe is precisely the job being handed over.
+     */
+    private String textOf(String html) {
+        Document document = Jsoup.parse(html);
+        document.select("script, style, noscript, svg").remove();
+        return document.body() == null ? "" : document.body().text();
     }
 
     /**

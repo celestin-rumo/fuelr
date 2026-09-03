@@ -56,6 +56,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         // half, with the boundary switched on.
         "app.subscription.enforce=false",
         "app.subscription.self-activate=false",
+        // The same server hands out the captured pages, so an import can be
+        // exercised end to end without leaving this machine.
+        "app.import.allow-private-hosts=true",
 })
 @AutoConfigureMockMvc
 @Testcontainers
@@ -85,6 +88,11 @@ class AnthropicReadingTest {
     @BeforeAll
     static void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        // The pages an import reads, served from the same place as the model's
+        // stand-in: two roles, one server, and no network either way.
+        server.createContext("/blog-sans-donnees.html", exchange -> fixture(exchange));
+        server.createContext("/marmiton.html", exchange -> fixture(exchange));
+
         server.createContext("/v1/messages", exchange -> {
             ASKED.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             byte[] body = ANSWER.get().getBytes(StandardCharsets.UTF_8);
@@ -95,6 +103,24 @@ class AnthropicReadingTest {
         });
         server.start();
         origin = "http://127.0.0.1:" + server.getAddress().getPort();
+    }
+
+    private static void fixture(com.sun.net.httpserver.HttpExchange exchange)
+            throws IOException {
+        String name = exchange.getRequestURI().getPath().substring(1);
+        byte[] body;
+        try (var stream = AnthropicReadingTest.class.getResourceAsStream("/import/" + name)) {
+            body = stream == null ? null : stream.readAllBytes();
+        }
+        if (body == null) {
+            exchange.sendResponseHeaders(404, -1);
+            exchange.close();
+            return;
+        }
+        exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
+        exchange.sendResponseHeaders(200, body.length);
+        exchange.getResponseBody().write(body);
+        exchange.close();
     }
 
     @AfterAll
@@ -229,6 +255,39 @@ class AnthropicReadingTest {
         // it: the table is shared, the answer never is.
         assertThat(budget.spentMicros(userId)).isEqualTo(10_500L);
         assertThat(usage.spentIn(userId, AiBudget.period())).isEqualTo(10_500L);
+    }
+
+    @Test
+    void aPageNoParserCanReadGetsOneMoreChance() throws Exception {
+        // No JSON-LD, no microdata: the two free readers find nothing, and the
+        // import would have answered "nothing here" before this existed.
+        String created = mvc.perform(post("/api/recipes/import")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"url":"%s/blog-sans-donnees.html"}""".formatted(origin)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("DRAFT"))
+                .andExpect(jsonPath("$.title").value("Tarte aux pommes"))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(created).contains("sourceUrl");
+
+        // And it was paid for, from the tokens the provider counted.
+        assertThat(budget.spentMicros(userId)).isPositive();
+    }
+
+    @Test
+    void aStructuredPageNeverCostsACent() throws Exception {
+        // Marmiton publishes JSON-LD. The free readers answer, and nothing
+        // reaches the model: a page that publishes properly is free forever.
+        mvc.perform(post("/api/recipes/import")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"url":"%s/marmiton.html"}""".formatted(origin)))
+                .andExpect(status().isCreated());
+
+        assertThat(budget.spentMicros(userId)).isZero();
     }
 
     @Test

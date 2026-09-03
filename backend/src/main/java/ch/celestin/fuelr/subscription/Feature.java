@@ -28,7 +28,17 @@ public enum Feature {
      * what makes it different from every other line in this enum — the others
      * cost the same whether one person uses them or a thousand.
      */
-    AI_IMPORT(Tier.PLUS, true);
+    AI_IMPORT(Tier.PLUS, true),
+
+    /**
+     * Estimating a photographed plate.
+     *
+     * Its own line rather than a corner of AI_IMPORT: writing the diary is
+     * free and always has been, and what is paid for here is the camera doing
+     * the typing — a different promise, sold separately if it ever comes to
+     * that.
+     */
+    AI_MEAL_PHOTO(Tier.PLUS, true);
 
     private final Tier required;
     private final boolean metered;
