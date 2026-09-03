@@ -105,6 +105,16 @@ export const routing = defineRouting({
       en: "/app/recipes/[id]",
       de: "/app/rezepte/[id]",
     },
+    "/app/recipes/[id]/print": {
+      fr: "/app/recettes/[id]/imprimer",
+      en: "/app/recipes/[id]/print",
+      de: "/app/rezepte/[id]/drucken",
+    },
+    "/app/shopping/print": {
+      fr: "/app/courses/imprimer",
+      en: "/app/shopping/print",
+      de: "/app/einkaufen/drucken",
+    },
     "/app/recipes/[id]/cook": {
       fr: "/app/recettes/[id]/cuisiner",
       en: "/app/recipes/[id]/cook",

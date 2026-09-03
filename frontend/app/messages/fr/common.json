@@ -248,7 +248,14 @@
     },
     "removed": "« {name} » retiré de la liste.",
     "undo": "Annuler",
-    "undoDismiss": "Fermer"
+    "undoDismiss": "Fermer",
+    "print": {
+      "button": "Imprimer",
+      "title": "Liste des commissions",
+      "week": "Semaine du {date}",
+      "covered": "Déjà au placard",
+      "empty": "Rien à acheter cette semaine."
+    }
   },
   "journal": {
     "label": "Nutrition & suivi",
@@ -543,6 +550,16 @@
     },
     "filters": {
       "toggle": "Filtrer"
+    },
+    "print": {
+      "button": "Imprimer",
+      "servings": "{count} personnes",
+      "minutes": "{count} min",
+      "ingredients": "Ingrédients",
+      "steps": "Préparation",
+      "toCheck": "à vérifier",
+      "unverified": "L'import n'a pas pu lire : {fields}. À vérifier.",
+      "source": "Importée depuis {url}"
     }
   },
   "cook": {
@@ -837,5 +854,10 @@
     "badge": "Offert pendant le lancement",
     "note": "Cette fonction fera partie d'un plan payant. Elle est ouverte à tout le monde pour l'instant.",
     "compare": "Voir les plans"
+  },
+  "print": {
+    "action": "Imprimer",
+    "back": "Retour",
+    "hint": "La boîte d'impression propose aussi « Enregistrer en PDF »."
   }
 }

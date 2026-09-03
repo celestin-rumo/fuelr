@@ -121,8 +121,11 @@ describe("ShoppingList", () => {
 
     const item = screen.getByTestId("item-10");
     expect(item).toBeChecked();
-    // Still there — it is the record of the trip, not a disappearing act.
-    expect(screen.getByText("Lentilles")).toHaveClass("line-through");
+    // Scoped to the screen: the printable sheet is in the DOM too, carries the
+    // same words, and strikes them through for the same reason.
+    expect(
+      within(screen.getByTestId("aisles")).getByText("Lentilles"),
+    ).toHaveClass("line-through");
   });
 
   it("keeps a tick the server refused, and says it has not been sent", async () => {

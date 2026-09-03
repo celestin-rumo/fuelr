@@ -219,6 +219,20 @@ export function RecipeEditor({
             than at the end of the last tab. Soft, not primary: the primary of
             this view is finishing the recipe, one panel below. */}
         <div className="flex items-center gap-3">
+          {/* Its own page: a sheet of paper is a different document from a
+              form, and giving it an address means it can be looked at before
+              it is printed. */}
+          <Link
+            href={{
+              pathname: "/app/recipes/[id]/print",
+              params: { id: String(recipe.id) },
+            }}
+            data-testid="print-recipe"
+            className={buttonClasses({ variant: "tertiary" })}
+          >
+            {t("print.button")}
+          </Link>
+
           {cookable ? (
             <Link
               href={{

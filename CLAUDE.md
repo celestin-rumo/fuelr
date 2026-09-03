@@ -608,6 +608,22 @@ true by being checked against the code: no hosting country is claimed, no
 retention period is invented, and account deletion is described as what it is —
 a request handled by hand, since no endpoint does it yet.
 
+**A sheet of paper is a page, not a hidden copy of a screen.** `/app/recipes/[id]/print`
+and `/app/shopping/print` render the sheet as their whole content, black on
+white, and the browser's own dialog offers both the printer and "Save as PDF" —
+no library, no server-side rendering, no fonts to embed. The first attempt kept
+the sheet portalled into every screen so `window.print()` could be called in
+place; it broke eight tests that had every right to expect one match for a
+word, and it put a second copy of every recipe in the DOM. A page of its own
+costs two routes and removes the whole class of problem — and it can be looked
+at before it is printed, which a dialog cannot.
+
+Two rules there. The chrome is hidden **by element** — `header, nav, footer` —
+because the layout wraps everything in one div, so "every child of body except
+the sheet's" hides nothing at all. And a print stylesheet is invisible until
+somebody prints: `e2e/printing.spec.ts` emulates the medium, which is the only
+thing standing between it and a silent rot at the next redesign.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into
