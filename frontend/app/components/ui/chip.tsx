@@ -1,9 +1,12 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "./cn";
 
+// 36px where there is a pointer, 44px on a phone. Which of the two heights
+// wins is Tailwind's stylesheet order rather than the order they are written
+// here, so the rendered box is measured at 360px in `e2e/mobile-360.spec.ts`.
 function shellClasses(active: boolean, disabled?: boolean) {
   return cn(
-    "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-[13px] font-semibold",
+    "inline-flex h-9 max-sm:h-11 items-center gap-2 rounded-full border px-4 text-[13px] font-semibold",
     "transition-[background-color,border-color,color] duration-[var(--dur-fast)] ease-[var(--ease)]",
     disabled
       ? "border-transparent bg-bg-raised-2 text-gray"

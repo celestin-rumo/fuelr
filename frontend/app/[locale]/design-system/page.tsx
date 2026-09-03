@@ -9,6 +9,7 @@ import { Card, CardBody, CardTitle } from "@ui/card";
 import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
 import { Banner } from "@ui/banner";
+import { Dialog } from "@ui/dialog";
 import { EmptyState } from "@ui/empty-state";
 import { Input } from "@ui/input";
 import { Radio } from "@ui/radio";
@@ -170,6 +171,7 @@ export default function DesignSystemPage() {
   const [tab, setTab] = useState("Semaine");
   const [favorite, setFavorite] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="min-h-full bg-bg">
@@ -740,7 +742,38 @@ export default function DesignSystemPage() {
           </div>
         </Section>
 
-        <Section num="12" title="Data & system states">
+        <Section
+          num="12"
+          title="Dialogs"
+          intro="One modal for the whole app. The overlay scrolls and the card is capped at the visible height, so the bottom of a long sheet is reachable on a 360×480 screen; the head stays put while the body scrolls. Escape closes it and focus opens on the close button."
+        >
+          <div className="flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={() => setDialogOpen(true)}>
+              Ouvrir un dialogue
+            </Button>
+          </div>
+          {dialogOpen && (
+            <Dialog
+              title="Retirer du planning ?"
+              closeLabel="Fermer"
+              onClose={() => setDialogOpen(false)}
+            >
+              <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                Le repas de mardi soir. La recette reste dans la bibliothèque.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Button variant="danger" onClick={() => setDialogOpen(false)}>
+                  Retirer
+                </Button>
+                <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+                  Annuler
+                </Button>
+              </div>
+            </Dialog>
+          )}
+        </Section>
+
+        <Section num="13" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
               icon="◷"

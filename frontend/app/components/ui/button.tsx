@@ -31,7 +31,17 @@ const variants = {
 } as const;
 
 const sizes = {
-  sm: "h-9 px-4 text-[13px]",
+  /**
+   * 36px on a desktop, 44px on a phone.
+   *
+   * The floor is not decoration: at 360px a hand holding a basket or a knife
+   * misses a 36px control, and the smallest one in this app used to be the
+   * delete button. Two heights in one string are resolved by Tailwind's
+   * stylesheet order rather than by the order they are written, so
+   * `e2e/mobile-360.spec.ts` measures the rendered box at 360px instead of
+   * trusting the class list — jsdom loads no stylesheet and cannot tell.
+   */
+  sm: "h-9 max-sm:h-11 px-4 text-[13px]",
   md: "h-[46px] px-5 text-[15px]",
   lg: "h-[54px] px-7 text-base",
   /**
