@@ -17,6 +17,7 @@ import {
 } from "@app/[locale]/(app)/app/recipes/actions";
 import { RecipeFilters } from "./recipe-filters";
 import { Button, IconButton } from "@ui/button";
+import { Dialog } from "@ui/dialog";
 
 /**
  * The backend already returns the library in order — pinned first, in the
@@ -168,7 +169,7 @@ export function RecipeGrid({
                     className={cn(
                       // Above the stretched link below, which covers the whole
                       // card and would otherwise swallow this click.
-                      "absolute top-3 right-3 z-10 grid size-9 place-items-center rounded-full text-sm",
+                      "absolute top-3 right-3 z-10 grid size-11 place-items-center rounded-full text-sm",
                       "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
                       recipe.favorite
@@ -226,7 +227,7 @@ export function RecipeGrid({
                         <IconButton
                           aria-label={t("moveUp", { title: recipe.title ?? t("untitled") })}
                           variant="text"
-                          className="relative z-10 size-8"
+                          className="relative z-10"
                           disabled={index === 0}
                           onClick={() => move(recipe, -1)}
                         >
@@ -235,7 +236,7 @@ export function RecipeGrid({
                         <IconButton
                           aria-label={t("moveDown", { title: recipe.title ?? t("untitled") })}
                           variant="text"
-                          className="relative z-10 size-8"
+                          className="relative z-10"
                           disabled={index === favoriteCount - 1}
                           onClick={() => move(recipe, 1)}
                         >
@@ -247,7 +248,7 @@ export function RecipeGrid({
                     <IconButton
                       aria-label={t("duplicate", { title: recipe.title ?? t("untitled") })}
                       variant="text"
-                      className="relative z-10 size-8"
+                      className="relative z-10"
                       onClick={() => duplicate(recipe)}
                     >
                       ⧉
@@ -255,7 +256,7 @@ export function RecipeGrid({
                     <IconButton
                       aria-label={t("delete", { title: recipe.title ?? t("untitled") })}
                       variant="dangerText"
-                      className="relative z-10 size-8"
+                      className="relative z-10"
                       onClick={() => setConfirming(recipe)}
                     >
                       ✕
@@ -269,34 +270,25 @@ export function RecipeGrid({
       )}
 
       {confirming && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-title"
-          className="fixed inset-0 z-50 grid place-items-center bg-[rgba(0,0,0,0.6)] p-6"
+        <Dialog
+          title={t("deleteConfirm.title", {
+            title: confirming.title?.trim() || t("untitled"),
+          })}
+          closeLabel={t("deleteConfirm.close")}
+          onClose={() => setConfirming(null)}
         >
-          <div className="w-full max-w-md rounded-lg border border-line bg-bg-raised p-8 shadow-e3">
-            <h2
-              id="delete-title"
-              className="font-display text-lg font-extrabold tracking-[-0.02em] text-text"
-            >
-              {t("deleteConfirm.title", {
-                title: confirming.title?.trim() || t("untitled"),
-              })}
-            </h2>
-            <p className="mt-3 text-[15px] leading-[1.5] font-medium text-text-dim">
-              {t("deleteConfirm.body")}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button variant="danger" onClick={() => confirmDelete(confirming)}>
-                {t("deleteConfirm.confirm")}
-              </Button>
-              <Button variant="secondary" onClick={() => setConfirming(null)}>
-                {t("deleteConfirm.cancel")}
-              </Button>
-            </div>
+          <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+            {t("deleteConfirm.body")}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button variant="danger" onClick={() => confirmDelete(confirming)}>
+              {t("deleteConfirm.confirm")}
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirming(null)}>
+              {t("deleteConfirm.cancel")}
+            </Button>
           </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button, IconButton } from "@ui/button";
+import { Dialog } from "@ui/dialog";
 import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
 import { cn } from "@ui/cn";
 import type { PlannedMeal, RecipeSummary, WeekPlan } from "@app/lib/api";
 import { SLOTS, addDays, formatDay, weekDays } from "@app/lib/week";
+import { kcal } from "@app/lib/nutrition-format";
 import type { Slot } from "@app/lib/week";
 import {
   copyWeek,
@@ -48,7 +50,7 @@ export function WeekPlanner({
 
   const [drag, setDrag] = useState<Drag | null>(null);
   const [over, setOver] = useState<string | null>(null);
-  const [picking, setPicking] = useState<{ date: string; slot: Slot } | null>(null);
+  const [picking, setPicking] = useState<{ date: string; slot: Slot | null } | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [replacing, setReplacing] = useState(false);
 
@@ -193,7 +195,7 @@ export function WeekPlanner({
                       nothing, and saying "0 kcal" would read as a diet. */}
                   {totals?.kcal != null && (
                     <span className="tnum font-mono text-[11px] text-gray">
-                      {t("dayKcal", { kcal: totals.kcal })}
+                      {t("dayKcal", { kcal: kcal(totals.kcal) })}
                     </span>
                   )}
                 </header>
@@ -207,6 +209,7 @@ export function WeekPlanner({
                     <div
                       key={slot}
                       data-testid={`slot-${date}-${slot}`}
+                      data-empty={meals.length === 0 ? "true" : undefined}
                       onDragOver={(event) => {
                         if (!drag) return;
                         // Without this the browser refuses the drop and plays
@@ -222,6 +225,10 @@ export function WeekPlanner({
                       className={cn(
                         "flex min-w-0 flex-col gap-2 rounded-sm border border-dashed p-2",
                         "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
+                        // A day with nothing on it is two lines on a phone
+                        // instead of ten. The four slots come back at `lg`,
+                        // where the week is a grid and the columns must line up.
+                        meals.length === 0 && "max-lg:hidden",
                         over === key
                           ? "border-accent-ink bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
                           : "border-line",
@@ -249,14 +256,14 @@ export function WeekPlanner({
                               day: dayName(date),
                               slot: slotName(slot),
                             })}
-                            className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+                            className="flex min-h-11 w-full flex-col justify-center text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0 sm:block"
                           >
                             <span className="block font-display text-[13px] leading-[1.2] font-bold break-words text-text">
                               {nameOf(meal)}
                             </span>
                             <span className="tnum mt-1 block font-mono text-[11px] text-gray">
                               {t("servingsShort", { count: meal.servings })}
-                              {meal.kcal != null && ` · ${t("dayKcal", { kcal: meal.kcal })}`}
+                              {meal.kcal != null && ` · ${t("dayKcal", { kcal: kcal(meal.kcal) })}`}
                             </span>
                           </button>
                         </article>
@@ -268,13 +275,26 @@ export function WeekPlanner({
                         type="button"
                         onClick={() => setPicking({ date, slot })}
                         aria-label={t("addTo", { day: dayName(date), slot: slotName(slot) })}
-                        className="flex h-8 items-center justify-center rounded-sm text-[13px] font-semibold text-gray hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+                        className="flex min-h-11 items-center justify-center rounded-sm text-[13px] font-semibold text-gray hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] lg:min-h-8"
                       >
                         {meals.length === 0 ? t("nothingPlanned") : t("add")}
                       </button>
                     </div>
                   );
                 })}
+
+                {/* The phone's way in: pick the day here, the meal in the
+                    sheet. Hidden at `lg`, where every slot is its own cell. */}
+                <button
+                  type="button"
+                  onClick={() => setPicking({ date, slot: null })}
+                  data-testid={`add-day-${date}`}
+                  // Seven identical buttons need seven different names.
+                  aria-label={t("addToDayLabel", { day: dayName(date) })}
+                  className="flex min-h-11 items-center justify-center rounded-sm border border-dashed border-line text-[13px] font-semibold text-gray hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] lg:hidden"
+                >
+                  {t("addToDay")}
+                </button>
               </section>
             );
           })}
@@ -284,12 +304,18 @@ export function WeekPlanner({
       {picking && (
         <RecipePicker
           recipes={recipes}
-          title={`${dayName(picking.date)} · ${slotName(picking.slot)}`}
+          slot={picking.slot}
+          title={
+            picking.slot
+              ? `${dayName(picking.date)} · ${slotName(picking.slot)}`
+              : dayName(picking.date)
+          }
+          slotLabel={slotName}
           onClose={() => setPicking(null)}
-          onPick={(recipeId) => {
+          onPick={(recipeId, slot) => {
             const target = picking;
             setPicking(null);
-            run(() => planMeal({ date: target.date, slot: target.slot, recipeId }));
+            run(() => planMeal({ date: target.date, slot, recipeId }));
           }}
         />
       )}
@@ -313,7 +339,11 @@ export function WeekPlanner({
       )}
 
       {replacing && (
-        <Dialog title={t("duplicate.title")} onClose={() => setReplacing(false)}>
+        <Dialog
+          title={t("duplicate.title")}
+          closeLabel={t("close")}
+          onClose={() => setReplacing(false)}
+        >
           <p className="mt-3 text-[15px] leading-[1.5] font-medium text-text-dim">
             {t("duplicate.body")}
           </p>
@@ -376,7 +406,7 @@ function Toolbar({
 
       <Link
         href={{ pathname: "/app/plan", query: { week: today } }}
-        className="text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+        className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
       >
         {t("thisWeek")}
       </Link>
@@ -388,7 +418,7 @@ function Toolbar({
         <Link
           href="/app/household"
           data-testid="shared-plan"
-          className="inline-flex h-9 items-center gap-2 rounded-full border border-accent-ink px-3 text-[13px] font-semibold text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          className="inline-flex h-9 max-sm:h-11 items-center gap-2 rounded-full border border-accent-ink px-3 text-[13px] font-semibold text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
         >
           {t("sharedWith", { count: accounts })}
         </Link>
@@ -448,7 +478,7 @@ function WeekLink({
     <Link
       href={{ pathname: "/app/plan", query: { week } }}
       aria-label={label}
-      className="grid size-9 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+      className="grid size-11 place-items-center rounded-full border border-line text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
     >
       {children}
     </Link>
@@ -523,24 +553,47 @@ function RecipeRail({
 
 function RecipePicker({
   recipes,
+  slot,
   title,
+  slotLabel,
   onPick,
   onClose,
 }: {
   recipes: RecipeSummary[];
+  /** Null when the day was chosen but not the meal — the phone's add button. */
+  slot: Slot | null;
   title: string;
-  onPick: (recipeId: number) => void;
+  slotLabel: (slot: Slot) => string;
+  onPick: (recipeId: number, slot: Slot) => void;
   onClose: () => void;
 }) {
   const t = useTranslations("plan");
   const [term, setTerm] = useState("");
+  const [chosen, setChosen] = useState<Slot>(slot ?? "DINNER");
   const untitled = t("untitled");
   const shown = recipes.filter((recipe) =>
     (recipe.title ?? untitled).toLowerCase().includes(term.trim().toLowerCase()),
   );
 
   return (
-    <Dialog title={title} onClose={onClose}>
+    <Dialog title={title} closeLabel={t("close")} onClose={onClose}>
+      {/* Opened from a day rather than from a slot: the meal is part of the
+          choice, and defaults to dinner because that is what a week is mostly
+          made of. */}
+      {slot === null && (
+        <div className="mb-4 flex flex-wrap gap-2" data-testid="picker-slots">
+          {SLOTS.map((option) => (
+            <Chip
+              key={option}
+              active={option === chosen}
+              onClick={() => setChosen(option)}
+            >
+              {slotLabel(option)}
+            </Chip>
+          ))}
+        </div>
+      )}
+
       <input
         type="search"
         value={term}
@@ -564,12 +617,12 @@ function RecipePicker({
           )}
         </div>
       ) : (
-        <ul className="mt-4 flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
+        <ul className="mt-4 flex flex-col gap-2">
           {shown.map((recipe) => (
             <li key={recipe.id}>
               <button
                 type="button"
-                onClick={() => onPick(recipe.id)}
+                onClick={() => onPick(recipe.id, chosen)}
                 className="flex w-full flex-col items-start rounded-sm border border-line bg-bg-raised-2 p-3 text-left hover:border-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
               >
                 <span className="font-display text-[15px] font-bold text-text">
@@ -610,8 +663,8 @@ function MealSheet({
   const title = meal.title?.trim() || t("untitled");
 
   return (
-    <Dialog title={title} onClose={onClose}>
-      <p className="tnum mt-2 font-mono text-[13px] text-gray">
+    <Dialog title={title} closeLabel={t("close")} onClose={onClose}>
+      <p className="tnum font-mono text-[13px] text-gray">
         {t("meal.scaled", { count: meal.recipeServings, minutes: meal.minutes })}
         {meal.estimated && <span className="ml-2 text-coral-ink">{t("estimated")}</span>}
       </p>
@@ -686,6 +739,7 @@ function MealSheet({
         {/* The one thing on this screen that changes something outside the
             plan: it takes the ingredients out of the cupboard. */}
         <Checkbox
+          className="min-h-11"
           checked={meal.cooked}
           onChange={(event) => onCooked(event.target.checked)}
           data-testid="meal-cooked"
@@ -697,7 +751,7 @@ function MealSheet({
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href={{ pathname: "/app/recipes/[id]", params: { id: String(meal.recipeId) } }}
-          className="text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
         >
           {t("meal.openRecipe")}
         </Link>
@@ -710,46 +764,3 @@ function MealSheet({
   );
 }
 
-/** Modal shell: one place decides how a dialog closes. */
-function Dialog({
-  title,
-  children,
-  onClose,
-}: {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-}) {
-  const t = useTranslations("plan");
-
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 grid place-items-center bg-[rgba(0,0,0,0.6)] p-6"
-    >
-      <div className="w-full max-w-lg rounded-lg border border-line bg-bg-raised p-6 shadow-e3 sm:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <h2 className="font-display text-lg font-extrabold tracking-[-0.02em] text-text">
-            {title}
-          </h2>
-          {/* Focus lands here on open, so the dialog is where the keyboard
-              is and Escape is one key away from the first tab stop. */}
-          <IconButton autoFocus aria-label={t("close")} variant="text" onClick={onClose}>
-            ✕
-          </IconButton>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}

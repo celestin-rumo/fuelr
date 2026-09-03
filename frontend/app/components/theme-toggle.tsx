@@ -25,11 +25,19 @@ export function ThemeToggle() {
     <Button
       variant="secondary"
       size="sm"
-      className="min-w-24"
+      // Icon only on a phone: a preference nobody touches twice a month was
+      // taking 96px of the most expensive row on the screen. The name is on
+      // the button either way, so nothing is lost to a screen reader.
+      className="max-sm:w-11 max-sm:px-0 sm:min-w-24"
       aria-label={t("toggle")}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {mounted ? (isDark ? t("light") : t("dark")) : ""}
+      <span aria-hidden className="sm:hidden">
+        {mounted ? (isDark ? "☀" : "☾") : ""}
+      </span>
+      <span className="max-sm:hidden">
+        {mounted ? (isDark ? t("light") : t("dark")) : ""}
+      </span>
     </Button>
   );
 }

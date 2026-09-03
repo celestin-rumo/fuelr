@@ -182,14 +182,14 @@ export function RecipeEditor({
           <Link
             href="/app"
             aria-label={t("back")}
-            className="grid size-9 shrink-0 place-items-center rounded-full border border-line text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-line text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
           >
             {/* An arrow, not a cross: a cross beside a title reads as "delete
                 this", and nothing here is destructive. */}
             ←
           </Link>
 
-          <h1 className="min-w-0 truncate font-display text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
+          <h1 className="line-clamp-2 min-w-0 font-display text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
             {draft.title.trim() || t("untitled")}
           </h1>
 
@@ -626,7 +626,6 @@ export function RecipeEditor({
                           name: ingredient.name,
                         })}
                         variant="dangerText"
-                        className="size-8"
                         onClick={() =>
                           update({
                             ingredients: draft.ingredients.filter(
@@ -704,7 +703,6 @@ export function RecipeEditor({
                   <IconButton
                     aria-label={t("steps.moveUp", { number: index + 1 })}
                     variant="text"
-                    className="size-8"
                     disabled={index === 0}
                     onClick={() => moveStep(index, -1)}
                   >
@@ -713,7 +711,6 @@ export function RecipeEditor({
                   <IconButton
                     aria-label={t("steps.moveDown", { number: index + 1 })}
                     variant="text"
-                    className="size-8"
                     disabled={index === draft.steps.length - 1}
                     onClick={() => moveStep(index, 1)}
                   >
@@ -722,7 +719,6 @@ export function RecipeEditor({
                   <IconButton
                     aria-label={t("steps.remove", { number: index + 1 })}
                     variant="dangerText"
-                    className="size-8"
                     onClick={() =>
                       update({ steps: draft.steps.filter((_, i) => i !== index) })
                     }

@@ -50,26 +50,39 @@ export default async function AppHomePage({
             {t("greeting", { name: session?.name ?? session?.email ?? "" })}
           </h1>
         </div>
-        {/* Wraps: three actions are 428px of buttons, and a 375px screen has
-            343 of room. They queue up rather than pushing the page sideways. */}
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Three actions are 428px of buttons and a 360px screen has 320 of
+            room, so on a phone they stack — and they stack in order of what
+            somebody came to do. Creating leads, importing follows, exporting
+            is a twice-a-year errand and goes last. Above `sm` the row reads
+            the other way round, weakest first, ending on the primary. */}
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+          <Link
+            href="/app/recipes/new"
+            className="order-1 w-full sm:order-3 sm:w-auto"
+          >
+            <Button size="lg" fullWidth className="sm:w-auto">
+              {t("newRecipe")}
+            </Button>
+          </Link>
+          {/* Importing sits beside creating, not hidden inside it: pasting a
+              link is a different intent from starting a blank recipe. */}
+          <Link
+            href="/app/recipes/import"
+            className="order-2 w-full sm:order-2 sm:w-auto"
+          >
+            <Button size="lg" variant="secondary" fullWidth className="sm:w-auto">
+              {t("importRecipe")}
+            </Button>
+          </Link>
           {recipes.length > 0 && (
             <a
               href="/api/recipes/export"
               download
-              className="inline-flex h-9 items-center rounded-full border border-line px-4 text-[13px] font-semibold text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+              className="order-3 inline-flex min-h-11 items-center justify-center rounded-full border border-line px-4 text-[13px] font-semibold text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:order-1 sm:min-h-9"
             >
               {t("export")}
             </a>
           )}
-          {/* Importing sits beside creating, not hidden inside it: pasting a
-              link is a different intent from starting a blank recipe. */}
-          <Link href="/app/recipes/import">
-            <Button size="lg" variant="secondary">{t("importRecipe")}</Button>
-          </Link>
-          <Link href="/app/recipes/new">
-            <Button size="lg">{t("newRecipe")}</Button>
-          </Link>
         </div>
       </div>
 

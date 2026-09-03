@@ -58,7 +58,8 @@
       "title": "Supprimer « {title} » ?",
       "confirm": "Supprimer",
       "cancel": "Annuler",
-      "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés."
+      "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés.",
+      "close": "Fermer"
     },
     "importRecipe": "Importer",
     "nav": {
@@ -133,7 +134,9 @@
       "title": "Le planning n'est pas joignable",
       "body": "La semaine n'a pas pu être chargée. Recharge la page ; rien de ce qui est planifié n'est perdu."
     },
-    "sharedWith": "Foyer · {count} comptes"
+    "sharedWith": "Foyer · {count} comptes",
+    "addToDay": "+ Ajouter un repas",
+    "addToDayLabel": "Ajouter un repas — {day}"
   },
   "household": {
     "label": "Foyer",
@@ -162,7 +165,14 @@
       "you": "toi",
       "owner": "titulaire du foyer",
       "remove": "Retirer {name} du foyer",
-      "removeShort": "Retirer"
+      "removeShort": "Retirer",
+      "confirm": {
+        "title": "Retirer {name} du foyer ?",
+        "body": "Cette personne garde son compte et ses recettes. Elle perd l'accès au planning partagé et au plan Famille, et il faudra une nouvelle invitation pour la faire revenir.",
+        "confirm": "Retirer",
+        "cancel": "Annuler",
+        "close": "Fermer"
+      }
     },
     "invite": {
       "label": "Inviter par email",
@@ -235,7 +245,10 @@
     "unavailable": {
       "title": "La liste n'est pas joignable",
       "body": "La liste n'a pas pu être chargée. Recharge la page ; rien n'est perdu."
-    }
+    },
+    "removed": "« {name} » retiré de la liste.",
+    "undo": "Annuler",
+    "undoDismiss": "Fermer"
   },
   "journal": {
     "label": "Nutrition & suivi",
@@ -306,7 +319,10 @@
       "title": "Repas notés",
       "empty": "Rien de noté cette semaine.",
       "figures": "{kcal} kcal · {protein} g de protéines",
-      "remove": "Retirer {title} du journal"
+      "remove": "Retirer {title} du journal",
+      "removed": "« {title} » retiré du journal.",
+      "undo": "Annuler",
+      "undoDismiss": "Fermer"
     },
     "history": {
       "title": "Historique",
@@ -391,7 +407,7 @@
       "add": "Ajouter",
       "hint": "Entrée pour enchaîner les ingrédients.",
       "empty": "Aucun ingrédient pour l'instant.",
-      "remove": "Retirer {name}"
+      "remove": "Supprimer {name}"
     },
     "steps": {
       "hint": "Un geste par étape · les durées deviennent des minuteurs.",
@@ -451,7 +467,7 @@
       "field": "Choisir une photo",
       "add": "Ajouter une photo",
       "replace": "Remplacer",
-      "remove": "Retirer",
+      "remove": "Supprimer la photo",
       "constraints": "JPEG, PNG ou WebP · {megabytes} Mo maximum. L'image est réduite sur ton appareil avant l'envoi.",
       "errors": {
         "unsupported_format": "Format non accepté. Choisis un JPEG, un PNG ou un WebP.",
@@ -482,7 +498,7 @@
     },
     "detail": {
       "title": "Détail nutritionnel",
-      "open": "Voir le détail (fibres, sels minéraux, vitamines)",
+      "open": "Voir le détail",
       "locked": "Le détail des macros et des micronutriments fait partie du plan Plus. L'énergie et les trois macros restent gratuites.",
       "lockedLink": "Voir mon plan",
       "estimated": "Un ingrédient au moins n'a pas été reconnu : il ne compte pour aucune vitamine ci-dessus.",
@@ -515,7 +531,8 @@
         "vitamin_d": "Vitamine D",
         "vitamin_e": "Vitamine E",
         "zinc": "Zinc"
-      }
+      },
+      "openHint": "Fibres, sels minéraux et vitamines par portion."
     },
     "seasons": {
       "now": "De saison",
@@ -523,6 +540,9 @@
       "SUMMER": "Été",
       "AUTUMN": "Automne",
       "WINTER": "Hiver"
+    },
+    "filters": {
+      "toggle": "Filtrer"
     }
   },
   "cook": {
@@ -660,7 +680,7 @@
     "noToken": "Ce lien est incomplet. Ouvre-le depuis l'email que tu as reçu."
   },
   "verifyBanner": {
-    "message": "Confirme ton adresse {email} pour que Fuelr puisse te joindre.",
+    "message": "Confirme ton adresse pour que Fuelr puisse te joindre.",
     "resend": "Renvoyer l'email",
     "sent": "Email envoyé. Regarde ta boîte de réception.",
     "dismiss": "Plus tard"

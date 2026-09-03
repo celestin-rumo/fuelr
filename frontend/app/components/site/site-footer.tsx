@@ -38,12 +38,13 @@ export function SiteFooter() {
                 <div className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
                   {column.title}
                 </div>
-                <ul className="mt-3 flex flex-col gap-2">
+                <ul className="mt-1 flex flex-col sm:mt-3 sm:gap-2">
                   {column.links.map((link, i) => (
                     <li key={`${link.href}-${i}`}>
                       <Link
                         href={link.href}
-                        className="text-[13px] font-medium text-text-dim hover:text-text"
+                        // 18px of link is not a target on a phone; the row is.
+                        className="inline-flex min-h-11 items-center text-[13px] font-medium text-text-dim hover:text-text sm:min-h-0"
                       >
                         {link.label}
                       </Link>
