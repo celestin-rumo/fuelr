@@ -74,6 +74,9 @@ public class AiBudget {
         this.outputPerMillion = outputPerMillion;
     }
 
+    /** Before any call this app has ever made — "since the start", as a date. */
+    public static final LocalDate BEGINNING = LocalDate.of(1970, 1, 1);
+
     /** The month a call belongs to, which is the month it happened in. */
     public static LocalDate period() {
         return LocalDate.now().withDayOfMonth(1);

@@ -116,5 +116,8 @@ export const routing = defineRouting({
     "/offline": "/offline",
     // Internal reference page; the slug is the same in every locale.
     "/design-system": "/design-system",
+    // Internal, like the design system: one slug, English copy, and no
+    // translation — it is read by whoever runs Fuelr, not by whoever cooks.
+    "/total-costs": "/total-costs",
   },
 });

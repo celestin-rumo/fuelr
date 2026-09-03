@@ -342,6 +342,57 @@ export async function importSources(): Promise<ImportSource[]> {
   return (await response.json()) as ImportSource[];
 }
 
+/**
+ * What the assisted reads cost, for whoever runs Fuelr.
+ *
+ * Micro-dollars, because that is what is stored: the provider bills in dollars
+ * per million tokens, and an integer is the only honest way to hold a figure
+ * that small. The page divides; nothing rounds on the way here.
+ */
+export type AiCostReport = {
+  month: AiTotals;
+  allTime: AiTotals;
+  operationsThisMonth: {
+    operation: string;
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    costMicros: number;
+  }[];
+  accountsThisMonth: AiAccountRow[];
+  accountsAllTime: AiAccountRow[];
+};
+
+export type AiTotals = {
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  costMicros: number;
+};
+
+export type AiAccountRow = {
+  userId: number;
+  email: string;
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  costMicros: number;
+  lastCall: string | null;
+  /** This account's own monthly ceiling, so a row reads on its own. */
+  budgetMicros: number;
+};
+
+/**
+ * Null for anybody who is not an operator — the backend answers 404 rather
+ * than 403, and the page turns that into its own 404. A screen that exists
+ * only for operators does not confirm to everybody else that it exists.
+ */
+export async function aiCosts(): Promise<AiCostReport | null> {
+  const response = await apiFetch("/api/admin/ai-costs");
+  if (!response.ok) return null;
+  return (await response.json()) as AiCostReport;
+}
+
 export type RecipeSummary = {
   id: number;
   title: string | null;
