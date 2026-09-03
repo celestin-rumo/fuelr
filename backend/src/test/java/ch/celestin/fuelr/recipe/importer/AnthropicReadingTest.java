@@ -47,7 +47,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "app.ai.price.input-per-million=3.00",
         "app.ai.price.output-per-million=15.00",
         // One cent a month, so the ceiling is reachable in one read.
-        "app.ai.budget.free-cents=1",
+        "app.ai.budget.launch-cents=1",
+        // Out of the way here; it has a test of its own below.
+        "app.ai.budget.total-cents=100000",
         // The shipped configuration: nothing is charged, so a plain account
         // that ordered nothing can read a photo. What bounds it is the
         // ceiling above, not a plan — AssistedImportTest covers the other

@@ -16,6 +16,12 @@ public interface AiUsageRepository extends JpaRepository<AiUsage, Long> {
             where u.userId = :userId and u.period = :period""")
     long spentIn(@Param("userId") Long userId, @Param("period") LocalDate period);
 
+    /** Everything spent in a month, by everybody — the bound on the invoice. */
+    @Query("""
+            select coalesce(sum(u.costMicros), 0) from AiUsage u
+            where u.period = :period""")
+    long spentEverywhereIn(@Param("period") LocalDate period);
+
     /**
      * One line per account, over every month from {@code from} onwards.
      *

@@ -243,12 +243,16 @@ whether it opens. It held metered features back for a while, on the grounds
 that giving away something billed per call is not a gesture but a bill. That
 was the wrong instrument: nobody can subscribe yet, so the exception protected
 no margin and only made the feature unreachable for the people the launch is
-for. What bounds it is `AiBudget`, per account and per month, including for an
-account with no plan at all — a ceiling in money is the right shape for that
-risk, because it bounds the loss from a stranger without being a paywall in
-front of a cook. `app.ai.budget.free-cents` is that ceiling, and it is
-configuration precisely so a household that is really testing can be given
-more without a deploy.
+for. What bounds it is `AiBudget`, and it does so twice. A ceiling in money is
+the right shape for this risk: it bounds the loss from a stranger without
+standing in front of a cook. `app.ai.budget.launch-cents` is one budget for
+everybody while nothing is charged — during the launch the tier does not
+decide, since an account that ordered nothing and one that granted itself a
+plan are in the same position. And `total-cents` bounds every account together,
+which is the one that actually bounds the invoice: this app is public, so a
+per-account budget multiplied by however many strangers register is not a bound
+at all. Whichever is reached first refuses, with the same message — from where
+somebody stands, a spent month is a spent month.
 
 `RecipeIntelligence` is the seam behind it — one interface for the three inputs
 no parser can read, written in nobody's SDK so the suite still touches no

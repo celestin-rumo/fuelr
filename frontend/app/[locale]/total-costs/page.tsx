@@ -178,7 +178,15 @@ export default function TotalCostsPage({ params }: PageProps<"/[locale]/total-co
           <Figure
             label="Spent"
             value={dollars(report.month.costMicros)}
-            hint={cents(report.month.costMicros)}
+            hint={
+              report.monthlyCeilingMicros === 0
+                ? cents(report.month.costMicros)
+                : // The figure that actually bounds the invoice: a per-account
+                  // budget times however many strangers register is no bound.
+                  `${Math.round(
+                    (report.month.costMicros / report.monthlyCeilingMicros) * 100,
+                  )}% of ${dollars(report.monthlyCeilingMicros)}`
+            }
           />
           <Figure label="Calls" value={whole(report.month.calls)} />
           <Figure label="Tokens in" value={whole(report.month.inputTokens)} />

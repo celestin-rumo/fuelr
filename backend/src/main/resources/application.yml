@@ -83,17 +83,23 @@ app:
     price:
       input-per-million: 3.00
       output-per-million: 15.00
-    # What a month of assisted reading may cost us per account, in US cents.
+    # What a month of assisted reading may cost us, in US cents — the unit the
+    # provider bills in. A ceiling on our exposure, not a product feature.
     #
-    # A ceiling on our exposure, not a product feature. `free` matters while
-    # everything is free: it is the only thing between a stranger who registers
-    # and our invoice, so it is small — at about 1.8 ¢ a read, 50 ¢ is roughly
-    # thirty photos a month. Raise it for a household that is really testing;
-    # it is configuration for that reason.
+    # `launch` is one budget for everybody while nothing is charged: 1250 cents
+    # is about 10 CHF, roughly 700 photos at the measured 1.8 ¢ a read. `plus`
+    # and `family` are what the tiers get once charging starts, and are the
+    # figures to revisit with the pricing.
+    #
+    # `total` is the one that actually bounds the invoice. A per-account budget
+    # multiplied by however many strangers register is not a bound at all, and
+    # this app is public: 6250 cents is about 50 CHF a month, everybody
+    # included. Whichever ceiling is reached first refuses.
     budget:
-      free-cents: 50
+      launch-cents: 1250
       plus-cents: 100
       family-cents: 200
+      total-cents: 6250
 
   media:
     # Mounted Docker volume. The container must be able to write here.

@@ -66,6 +66,8 @@ public class AiCostController {
     public record CostReport(
             Totals month,
             Totals allTime,
+            /** What everybody together may spend this month. */
+            long monthlyCeilingMicros,
             List<OperationRow> operationsThisMonth,
             List<AccountRow> accountsThisMonth,
             List<AccountRow> accountsAllTime) {
@@ -88,6 +90,7 @@ public class AiCostController {
         return new CostReport(
                 total(month),
                 total(all),
+                budget.totalBudgetMicros(),
                 usage.perOperationSince(AiBudget.period()).stream()
                         .map(row -> new OperationRow(
                                 row.getOperation(), row.getCalls(),

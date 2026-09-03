@@ -51,10 +51,17 @@ public class AiBudget {
     private final AiUsageRepository usage;
     private final Entitlements entitlements;
 
-    /** US cents per month, per tier. Cents because that is how it is billed. */
-    private final long freeCents;
+    /**
+     * US cents per month. Cents because that is how the provider bills — a
+     * figure in francs here would carry an exchange rate to be wrong about on
+     * top of a number that is otherwise exact.
+     */
+    private final long launchCents;
     private final long plusCents;
     private final long familyCents;
+
+    /** Everything, all accounts, one month. The only bound on the invoice. */
+    private final long totalCents;
 
     /** Dollars per million tokens, as the provider's price list states them. */
     private final double inputPerMillion;
@@ -63,16 +70,18 @@ public class AiBudget {
     public AiBudget(
             AiUsageRepository usage,
             Entitlements entitlements,
-            @Value("${app.ai.budget.free-cents:50}") long freeCents,
+            @Value("${app.ai.budget.launch-cents:1250}") long launchCents,
             @Value("${app.ai.budget.plus-cents:100}") long plusCents,
             @Value("${app.ai.budget.family-cents:200}") long familyCents,
+            @Value("${app.ai.budget.total-cents:6250}") long totalCents,
             @Value("${app.ai.price.input-per-million:3.00}") double inputPerMillion,
             @Value("${app.ai.price.output-per-million:15.00}") double outputPerMillion) {
         this.usage = usage;
         this.entitlements = entitlements;
-        this.freeCents = freeCents;
+        this.launchCents = launchCents;
         this.plusCents = plusCents;
         this.familyCents = familyCents;
+        this.totalCents = totalCents;
         this.inputPerMillion = inputPerMillion;
         this.outputPerMillion = outputPerMillion;
     }
@@ -88,23 +97,31 @@ public class AiBudget {
     /**
      * What this account may spend this month.
      *
-     * An account with no plan has one too, and that is deliberate: while
-     * everything is free, the ceiling is the only thing standing between a
-     * stranger who registers and our invoice. It is set small on purpose —
-     * enough to cook with, not enough to hurt — and it is configuration, so
-     * raising it for a household that is actually testing takes no deploy of
-     * new code.
-     *
-     * When the paid boundary is switched on this figure stops mattering:
-     * `Entitlements.has` refuses a free account the feature outright, and the
-     * budget is never consulted.
+     * While nothing is charged there is one budget for everybody, whatever
+     * tier the row says: an account that ordered nothing and one that granted
+     * itself a plan are in exactly the same position, so giving them different
+     * ceilings would be arbitrary. Once the boundary is on, the tier decides
+     * and this figure stops being consulted — a free account is refused the
+     * feature outright before any budget is read.
      */
     public long budgetMicros(Long userId) {
+        if (entitlements.openPeriod()) {
+            return launchCents * MICROS_PER_CENT;
+        }
         Tier tier = entitlements.tierOf(userId);
         long cents = tier.atLeast(Tier.FAMILY) ? familyCents
                 : tier.atLeast(Tier.PLUS) ? plusCents
-                : freeCents;
+                : 0;
         return cents * MICROS_PER_CENT;
+    }
+
+    /** Everything spent this month, by everybody. */
+    public long spentEverywhereMicros() {
+        return usage.spentEverywhereIn(period());
+    }
+
+    public long totalBudgetMicros() {
+        return totalCents * MICROS_PER_CENT;
     }
 
     public long spentMicros(Long userId) {
@@ -112,14 +129,25 @@ public class AiBudget {
     }
 
     /**
-     * Refuses before the call rather than after.
+     * Refuses before the call rather than after, twice over.
      *
-     * The check is on what has already been spent, so one read can carry the
-     * month slightly past its ceiling — the alternative is to guess a price
-     * beforehand, which is the thing this class exists not to do. One read of
+     * The account's own ceiling bounds one person. The second, across every
+     * account, is what bounds the invoice: this app is public, so a per-account
+     * budget multiplied by however many strangers register is not a bound at
+     * all. Whichever is reached first refuses, and the message is the same —
+     * from where somebody stands, a month that is spent is a month that is
+     * spent.
+     *
+     * Both checks are on what has already been spent, so one read can carry a
+     * ceiling slightly past it. The alternative is to guess a price
+     * beforehand, which is the thing this class exists not to do; one read of
      * slack is cheaper than a wrong estimate applied to every one of them.
      */
     public void require(Long userId) {
+        long everywhere = spentEverywhereMicros();
+        if (everywhere >= totalBudgetMicros()) {
+            throw new ExhaustedException(everywhere, totalBudgetMicros());
+        }
         long budget = budgetMicros(userId);
         long spent = spentMicros(userId);
         if (spent >= budget) {

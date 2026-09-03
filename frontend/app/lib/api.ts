@@ -361,6 +361,8 @@ export async function importSources(): Promise<ImportSources> {
 export type AiCostReport = {
   month: AiTotals;
   allTime: AiTotals;
+  /** What everybody together may spend this month — the bound on the invoice. */
+  monthlyCeilingMicros: number;
   operationsThisMonth: {
     operation: string;
     calls: number;
