@@ -283,6 +283,11 @@ jobs:
 
       # The image that was just pushed, not a rebuild from source: the point is
       # to exercise the artefact that would be deployed.
+      #
+      # No ANTHROPIC_API_KEY here, on purpose: every assisted read is billed
+      # per call, and a key in CI would mean a paid request on every push. The
+      # reader is exercised against a local stand-in in AnthropicReadingTest,
+      # and reports itself "not wired" to the e2e suite.
       - name: Start the backend image built by this run
         run: |
           docker run -d --name backend --network host \

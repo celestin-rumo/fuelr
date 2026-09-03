@@ -65,6 +65,10 @@ jobs:
           # Spring Mail reads this; for Resend the password is the API key.
           MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # The assisted import. Absent, the feature says it is not wired —
+          # which is why nothing here fails when the secret is not set.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         shell: bash
         run: |
           cd "${{ env.DEPLOY_PATH }}"
@@ -79,6 +83,8 @@ jobs:
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
           MAIL_PASSWORD=${MAIL_PASSWORD}
           JWT_SECRET=${JWT_SECRET}
+          ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+          ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID}
           EOF
           chmod 600 .env
 
@@ -135,6 +141,11 @@ jobs:
           # Same Resend account as production, so the same key.
           MAIL_PASSWORD: ${{ secrets.RESEND_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # Same Anthropic workspace as production. Staging reads a handful of
+          # photos a month; if that ever stops being true it wants its own key
+          # so the two budgets can be told apart.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         shell: bash
         run: |
           cd "${{ env.STAGING_DEPLOY_PATH }}"
@@ -149,6 +160,8 @@ jobs:
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
           MAIL_PASSWORD=${MAIL_PASSWORD}
           JWT_SECRET=${JWT_SECRET}
+          ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+          ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID}
           EOF
           chmod 600 .env
 

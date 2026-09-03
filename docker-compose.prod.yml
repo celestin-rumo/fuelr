@@ -68,6 +68,11 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in the production .env file}
       # The session cookie must never travel outside HTTPS.
       JWT_SECURE_COOKIE: "true"
+      # Anthropic, for the assisted import. Empty is a working state: the
+      # feature then says it is not wired instead of failing, so a deployment
+      # without the secret is degraded rather than broken.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
 
     depends_on:
       database:
