@@ -257,6 +257,53 @@ describe("Journal", () => {
     expect(screen.getByTestId("launch-note")).toHaveTextContent("Offert pendant le lancement");
   });
 
+  it("fills the form from a photo rather than writing the meal down", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          title: "Saumon, riz et brocoli",
+          kcal: 620.4,
+          proteinG: 38.2,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    renderJournal();
+
+    const picker = screen.getByTestId("estimate-photo").querySelector("input");
+    await user.upload(
+      picker as HTMLInputElement,
+      new File(["x"], "assiette.jpg", { type: "image/jpeg" }),
+    );
+
+    // The figures land in fields with a cursor in them: correcting them is the
+    // obvious next move, and nothing is logged until somebody says so.
+    expect(await screen.findByDisplayValue("Saumon, riz et brocoli")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("620")).toBeInTheDocument();
+    expect(screen.getByTestId("estimate-done")).toBeInTheDocument();
+    expect(logMeal).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
+  it("says a photo it could not read is not a dead end", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ error: "not_recognised" }), { status: 422 }),
+    );
+    renderJournal();
+
+    await user.upload(
+      screen.getByTestId("estimate-photo").querySelector("input") as HTMLInputElement,
+      new File(["x"], "assiette.jpg", { type: "image/jpeg" }),
+    );
+
+    expect(await screen.findByTestId("journal-error")).toHaveTextContent(
+      "Écris le repas à la main",
+    );
+    fetchSpy.mockRestore();
+  });
+
   it("sets a target, which is the paid half", async () => {
     const user = userEvent.setup();
     renderJournal(

@@ -32,8 +32,11 @@ public class LogController {
 
     private final LogService log;
     private final Entitlements entitlements;
+    private final MealPhotoEstimator estimator;
 
-    public LogController(LogService log, Entitlements entitlements) {
+    public LogController(
+            LogService log, Entitlements entitlements, MealPhotoEstimator estimator) {
+        this.estimator = estimator;
         this.log = log;
         this.entitlements = entitlements;
     }
@@ -101,6 +104,53 @@ public class LogController {
                     entry.getSource().name(), entry.getRecipeId(), entry.getPlannedMealId());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Estimates a plate from a photograph, and writes nothing.
+     *
+     * What lands in the diary is what somebody looked at and accepted: this
+     * hands back figures for a form, never a row. The refusals are told apart
+     * because they are different conversations — 402 when the plan is missing,
+     * 429 when the month's budget is spent, 422 when the model could not
+     * recognise the plate, 503 when nothing is wired.
+     */
+    @PostMapping("/estimate")
+    public MealPhotoEstimator.Estimate estimate(
+            @AuthenticationPrincipal Jwt principal,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        Long userId = userId(principal);
+        entitlements.require(userId, Feature.AI_MEAL_PHOTO);
+
+        byte[] photo;
+        try {
+            photo = file.getBytes();
+        } catch (java.io.IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unreadable_file");
+        }
+        // The bytes say what they are, never the header or the extension.
+        if (ch.celestin.fuelr.media.MediaStorage.sniff(photo) == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE, "unsupported_format");
+        }
+        if (photo.length > ch.celestin.fuelr.media.MediaStorage.MAX_BYTES) {
+            throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "file_too_large");
+        }
+
+        try {
+            return estimator.estimate(userId, photo);
+        } catch (ch.celestin.fuelr.ai.AiBudget.ExhaustedException e) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+        } catch (MealPhotoEstimator.UnreadablePlateException e) {
+            HttpStatus status = switch (e.getMessage()) {
+                case "ai_unavailable" -> HttpStatus.SERVICE_UNAVAILABLE;
+                // The model looked and could not tell. That is an answer about
+                // the photo, not a fault of ours.
+                case "not_recognised", "no_estimate" -> HttpStatus.UNPROCESSABLE_ENTITY;
+                default -> HttpStatus.BAD_GATEWAY;
+            };
+            throw new ResponseStatusException(status, e.getMessage());
         }
     }
 

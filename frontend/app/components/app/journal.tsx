@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
-import { Button } from "@ui/button";
+import { Button, buttonClasses } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
@@ -58,6 +58,9 @@ export function Journal({
   const [past, setPast] = useState<LogHistory | null>(null);
   // What was just deleted, kept until the banner is answered or dismissed.
   const [removed, setRemoved] = useState<LogEntry | null>(null);
+  // What the camera read, until somebody has looked at it.
+  const [reading, setReading] = useState(false);
+  const [estimated, setEstimated] = useState(false);
   const [targetKcal, setTargetKcal] = useState(String(week.targets?.kcal ?? ""));
   const [targetProtein, setTargetProtein] = useState(
     String(week.targets?.proteinG ?? ""),
@@ -135,6 +138,46 @@ export function Journal({
     });
   }
 
+  /**
+   * Reads a plate and fills the form.
+   *
+   * It fills, it does not log: what lands in the diary is what somebody looked
+   * at and accepted. The figures arrive in fields with a cursor in them, which
+   * is also what makes correcting them the obvious next move rather than an
+   * afterthought.
+   */
+  function estimate(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    // The picker is reset either way, so choosing the same photo twice works.
+    event.target.value = "";
+    if (!file) return;
+
+    setError(null);
+    setEstimated(false);
+    setReading(true);
+    startTransition(async () => {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch("/api/log/estimate", { method: "POST", body });
+      setReading(false);
+
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setError(t(`photo.errors.${failure.error ?? "provider"}`));
+        return;
+      }
+      const plate = (await response.json()) as {
+        title: string;
+        kcal: number;
+        proteinG: number;
+      };
+      setTitle(plate.title);
+      setKcal(String(Math.round(plate.kcal)));
+      setProtein(String(Math.round(plate.proteinG)));
+      setEstimated(true);
+    });
+  }
+
   function saveTargets(event: React.FormEvent) {
     event.preventDefault();
     const energy = Number(targetKcal);
@@ -205,6 +248,31 @@ export function Journal({
         <p className="mt-2 text-[15px] leading-[1.5] font-medium text-text-dim">
           {t("add.body")}
         </p>
+        {/* The camera does the typing; the diary still only holds what
+            somebody agreed to. */}
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <label
+              className={buttonClasses({ variant: "secondary", size: "sm" })}
+              data-testid="estimate-photo"
+            >
+              {reading ? t("photo.reading") : t("photo.button")}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                onChange={estimate}
+              />
+            </label>
+            <span className="text-[12px] font-medium text-gray">{t("photo.hint")}</span>
+          </div>
+          {estimated && (
+            <p data-testid="estimate-done" className="text-[12px] font-medium text-mint-ink">
+              {t("photo.done")}
+            </p>
+          )}
+        </div>
+
         <form className="mt-4 flex flex-wrap items-end gap-3" onSubmit={add}>
           <div className="min-w-[12rem] flex-1">
             <Input

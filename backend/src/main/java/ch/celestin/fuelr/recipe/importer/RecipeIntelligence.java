@@ -75,4 +75,13 @@ public interface RecipeIntelligence {
      * is usually the half of the method that was cut off.
      */
     Reading read(List<byte[]> images, Source source);
+
+    /**
+     * Reads one recipe out of a page's text.
+     *
+     * For a blog that publishes nothing a parser can find. It is the last
+     * resort and never the first: the two schema.org readers cost nothing and
+     * are right more often, so this only runs once they have found nothing.
+     */
+    Reading read(String text);
 }

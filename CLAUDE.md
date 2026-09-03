@@ -297,6 +297,22 @@ the import's SSRF lesson in a new costume. What it produces is a `ParsedRecipe`
 like any other, so a guess arrives flagged and a line it could not split keeps
 `needsReview` — the editor has known how to show both since the first import.
 
+**The paid reading is a last resort, never a first one.** An import runs the
+two schema.org parsers first, always, and they are free. Only a page they
+cannot read at all gets one more chance from a model reading the page's own
+words — and only for an account entitled to it with budget left. A page that
+publishes its recipe properly never costs anybody a cent, and every reason to
+decline the assisted attempt becomes the same answer it has always given: this
+page holds nothing, here is manual entry. Offering to sell somebody a plan in
+the middle of a failed import would be reading the room badly.
+
+**An estimate is offered, never written.** `POST /api/log/estimate` reads a
+photographed plate and hands back figures for a form; what lands in the diary
+is what somebody looked at and accepted. A model that cannot recognise the
+plate says so — 422 — rather than returning zeroes dressed as numbers, and
+anything logged from it carries `estimated` like every other typed meal,
+because a camera does not turn a guess into a measurement.
+
 **The budget is in money, and it is decremented by what was actually spent.**
 `ai_usage` keeps one row per call — never a running total, which cannot be
 re-derived when a price changes — and `AiBudget` sums the month. A count of

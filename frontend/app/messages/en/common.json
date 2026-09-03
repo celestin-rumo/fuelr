@@ -347,6 +347,21 @@
     "unavailable": {
       "title": "The diary cannot be reached",
       "body": "The diary could not be loaded. Reload the page — nothing is lost."
+    },
+    "photo": {
+      "button": "Estimate from a photo",
+      "hint": "Photograph your plate: the figures land in the form, to correct before writing it down.",
+      "reading": "Reading the photo…",
+      "done": "The estimate is in the form. Correct anything that looks wrong before writing it down.",
+      "errors": {
+        "not_recognised": "The photo was not enough to estimate from. Write the meal in by hand: that is free and unlimited.",
+        "ai_unavailable": "Not wired up yet. Write the meal in by hand meanwhile.",
+        "upgrade_required": "Estimating from a photo is part of a paid plan. Writing a meal down stays free.",
+        "ai_budget_exhausted": "This month's reading budget is spent. The counter restarts on the 1st.",
+        "unsupported_format": "That file is not an image. JPEG, PNG or WebP.",
+        "file_too_large": "Image too heavy: 2 MB at most.",
+        "provider": "The reading failed. Try again, or write the meal in by hand."
+      }
     }
   },
   "auth": {
