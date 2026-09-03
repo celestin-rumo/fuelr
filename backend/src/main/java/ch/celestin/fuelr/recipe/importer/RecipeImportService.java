@@ -25,14 +25,17 @@ public class RecipeImportService {
     private final SafePageFetcher fetcher;
     private final RecipePageReader reader;
     private final RecipePhotoFetcher photos;
+    private final RecipeImportSources sources;
     private final RecipeRepository recipes;
 
     public RecipeImportService(
             SafePageFetcher fetcher, RecipePageReader reader,
-            RecipePhotoFetcher photos, RecipeRepository recipes) {
+            RecipePhotoFetcher photos, RecipeImportSources sources,
+            RecipeRepository recipes) {
         this.fetcher = fetcher;
         this.reader = reader;
         this.photos = photos;
+        this.sources = sources;
         this.recipes = recipes;
     }
 
@@ -47,8 +50,27 @@ public class RecipeImportService {
     public Recipe importFrom(Long userId, String url) {
         String html = fetcher.fetch(url);
         RecipePageReader.Reading reading = reader.read(html, url);
-        ParsedRecipe parsed = reading.recipe();
+        return draftFrom(userId, reading.recipe(), url);
+    }
 
+    /**
+     * Imports from photos or screenshots, which only a model can read.
+     *
+     * The same draft comes out as from a link — DRAFT, every guess flagged,
+     * the editor opened on it — because the cook's job afterwards is the same
+     * whichever door the recipe came through. What differs is only who did the
+     * reading, and that nothing here has a source URL to remember.
+     */
+    @Transactional
+    public Recipe importFromImages(
+            Long userId, List<byte[]> images, RecipeIntelligence.Source source) {
+        // The first photo would make a decent recipe photo, and will once
+        // something can read the rest of it. Storing an illustration for a
+        // recipe that failed to import would be worse than storing nothing.
+        return draftFrom(userId, sources.reader().read(images, source), null);
+    }
+
+    private Recipe draftFrom(Long userId, ParsedRecipe parsed, String url) {
         if (parsed.isEmpty()) {
             throw new NothingToImportException();
         }

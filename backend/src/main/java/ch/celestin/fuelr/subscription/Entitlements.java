@@ -71,7 +71,14 @@ public class Entitlements {
     }
 
     public boolean has(Long userId, Feature feature) {
-        return !enforced || tierOf(userId).atLeast(feature.required());
+        // The launch period opens what costs nothing more to give away. A
+        // metered feature is billed to us per call, so it stays behind the
+        // plan whatever the flag says — otherwise "everything is free" is a
+        // sentence about somebody else's invoice.
+        if (!enforced && !feature.metered()) {
+            return true;
+        }
+        return tierOf(userId).atLeast(feature.required());
     }
 
     public void require(Long userId, Feature feature) {

@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Card } from "@ui/card";
 import { Container } from "@app/components/site/section";
 import { ImportForm } from "@app/components/app/import-form";
+import { importSources } from "@app/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function ImportRecipePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("import");
+  const sources = await importSources();
 
   return (
     <Container className="py-12">
@@ -23,7 +25,7 @@ export default async function ImportRecipePage({
         </p>
 
         <div className="mt-8">
-          <ImportForm />
+          <ImportForm sources={sources} />
         </div>
       </Card>
     </Container>

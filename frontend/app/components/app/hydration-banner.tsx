@@ -43,9 +43,11 @@ export function HydrationBanner() {
         // href is the current URL, so this reloads with no JavaScript at all.
         <a
           href=""
-          // The one control on a page where nothing else works, so it gets a
-          // full-sized target rather than a line of underlined text.
-          className="inline-flex min-h-11 items-center text-[13px] font-semibold text-accent-ink underline"
+          // The one control on a page where nothing else works, so it gets
+          // the largest target in the app rather than a line of underlined
+          // text — 56px, the cooking-mode size, since this banner is exactly
+          // as likely to be met with a hand covered in flour.
+          className="inline-flex min-h-14 items-center text-[13px] font-semibold text-accent-ink underline"
         >
           {t("reload")}
         </a>

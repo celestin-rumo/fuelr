@@ -19,15 +19,40 @@ public enum Feature {
     NUTRITION_TRACKING(Tier.PLUS),
 
     /** History further back than the free plan's sliding window. */
-    FULL_HISTORY(Tier.PLUS);
+    FULL_HISTORY(Tier.PLUS),
+
+    /**
+     * Reading a photo, a screenshot or an unreadable page with a model.
+     *
+     * Metered: every call is billed to us by the provider, per token. That is
+     * what makes it different from every other line in this enum — the others
+     * cost the same whether one person uses them or a thousand.
+     */
+    AI_IMPORT(Tier.PLUS, true);
 
     private final Tier required;
+    private final boolean metered;
 
     Feature(Tier required) {
+        this(required, false);
+    }
+
+    Feature(Tier required, boolean metered) {
         this.required = required;
+        this.metered = metered;
     }
 
     public Tier required() {
         return required;
+    }
+
+    /**
+     * Whether using this costs money outside our own servers.
+     *
+     * A metered feature is never opened by the launch period: giving away
+     * something that is billed per call is not a gesture, it is a bill.
+     */
+    public boolean metered() {
+        return metered;
     }
 }

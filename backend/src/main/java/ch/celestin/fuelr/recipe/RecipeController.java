@@ -4,6 +4,10 @@ import ch.celestin.fuelr.media.MediaStorage;
 import ch.celestin.fuelr.nutrition.NutritionDtos;
 import ch.celestin.fuelr.nutrition.NutritionService;
 import ch.celestin.fuelr.recipe.RecipeDtos.ImportRequest;
+import ch.celestin.fuelr.recipe.importer.RecipeImportSources;
+import ch.celestin.fuelr.subscription.Entitlements;
+import ch.celestin.fuelr.subscription.Feature;
+import ch.celestin.fuelr.recipe.importer.RecipeIntelligence;
 import ch.celestin.fuelr.recipe.importer.RecipeImportService;
 import ch.celestin.fuelr.recipe.importer.SafePageFetcher;
 import ch.celestin.fuelr.recipe.RecipeDtos.IngredientView;
@@ -38,15 +42,20 @@ public class RecipeController {
     private final NutritionService nutrition;
     private final MediaStorage media;
     private final RecipeImportService recipeImport;
+    private final RecipeImportSources importSources;
+    private final Entitlements entitlements;
     private final RecipeAudience audience;
 
     public RecipeController(
             RecipeService recipes, NutritionService nutrition, MediaStorage media,
-            RecipeImportService recipeImport, RecipeAudience audience) {
+            RecipeImportService recipeImport, RecipeImportSources importSources,
+            Entitlements entitlements, RecipeAudience audience) {
         this.recipes = recipes;
         this.nutrition = nutrition;
         this.media = media;
         this.recipeImport = recipeImport;
+        this.importSources = importSources;
+        this.entitlements = entitlements;
         this.audience = audience;
     }
 
@@ -126,6 +135,75 @@ public class RecipeController {
             return toView(recipeImport.importFrom(userId(principal), body.url()));
         } catch (SafePageFetcher.UnreadableSourceException e) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, e.getMessage());
+        } catch (RecipeImportService.NothingToImportException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+        }
+    }
+
+    /**
+     * What this account may import from, asked before anything is offered.
+     *
+     * A screen that shows three ways in and refuses two of them afterwards is
+     * the failure this endpoint exists to prevent — and the two refusals are
+     * named apart, because subscribing answers one of them and only we can
+     * answer the other.
+     */
+    @GetMapping("/import/sources")
+    public List<RecipeImportSources.SourceView> importSources(
+            @AuthenticationPrincipal Jwt principal) {
+        return importSources.forUser(userId(principal));
+    }
+
+    /**
+     * Imports from photos or screenshots, which only a model can read.
+     *
+     * Refused in the order the cook cares about: the plan first, because
+     * subscribing is something they can do, and only then "nothing is wired
+     * yet", which is on us. Both are refused before a single byte is read.
+     */
+    @PostMapping("/import/photos")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeView importFromPhotos(
+            @AuthenticationPrincipal Jwt principal,
+            @RequestParam(name = "source", defaultValue = "PHOTO") String source,
+            @RequestParam("files") List<org.springframework.web.multipart.MultipartFile> files) {
+        Long userId = userId(principal);
+        entitlements.require(userId, Feature.AI_IMPORT);
+
+        RecipeIntelligence.Source kind;
+        try {
+            kind = RecipeIntelligence.Source.valueOf(source.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown_source");
+        }
+        if (files == null || files.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no_file");
+        }
+
+        List<byte[]> images = files.stream().map(file -> {
+            byte[] bytes;
+            try {
+                bytes = file.getBytes();
+            } catch (java.io.IOException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unreadable_file");
+            }
+            // The same rule as a recipe photo: the bytes say what they are,
+            // never the header or the extension.
+            if (MediaStorage.sniff(bytes) == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.UNSUPPORTED_MEDIA_TYPE, "unsupported_format");
+            }
+            if (bytes.length > MediaStorage.MAX_BYTES) {
+                throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "file_too_large");
+            }
+            return bytes;
+        }).toList();
+
+        try {
+            return toView(recipeImport.importFromImages(userId, images, kind));
+        } catch (RecipeIntelligence.NotAvailableException e) {
+            // 503 rather than 500: nothing is broken, nothing is configured.
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
         } catch (RecipeImportService.NothingToImportException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }

@@ -228,6 +228,30 @@ none of them is an import failure, because the cook asked for the recipe. The
 suite stays hermetic by having its own server rewrite the captures' remote
 image addresses to its own; nothing in it reaches the network.
 
+**Three doors into the editor, and the screen asks before it offers.**
+`GET /api/recipes/import/sources` answers what this account may import from — a
+link, a photo, a screenshot — and the two refusals are named apart, because
+they are two different conversations: `PLAN` is answered by subscribing, `SOON`
+only by us. That is the whole of the story "no AI feature is presented as
+available and then refused", and it is the same rule the plan already follows
+with `canOrder`.
+
+**A metered feature is never opened by the launch period.** `Feature` now
+carries whether using it costs money outside our own servers, and
+`Entitlements.has` opens only what does not: reading a photo is billed per
+call, so "everything is free" would be a sentence about somebody else's
+invoice. `AI_IMPORT` is the first of them, and the rule is in the one method
+that decides, not beside each feature that needs it.
+
+`RecipeIntelligence` is the seam behind it — one interface for the three inputs
+no parser can read, written in nobody's SDK so the suite still touches no
+network, with `NoRecipeIntelligence` ordered last while no provider is wired.
+Whatever implements it owes two things: a `ParsedRecipe` like any other, so a
+guess arrives flagged rather than looking measured, and an answer treated as
+data validated against a schema — a page a stranger wrote can say "ignore the
+previous instructions", which is the same lesson as the import's SSRF in a new
+costume.
+
 **A logged meal must copy its values, never reference the recipe.** Recipes get
 edited after they have been used, so a meal log pointing at the live recipe
 would silently rewrite someone's nutritional history every time they fix a typo
