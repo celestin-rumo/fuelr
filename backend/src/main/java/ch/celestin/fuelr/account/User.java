@@ -81,6 +81,15 @@ public class User {
         return role;
     }
 
+    /**
+     * Only `AdminAccountInitializer` writes this, and only ever upwards: the
+     * operator is named in configuration, and losing the role must not be a
+     * side effect of an environment variable changing.
+     */
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
