@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
 import { Button } from "@ui/button";
-import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
 import { LaunchNote } from "./launch-note";
 import type { ImportSource, ImportSourceState } from "@app/lib/api";
+import { Segmented } from "@ui/segmented";
+import { SectionHead } from "@ui/section-head";
 
 /**
  * Three ways into the same editor.
@@ -98,27 +99,18 @@ export function ImportForm({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("sources.label")}
-        </span>
-        <div
-          role="group"
-          aria-label={t("sources.label")}
+        <SectionHead as="h3">{t("sources.label")}</SectionHead>
+        <Segmented
+          label={t("sources.label")}
           data-testid="import-sources"
-          className="flex flex-wrap gap-2"
-        >
-          {sources.map((one) => (
-            <Chip
-              key={one.source}
-              active={one.source === source}
-              aria-pressed={one.source === source}
-              data-testid={`source-${one.source}`}
-              onClick={() => pick(one.source)}
-            >
-              {t(`sources.${one.source}`)}
-            </Chip>
-          ))}
-        </div>
+          value={source}
+          onChange={pick}
+          options={sources.map((one) => ({
+            value: one.source,
+            label: t(`sources.${one.source}`),
+            testId: `source-${one.source}`,
+          }))}
+        />
       </div>
 
       {source === "URL" ? (

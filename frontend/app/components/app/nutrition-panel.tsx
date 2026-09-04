@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@ui/cn";
 import { kcal } from "@app/lib/nutrition-format";
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
+import { SectionHead } from "@ui/section-head";
 
 /**
  * A read-only summary of the ingredients above, recomputed on every change.
@@ -33,9 +34,7 @@ export function NutritionPanel({ nutrition }: { nutrition: Nutrition | null }) {
       className="flex flex-col gap-2 border-t border-line pt-4"
     >
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("title")}
-        </h3>
+        <SectionHead as="h3">{t("title")}</SectionHead>
         <span className="text-[12px] font-medium text-gray">
           {t("automatic")}
         </span>

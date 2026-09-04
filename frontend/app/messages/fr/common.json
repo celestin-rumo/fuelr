@@ -37,6 +37,7 @@
     "pin": "Épingler {title}",
     "unpin": "Retirer {title} des favoris",
     "filters": {
+      "label": "Filtrer les recettes",
       "all": "Toutes",
       "favorites": "Favoris",
       "noFavorites": "Aucune recette épinglée pour l'instant."

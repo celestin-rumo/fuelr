@@ -10,6 +10,8 @@ import { Button } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
 import type { Household, Subscription } from "@app/lib/api";
+import { SectionHead } from "@ui/section-head";
+import { ListRow, ListRowMeta, ListRowTitle } from "@ui/list-row";
 import {
   cancelPlan,
   inviteMember,
@@ -231,33 +233,39 @@ export function HouseholdPanel({
 
         <ul data-testid="members" className="mt-4 flex flex-col gap-2">
           {household.members.map((member) => (
-            <li
+            <ListRow
+              as="li"
               key={member.userId}
-              className="flex flex-wrap items-center gap-3 rounded-sm border border-line bg-bg-raised-2 p-3"
+              selected={member.you}
+              leading={
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent font-display text-[15px] font-extrabold text-on-accent">
+                  {(member.name ?? member.email).slice(0, 1).toUpperCase()}
+                </span>
+              }
+              trailing={
+                household.owner &&
+                !member.owner && (
+                  <Button
+                    variant="dangerText"
+                    size="sm"
+                    aria-label={t("members.remove", {
+                      name: member.name ?? member.email,
+                    })}
+                    onClick={() => setRemoving(member)}
+                  >
+                    {t("members.removeShort")}
+                  </Button>
+                )
+              }
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent font-display text-[13px] font-extrabold text-on-accent">
-                {(member.name ?? member.email).slice(0, 1).toUpperCase()}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-semibold text-text">
-                  {member.name ?? member.email}
-                  {member.you && ` · ${t("members.you")}`}
-                </span>
-                <span className="block truncate text-[13px] font-semibold text-gray">
-                  {member.owner ? t("members.owner") : member.email}
-                </span>
-              </span>
-              {household.owner && !member.owner && (
-                <Button
-                  variant="dangerText"
-                  size="sm"
-                  aria-label={t("members.remove", { name: member.name ?? member.email })}
-                  onClick={() => setRemoving(member)}
-                >
-                  {t("members.removeShort")}
-                </Button>
-              )}
-            </li>
+              <ListRowTitle className="truncate">
+                {member.name ?? member.email}
+                {member.you && ` · ${t("members.you")}`}
+              </ListRowTitle>
+              <ListRowMeta className="truncate">
+                {member.owner ? t("members.owner") : member.email}
+              </ListRowMeta>
+            </ListRow>
           ))}
         </ul>
 
@@ -287,27 +295,32 @@ export function HouseholdPanel({
 
         {household.owner && household.invitations.length > 0 && (
           <div className="mt-6">
-            <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-              {t("invite.pending")}
-            </h3>
+            <SectionHead as="h3">{t("invite.pending")}</SectionHead>
             <ul data-testid="pending-invitations" className="mt-2 flex flex-col gap-2">
               {household.invitations.map((pendingInvitation) => (
-                <li
+                <ListRow
+                  as="li"
                   key={pendingInvitation.id}
-                  className="flex flex-wrap items-center gap-3 rounded-sm border border-dashed border-line p-3"
+                  // Dashed, because nobody is in the household yet. Same row,
+                  // one border that says "not settled".
+                  className="border-dashed bg-transparent"
+                  trailing={
+                    <Button
+                      variant="text"
+                      size="sm"
+                      aria-label={t("invite.revoke", {
+                        email: pendingInvitation.email,
+                      })}
+                      onClick={() => run(() => revokeInvitation(pendingInvitation.id))}
+                    >
+                      {t("invite.revokeShort")}
+                    </Button>
+                  }
                 >
-                  <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-text-dim">
+                  <ListRowTitle className="truncate font-sans font-semibold text-text-dim">
                     {pendingInvitation.email}
-                  </span>
-                  <Button
-                    variant="text"
-                    size="sm"
-                    aria-label={t("invite.revoke", { email: pendingInvitation.email })}
-                    onClick={() => run(() => revokeInvitation(pendingInvitation.id))}
-                  >
-                    {t("invite.revokeShort")}
-                  </Button>
-                </li>
+                  </ListRowTitle>
+                </ListRow>
               ))}
             </ul>
           </div>

@@ -18,6 +18,7 @@ import {
   readDraft,
   writeDraft,
 } from "@app/lib/onboarding";
+import { Segmented } from "@ui/segmented";
 
 const GOALS: Goal[] = ["LOSE", "MAINTAIN", "GAIN"];
 const SEXES: Sex[] = ["FEMALE", "MALE"];
@@ -340,26 +341,21 @@ function Choices<T extends string>({
   stacked?: boolean;
 }) {
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="mb-2 text-[13px] font-semibold text-text-dim">{legend}</legend>
-      <div className={stacked ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}>
-        {options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            aria-pressed={value === option.value}
-            onClick={() => onChange(option.value)}
-            className={`rounded-full border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-[background-color,border-color,color] duration-[var(--dur-control)] ease-[var(--ease)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] ${
-              value === option.value
-                ? "border-accent-ink bg-accent/14 text-text"
-                : "border-line bg-bg-raised-2 text-text-dim hover:border-gray"
-            }`}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </fieldset>
+    // No fieldset around it: `Segmented` is already a named group, and a
+    // fieldset carrying the same name announces the question twice.
+    <div className="flex flex-col gap-2">
+      <p className="text-[13px] font-semibold text-text-dim">{legend}</p>
+      <Segmented
+        label={legend}
+        orientation={stacked ? "vertical" : "horizontal"}
+        value={value}
+        onChange={onChange}
+        options={options.map((option) => ({
+          value: option.value,
+          label: option.label,
+        }))}
+      />
+    </div>
   );
 }
 

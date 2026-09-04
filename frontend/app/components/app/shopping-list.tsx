@@ -12,6 +12,7 @@ import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
 import type { PantryItem, ShoppingItem, ShoppingListView } from "@app/lib/api";
 import { addDays, formatDay } from "@app/lib/week";
+import { SectionHead } from "@ui/section-head";
 import {
   clearQueue,
   queueTick,
@@ -276,9 +277,7 @@ export function ShoppingList({
         <div className="flex flex-col gap-5" data-testid="aisles">
           {shown.aisles.map((group) => (
             <section key={group.aisle}>
-              <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-                {t(`aisles.${group.aisle}`)}
-              </h3>
+              <SectionHead as="h3">{t(`aisles.${group.aisle}`)}</SectionHead>
               <ul className="mt-2 flex flex-col divide-y divide-line rounded-md border border-line bg-bg-raised">
                 {group.items.map((item) => (
                   <li key={item.id} className="flex items-center gap-2 px-3">
@@ -311,9 +310,7 @@ export function ShoppingList({
 
       {shown.covered.length > 0 && (
         <section data-testid="covered">
-          <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-            {t("covered")}
-          </h3>
+          <SectionHead as="h3">{t("covered")}</SectionHead>
           <ul className="mt-2 flex flex-col gap-1">
             {shown.covered.map((item) => (
               <li key={item.id} className="text-[13px] font-semibold text-gray">

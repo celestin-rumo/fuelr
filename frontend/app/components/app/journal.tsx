@@ -21,6 +21,7 @@ import {
 } from "@app/[locale]/(app)/app/journal/actions";
 import { DayBars } from "./day-bars";
 import { LaunchNote } from "./launch-note";
+import { SectionHead } from "@ui/section-head";
 
 /**
  * The food diary.
@@ -422,9 +423,7 @@ export function Journal({
       )}
 
       <section data-testid="entries" className="order-2 sm:order-none">
-        <h2 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("entries.title")}
-        </h2>
+        <SectionHead as="h2">{t("entries.title")}</SectionHead>
 
         {removed && (
           <Banner

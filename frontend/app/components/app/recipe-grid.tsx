@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@ui/badge";
-import { Chip } from "@ui/chip";
 import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
 import type { Season } from "@app/lib/seasons";
@@ -20,6 +19,7 @@ import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Dialog } from "@ui/dialog";
 import { Icon } from "@ui/icons";
 import { ListRow, ListRowActions } from "@ui/list-row";
+import { Segmented, SegmentedCount } from "@ui/segmented";
 
 /**
  * The backend already returns the library in order — pinned first, in the
@@ -105,18 +105,23 @@ export function RecipeGrid({
         today={today}
       />
 
-      <div className="flex flex-wrap gap-2">
-        <Chip active={!onlyFavorites} onClick={() => setOnlyFavorites(false)}>
-          {t("filters.all")}
-        </Chip>
-        <Chip
-          active={onlyFavorites}
-          count={favoriteCount}
-          onClick={() => setOnlyFavorites(true)}
-        >
-          {t("filters.favorites")}
-        </Chip>
-      </div>
+      {/* One among two, so it is the segmented control and not two chips: a
+          chip is a filter you stack, and these two are exclusive. */}
+      <Segmented
+        label={t("filters.label")}
+        value={onlyFavorites ? "favorites" : "all"}
+        onChange={(which) => setOnlyFavorites(which === "favorites")}
+        options={[
+          { value: "all", label: t("filters.all") },
+          {
+            value: "favorites",
+            label: t("filters.favorites"),
+            affix: (
+              <SegmentedCount count={favoriteCount} on={onlyFavorites} />
+            ),
+          },
+        ]}
+      />
 
       {shown.length === 0 ? (
         <p data-testid="no-results" className="text-[15px] font-medium text-text-dim">

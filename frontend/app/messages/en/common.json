@@ -37,6 +37,7 @@
     "pin": "Pin {title}",
     "unpin": "Unpin {title}",
     "filters": {
+      "label": "Filter recipes",
       "all": "All",
       "favorites": "Favourites",
       "noFavorites": "No pinned recipes yet."
