@@ -6,6 +6,126 @@ this file collects them newest first.
 
 ---
 
+# v3.1.0 — 2026-09-04
+
+Nothing new to do, and every screen redrawn. The colours did not move by a
+single hexadecimal: what changed is the shape of things, the amount of air
+around them, how a control says it is on, and — on a phone — where the
+navigation lives.
+
+## The library is a list
+
+The recipe library was a gallery. A photograph took three quarters of every
+card, and most recipes have none, so what filled that space was usually a
+decorative gradient: **one recipe and a half per phone screen, where the list
+now fits six.**
+
+The photograph has not left the application. It is on the recipe, where it is
+of something.
+
+## The actions stop moving
+
+On a recipe row, the ordering arrows used to be rendered only for a favourite
+and a spacer pushed the rest to the right — so *duplicate* and *delete* sat in
+different places on two neighbouring rows. The one you land on when you miss
+is the one that cannot be undone. This is error prevention, not decoration.
+
+The rail is fixed now, with what does not apply disabled in place rather than
+absent. And it is drawn rather than typed: `⧉` says "duplicate" to nobody, and
+there was no glyph at all for "edit" — which is why that action had no button
+until this release.
+
+Twenty-odd typographic characters were standing in for icons across the app —
+`✕` `↑` `↓` `←` `→` `✓` `★` `♥` `☰` `⏸` `▶` — in the dialog's close, the
+banner's dismiss, cooking mode's timers, the editor's step controls, the week
+arrows on three screens, the FAQ's disclosure. A glyph borrowed from a font
+renders at the weight and width of whatever face resolves and sits on the text
+baseline rather than on the control's centre. There is now one icon set, on
+one 24-unit grid, at one stroke weight. `⚡` stays: that is Fuelr's mark.
+
+## The navigation goes to the bottom on a phone
+
+The header used to wrap its five links onto a line of their own on a narrow
+screen. That solved the overflow and nothing else: the navigation ended up
+three rows deep at the top of a screen held at the bottom, above the thing you
+came to read.
+
+There is a tab bar at the bottom now, where the thumb already is. Two things it
+does not do: it does not hide a destination — all five are there, the household
+included — and it does not drop the words. A bar of icons alone has to be
+learnt, and this one is read by somebody holding a knife. Cooking mode keeps
+its own full-screen footer and never shows it.
+
+## One way to do each thing
+
+There were four ways to choose one among few: the pricing cycle, the three ways
+into the editor, the onboarding answers, the library's all-or-favourites. Four
+steppers for *fewer / more*, differing in the button, in the size of the
+figure, and in where the bounds were enforced — in one the minus sign was an en
+dash and in another a real minus, the kind of difference that survives for years
+because nobody can see it. Twelve section titles written out by hand.
+
+Each is now one component, and each **replaced** its copies in the same pass. A
+pattern that leaves its copies standing has added something, not tidied
+anything.
+
+The shapes moved with them: cards and rows at 20px, fields at 12, panels at 24,
+and elevations that are wide and soft rather than short and contrasted. An
+elevation sets an object down; it does not cut it out. And anything that is
+*on* — a chip, a segment, the current page, the current tab — is a filled
+accent surface rather than a tinted border. A 14% wash reads as "on" on a
+screen you are looking straight at, and as nothing at all on a worktop in
+daylight.
+
+## What was deliberately left alone
+
+The shopping list's rows are 56px checkboxes, sized to be hit with a knuckle
+while holding a basket. The menu suggestions are illustrated cards, from the
+story that made every suggestion carry a picture. The planner's cells are a
+grid. None of them became a list row: applying a pattern to something that is
+not one is not homogeneity, it is a rewrite with a nicer name.
+
+## Verification
+
+Frontend unit 226, e2e 196, backend 280 — green on the merge commit. Sixteen
+views were opened in a real browser at 1280 and at 360 — library, planner,
+shopping, journal, editor, household, home, pricing — and none of them scrolls
+sideways.
+
+`e2e/mobile-360.spec.ts` was **extended, not adjusted**: three new tests measure
+the tab bar's geometry rather than its markup — that it is at the bottom, that
+it is 56px, that all five destinations carry their labels, that the current one
+says so, that the header exposes none of the navigation, and that the last row
+of a screen sits above the bar rather than under it. Which of two competing
+Tailwind heights wins is decided by the stylesheet's order, so a class list
+proves nothing.
+
+Two things were found on the way and are written into `CLAUDE.md` so they are
+not rediscovered: `icon.tsx` anywhere under `app/` is a Next.js metadata
+convention and the build fails pointing at a route nobody wrote; and a
+surface-less button was growing a grey pill when disabled, which made the
+unavailable control the loudest thing in a rail.
+
+## What is left
+
+**Nothing about payment works yet**, and it is still the largest ticket: no
+provider is chosen, so `canOrder` is false and the screen says the plan is not
+open yet. Choosing one means writing one class behind `PaymentProvider`.
+
+**The backup gap is still the one where waiting costs data.** The `recipe_media`
+volume is in no backup, and neither is Postgres.
+
+**The public site is still not translated** — `site.json` is French in all three
+locales. Several footer links also resolve to a generic page (`Presse` →
+`/about`, `Statut` → `/contact`); they are honest destinations rather than dead
+links, but they are not the pages they name.
+
+The **admin panel** epic is untouched. Everything paid for remains open to
+everybody: `app.subscription.enforce` is off, and reading an image or a page
+with a model is capped at 10 CHF a month per account and 50 across all of them.
+
+---
+
 # v3.0.0 — 2026-09-04
 
 Three ways of answering the same question — *what am I cooking?* — that the app
