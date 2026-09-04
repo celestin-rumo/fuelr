@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Banner } from "@ui/banner";
-import { Button, buttonClasses } from "@ui/button";
+import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
@@ -22,6 +22,8 @@ import {
 import { DayBars } from "./day-bars";
 import { LaunchNote } from "./launch-note";
 import { SectionHead } from "@ui/section-head";
+import { Icon } from "@ui/icons";
+import { ListRow, ListRowMeta, ListRowTitle } from "@ui/list-row";
 
 /**
  * The food diary.
@@ -227,7 +229,7 @@ export function Journal({
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <WeekLink week={addDays(weekStart, -7)} label={t("previousWeek")}>
-          ←
+          <Icon name="arrowLeft" />
         </WeekLink>
         <h2 data-testid="journal-week" className="font-display text-[15px] font-bold text-text">
           {t("week", {
@@ -235,7 +237,7 @@ export function Journal({
           })}
         </h2>
         <WeekLink week={addDays(weekStart, 7)} label={t("nextWeek")}>
-          →
+          <Icon name="arrowRight" />
         </WeekLink>
         <div className="flex-1" />
         <span data-testid="logged-days" className="tnum font-mono text-[13px] text-gray">
@@ -449,36 +451,36 @@ export function Journal({
         {week.entries.length === 0 ? (
           <p className="mt-2 text-[15px] font-medium text-text-dim">{t("entries.empty")}</p>
         ) : (
-          <ul className="mt-2 flex flex-col divide-y divide-line rounded-md border border-line bg-bg-raised">
+          <ul className="mt-2 flex flex-col gap-2">
             {week.entries.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-center gap-3 p-3">
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-semibold text-text">
-                    {entry.title}
-                  </span>
-                  <span className="tnum block font-mono text-[13px] text-gray">
-                    {formatDay(entry.date, locale, { weekday: "short", day: "numeric" })}
-                    {" · "}
-                    {t("entries.figures", {
-                      kcal: roundKcal(entry.kcal),
-                      protein: entry.proteinG,
-                    })}
-                    {entry.estimated && (
-                      // Grey, not coral: a figure somebody typed is an
-                      // estimate, which is a fact about it and not an alarm.
-                      <span className="ml-2 text-gray">{t("estimated")}</span>
-                    )}
-                  </span>
-                </span>
-                <Button
-                  variant="dangerText"
-                  size="sm"
-                  aria-label={t("entries.remove", { title: entry.title })}
-                  onClick={() => remove(entry)}
-                >
-                  ✕
-                </Button>
-              </li>
+              <ListRow
+                as="li"
+                key={entry.id}
+                trailing={
+                  <IconButton
+                    variant="dangerText"
+                    aria-label={t("entries.remove", { title: entry.title })}
+                    onClick={() => remove(entry)}
+                  >
+                    <Icon name="trash" />
+                  </IconButton>
+                }
+              >
+                <ListRowTitle className="truncate">{entry.title}</ListRowTitle>
+                <ListRowMeta className="tnum font-mono text-gray">
+                  {formatDay(entry.date, locale, { weekday: "short", day: "numeric" })}
+                  {" · "}
+                  {t("entries.figures", {
+                    kcal: roundKcal(entry.kcal),
+                    protein: entry.proteinG,
+                  })}
+                  {entry.estimated && (
+                    // Grey, not coral: a figure somebody typed is an
+                    // estimate, which is a fact about it and not an alarm.
+                    <span className="ml-2 text-gray">{t("estimated")}</span>
+                  )}
+                </ListRowMeta>
+              </ListRow>
             ))}
           </ul>
         )}

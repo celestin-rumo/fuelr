@@ -17,6 +17,7 @@ import { useHydrated } from "@app/lib/use-hydrated";
 import { useOnline } from "@app/lib/use-online";
 import { useWakeLock } from "@app/lib/use-wake-lock";
 import { CookingIngredients } from "./cooking-ingredients";
+import { Icon } from "@ui/icons";
 
 /**
  * Cooking mode: one step per screen, and nothing that needs a precise gesture.
@@ -311,7 +312,7 @@ function CookingSurface({
           aria-label={t("exit")}
           className="grid size-14 shrink-0 place-items-center rounded-full text-[18px] text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
         >
-          ✕
+          <Icon name="close" size={22} />
         </Link>
 
         {/* Two lines rather than one ellipsis: at 360px "Gratin de courge
@@ -509,7 +510,11 @@ function CookingSurface({
                         : timers.resume(timer.id)
                     }
                   >
-                    {timer.state === "running" ? "⏸" : "▶"}
+                    <Icon
+                      name={timer.state === "running" ? "pause" : "play"}
+                      size={22}
+                      filled={timer.state !== "running"}
+                    />
                   </IconButton>
                 )}
 
@@ -519,7 +524,7 @@ function CookingSurface({
                   size="xl"
                   onClick={() => timers.cancel(timer.id)}
                 >
-                  ✕
+                  <Icon name="close" size={22} />
                 </IconButton>
               </li>
             );
@@ -591,11 +596,10 @@ function CookingSurface({
           aria-label={t("previous")}
           variant="secondary"
           size="xl"
-          className="text-[18px]"
           disabled={index === 0}
           onClick={() => go(-1)}
         >
-          ←
+          <Icon name="arrowLeft" size={22} />
         </IconButton>
 
         {last ? (
@@ -604,7 +608,8 @@ function CookingSurface({
           </Button>
         ) : (
           <Button size="xl" className="flex-1" onClick={() => go(1)}>
-            {t("next")} →
+            {t("next")}
+            <Icon name="arrowRight" size={22} />
           </Button>
         )}
         </div>

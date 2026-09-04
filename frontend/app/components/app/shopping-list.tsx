@@ -13,6 +13,7 @@ import { cn } from "@ui/cn";
 import type { PantryItem, ShoppingItem, ShoppingListView } from "@app/lib/api";
 import { addDays, formatDay } from "@app/lib/week";
 import { SectionHead } from "@ui/section-head";
+import { Icon } from "@ui/icons";
 import {
   clearQueue,
   queueTick,
@@ -243,7 +244,7 @@ export function ShoppingList({
       {!offline && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <WeekLink week={addDays(week, -7)} label={t("previousWeek")}>
-            ←
+            <Icon name="arrowLeft" />
           </WeekLink>
           <h2 data-testid="shopping-week" className="font-display text-[15px] font-bold text-text">
             {t("week", {
@@ -251,7 +252,7 @@ export function ShoppingList({
             })}
           </h2>
           <WeekLink week={addDays(week, 7)} label={t("nextWeek")}>
-            →
+            <Icon name="arrowRight" />
           </WeekLink>
           <div className="flex-1" />
           <span data-testid="remaining" className="tnum font-mono text-[13px] text-gray">
@@ -297,7 +298,7 @@ export function ShoppingList({
                         aria-label={t("removeItem", { name: item.name })}
                         onClick={() => remove(item)}
                       >
-                        ✕
+                        <Icon name="close" />
                       </Button>
                     )}
                   </li>
@@ -382,7 +383,7 @@ export function ShoppingList({
                         })
                       }
                     >
-                      ✕
+                      <Icon name="close" />
                     </Button>
                   </li>
                 ))}

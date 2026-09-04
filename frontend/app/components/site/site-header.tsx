@@ -7,6 +7,7 @@ import { ThemeToggle } from "@app/components/theme-toggle";
 import { buttonClasses } from "@ui/button";
 import { cn } from "@ui/cn";
 import { Container } from "./section";
+import { Icon } from "@ui/icons";
 
 const NAV = [
   { href: "/", key: "home" },
@@ -80,7 +81,7 @@ export function SiteHeader() {
           onClick={() => setOpen((v) => !v)}
           className="grid size-9 place-items-center rounded-full border border-line text-text lg:hidden"
         >
-          {open ? "✕" : "☰"}
+          <Icon name={open ? "close" : "menu"} />
         </button>
       </Container>
 

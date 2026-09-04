@@ -4,6 +4,7 @@ import type { Household, Subscription } from "@app/lib/api";
 import { EmptyState } from "@ui/empty-state";
 import { Container } from "@app/components/site/section";
 import { HouseholdPanel } from "@app/components/app/household-panel";
+import { Icon } from "@ui/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ export default async function HouseholdPage({
       <Container className="py-14">
         <EmptyState
           tone="error"
-          icon="!"
+          icon={<Icon name="alert" size={24} />}
           title={t("unavailable.title")}
           body={t("unavailable.body")}
         />

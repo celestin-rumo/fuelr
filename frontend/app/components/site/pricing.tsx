@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { buttonClasses } from "@ui/button";
 import { cn } from "@ui/cn";
 import { Segmented } from "@ui/segmented";
+import { Icon } from "@ui/icons";
 
 type PlanLine = { ok: boolean; text: string };
 
@@ -112,15 +113,14 @@ export function PricingPlans({ prices }: { prices: PlanPrices | null }) {
                   key={line.text}
                   className="flex items-start gap-2.5 text-[14px] font-medium"
                 >
-                  <span
-                    aria-hidden
+                  <Icon
+                    name={line.ok ? "check" : "minus"}
+                    size={17}
                     className={cn(
-                      "mt-0.5 shrink-0 font-bold",
+                      "mt-0.5",
                       line.ok ? "text-accent-ink" : "text-gray",
                     )}
-                  >
-                    {line.ok ? "✓" : "—"}
-                  </span>
+                  />
                   <span className={line.ok ? "text-text" : "text-gray"}>
                     {line.text}
                   </span>
