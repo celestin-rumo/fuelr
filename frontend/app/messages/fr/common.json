@@ -46,6 +46,7 @@
     "moveUp": "Monter {title} dans les favoris",
     "moveDown": "Descendre {title} dans les favoris",
     "duplicate": "Dupliquer {title}",
+    "edit": "Modifier {title}",
     "delete": "Supprimer {title}",
     "search": {
       "label": "Chercher",

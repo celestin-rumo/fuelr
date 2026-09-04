@@ -16,8 +16,10 @@ import {
   setFavorite,
 } from "@app/[locale]/(app)/app/recipes/actions";
 import { RecipeFilters } from "./recipe-filters";
-import { Button, IconButton } from "@ui/button";
+import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Dialog } from "@ui/dialog";
+import { Icon } from "@ui/icons";
+import { ListRow, ListRowActions } from "@ui/list-row";
 
 /**
  * The backend already returns the library in order — pinned first, in the
@@ -121,151 +123,152 @@ export function RecipeGrid({
           {onlyFavorites ? t("filters.noFavorites") : t("search.noResults")}
         </p>
       ) : (
-        <ul
-          data-testid="recipe-grid"
-          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
-          {shown.map((recipe, index) => (
-            <li key={recipe.id}>
-              <article
+        // A list, not a gallery. The photograph took three quarters of a card
+        // and most recipes have none, so it was usually a decorative gradient
+        // fitting one recipe and a half on a phone; a list fits six. The photo
+        // has not left the application — it is on the recipe, where it is of
+        // something.
+        <ul data-testid="recipe-grid" className="flex flex-col gap-2">
+          {shown.map((recipe, index) => {
+            const title = recipe.title?.trim() || t("untitled");
+            return (
+              <ListRow
+                as="li"
+                key={recipe.id}
                 data-testid={`recipe-${recipe.id}`}
-                className={cn(
-                  "group relative flex h-full flex-col overflow-hidden rounded-md border bg-bg-raised",
-                  "transition-[transform,box-shadow,border-color] duration-[var(--dur)] ease-[var(--ease)]",
-                  "hover:-translate-y-[3px] hover:border-gray hover:shadow-e1",
-                  recipe.favorite ? "border-accent-ink" : "border-line",
-                )}
-              >
-                {/* Photo upload is a separate story; the tile keeps its slot. */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-bg-raised-2">
-                  {recipe.hasPhoto ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`/api/recipes/${recipe.id}/photo`}
-                      alt=""
-                      data-testid={`photo-${recipe.id}`}
-                      className="size-full object-cover transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-[1.04]"
-                    />
-                  ) : (
-                    <div
-                      aria-hidden
-                      className="size-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent)_22%,transparent),color-mix(in_srgb,var(--mint)_18%,transparent))] transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-[1.04]"
-                    />
-                  )}
-                  {recipe.status === "DRAFT" && (
-                    <span className="absolute top-3 left-3">
-                      <Badge tone="neutral">{t("draft")}</Badge>
-                    </span>
-                  )}
+                interactive
+                selected={recipe.favorite}
+                trailing={
+                  <ListRowActions>
+                    {/* Reordering only applies to a pinned recipe, so on every
+                        other row these are disabled rather than absent: a
+                        control that comes and goes moves the ones after it,
+                        and the one you land on when you miss is "delete". */}
+                    <IconButton
+                      aria-label={t("moveUp", { title })}
+                      variant="quiet"
+                      className="relative z-10"
+                      disabled={!recipe.favorite || index === 0}
+                      onClick={() => move(recipe, -1)}
+                    >
+                      <Icon name="arrowUp" />
+                    </IconButton>
+                    <IconButton
+                      aria-label={t("moveDown", { title })}
+                      variant="quiet"
+                      className="relative z-10"
+                      disabled={!recipe.favorite || index === favoriteCount - 1}
+                      onClick={() => move(recipe, 1)}
+                    >
+                      <Icon name="arrowDown" />
+                    </IconButton>
+                    {/* Editing navigates, so it is an anchor wearing the
+                        button's clothes — a Button inside a Link is two
+                        interactive elements where the markup promises one. */}
+                    <Link
+                      aria-label={t("edit", { title })}
+                      href={{
+                        pathname: "/app/recipes/[id]",
+                        params: { id: String(recipe.id) },
+                      }}
+                      className={buttonClasses({
+                        variant: "quiet",
+                        size: "none",
+                        className: "relative z-10 h-11 w-11 shrink-0 p-0",
+                      })}
+                    >
+                      <Icon name="pencil" />
+                    </Link>
+                    <IconButton
+                      aria-label={t("duplicate", { title })}
+                      variant="quiet"
+                      className="relative z-10"
+                      onClick={() => duplicate(recipe)}
+                    >
+                      <Icon name="copy" />
+                    </IconButton>
+                    <IconButton
+                      aria-label={t("delete", { title })}
+                      variant="dangerText"
+                      className="relative z-10"
+                      onClick={() => setConfirming(recipe)}
+                    >
+                      <Icon name="trash" />
+                    </IconButton>
+                  </ListRowActions>
+                }
+                leading={
                   <button
                     type="button"
                     aria-label={
                       recipe.favorite
-                        ? t("unpin", { title: recipe.title ?? t("untitled") })
-                        : t("pin", { title: recipe.title ?? t("untitled") })
+                        ? t("unpin", { title })
+                        : t("pin", { title })
                     }
                     aria-pressed={recipe.favorite}
                     onClick={() => toggle(recipe)}
                     className={cn(
                       // Above the stretched link below, which covers the whole
-                      // card and would otherwise swallow this click.
-                      "absolute top-3 right-3 z-10 grid size-11 place-items-center rounded-full text-sm",
+                      // row and would otherwise swallow this click.
+                      "relative z-10 grid size-11 shrink-0 place-items-center rounded-full",
                       "transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
                       recipe.favorite
-                        ? "bg-accent text-on-accent"
-                        : "bg-[rgba(18,18,18,0.55)] text-[#f5f5f0] hover:bg-[rgba(18,18,18,0.75)]",
+                        ? "text-accent-ink"
+                        : "text-gray hover:text-text",
                     )}
                   >
-                    {recipe.favorite ? "★" : "☆"}
+                    <Icon name="star" size={20} filled={recipe.favorite} />
                   </button>
-                </div>
+                }
+              >
+                {/* A heading, not a bare link: the library is navigated by
+                    heading in a screen reader. */}
+                <h3 className="font-display text-[15px] font-bold tracking-[-0.01em] text-text">
+                  <Link
+                    href={{
+                      pathname: "/app/recipes/[id]",
+                      params: { id: String(recipe.id) },
+                    }}
+                    className="after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+                  >
+                    {title}
+                  </Link>
+                </h3>
 
-                <div className="flex flex-1 flex-col p-4">
-                  {/* A heading, not a bare link: the grid is navigated by
-                      heading in a screen reader. */}
-                  <h3 className="font-display text-base font-bold text-text">
-                    <Link
-                      href={{
-                        pathname: "/app/recipes/[id]",
-                        params: { id: String(recipe.id) },
-                      }}
-                      className="after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
-                    >
-                      {recipe.title?.trim() || t("untitled")}
-                    </Link>
-                  </h3>
-
-                  <p className="mt-1 text-[13px] font-semibold text-text-dim">
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[13px] font-medium text-text-dim">
+                  <span>
                     {t("meta", {
                       servings: recipe.servings,
                       minutes: recipe.minutes,
                     })}
-                  </p>
-
+                  </span>
                   {recipe.kcalPerServing !== null && (
-                    <p className="tnum mt-2 font-mono text-[13px] text-gray">
+                    <span className="tnum font-mono text-gray">
+                      ·{" "}
                       {t("macros", {
                         kcal: recipe.kcalPerServing,
                         protein: recipe.proteinPerServing ?? 0,
                         carbs: recipe.carbsPerServing ?? 0,
                         fat: recipe.fatPerServing ?? 0,
                       })}
-                      {recipe.estimated && (
-                        <span
-                          data-testid={`estimated-${recipe.id}`}
-                          className="ml-2 text-coral-ink"
-                        >
-                          {t("estimated")}
-                        </span>
-                      )}
-                    </p>
+                    </span>
                   )}
-                  <div className="mt-4 flex flex-wrap items-center gap-1 border-t border-line pt-3">
-                    {recipe.favorite && (
-                      <>
-                        <IconButton
-                          aria-label={t("moveUp", { title: recipe.title ?? t("untitled") })}
-                          variant="text"
-                          className="relative z-10"
-                          disabled={index === 0}
-                          onClick={() => move(recipe, -1)}
-                        >
-                          ↑
-                        </IconButton>
-                        <IconButton
-                          aria-label={t("moveDown", { title: recipe.title ?? t("untitled") })}
-                          variant="text"
-                          className="relative z-10"
-                          disabled={index === favoriteCount - 1}
-                          onClick={() => move(recipe, 1)}
-                        >
-                          ↓
-                        </IconButton>
-                      </>
-                    )}
-                    <div className="flex-1" />
-                    <IconButton
-                      aria-label={t("duplicate", { title: recipe.title ?? t("untitled") })}
-                      variant="text"
-                      className="relative z-10"
-                      onClick={() => duplicate(recipe)}
+                  {recipe.estimated && recipe.kcalPerServing !== null && (
+                    <span
+                      data-testid={`estimated-${recipe.id}`}
+                      className="text-coral-ink"
                     >
-                      ⧉
-                    </IconButton>
-                    <IconButton
-                      aria-label={t("delete", { title: recipe.title ?? t("untitled") })}
-                      variant="dangerText"
-                      className="relative z-10"
-                      onClick={() => setConfirming(recipe)}
-                    >
-                      ✕
-                    </IconButton>
-                  </div>
-                </div>
-              </article>
-            </li>
-          ))}
+                      {t("estimated")}
+                    </span>
+                  )}
+                  {recipe.status === "DRAFT" && (
+                    <Badge tone="neutral">{t("draft")}</Badge>
+                  )}
+                </p>
+              </ListRow>
+            );
+          })}
         </ul>
       )}
 

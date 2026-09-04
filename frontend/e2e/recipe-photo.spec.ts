@@ -176,7 +176,10 @@ function jpegSize(buffer: Buffer) {
   return { width: 0, height: 0 };
 }
 
-test("the grid shows the photo instead of the gradient", async ({ page, request }) => {
+test("the photo is on the recipe, and the library stays a list", async ({
+  page,
+  request,
+}) => {
   const created = await request.post(`${BACKEND}/api/recipes`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -193,13 +196,17 @@ test("the grid shows the photo instead of the gradient", async ({ page, request 
 
   await page.goto(`/fr/app/recettes/${id}`);
   await pickImage(page);
-  await expect(page.getByTestId("recipe-photo")).toBeVisible();
-
-  await page.goto("/fr/app");
-  const photo = page.getByTestId(`photo-${id}`);
+  const photo = page.getByTestId("recipe-photo");
   await expect(photo).toBeVisible();
   // Actually loaded, not a broken image standing in for the gradient.
   await expect
     .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
     .toBeGreaterThan(0);
+
+  // The library is a list of what somebody is choosing between, and a
+  // photograph there took three quarters of a row while most recipes have
+  // none. It is on the recipe, where it is of something.
+  await page.goto("/fr/app");
+  await expect(page.getByTestId(`recipe-${id}`)).toContainText("Avec photo");
+  await expect(page.getByTestId(`photo-${id}`)).toHaveCount(0);
 });

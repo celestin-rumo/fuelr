@@ -10,9 +10,28 @@ const BASE = [
   "transition-[background-color,border-color,color,filter,transform] duration-[var(--dur)] ease-[var(--ease)]",
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
   "active:scale-[0.97]",
-  // Disabled is one flat treatment across every variant.
-  "disabled:pointer-events-none disabled:border-transparent disabled:bg-bg-raised-2 disabled:text-gray disabled:no-underline disabled:brightness-100",
+  "disabled:pointer-events-none disabled:no-underline disabled:brightness-100",
 ].join(" ");
+
+/**
+ * Disabled, in the two forms a button can take.
+ *
+ * A variant with a surface loses its colour and keeps its box. A variant
+ * without one must not grow a box on being disabled: in a rail of icons, the
+ * grey pill drew more attention than the controls that still worked, which is
+ * the opposite of what "not available" should look like.
+ *
+ * Chosen here rather than layered as two `disabled:bg-*` utilities, because
+ * which of those wins is decided by Tailwind's stylesheet order and not by the
+ * order they are listed.
+ */
+const FLAT_VARIANTS = ["text", "dangerText", "quiet"] as const;
+
+function disabledClasses(variant: ButtonVariant) {
+  return (FLAT_VARIANTS as readonly string[]).includes(variant)
+    ? "disabled:bg-transparent disabled:text-gray disabled:opacity-40"
+    : "disabled:border-transparent disabled:bg-bg-raised-2 disabled:text-gray";
+}
 
 const variants = {
   primary: "bg-accent text-on-accent hover:brightness-[1.08] active:brightness-[0.94]",
@@ -28,6 +47,11 @@ const variants = {
   // utilities are resolved by Tailwind's sheet order, not by class order.
   dangerText:
     "text-coral-ink hover:bg-[color-mix(in_srgb,var(--coral)_12%,transparent)] active:brightness-[0.9]",
+  // Neutral and surface-less, for a rail of icon controls at the end of a row.
+  // `text` is mint because mint is the link colour, and a rail of five mint
+  // icons reads as five links to five different places.
+  quiet:
+    "text-gray hover:bg-[color-mix(in_srgb,var(--text)_8%,transparent)] hover:text-text active:brightness-[0.9]",
 } as const;
 
 const sizes = {
@@ -97,7 +121,14 @@ export function buttonClasses({
   fullWidth?: boolean;
   className?: string;
 } = {}) {
-  return cn(BASE, fullWidth && "w-full", variants[variant], sizes[size], className);
+  return cn(
+    BASE,
+    fullWidth && "w-full",
+    variants[variant],
+    disabledClasses(variant),
+    sizes[size],
+    className,
+  );
 }
 
 export function Button({

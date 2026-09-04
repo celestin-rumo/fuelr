@@ -14,6 +14,13 @@ import { EmptyState } from "@ui/empty-state";
 import { Input } from "@ui/input";
 import { Radio } from "@ui/radio";
 import { RecipeCard } from "@ui/recipe-card";
+import { Icon } from "@ui/icons";
+import {
+  ListRow,
+  ListRowActions,
+  ListRowMeta,
+  ListRowTitle,
+} from "@ui/list-row";
 import { Switch } from "@ui/switch";
 import { Tab, TabList } from "@ui/tabs";
 import type { ButtonVariant } from "@ui/button";
@@ -122,6 +129,7 @@ const BUTTON_VARIANTS: Array<[ButtonVariant, string, string]> = [
   ["danger", "Supprimer", "coral outline → filled on hover"],
   ["soft", "Planifier", "accent 14% ground · dense lists"],
   ["dangerText", "Supprimer", "destructive, no surface · inside a row"],
+  ["quiet", "Modifier", "neutral, no surface · a rail of icons"],
 ];
 
 function Section({
@@ -409,9 +417,9 @@ export default function DesignSystemPage() {
               <Label>Radii</Label>
               <div className="flex flex-col gap-3">
                 {[
-                  ["--r-sm", "8px", "fields, tags", "rounded-sm"],
-                  ["--r-md", "14px", "cards", "rounded-md"],
-                  ["--r-lg", "20px", "panels", "rounded-lg"],
+                  ["--r-sm", "12px", "fields, tags", "rounded-sm"],
+                  ["--r-md", "20px", "cards, rows", "rounded-md"],
+                  ["--r-lg", "24px", "panels, dialogs", "rounded-lg"],
                   ["--r-full", "999px", "buttons, chips", "rounded-full"],
                 ].map(([token, value, use, cls]) => (
                   <div key={token} className="flex items-center gap-3">
@@ -727,6 +735,142 @@ export default function DesignSystemPage() {
 
         <Section
           num="11"
+          title="Icons"
+          intro="One 24-unit grid, one 1.7 stroke, currentColor. They were typographic characters before this — `⧉` for duplicate, which nobody reads as duplicate, and no glyph at all for edit, which is why that action had no button. Every icon is aria-hidden: the control around it carries the name."
+        >
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-8">
+            {(
+              [
+                "arrowUp",
+                "arrowDown",
+                "pencil",
+                "copy",
+                "trash",
+                "close",
+                "star",
+                "check",
+                "plus",
+                "minus",
+                "search",
+                "chevronRight",
+                "chevronDown",
+                "book",
+                "calendar",
+                "cart",
+                "journal",
+              ] as const
+            ).map((name) => (
+              <div
+                key={name}
+                className="flex flex-col items-center gap-2 rounded-md border border-line bg-bg-raised px-2 py-4 text-text-dim"
+              >
+                <Icon name={name} size={22} />
+                <span className="font-mono text-[10px] text-gray">{name}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          num="12"
+          title="List rows"
+          intro="A line in a list, written once — the shopping list, the journal, the household and the library all drew their own before this. The line is the surface, not the rule between two of them: a row separated by a hairline has no visible target to aim at. Below 480px the row wraps and the action rail drops to its own line."
+        >
+          <ul className="flex flex-col gap-2">
+            <ListRow
+              as="li"
+              interactive
+              selected
+              leading={
+                <span className="grid size-11 shrink-0 place-items-center rounded-full text-accent-ink">
+                  <Icon name="star" size={20} filled />
+                </span>
+              }
+              trailing={
+                <ListRowActions>
+                  <IconButton aria-label="Monter" variant="quiet" disabled>
+                    <Icon name="arrowUp" />
+                  </IconButton>
+                  <IconButton aria-label="Modifier" variant="quiet">
+                    <Icon name="pencil" />
+                  </IconButton>
+                  <IconButton aria-label="Dupliquer" variant="quiet">
+                    <Icon name="copy" />
+                  </IconButton>
+                  <IconButton aria-label="Supprimer" variant="dangerText">
+                    <Icon name="trash" />
+                  </IconButton>
+                </ListRowActions>
+              }
+            >
+              <ListRowTitle>Curry de lentilles corail</ListRowTitle>
+              <ListRowMeta>
+                4 personnes · 40 min ·{" "}
+                <span className="tnum font-mono text-gray">
+                  480 kcal · 22 P · 58 G · 14 L
+                </span>
+              </ListRowMeta>
+            </ListRow>
+
+            <ListRow
+              as="li"
+              interactive
+              leading={
+                <span className="grid size-11 shrink-0 place-items-center rounded-full text-gray">
+                  <Icon name="star" size={20} />
+                </span>
+              }
+              trailing={
+                <ListRowActions>
+                  {/* Not applicable here, and disabled in place rather than
+                      removed: a control that comes and goes moves the ones
+                      after it, and the one you land on when you miss is the
+                      one that cannot be undone. */}
+                  <IconButton aria-label="Monter" variant="quiet" disabled>
+                    <Icon name="arrowUp" />
+                  </IconButton>
+                  <IconButton aria-label="Modifier" variant="quiet">
+                    <Icon name="pencil" />
+                  </IconButton>
+                  <IconButton aria-label="Dupliquer" variant="quiet">
+                    <Icon name="copy" />
+                  </IconButton>
+                  <IconButton aria-label="Supprimer" variant="dangerText">
+                    <Icon name="trash" />
+                  </IconButton>
+                </ListRowActions>
+              }
+            >
+              <ListRowTitle>Soupe de courge rôtie</ListRowTitle>
+              <ListRowMeta>
+                6 personnes · 45 min ·{" "}
+                <span className="tnum font-mono text-gray">
+                  414 kcal · 9 P · 52 G · 18 L
+                </span>
+              </ListRowMeta>
+            </ListRow>
+
+            <ListRow
+              as="li"
+              leading={
+                <span className="grid size-11 shrink-0 place-items-center rounded-sm bg-bg-raised-2 font-display text-[13px] font-extrabold text-text-dim">
+                  LC
+                </span>
+              }
+              trailing={
+                <span className="tnum font-mono text-[13px] font-bold text-text">
+                  400 g
+                </span>
+              }
+            >
+              <ListRowTitle>Lentilles corail</ListRowTitle>
+              <ListRowMeta>Épicerie · 2 recettes</ListRowMeta>
+            </ListRow>
+          </ul>
+        </Section>
+
+        <Section
+          num="13"
           title="Banners"
           intro="Three tones, because the system gives one meaning per colour. Errors take role=alert and interrupt; the rest wait their turn. `position=&quot;fixed&quot;` pins one to the bottom of the viewport for something wrong with the page as a whole."
         >
@@ -743,7 +887,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section
-          num="12"
+          num="14"
           title="Dialogs"
           intro="One modal for the whole app. The overlay scrolls and the card is capped at the visible height, so the bottom of a long sheet is reachable on a 360×480 screen; the head stays put while the body scrolls. Escape closes it and focus opens on the close button."
         >
@@ -773,7 +917,7 @@ export default function DesignSystemPage() {
           )}
         </Section>
 
-        <Section num="13" title="Data & system states">
+        <Section num="15" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
               icon="◷"
