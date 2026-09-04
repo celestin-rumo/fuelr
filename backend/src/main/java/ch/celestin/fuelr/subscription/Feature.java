@@ -38,7 +38,16 @@ public enum Feature {
      * the typing — a different promise, sold separately if it ever comes to
      * that.
      */
-    AI_MEAL_PHOTO(Tier.PLUS, true);
+    AI_MEAL_PHOTO(Tier.PLUS, true),
+
+    /**
+     * Ideas for what to cook, from what somebody has.
+     *
+     * Metered like the rest, and worth saying: the library is searched first
+     * and for free, so this only ever pays for what a cook's own recipes could
+     * not answer.
+     */
+    AI_MENU(Tier.PLUS, true);
 
     private final Tier required;
     private final boolean metered;

@@ -404,6 +404,32 @@ export async function aiCosts(): Promise<AiCostReport | null> {
   return (await response.json()) as AiCostReport;
 }
 
+/**
+ * A dish somebody could cook tonight.
+ *
+ * `RECIPE` is one they already wrote — it opens, and it carries its own photo.
+ * `IDEA` came from a model and becomes a draft to correct, like every import;
+ * it has no photograph, because a picture of a dish nobody cooked would be an
+ * invention presented as a record.
+ */
+export type Suggestion = {
+  origin: "RECIPE" | "IDEA";
+  recipeId: number | null;
+  title: string;
+  minutes: number | null;
+  hasPhoto: boolean;
+  /** What the bag does not hold — named so it can go on a shopping list. */
+  missing: string[];
+  ingredients: { name: string; quantity: number; unit: string; needsReview: boolean }[];
+  steps: string[];
+};
+
+export type Suggestions = {
+  suggestions: Suggestion[];
+  /** False when the library answered on its own, and nothing was spent. */
+  assisted: boolean;
+};
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

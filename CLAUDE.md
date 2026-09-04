@@ -297,6 +297,22 @@ the import's SSRF lesson in a new costume. What it produces is a `ParsedRecipe`
 like any other, so a guess arrives flagged and a line it could not split keeps
 `needsReview` — the editor has known how to show both since the first import.
 
+**The library answers before a model does, and often instead.** Asked what to
+cook from a bag of groceries, `MenuSuggestionService` searches the cook's own
+recipes first — matched on normalised words, ranked by how much of the bag they
+use — and asks a model only when fewer than three came back. Three of your own
+recipes is a choice; one is a coincidence. Suggesting a dish somebody already
+wrote beats inventing one: they know they like it, the quantities are theirs,
+it has a photograph, and it costs nothing to find.
+
+**Every suggestion is illustrated, and none of them lies about it.** A recipe
+from the library shows its own photograph. An idea has none, and gets a tile
+drawn from its own title instead — deterministic, so the same idea looks the
+same twice and two ideas never look alike. Generating a picture was the
+alternative and it is the one thing this application does not do with a guess:
+a photograph of a dish nobody cooked, sitting beside photographs of dishes
+somebody did.
+
 **The paid reading is a last resort, never a first one.** An import runs the
 two schema.org parsers first, always, and they are free. Only a page they
 cannot read at all gets one more chance from a model reading the page's own

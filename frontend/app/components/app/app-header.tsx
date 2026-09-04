@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@ui/button";
 import { ThemeToggle } from "@app/components/theme-toggle";
 import { LogoutButton } from "./logout-button";
 import { Container } from "@app/components/site/section";
@@ -76,6 +77,17 @@ export function AppHeader({
         </nav>
 
         <div className="flex-1" />
+
+        {/* An action, not a section: it is asked from wherever somebody is,
+            which is why it sits with the controls rather than in the nav —
+            a sixth nav item would also cost the toggle its place at 360px. */}
+        <Link
+          href="/app/menu"
+          data-testid="ask-idea"
+          className={buttonClasses({ variant: "soft", size: "sm" })}
+        >
+          {t("nav.idea")}
+        </Link>
 
         <span className="hidden text-[13px] font-semibold text-text-dim sm:inline">
           {name ?? email}

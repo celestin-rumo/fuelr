@@ -68,7 +68,8 @@
       "plan": "Planning",
       "household": "Foyer",
       "shopping": "Courses",
-      "journal": "Journal"
+      "journal": "Journal",
+      "idea": "Une idée ?"
     }
   },
   "plan": {
@@ -874,5 +875,29 @@
     "action": "Imprimer",
     "back": "Retour",
     "hint": "La boîte d'impression propose aussi « Enregistrer en PDF »."
+  },
+  "menu": {
+    "label": "Idées",
+    "title": "Qu'est-ce que tu as ?",
+    "intro": "Écris ce que tu as sous la main, comme tu le dirais. Tes propres recettes passent en premier.",
+    "field": "Ce que tu as",
+    "placeholder": "poulet, courgettes, riz, un citron…",
+    "submit": "Proposer des plats",
+    "searching": "Je regarde…",
+    "yours": "Ta recette",
+    "idea": "Idée",
+    "minutes": "{count} min",
+    "nothingMissing": "Tu as tout",
+    "missing": "Il te manque : {items}",
+    "open": "Ouvrir",
+    "keep": "En faire un brouillon",
+    "addMissing": "Ajouter ce qui manque à la liste",
+    "added": "Ajouté à la liste de courses.",
+    "empty": "Rien ne me vient avec ça. Écris autre chose, ou saisis la recette à la main.",
+    "assisted": "Les idées sont proposées par un modèle : à relire avant de cuisiner.",
+    "errors": {
+      "failed": "La recherche a échoué. Réessaie.",
+      "empty": "Écris au moins un ingrédient."
+    }
   }
 }
