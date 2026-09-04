@@ -68,7 +68,8 @@
       "plan": "Plan",
       "household": "Household",
       "shopping": "Shopping",
-      "journal": "Diary"
+      "journal": "Diary",
+      "idea": "An idea?"
     }
   },
   "plan": {
@@ -874,5 +875,29 @@
     "action": "Print",
     "back": "Back",
     "hint": "The print dialog also offers “Save as PDF”."
+  },
+  "menu": {
+    "label": "Ideas",
+    "title": "What do you have?",
+    "intro": "Write what you have to hand, the way you would say it. Your own recipes come first.",
+    "field": "What you have",
+    "placeholder": "chicken, courgettes, rice, a lemon…",
+    "submit": "Suggest dishes",
+    "searching": "Looking…",
+    "yours": "Your recipe",
+    "idea": "Idea",
+    "minutes": "{count} min",
+    "nothingMissing": "You have it all",
+    "missing": "You are missing: {items}",
+    "open": "Open",
+    "keep": "Make it a draft",
+    "addMissing": "Add what is missing to the list",
+    "added": "Added to the shopping list.",
+    "empty": "Nothing comes to mind with that. Try something else, or write the recipe in by hand.",
+    "assisted": "The ideas come from a model: worth reading before cooking.",
+    "errors": {
+      "failed": "The search failed. Try again.",
+      "empty": "Write at least one ingredient."
+    }
   }
 }

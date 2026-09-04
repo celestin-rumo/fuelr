@@ -68,7 +68,8 @@
       "plan": "Wochenplan",
       "household": "Haushalt",
       "shopping": "Einkauf",
-      "journal": "Tagebuch"
+      "journal": "Tagebuch",
+      "idea": "Eine Idee?"
     }
   },
   "plan": {
@@ -874,5 +875,29 @@
     "action": "Drucken",
     "back": "Zurück",
     "hint": "Der Druckdialog bietet auch „Als PDF speichern“."
+  },
+  "menu": {
+    "label": "Ideen",
+    "title": "Was hast du da?",
+    "intro": "Schreib auf, was du zur Hand hast, so wie du es sagen würdest. Deine eigenen Rezepte kommen zuerst.",
+    "field": "Was du hast",
+    "placeholder": "Poulet, Zucchetti, Reis, eine Zitrone…",
+    "submit": "Gerichte vorschlagen",
+    "searching": "Ich schaue…",
+    "yours": "Dein Rezept",
+    "idea": "Idee",
+    "minutes": "{count} Min.",
+    "nothingMissing": "Du hast alles",
+    "missing": "Dir fehlt: {items}",
+    "open": "Öffnen",
+    "keep": "Als Entwurf übernehmen",
+    "addMissing": "Fehlendes auf die Liste setzen",
+    "added": "Zur Einkaufsliste hinzugefügt.",
+    "empty": "Damit fällt mir nichts ein. Schreib etwas anderes, oder tippe das Rezept von Hand ein.",
+    "assisted": "Die Ideen kommen von einem Modell: vor dem Kochen durchlesen.",
+    "errors": {
+      "failed": "Die Suche ist fehlgeschlagen. Versuch es erneut.",
+      "empty": "Schreib mindestens eine Zutat."
+    }
   }
 }
