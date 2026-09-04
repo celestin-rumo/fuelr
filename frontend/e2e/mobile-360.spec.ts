@@ -223,3 +223,68 @@ test("the household screen holds up", async ({ page }) => {
 
   await holdsUp(page);
 });
+
+test("the navigation is at the bottom, where the thumb is", async ({ page }) => {
+  await page.goto("/fr/app");
+
+  const tabs = page.getByTestId("app-tabs");
+  await expect(tabs).toBeVisible();
+
+  // Every destination, not four with the household folded away behind
+  // something: the bar is the whole navigation on a phone.
+  await expect(tabs.getByRole("link")).toHaveCount(5);
+
+  // The icon comes with its word. A bar of icons alone has to be learnt,
+  // and this one is read by somebody holding a knife.
+  for (const label of ["Recettes", "Planning", "Courses", "Journal", "Foyer"]) {
+    await expect(tabs.getByRole("link", { name: label })).toBeVisible();
+  }
+
+  // Actually at the bottom, and 56px of it.
+  const box = (await tabs.boundingBox())!;
+  expect(box.y + box.height).toBeGreaterThanOrEqual(640 - 1);
+  expect(box.height).toBeGreaterThanOrEqual(56);
+
+  await holdsUp(page);
+});
+
+test("the current tab says so, and the header keeps none of the nav", async ({
+  page,
+}) => {
+  await page.goto("/fr/app/courses");
+
+  const tabs = page.getByTestId("app-tabs");
+  await expect(tabs.getByRole("link", { name: "Courses" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(tabs.getByRole("link", { name: "Recettes" })).not.toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  // The header's copy is gone below `sm` rather than wrapping onto a third
+  // row above the thing somebody came to read.
+  await expect(
+    page.getByRole("banner").getByRole("link", { name: "Journal" }),
+  ).toBeHidden();
+});
+
+test("the bar covers nothing: the last row of a screen is reachable", async ({
+  request,
+  page,
+}) => {
+  await seed(request, "Dahl de lentilles corail");
+  await seed(request, "Soupe de courge rôtie");
+  await page.goto("/fr/app");
+
+  await page.getByTestId("recipe-grid").locator("li").last().scrollIntoViewIfNeeded();
+  const row = (await page
+    .getByTestId("recipe-grid")
+    .locator("li")
+    .last()
+    .boundingBox())!;
+  const bar = (await page.getByTestId("app-tabs").boundingBox())!;
+  // The content reserves the bar's room rather than sliding under it.
+  expect(row.y + row.height).toBeLessThanOrEqual(bar.y);
+});

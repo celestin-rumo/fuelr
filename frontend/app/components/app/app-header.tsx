@@ -20,7 +20,11 @@ export function AppHeader({
 
   return (
     <header className="border-b border-line bg-bg-raised">
-      <Container className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2 sm:h-16 sm:flex-nowrap sm:py-0">
+      {/* Tighter gaps below `sm`: with the navigation gone to the bottom bar,
+          the logo, the idea button and the two controls fit one row at 360px
+          — but only just, so they are not given 16px of air each. `flex-wrap`
+          stays as the fallback for a locale whose words run longer. */}
+      <Container className="flex flex-wrap items-center gap-x-2 gap-y-1 py-2 sm:h-16 sm:flex-nowrap sm:gap-x-4 sm:py-0">
         <Link
           href="/app"
           className="flex min-h-11 shrink-0 items-center gap-2.5 sm:min-h-0"
@@ -35,14 +39,13 @@ export function AppHeader({
           </span>
         </Link>
 
-        {/* Where a signed-in person actually lives. The labels stay
-            readable at every width — an icon-only nav would need explaining —
-            so below `sm`, where the bar has about 80px to spare and the nav
-            wants twice that, it drops to a line of its own instead of pushing
-            the theme toggle off the screen. */}
+        {/* Where a signed-in person actually lives, on a screen wide enough
+            to hold it. Below `sm` this bar has about 80px to spare and five
+            readable labels want four times that: the navigation moves to
+            `AppTabs`, at the bottom, where the thumb already is. */}
         <nav
           aria-label={t("nav.label")}
-          className="order-last flex w-full flex-wrap items-center gap-x-1 gap-y-0.5 sm:order-none sm:w-auto"
+          className="hidden flex-wrap items-center gap-x-1 gap-y-0.5 sm:flex"
         >
           <Link
             href="/app"

@@ -765,6 +765,7 @@ export default function DesignSystemPage() {
                 "calendar",
                 "cart",
                 "journal",
+                "people",
               ] as const
             ).map((name) => (
               <div

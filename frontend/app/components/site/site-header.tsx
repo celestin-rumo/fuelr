@@ -45,8 +45,10 @@ export function SiteHeader() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-colors duration-[var(--dur-fast)] ease-[var(--ease)]",
+                  // A filled surface for the current page, the same answer the
+                  // chips, the segmented control and the tab bar give.
                   active
-                    ? "border-accent-ink bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-text"
+                    ? "border-transparent bg-accent text-on-accent"
                     : "border-line text-text-dim hover:border-gray hover:text-text",
                 )}
               >
