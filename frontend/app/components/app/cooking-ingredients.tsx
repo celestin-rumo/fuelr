@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { IconButton } from "@ui/button";
+import { Stepper } from "@ui/stepper";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
 import {
@@ -103,32 +104,18 @@ export function CookingIngredients({
         <span className="text-[11px] font-bold tracking-[0.02em] text-text-dim uppercase">
           {t("servings")}
         </span>
-        <div className="flex items-center gap-3">
-          <IconButton
-            aria-label={t("fewer")}
-            variant="secondary"
-            size="xl"
-            disabled={servings <= MIN_SERVINGS}
-            onClick={() => onServings(Math.max(MIN_SERVINGS, servings - 1))}
-          >
-            −
-          </IconButton>
-          <span
-            data-testid="cook-servings"
-            className="tnum min-w-28 text-center text-[15px] font-semibold text-text"
-          >
-            {t("people", { count: servings })}
-          </span>
-          <IconButton
-            aria-label={t("more")}
-            variant="secondary"
-            size="xl"
-            disabled={servings >= MAX_SERVINGS}
-            onClick={() => onServings(Math.min(MAX_SERVINGS, servings + 1))}
-          >
-            +
-          </IconButton>
-        </div>
+        <Stepper
+          data-testid="cook-servings"
+          value={servings}
+          onChange={onServings}
+          min={MIN_SERVINGS}
+          max={MAX_SERVINGS}
+          decreaseLabel={t("fewer")}
+          increaseLabel={t("more")}
+          size="xl"
+        >
+          {t("people", { count: servings })}
+        </Stepper>
 
         {/* Said only while it is true, and said in full: the quantities in the
             step text are the author's own words and are not recalculated, so a

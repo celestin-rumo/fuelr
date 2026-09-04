@@ -4,7 +4,8 @@ import { useOptimistic, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Button, IconButton } from "@ui/button";
+import { Button } from "@ui/button";
+import { Stepper } from "@ui/stepper";
 import { Dialog } from "@ui/dialog";
 import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
@@ -13,6 +14,7 @@ import type { PlannedMeal, RecipeSummary, WeekPlan } from "@app/lib/api";
 import { SLOTS, addDays, formatDay, weekDays } from "@app/lib/week";
 import { kcal } from "@app/lib/nutrition-format";
 import type { Slot } from "@app/lib/week";
+import { SectionHead } from "@ui/section-head";
 import {
   copyWeek,
   markCooked,
@@ -430,28 +432,14 @@ function Toolbar({
         <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
           {t("household.label")}
         </span>
-        <IconButton
-          aria-label={t("household.less")}
-          variant="tertiary"
-          onClick={() => onHousehold(household - 1)}
-          disabled={household <= 1}
-        >
-          −
-        </IconButton>
-        <span
+        <Stepper
           data-testid="household-size"
-          className="tnum min-w-8 text-center font-mono text-[15px] font-bold text-text"
-        >
-          {household}
-        </span>
-        <IconButton
-          aria-label={t("household.more")}
-          variant="tertiary"
-          onClick={() => onHousehold(household + 1)}
-          disabled={household >= 12}
-        >
-          +
-        </IconButton>
+          value={household}
+          onChange={onHousehold}
+          max={12}
+          decreaseLabel={t("household.less")}
+          increaseLabel={t("household.more")}
+        />
       </div>
 
       <Button variant="secondary" onClick={onDuplicate}>
@@ -676,41 +664,20 @@ function MealSheet({
       )}
 
       <section className="mt-6">
-        <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("meal.servings")}
-        </h3>
-        <div className="mt-2 flex items-center gap-3">
-          <IconButton
-            aria-label={t("meal.less", { title })}
-            variant="tertiary"
-            size="xl"
-            disabled={meal.servings <= 1}
-            onClick={() => onServings(meal.servings - 1)}
-          >
-            −
-          </IconButton>
-          <span
-            data-testid="meal-servings"
-            className="tnum min-w-10 text-center font-mono text-[22px] font-bold text-text"
-          >
-            {meal.servings}
-          </span>
-          <IconButton
-            aria-label={t("meal.more", { title })}
-            variant="tertiary"
-            size="xl"
-            disabled={meal.servings >= 24}
-            onClick={() => onServings(meal.servings + 1)}
-          >
-            +
-          </IconButton>
-        </div>
+        <SectionHead as="h3">{t("meal.servings")}</SectionHead>
+        <Stepper
+          className="mt-2"
+          data-testid="meal-servings"
+          value={meal.servings}
+          onChange={onServings}
+          decreaseLabel={t("meal.less", { title })}
+          increaseLabel={t("meal.more", { title })}
+          size="xl"
+        />
       </section>
 
       <section className="mt-6">
-        <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("meal.moveTitle")}
-        </h3>
+        <SectionHead as="h3">{t("meal.moveTitle")}</SectionHead>
         {/* Chips rather than a drag: this is the path that works from a
             keyboard, and on a phone where nothing can be dragged. */}
         <div className="mt-2 flex flex-wrap gap-2">

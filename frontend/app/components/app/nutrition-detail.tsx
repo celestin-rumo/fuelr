@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@ui/button";
 import type { NutritionDetail } from "@app/lib/api";
 import { nutritionDetail } from "@app/[locale]/(app)/app/journal/actions";
+import { SectionHead } from "@ui/section-head";
 
 /**
  * The paid detail, under the free summary.
@@ -87,9 +88,7 @@ export function NutritionDetailPanel({
       aria-label={t("title")}
       className="flex flex-col gap-3 border-t border-line pt-4"
     >
-      <h3 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-        {t("title")}
-      </h3>
+      <SectionHead as="h3">{t("title")}</SectionHead>
 
       <dl className="flex flex-wrap gap-x-6 gap-y-2">
         {macros.map((macro) => (

@@ -15,6 +15,9 @@ import { Input } from "@ui/input";
 import { Radio } from "@ui/radio";
 import { RecipeCard } from "@ui/recipe-card";
 import { Icon } from "@ui/icons";
+import { Segmented, SegmentedCount } from "@ui/segmented";
+import { Stepper } from "@ui/stepper";
+import { SectionHead } from "@ui/section-head";
 import {
   ListRow,
   ListRowActions,
@@ -180,6 +183,10 @@ export default function DesignSystemPage() {
   const [favorite, setFavorite] = useState(false);
   const [removed, setRemoved] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
+  const [scope, setScope] = useState<"all" | "favorites">("all");
+  const [goal, setGoal] = useState<"lose" | "maintain" | "gain">("maintain");
+  const [servings, setServings] = useState(4);
 
   return (
     <div className="min-h-full bg-bg">
@@ -871,6 +878,119 @@ export default function DesignSystemPage() {
 
         <Section
           num="13"
+          title="Segmented control"
+          intro="One among few, chosen once. There were four of these — the pricing cycle, the three ways into the editor, the onboarding answers, the library's all/favourites — and each drew &quot;chosen&quot; differently. A track with a filled cursor, because a 14% tint reads as &quot;on&quot; only on a screen you are looking straight at. It is not a tab list and does not claim to be: role=group with aria-pressed says what it is."
+        >
+          <div className="flex flex-col gap-5">
+            <Segmented
+              label="Cycle"
+              value={cycle}
+              onChange={setCycle}
+              options={[
+                { value: "monthly", label: "Mensuel" },
+                { value: "yearly", label: "Annuel" },
+              ]}
+            />
+            <Segmented
+              label="Filtrer les recettes"
+              value={scope}
+              onChange={setScope}
+              options={[
+                { value: "all", label: "Toutes" },
+                {
+                  value: "favorites",
+                  label: "Favoris",
+                  affix: (
+                    <SegmentedCount count={3} on={scope === "favorites"} />
+                  ),
+                },
+              ]}
+            />
+            <div className="max-w-xs">
+              <Segmented
+                label="Objectif"
+                orientation="vertical"
+                value={goal}
+                onChange={setGoal}
+                options={[
+                  { value: "lose", label: "Perdre du poids" },
+                  { value: "maintain", label: "Maintenir mon poids" },
+                  { value: "gain", label: "Prendre de la masse" },
+                ]}
+              />
+              <p className="mt-2 text-[12px] font-medium text-gray">
+                Vertical for options too long to sit side by side. Still one
+                among few: what changes is the room, not the question.
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          num="14"
+          title="Stepper"
+          intro="Fewer, more. Four copies existed — cooking mode, the editor, the meal sheet, the household size — differing in the button variant, the size of the figure, and whether the bounds were enforced on the click or only on the label. In one, the minus was an en dash and in another a minus sign, which is the kind of difference that survives for years because nobody can see it. The bounds live here now."
+        >
+          <div className="flex flex-wrap items-end gap-8">
+            <div className="flex flex-col gap-2">
+              <Label>md · 44px</Label>
+              <Stepper
+                value={servings}
+                onChange={setServings}
+                max={12}
+                decreaseLabel="Moins de personnes"
+                increaseLabel="Plus de personnes"
+              >
+                {servings} personnes
+              </Stepper>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>xl · 56px · cooking mode</Label>
+              <Stepper
+                value={servings}
+                onChange={setServings}
+                max={12}
+                decreaseLabel="Moins de personnes"
+                increaseLabel="Plus de personnes"
+                size="xl"
+              >
+                {servings} personnes
+              </Stepper>
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          num="15"
+          title="Section head"
+          intro="A block's title, and the action that belongs to it. Title left, action right, everywhere — guidance in Bastien and Scapin's sense: what a block can do belongs beside the block, so nothing has to be looked for. On a narrow screen it wraps rather than shrinking the title."
+        >
+          <div className="flex flex-col gap-6">
+            <div>
+              <SectionHead
+                action={
+                  <a
+                    href="#"
+                    className="text-[12.5px] font-bold text-mint-ink hover:underline"
+                  >
+                    Tout l&apos;historique →
+                  </a>
+                }
+              >
+                Repas notés
+              </SectionHead>
+              <p className="mt-2 text-[13px] font-medium text-text-dim">
+                The block this titles goes here.
+              </p>
+            </div>
+            <SectionHead hint="Sur les sept derniers jours, hors jours non notés.">
+              Énergie
+            </SectionHead>
+          </div>
+        </Section>
+
+        <Section
+          num="16"
           title="Banners"
           intro="Three tones, because the system gives one meaning per colour. Errors take role=alert and interrupt; the rest wait their turn. `position=&quot;fixed&quot;` pins one to the bottom of the viewport for something wrong with the page as a whole."
         >
@@ -887,7 +1007,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section
-          num="14"
+          num="17"
           title="Dialogs"
           intro="One modal for the whole app. The overlay scrolls and the card is capped at the visible height, so the bottom of a long sheet is reachable on a 360×480 screen; the head stays put while the body scrolls. Escape closes it and focus opens on the close button."
         >
@@ -917,7 +1037,7 @@ export default function DesignSystemPage() {
           )}
         </Section>
 
-        <Section num="15" title="Data & system states">
+        <Section num="18" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
               icon="◷"

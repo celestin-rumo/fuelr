@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button, IconButton, buttonClasses } from "@ui/button";
+import { Stepper } from "@ui/stepper";
 import { Card } from "@ui/card";
 import { Chip } from "@ui/chip";
 import { Input } from "@ui/input";
@@ -420,29 +421,15 @@ export function RecipeEditor({
               <span className="text-[13px] font-semibold text-text-dim">
                 {t("base.servings")}
               </span>
-              <div className="flex items-center gap-3">
-                <IconButton
-                  aria-label={t("base.fewer")}
-                  variant="secondary"
-                  onClick={() =>
-                    update({ servings: Math.max(1, draft.servings - 1) })
-                  }
-                >
-                  −
-                </IconButton>
-                <span className="tnum min-w-28 text-center text-[15px] font-semibold text-text">
-                  {t("base.people", { count: draft.servings })}
-                </span>
-                <IconButton
-                  aria-label={t("base.more")}
-                  variant="secondary"
-                  onClick={() =>
-                    update({ servings: Math.min(12, draft.servings + 1) })
-                  }
-                >
-                  +
-                </IconButton>
-              </div>
+              <Stepper
+                value={draft.servings}
+                onChange={(servings) => update({ servings })}
+                max={12}
+                decreaseLabel={t("base.fewer")}
+                increaseLabel={t("base.more")}
+              >
+                {t("base.people", { count: draft.servings })}
+              </Stepper>
             </div>
 
             <div className="flex flex-col gap-2">
