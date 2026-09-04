@@ -249,6 +249,15 @@ Frontend checks run inside the frontend container
 first, because `LayoutProps`/`PageProps` are generated route types — plain
 `tsc --noEmit` fails on a clean checkout without it.
 
+**Run the backend suite as your own uid, never as root.** The dev backend has
+no source bind mount, so its tests run in a throwaway Maven container over the
+repository — and one launched without `--user` writes root-owned files into
+`backend/target/`, which the next run then cannot overwrite. The failure looks
+nothing like its cause: `Operation not permitted` copying a migration into
+`target/classes`, and a `rm -rf target` that cannot remove its own build
+output. Pass `--user "$(id -u):$(getent group docker | cut -d: -f3)"`, and
+clear a poisoned `target` with a root container before blaming Maven.
+
 **Importing fetches a URL a stranger chose, from inside the network.** That is
 server-side request forgery in one sentence, so `SafePageFetcher` only speaks
 http(s), re-checks every redirect hop, and refuses any host whose addresses are
@@ -575,12 +584,24 @@ recipe was picked. `/app/idees` uses the same rows, which settles the
 illustration question honestly: no row anywhere in this app carries a
 photograph, so an idea is not made to look like it is missing one.
 
+**`ADMIN_EMAIL` names the operator, at every boot.** `AdminAccountInitializer`
+used to create an account and then never look again, so pointing the variable
+at the address somebody actually uses did nothing and the only answer to "make
+my account the operator" was a hand-run `UPDATE` on the production database —
+which nobody can replay, nobody reviews, and a restore forgets. It now
+promotes the account holding that address if one exists. Two things it will
+not do: it never *demotes*, because the last admin vanishing on a redeploy is
+how an installation locks its owner out; and it never touches a password, so
+this cannot be used to take an account over — `ADMIN_PASSWORD` is only ever
+used for an account being created here. An address nobody holds creates an
+account only when there is no admin at all, so a typo cannot add a second one.
+
 **`/total-costs` has a link, and only an admin sees it.** It was reachable
 only by typing a URL nobody had written down. The link sits in the app header
 and follows the same rule as the page and the endpoint: it appears for `ADMIN`
 and for nobody else, since a screen that exists only for operators has no
-reason to confirm to anybody else that it exists. The admin account is the one
-`AdminAccountInitializer` creates at first boot from `ADMIN_EMAIL`.
+reason to confirm to anybody else that it exists. Who that is comes from
+`ADMIN_EMAIL`, above.
 
 **Cooking mode reads the recipe and never writes to it.** That is what makes
 it safe to scale the quantities on screen for six people without touching a
