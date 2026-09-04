@@ -71,6 +71,13 @@ const paths = {
       <path d="M9 8h6" />
     </>
   ),
+  /** The household — people, because that is what it cooks for. */
+  people: (
+    <>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20a6 6 0 0 1 12 0M16.5 5.3a3.2 3.2 0 0 1 0 5.4M18 20a6 6 0 0 0-2.6-4.9" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof paths;

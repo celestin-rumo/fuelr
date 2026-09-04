@@ -62,12 +62,21 @@ consumed as `bg-bg-raised`, `text-text-dim`, `border-line`, `text-accent-ink`,
 - **Space** — 4px base, and nothing off the scale. Tailwind's default spacing
   is already this scale, so `p-4` = 16px, `gap-6` = 24px. If a spacing "doesn't
   land", revisit the composition, not the scale.
-- **Shape** — `rounded-sm` 8px (fields, tags), `rounded-md` 14px (cards),
-  `rounded-lg` 20px (panels), `rounded-full` (buttons, chips). A card never
-  mixes two surface radii.
+- **Shape** — `rounded-sm` 12px (fields, tags), `rounded-md` 20px (cards,
+  list rows), `rounded-lg` 24px (panels, dialogs), `rounded-full` (buttons,
+  chips). A card never mixes two surface radii, and the three steps climb
+  together: a field at 8px beside a card at 20 read as an accident rather
+  than as a hierarchy.
 - **Elevation** — e0 is border-only (in-flow cards), then `shadow-e1` (card
   hover), `shadow-e2` (menus, toasts), `shadow-e3` (modals, sheets). In dark
-  elevation reads through the surface, in light through the shadow.
+  elevation reads through the surface, in light through the shadow. They are
+  wide and soft rather than short and contrasted: an elevation sets an object
+  down, it does not cut it out.
+- **On-state** — a filled accent surface, never a tinted border. A 14% wash
+  reads as "on" on a screen you are looking straight at and as nothing on a
+  worktop in daylight, so the chip, the segmented control, the site nav and
+  the phone tab bar all fill. A count riding on an accent fill inverts, or it
+  disappears into it.
 - **Motion** — `var(--dur-fast)` 120ms, `var(--dur)` 180ms,
   `var(--dur-control)` 160ms, `var(--dur-sheet)` 240ms, all on `var(--ease)`
   = `cubic-bezier(.2,.8,.2,1)`. Nothing lasts longer than 240ms: a cooking app
@@ -93,15 +102,20 @@ classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
 
 | File              | Exports                                                        |
 | ----------------- | -------------------------------------------------------------- |
-| `button.tsx`      | `Button` (6 variants × 4 sizes + `none`, `loading`, `fullWidth`), `IconButton` (`size` md/xl) |
+| `button.tsx`      | `Button` (8 variants × 4 sizes + `none`, `loading`, `fullWidth`), `IconButton` (`size` md/xl), `buttonClasses` |
 | `input.tsx`       | `Input` (label + hint, `status` default/error/success)          |
 | `checkbox.tsx`    | `Checkbox` (`indeterminate`, `error`)                           |
 | `radio.tsx`       | `Radio`                                                         |
 | `switch.tsx`      | `Switch`                                                        |
-| `chip.tsx`        | `Chip` (`active`, `count`, `onRemove`)                          |
+| `chip.tsx`        | `Chip` (`active`, `count`, `onRemove`) — a filter you stack     |
+| `segmented.tsx`   | `Segmented` (one among few, `orientation`), `SegmentedCount`    |
+| `stepper.tsx`     | `Stepper` (`min`/`max` enforced here, `size` md/xl)             |
 | `tabs.tsx`        | `TabList`, `Tab`                                                |
 | `card.tsx`        | `Card` (`as="card"\|"panel"`, `interactive`, `selected`), `CardTitle`, `CardBody` |
 | `recipe-card.tsx` | `RecipeCard` (favourite, selected, unavailable)                 |
+| `list-row.tsx`    | `ListRow` (`leading`/`trailing`, `selected`, `interactive`), `ListRowTitle`, `ListRowMeta`, `ListRowActions` |
+| `section-head.tsx`| `SectionHead` (`as`, `action`, `hint`)                          |
+| `icons.tsx`       | `Icon` (`name`, `size`, `filled`) — one 24-unit grid, one stroke |
 | `badge.tsx`       | `Badge` (accent / mint / coral / neutral / solid)               |
 | `banner.tsx`      | `Banner` (error / success / info, `title`, `action`, `onDismiss`, `position="inline"\|"fixed"`) |
 | `empty-state.tsx` | `EmptyState` (neutral / error tone)                             |
@@ -109,8 +123,28 @@ classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
 | `cn.ts`           | class-name join helper                                          |
 
 Button variants are `primary` (one per view), `secondary`, `tertiary`, `text`,
-`danger`, `soft`. New UI extends or reuses these rather than writing one-off
-markup. Every component takes a `className` merged last through `cn`, so
+`danger`, `soft`, `dangerText` and `quiet` — the last one is neutral and
+surface-less, for a rail of icon controls at the end of a row, because `text`
+is mint and five mint icons read as five links to five different places. New
+UI extends or reuses these rather than writing one-off markup.
+
+**A component picks a pattern, it does not redraw it.** Choosing one among few
+is `Segmented`, not chips — a chip is a filter you stack, and these are
+exclusive. A line in a list is `ListRow`, whose surface *is* the line: a row
+separated by a hairline has no visible target to aim at. Fewer/more is
+`Stepper`, and the bounds live in it, because four copies clamped in four
+places and one of them clamped on the label rather than on the click. An icon
+is `Icon`: a glyph borrowed from a font renders at whatever face resolves and
+says nothing — `⧉` is not read as "duplicate" by anybody, and there was no
+glyph at all for "edit", which is why that action had no button for a year.
+Every icon is `aria-hidden`; the control around it carries the name.
+
+**`icon.tsx` is a reserved filename.** Anywhere under `app/`, Next.js treats
+it as the metadata convention and turns it into a route expecting a default
+export — the build fails with `Export default doesn't exist in target module`
+pointing at a file nobody wrote. Hence `icons.tsx`.
+
+Every component takes a `className` merged last through `cn`, so
 callers adjust layout without forking the component. Each ships a colocated
 `*.test.tsx`; keep that up as new ones are added, and add the component to the
 `/design-system` page so the reference stays complete.
@@ -662,9 +696,21 @@ horizontal body scroll, no control pushed off-screen, no label truncated into
 meaninglessness. Where space runs out, decide what to drop: the recipe editor's
 stepper keeps only the current step's label below `sm`, so three labels cannot
 squeeze the connectors to nothing, and the header's sign-out button drops to its
-icon there. The app nav wraps onto a line of its own below `sm` for the same
-reason: that bar has about 80px to spare and two readable labels want twice
-that, so keeping them in the row pushed the theme toggle off a 375px screen. Check a narrow viewport in the browser, not only a wide one.
+icon there. Check a narrow viewport in the browser, not only a wide one.
+
+**The app's navigation is a bottom tab bar below `sm`, and the header keeps
+none of it.** That bar has about 80px to spare and five readable labels want
+four times that. Wrapping them onto a line of their own was the first answer
+and it solved the overflow and nothing else: the navigation ended up three
+rows deep at the top of a screen held at the bottom, above the thing somebody
+came to read. `AppTabs` is fixed to the bottom, 56px plus
+`env(safe-area-inset-bottom)`, and `<main>` reserves that room rather than
+sliding under it. Two rules it does not break: every destination stays
+reachable — five tabs, not four with the household folded away behind
+something — and each icon comes *with* its word, because a bar of icons alone
+has to be learnt and this one is read by somebody holding a knife. Cooking
+mode is in the `(cook)` route group and never gets the bar; it has its own
+footer.
 
 When a control loses its visible label that way, give it an explicit
 `aria-label`. Hiding the text with `sr-only` alone has bitten this codebase

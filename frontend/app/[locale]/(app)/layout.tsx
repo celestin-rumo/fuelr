@@ -5,6 +5,7 @@ import { getSession } from "@app/lib/session";
 import { AppHeader } from "@app/components/app/app-header";
 import { VerifyEmailBanner } from "@app/components/app/verify-email-banner";
 import { CookingResumeBanner } from "@app/components/app/cooking-resume-banner";
+import { AppTabs } from "@app/components/app/app-tabs";
 
 /**
  * Everything under /app is behind this layout, and this is where access is
@@ -36,7 +37,12 @@ export default async function AppLayout({
       {/* A dish left mid-way is the first thing to say on coming back, and it
           belongs on every screen of the app rather than on one of them. */}
       <CookingResumeBanner />
-      <main className="flex-1">{children}</main>
+      {/* The tab bar is fixed, so the content reserves the room rather than
+          being covered by it — 56px of bar plus the home indicator below. */}
+      <main className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0">
+        {children}
+      </main>
+      <AppTabs />
     </div>
   );
 }
