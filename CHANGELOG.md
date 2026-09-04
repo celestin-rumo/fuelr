@@ -6,6 +6,110 @@ this file collects them newest first.
 
 ---
 
+# v3.0.0 — 2026-09-04
+
+Three ways of answering the same question — *what am I cooking?* — that the app
+could not answer before: from a page nothing could read, from a photograph of a
+plate, and from whatever happens to be in the bag. Plus paper, for the times a
+screen is the wrong object to have on a worktop.
+
+## Say what you have, get something to cook
+
+A new screen, one tap from anywhere in the app: write what you have the way you
+would say it — *poulet, courgettes, riz, un citron* — and get dishes back.
+
+**Your own recipes come first, and often instead.** The library is searched
+before anything else, matched on normalised words and ranked by how much of the
+bag each recipe uses, then by how little is left to buy. A model is asked only
+when fewer than three of your own came back: three of your own recipes is a
+choice, one is a coincidence. A library that answers on its own costs nothing,
+and the suite asserts that rather than assuming it.
+
+That ordering is not an optimisation. Suggesting a dish somebody already wrote
+beats inventing one: they know they like it, the quantities are theirs, it has
+a photograph, and it costs nothing to find.
+
+**An idea comes back whole** — title, time, what is missing, ingredients and
+steps — so taking one opens a draft with every guessed quantity flagged,
+without a second call and a second bill. It is the same shape every import
+produces, and never a recipe written into the library behind somebody's back.
+
+**Every suggestion is illustrated, and none of them lies about it.** A library
+recipe shows its own photograph. An idea has none and gets a tile drawn from
+its own title — deterministic, so the same idea looks the same twice. Generating
+a picture was the alternative and it is the one thing this application does not
+do with a guess: a photograph of a dish nobody cooked, sitting beside
+photographs of dishes somebody did.
+
+**What is missing goes on the week's shopping list in one gesture**, which is
+the whole reason the answer names it.
+
+## A page nothing else can read
+
+The two schema.org parsers still run first and are still free. Only a page they
+cannot read at all gets one more chance, from a model reading the page's own
+words — and only for an account entitled to it with budget left. A site that
+publishes its recipe properly never costs anybody a cent.
+
+Every reason to decline the assisted attempt becomes the answer the import has
+always given: this page holds nothing, here is manual entry. Offering to sell
+somebody a plan in the middle of a failed import would be reading the room
+badly.
+
+## A plate, photographed
+
+`POST /api/log/estimate` reads a photographed plate and hands back figures **for
+a form**. It writes nothing: what lands in the diary is what somebody looked at
+and accepted, in fields with a cursor in them. A model that cannot recognise the
+plate says so rather than returning zeroes dressed as numbers, and what is then
+logged carries `estimated` like every typed meal — a camera does not turn a
+guess into a measurement.
+
+## On paper
+
+A recipe and a shopping list each get a page of their own, rendering the sheet
+as their whole content, black on white. The browser's own dialog then offers the
+printer *and* "Save as PDF" from one gesture: no library, no server-side
+rendering, no fonts to embed. The rendered result was checked rather than
+assumed, and it needs none of that.
+
+The recipe carries the quantities as they stand — printing one scaled to six
+must not hand back the one written for four — and a line the import could not
+read keeps its mark. No photo: it says nothing to somebody at a worktop and it
+costs a page of ink. The shopping list is grouped by aisle in the order a shop
+is walked, with an empty box on every line to tick with a pen, and the week at
+the top, because a list without a date is a list found in a bag three weeks
+later.
+
+## Verification
+
+Backend 280, frontend unit 202, e2e 193 — all green on the merge commit. Every
+reading is exercised against a local stand-in for the provider, which is what
+makes it possible to assert the things a real one never could: that a
+structured page costs nothing, that the model is never asked to repeat what the
+library already gave, and that an unreadable plate is reported rather than
+invented.
+
+## What is left
+
+**Nothing about payment works yet**, and it is still the largest ticket: no
+provider is chosen, so `canOrder` is false and the screen says the plan is not
+open yet. Choosing one means writing one class behind `PaymentProvider`.
+
+**The backup gap is still the one where waiting costs data.** The `recipe_media`
+volume is in no backup, and neither is Postgres.
+
+**The public site is still not translated** — `site.json` is French in all three
+locales.
+
+New since the last release: an epic for a **redesign** of the components, one
+for an **admin panel**, and one for **printing**, now closed. Everything paid
+for remains open to everybody: `app.subscription.enforce` is off, and reading
+an image or a page with a model is capped at 10 CHF a month per account and 50
+across all of them.
+
+---
+
 # v2.1.1 — 2026-09-03
 
 One unreadable ingredient emptied a whole library, and it stayed empty.
