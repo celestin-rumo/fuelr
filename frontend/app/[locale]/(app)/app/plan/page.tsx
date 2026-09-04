@@ -7,6 +7,7 @@ import { Button } from "@ui/button";
 import { EmptyState } from "@ui/empty-state";
 import { Container } from "@app/components/site/section";
 import { WeekPlanner } from "@app/components/app/week-planner";
+import { Icon } from "@ui/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function PlanPage({
       <Container className="py-14">
         <EmptyState
           tone="error"
-          icon="!"
+          icon={<Icon name="alert" size={24} />}
           title={t("unavailable.title")}
           body={t("unavailable.body")}
         />
@@ -59,7 +60,7 @@ export default async function PlanPage({
           recipes of their own still has a week to look at. */}
       {recipes.length === 0 && plan.meals.length === 0 ? (
         <EmptyState
-          icon="◷"
+          icon={<Icon name="calendar" size={24} />}
           title={t("noRecipes.title")}
           body={t("noRecipes.body")}
           action={

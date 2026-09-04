@@ -5,6 +5,7 @@ import { isIsoDate, mondayOf, todayIso } from "@app/lib/week";
 import { EmptyState } from "@ui/empty-state";
 import { Container } from "@app/components/site/section";
 import { ShoppingList } from "@app/components/app/shopping-list";
+import { Icon } from "@ui/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function ShoppingPage({
       <Container className="py-14">
         <EmptyState
           tone="error"
-          icon="!"
+          icon={<Icon name="alert" size={24} />}
           title={t("unavailable.title")}
           body={t("unavailable.body")}
         />

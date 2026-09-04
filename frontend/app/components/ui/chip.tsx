@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "./cn";
+import { Icon } from "./icons";
 
 // 36px where there is a pointer, 44px on a phone. Which of the two heights
 // wins is Tailwind's stylesheet order rather than the order they are written
@@ -86,7 +87,7 @@ export function Chip({
             focusRing,
           )}
         >
-          ✕
+          <Icon name="close" size={14} />
         </button>
       </span>
     );

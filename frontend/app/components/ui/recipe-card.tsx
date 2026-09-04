@@ -1,4 +1,5 @@
 import { cn } from "./cn";
+import { Icon } from "./icons";
 import { Badge } from "./badge";
 
 export type RecipeCardProps = {
@@ -71,7 +72,7 @@ export function RecipeCard({
                 : "bg-[rgba(18,18,18,0.55)] text-[#f5f5f0] hover:bg-[rgba(18,18,18,0.75)]",
             )}
           >
-            {favorite ? "♥" : "♡"}
+            <Icon name="star" size={20} filled={favorite} />
           </button>
         )}
 
@@ -80,7 +81,7 @@ export function RecipeCard({
             aria-hidden
             className="absolute bottom-3 left-3 grid size-7 place-items-center rounded-full bg-accent text-sm font-bold text-on-accent"
           >
-            ✓
+            <Icon name="check" size={16} />
           </span>
         )}
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@ui/cn";
+import { Icon } from "@ui/icons";
 
 export type FaqItem = { question: string; answer: string };
 
@@ -28,12 +29,11 @@ export function Faq({ items }: { items: FaqItem[] }) {
                 )}
               >
                 {item.question}
-                <span
-                  aria-hidden
-                  className="shrink-0 text-lg leading-none text-accent-ink"
-                >
-                  {isOpen ? "−" : "+"}
-                </span>
+                <Icon
+                  name={isOpen ? "minus" : "plus"}
+                  size={20}
+                  className="text-accent-ink"
+                />
               </button>
             </h3>
             {isOpen && (

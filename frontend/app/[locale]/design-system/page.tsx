@@ -766,6 +766,13 @@ export default function DesignSystemPage() {
                 "cart",
                 "journal",
                 "people",
+                "menu",
+                "arrowLeft",
+                "arrowRight",
+                "play",
+                "pause",
+                "clock",
+                "alert",
               ] as const
             ).map((name) => (
               <div
@@ -1041,14 +1048,14 @@ export default function DesignSystemPage() {
         <Section num="18" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
-              icon="◷"
+              icon={<Icon name="cart" size={24} />}
               title="Ta liste de courses est vide"
               body="Ajoute des recettes au planning et les ingrédients arriveront ici automatiquement."
               action={<Button>Ouvrir le planning</Button>}
             />
             <EmptyState
               tone="error"
-              icon="!"
+              icon={<Icon name="alert" size={24} />}
               title="Chargement impossible"
               body="La connexion a été interrompue. Tes recettes enregistrées restent disponibles hors ligne."
               action={<Button variant="secondary">Réessayer</Button>}

@@ -50,6 +50,24 @@ const paths = {
   ),
   chevronRight: <path d="m9 5 7 7-7 7" />,
   chevronDown: <path d="m5 9 7 7 7-7" />,
+  arrowLeft: <path d="M19 12H5M12 19l-7-7 7-7" />,
+  arrowRight: <path d="M5 12h14M12 5l7 7-7 7" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  /** Cooking mode's timers. Filled, because a transport control is a solid. */
+  play: <path d="M8 5.5v13l11-6.5Z" />,
+  pause: <path d="M9 5v14M15 5v14" />,
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5.5l3.5 2" />
+    </>
+  ),
+  alert: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v5.5M12 16.3v.2" />
+    </>
+  ),
   /** The four places the application goes — the phone tab bar reads these. */
   book: <path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2ZM8 7h7M8 11h7" />,
   calendar: (

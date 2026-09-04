@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { IconButton } from "./button";
 import { cn } from "./cn";
+import { Icon } from "./icons";
 
 /**
  * A modal that can always be reached to the bottom.
@@ -67,7 +68,7 @@ export function Dialog({
             {/* Focus lands here on open, so the dialog is where the keyboard
                 is and Escape is one key from the first tab stop. */}
             <IconButton autoFocus aria-label={closeLabel} variant="text" onClick={onClose}>
-              ✕
+              <Icon name="close" />
             </IconButton>
           </div>
 

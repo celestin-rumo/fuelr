@@ -6,6 +6,7 @@ import { IconButton } from "@ui/button";
 import { Stepper } from "@ui/stepper";
 import { cn } from "@ui/cn";
 import type { Recipe } from "@app/lib/api";
+import { Icon } from "@ui/icons";
 import {
   MAX_SERVINGS,
   MIN_SERVINGS,
@@ -95,7 +96,7 @@ export function CookingIngredients({
             size="xl"
             onClick={onClose}
           >
-            ✕
+            <Icon name="close" size={22} />
           </IconButton>
         </div>
       </div>

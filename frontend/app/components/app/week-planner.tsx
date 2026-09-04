@@ -15,6 +15,7 @@ import { SLOTS, addDays, formatDay, weekDays } from "@app/lib/week";
 import { kcal } from "@app/lib/nutrition-format";
 import type { Slot } from "@app/lib/week";
 import { SectionHead } from "@ui/section-head";
+import { Icon } from "@ui/icons";
 import {
   copyWeek,
   markCooked,
@@ -393,7 +394,7 @@ function Toolbar({
     <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
       <div className="flex items-center gap-2">
         <WeekLink week={addDays(weekStart, -7)} label={t("previousWeek")}>
-          ←
+          <Icon name="arrowLeft" />
         </WeekLink>
         <h2
           data-testid="week-label"
@@ -402,7 +403,7 @@ function Toolbar({
           {label}
         </h2>
         <WeekLink week={addDays(weekStart, 7)} label={t("nextWeek")}>
-          →
+          <Icon name="arrowRight" />
         </WeekLink>
       </div>
 

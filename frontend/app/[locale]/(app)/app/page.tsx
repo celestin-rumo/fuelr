@@ -9,6 +9,7 @@ import { RecipeGrid } from "@app/components/app/recipe-grid";
 import { Container } from "@app/components/site/section";
 import { isSeason } from "@app/lib/seasons";
 import { todayIso } from "@app/lib/week";
+import { Icon } from "@ui/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,7 @@ export default async function AppHomePage({
 
       {recipes.length === 0 && !filtering ? (
         <EmptyState
-          icon="◷"
+          icon={<Icon name="book" size={24} />}
           title={t("empty.title")}
           body={t("empty.body")}
           action={

@@ -23,6 +23,7 @@ import { SEASONS } from "@app/lib/seasons";
 import { StepTextarea } from "./step-suggestions";
 import { NutritionDetailPanel } from "./nutrition-detail";
 import { RecipePhoto } from "./recipe-photo";
+import { Icon } from "@ui/icons";
 
 const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c"] as const;
 const LEVELS = ["easy", "medium", "hard"] as const;
@@ -187,7 +188,7 @@ export function RecipeEditor({
           >
             {/* An arrow, not a cross: a cross beside a title reads as "delete
                 this", and nothing here is destructive. */}
-            ←
+            <Icon name="arrowLeft" size={20} />
           </Link>
 
           <h1 className="line-clamp-2 min-w-0 font-display text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-text">
@@ -342,7 +343,7 @@ export function RecipeEditor({
                       : "border-line text-gray",
                 )}
               >
-                {item.ok ? "✓" : index + 1}
+                {item.ok ? <Icon name="check" size={15} /> : index + 1}
               </span>
               <span
                 className={cn(
@@ -635,7 +636,7 @@ export function RecipeEditor({
                           })
                         }
                       >
-                        ✕
+                        <Icon name="close" />
                       </IconButton>
                     </div>
                   </li>
@@ -703,19 +704,19 @@ export function RecipeEditor({
                 <div className="flex items-center justify-end gap-1 border-t border-line px-2 py-1.5">
                   <IconButton
                     aria-label={t("steps.moveUp", { number: index + 1 })}
-                    variant="text"
+                    variant="quiet"
                     disabled={index === 0}
                     onClick={() => moveStep(index, -1)}
                   >
-                    ↑
+                    <Icon name="arrowUp" />
                   </IconButton>
                   <IconButton
                     aria-label={t("steps.moveDown", { number: index + 1 })}
-                    variant="text"
+                    variant="quiet"
                     disabled={index === draft.steps.length - 1}
                     onClick={() => moveStep(index, 1)}
                   >
-                    ↓
+                    <Icon name="arrowDown" />
                   </IconButton>
                   <IconButton
                     aria-label={t("steps.remove", { number: index + 1 })}
@@ -724,7 +725,7 @@ export function RecipeEditor({
                       update({ steps: draft.steps.filter((_, i) => i !== index) })
                     }
                   >
-                    ✕
+                    <Icon name="trash" />
                   </IconButton>
                 </div>
               </div>
@@ -749,7 +750,8 @@ export function RecipeEditor({
               variant="text"
               onClick={() => setTab((tab - 1) as Tab)}
             >
-              ← {t("nav.previous")}
+              <Icon name="arrowLeft" />
+              {t("nav.previous")}
             </Button>
           ) : (
             <span />
@@ -757,7 +759,8 @@ export function RecipeEditor({
 
           {tab < 2 ? (
             <Button onClick={() => setTab((tab + 1) as Tab)}>
-              {t("nav.next")} →
+              {t("nav.next")}
+              <Icon name="arrowRight" />
             </Button>
           ) : (
             <Link href="/app">
