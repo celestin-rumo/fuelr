@@ -145,13 +145,29 @@ test("the ordering controls work from the keyboard", async ({ request, page }) =
   ).toContainText("Beta");
 });
 
-test("only pinned recipes carry ordering controls", async ({ request, page }) => {
+test("ordering is offered in place, and only works on a pinned recipe", async ({
+  request,
+  page,
+}) => {
   await seed(request, "Ordinaire", "Riz");
   await page.goto("/fr/app");
 
-  await expect(
-    page.getByRole("button", { name: "Monter Ordinaire dans les favoris" }),
-  ).toHaveCount(0);
+  // Present but disabled, rather than absent. A control that comes and goes
+  // moves every control after it, so "delete" ended up in a different place
+  // on two neighbouring rows — and that is the one you cannot undo.
+  const up = page.getByRole("button", {
+    name: "Monter Ordinaire dans les favoris",
+  });
+  await expect(up).toBeVisible();
+  await expect(up).toBeDisabled();
+
+  // Which is what makes the rail line up: the row below has the same five.
+  const actions = page
+    .getByTestId("recipe-grid")
+    .locator("li")
+    .first()
+    .getByRole("button");
+  await expect(actions).toHaveCount(5);
 });
 
 // --- duplicate ----------------------------------------------------------

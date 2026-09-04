@@ -46,6 +46,7 @@
     "moveUp": "{title} in den Favoriten nach oben",
     "moveDown": "{title} in den Favoriten nach unten",
     "duplicate": "{title} duplizieren",
+    "edit": "{title} bearbeiten",
     "delete": "{title} löschen",
     "search": {
       "label": "Suchen",

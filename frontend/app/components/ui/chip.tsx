@@ -11,7 +11,10 @@ function shellClasses(active: boolean, disabled?: boolean) {
     disabled
       ? "border-transparent bg-bg-raised-2 text-gray"
       : active
-        ? "border-accent-ink bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-accent-ink"
+        ? // A filled surface, not a tinted border: a 14% wash reads as "on"
+          // under a screen you are looking straight at, and as nothing at all
+          // on a worktop in daylight.
+          "border-transparent bg-accent text-on-accent"
         : "border-line text-text-dim hover:border-gray hover:bg-[color-mix(in_srgb,var(--text)_5%,transparent)] hover:text-text",
   );
 }
@@ -19,9 +22,16 @@ function shellClasses(active: boolean, disabled?: boolean) {
 const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]";
 
-function Count({ count }: { count: number }) {
+// On an inactive chip the count is the accent; on an active one the chip is
+// already the accent, so the count inverts rather than disappearing into it.
+function Count({ count, active }: { count: number; active: boolean }) {
   return (
-    <span className="tnum rounded-full bg-accent px-[7px] py-px text-[11px] font-bold text-on-accent">
+    <span
+      className={cn(
+        "tnum rounded-full px-[7px] py-px text-[11px] font-bold",
+        active ? "bg-on-accent text-accent" : "bg-accent text-on-accent",
+      )}
+    >
       {count}
     </span>
   );
@@ -64,7 +74,7 @@ export function Chip({
           {...props}
         >
           {children}
-          {typeof count === "number" && <Count count={count} />}
+          {typeof count === "number" && <Count count={count} active={active} />}
         </button>
         <button
           type="button"
@@ -96,7 +106,7 @@ export function Chip({
       {...props}
     >
       {children}
-      {typeof count === "number" && <Count count={count} />}
+      {typeof count === "number" && <Count count={count} active={active} />}
     </button>
   );
 }

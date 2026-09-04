@@ -46,6 +46,7 @@
     "moveUp": "Move {title} up in favourites",
     "moveDown": "Move {title} down in favourites",
     "duplicate": "Duplicate {title}",
+    "edit": "Edit {title}",
     "delete": "Delete {title}",
     "search": {
       "label": "Search",
