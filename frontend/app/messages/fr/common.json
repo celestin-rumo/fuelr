@@ -44,11 +44,51 @@
     },
     "copySuffix": " (copie)",
     "export": "Exporter",
+    "libraryMenu": "Autres actions sur la bibliothèque",
+    "idea": {
+      "title": "Tu ne sais pas quoi cuisiner ?",
+      "body": "Dis ce que tu as sous la main — poulet, courgettes, un citron — et Fuelr cherche d'abord dans tes propres recettes.",
+      "action": "Une idée ?"
+    },
     "moveUp": "Monter {title} dans les favoris",
     "moveDown": "Descendre {title} dans les favoris",
     "duplicate": "Dupliquer {title}",
     "edit": "Modifier {title}",
     "delete": "Supprimer {title}",
+    "cook": "Cuisiner {title}",
+    "more": "Autres actions pour {title}",
+    "editShort": "Modifier",
+    "duplicateShort": "Dupliquer",
+    "moveUpShort": "Monter dans les favoris",
+    "moveDownShort": "Descendre dans les favoris",
+    "deleteShort": "Supprimer",
+    "pagination": {
+      "label": "Pages de la bibliothèque",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "position": "Page {page} sur {pages} · {total, plural, one {# recette} other {# recettes}}"
+    },
+    "plan": {
+      "action": "Planifier {title}",
+      "title": "Planifier « {title} »",
+      "close": "Fermer",
+      "day": "Quel jour",
+      "slot": "Quel repas",
+      "todayIs": "{day} · aujourd'hui",
+      "confirm": "Ajouter au planning",
+      "cancel": "Annuler",
+      "failed": "Impossible d'ajouter ce repas. Réessaie.",
+      "done": "« {title} » est au planning : {day}, {slot}.",
+      "open": "Voir le planning",
+      "dismiss": "Fermer",
+      "untitled": "Sans titre",
+      "slots": {
+        "BREAKFAST": "Petit-déjeuner",
+        "LUNCH": "Déjeuner",
+        "DINNER": "Dîner",
+        "SNACK": "Collation"
+      }
+    },
     "search": {
       "label": "Chercher",
       "placeholder": "Titre ou ingrédient",
@@ -57,7 +97,7 @@
       "noResults": "Aucune recette ne correspond."
     },
     "deleteConfirm": {
-      "title": "Supprimer « {title} » ?",
+      "title": "Supprimer « {title} » ?",
       "confirm": "Supprimer",
       "cancel": "Annuler",
       "body": "La recette disparaîtra de ta bibliothèque. Les repas déjà cuisinés et journalisés ne sont pas touchés.",
@@ -71,7 +111,8 @@
       "household": "Foyer",
       "shopping": "Courses",
       "journal": "Journal",
-      "idea": "Une idée ?"
+      "idea": "Une idée ?",
+      "costs": "Coûts des lectures IA"
     }
   },
   "plan": {
@@ -330,7 +371,7 @@
       "empty": "Rien de noté cette semaine.",
       "figures": "{kcal} kcal · {protein} g de protéines",
       "remove": "Retirer {title} du journal",
-      "removed": "« {title} » retiré du journal.",
+      "removed": "« {title} » retiré du journal.",
       "undo": "Annuler",
       "undoDismiss": "Fermer"
     },
@@ -894,6 +935,7 @@
     "open": "Ouvrir",
     "keep": "En faire un brouillon",
     "addMissing": "Ajouter ce qui manque à la liste",
+    "more": "Autres actions pour {title}",
     "added": "Ajouté à la liste de courses.",
     "empty": "Rien ne me vient avec ça. Écris autre chose, ou saisis la recette à la main.",
     "assisted": "Les idées sont proposées par un modèle : à relire avant de cuisiner.",

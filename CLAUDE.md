@@ -115,6 +115,8 @@ classes — `bg-bg-raised` / `text-text` is enough. The toggle lives in
 | `recipe-card.tsx` | `RecipeCard` (favourite, selected, unavailable)                 |
 | `list-row.tsx`    | `ListRow` (`leading`/`trailing`, `selected`, `interactive`), `ListRowTitle`, `ListRowMeta`, `ListRowActions` |
 | `section-head.tsx`| `SectionHead` (`as`, `action`, `hint`)                          |
+| `menu.tsx`        | `Menu` (a disclosure of secondary actions; an item with `href` renders as a link) |
+| `pagination.tsx`  | `Pagination` (previous / position / next — no numbered pages)   |
 | `icons.tsx`       | `Icon` (`name`, `size`, `filled`) — one 24-unit grid, one stroke |
 | `badge.tsx`       | `Badge` (accent / mint / coral / neutral / solid)               |
 | `banner.tsx`      | `Banner` (error / success / info, `title`, `action`, `onDismiss`, `position="inline"\|"fixed"`) |
@@ -127,6 +129,21 @@ Button variants are `primary` (one per view), `secondary`, `tertiary`, `text`,
 surface-less, for a rail of icon controls at the end of a row, because `text`
 is mint and five mint icons read as five links to five different places. New
 UI extends or reuses these rather than writing one-off markup.
+
+**A row shows what it is for, and hides the rest.** The recipe rail carries
+cook, plan and a `Menu`; edit, duplicate, reorder and delete live inside it.
+Seven controls in a rail is 308px of buttons on a 360px screen, and the two
+somebody actually opens the library to use would have been the ones to wrap.
+The fixed-position rule is unchanged — the menu trigger is in the same place
+on every row, and an item that does not apply is disabled inside the menu
+rather than missing from it. The library's own header follows the same shape:
+one primary action, and importing and exporting behind one press.
+
+**A menu's stacking order is decided by the menu.** A rail's controls sit at
+`z-10`, and `position: relative` with a z-index creates a stacking context —
+so a panel at `z-40` *inside* a `z-10` wrapper still loses to the next row's
+controls, which then show through it. `Menu` raises its own wrapper when open;
+callers pass no z-index.
 
 **A component picks a pattern, it does not redraw it.** Choosing one among few
 is `Segmented`, not chips — a chip is a filter you stack, and these are
@@ -546,6 +563,24 @@ running. `HydrationBanner` is the answer — server-rendered, removed the instan
 React takes over, and held back four seconds by `.reveal-late` so a healthy page
 never flashes it. If a control ever seems inert, that banner appearing is the
 diagnosis.
+
+**The library is a list of six, and it is where a recipe is put to use.**
+Six rows a page: a library of two hundred recipes is not a decision anybody
+makes by scrolling, so the filters narrow it and the pages are how what is
+left gets read. From a row, a recipe can be cooked or put on the week without
+opening it — planning asks two questions and pre-answers both, today and
+dinner, because opening the planner, finding the week, finding the day and
+dragging a card is four decisions for something already decided when the
+recipe was picked. `/app/idees` uses the same rows, which settles the
+illustration question honestly: no row anywhere in this app carries a
+photograph, so an idea is not made to look like it is missing one.
+
+**`/total-costs` has a link, and only an admin sees it.** It was reachable
+only by typing a URL nobody had written down. The link sits in the app header
+and follows the same rule as the page and the endpoint: it appears for `ADMIN`
+and for nobody else, since a screen that exists only for operators has no
+reason to confirm to anybody else that it exists. The admin account is the one
+`AdminAccountInitializer` creates at first boot from `ADMIN_EMAIL`.
 
 **Cooking mode reads the recipe and never writes to it.** That is what makes
 it safe to scale the quantities on screen for six people without touching a

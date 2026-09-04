@@ -51,6 +51,19 @@ test.beforeEach(async ({ request, context }) => {
 
 // --- search and filters -------------------------------------------------
 
+
+/**
+ * The row's secondary actions live behind one press.
+ *
+ * The rail shows what somebody opens the library to do — cook it, plan it —
+ * and everything else is in the menu, so a test that used to click a button
+ * on the row opens the menu first.
+ */
+async function rowMenu(page: Page, title: string) {
+  await page.getByRole("button", { name: `Autres actions pour ${title}` }).click();
+  return page.getByRole("menu", { name: `Autres actions pour ${title}` });
+}
+
 test("searching narrows the grid on the title", async ({ request, page }) => {
   await seed(request, "Curry de lentilles", "Lentilles");
   await seed(request, "Saumon grillé", "Saumon");
@@ -117,7 +130,9 @@ test("favourites can be ordered by hand, and it sticks", async ({ request, page 
   const titles = page.getByTestId("recipe-grid").locator("li h3");
   await expect(titles.first()).toContainText("Alpha");
 
-  await page.getByRole("button", { name: "Monter Beta dans les favoris" }).click();
+  await (await rowMenu(page, "Beta"))
+    .getByRole("menuitem", { name: "Monter dans les favoris" })
+    .click();
   await expect(titles.first()).toContainText("Beta");
 
   // Survives a reload rather than living in component state.
@@ -132,7 +147,14 @@ test("the ordering controls work from the keyboard", async ({ request, page }) =
   await pin(page, "Alpha");
   await pin(page, "Beta");
 
-  const up = page.getByRole("button", { name: "Monter Beta dans les favoris" });
+  const trigger = page.getByRole("button", { name: "Autres actions pour Beta" });
+  await trigger.focus();
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press("Enter");
+
+  const up = page
+    .getByRole("menu", { name: "Autres actions pour Beta" })
+    .getByRole("menuitem", { name: "Monter dans les favoris" });
   // Briefly disabled while the optimistic order is replaced by the refreshed
   // one; focus would not take on a disabled control.
   await expect(up).toBeEnabled();
@@ -152,22 +174,69 @@ test("ordering is offered in place, and only works on a pinned recipe", async ({
   await seed(request, "Ordinaire", "Riz");
   await page.goto("/fr/app");
 
-  // Present but disabled, rather than absent. A control that comes and goes
-  // moves every control after it, so "delete" ended up in a different place
-  // on two neighbouring rows — and that is the one you cannot undo.
-  const up = page.getByRole("button", {
-    name: "Monter Ordinaire dans les favoris",
-  });
-  await expect(up).toBeVisible();
-  await expect(up).toBeDisabled();
+  // Present but disabled, rather than absent. An item that comes and goes
+  // moves every item after it, so "delete" ended up in a different place on
+  // two neighbouring rows — and that is the one you cannot undo.
+  const menu = await rowMenu(page, "Ordinaire");
+  await expect(
+    menu.getByRole("menuitem", { name: "Monter dans les favoris" }),
+  ).toBeDisabled();
+  await expect(menu.getByRole("menuitem")).toHaveCount(5);
 
-  // Which is what makes the rail line up: the row below has the same five.
-  const actions = page
+  await page.keyboard.press("Escape");
+
+  // And the rail itself is the same three on every row: cook, plan, more.
+  const rail = page
     .getByTestId("recipe-grid")
     .locator("li")
     .first()
     .getByRole("button");
-  await expect(actions).toHaveCount(5);
+  // The favourite star, the plan control and the menu trigger — "cook" and
+  // "edit" are links, because they go somewhere.
+  await expect(rail).toHaveCount(3);
+});
+
+test("a recipe can be cooked and planned straight from the list", async ({
+  request,
+  page,
+}) => {
+  await seed(request, "Curry", "Lentilles");
+  await page.goto("/fr/app");
+
+  // Planning takes two decisions, and both are already answered.
+  await page.getByRole("button", { name: "Planifier Curry" }).click();
+  const dialog = page.getByTestId("plan-dialog");
+  await expect(dialog).toBeVisible();
+  await dialog.getByTestId("plan-confirm").click();
+
+  await expect(page.getByTestId("planned")).toContainText("Curry");
+
+  // And it is really on the plan, not just announced.
+  await page.goto("/fr/app/planning");
+  await expect(page.getByTestId("week-grid")).toContainText("Curry");
+
+  // Cooking is a link, so it can be opened in a new tab like any other.
+  await page.goto("/fr/app");
+  await page.getByRole("link", { name: "Cuisiner Curry" }).click();
+  await expect(page).toHaveURL(/\/cuisiner$/);
+});
+
+test("the library pages rather than scrolling forever", async ({ request, page }) => {
+  for (const title of ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]) {
+    await seed(request, title, "Riz");
+  }
+  await page.goto("/fr/app");
+
+  const rows = page.getByTestId("recipe-grid").locator("li");
+  await expect(rows).toHaveCount(6);
+  await expect(page.getByTestId("pagination-position")).toContainText("7 recettes");
+
+  await page.getByRole("button", { name: "Page suivante" }).click();
+  await expect(rows).toHaveCount(1);
+
+  // The last page has nowhere further to go, and says so by being disabled
+  // rather than by doing nothing.
+  await expect(page.getByRole("button", { name: "Page suivante" })).toBeDisabled();
 });
 
 // --- duplicate ----------------------------------------------------------
@@ -176,7 +245,9 @@ test("a recipe can be duplicated, and the copy is independent", async ({ request
   await seed(request, "Curry", "Lentilles");
   await page.goto("/fr/app");
 
-  await page.getByRole("button", { name: "Dupliquer Curry" }).click();
+  await (await rowMenu(page, "Curry"))
+    .getByRole("menuitem", { name: "Dupliquer" })
+    .click();
 
   await expect(page.getByRole("heading", { name: "Curry (copie)" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Curry", exact: true })).toBeVisible();
@@ -188,7 +259,9 @@ test("deleting asks first, and cancelling changes nothing", async ({ request, pa
   await seed(request, "Curry", "Lentilles");
   await page.goto("/fr/app");
 
-  await page.getByRole("button", { name: "Supprimer Curry" }).click();
+  await (await rowMenu(page, "Curry"))
+    .getByRole("menuitem", { name: "Supprimer" })
+    .click();
 
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
@@ -205,7 +278,9 @@ test("confirming removes the recipe", async ({ request, page }) => {
   await seed(request, "Saumon", "Saumon");
   await page.goto("/fr/app");
 
-  await page.getByRole("button", { name: "Supprimer Curry" }).click();
+  await (await rowMenu(page, "Curry"))
+    .getByRole("menuitem", { name: "Supprimer" })
+    .click();
   await page.getByRole("dialog").getByRole("button", { name: "Supprimer" }).click();
 
   await expect(page.getByRole("heading", { name: "Curry" })).toHaveCount(0);
@@ -218,9 +293,12 @@ test("the whole library downloads as a readable file", async ({ request, page })
   await seed(request, "Curry", "Lentilles");
   await page.goto("/fr/app");
 
+  // Behind the library's menu now: exporting is a twice-a-year errand and was
+  // taking a third of the row somebody came to read.
+  await page.getByRole("button", { name: "Autres actions sur la bibliothèque" }).click();
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Exporter" }).click(),
+    page.getByRole("menuitem", { name: "Exporter" }).click(),
   ]);
 
   expect(download.suggestedFilename()).toBe("fuelr-recettes.json");

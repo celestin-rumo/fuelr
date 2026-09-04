@@ -44,11 +44,51 @@
     },
     "copySuffix": " (Kopie)",
     "export": "Exportieren",
+    "libraryMenu": "Weitere Aktionen für die Bibliothek",
+    "idea": {
+      "title": "Keine Idee, was kochen?",
+      "body": "Sag, was du da hast — Poulet, Zucchini, eine Zitrone — und Fuelr schaut zuerst in deinen eigenen Rezepten nach.",
+      "action": "Eine Idee?"
+    },
     "moveUp": "{title} in den Favoriten nach oben",
     "moveDown": "{title} in den Favoriten nach unten",
     "duplicate": "{title} duplizieren",
     "edit": "{title} bearbeiten",
     "delete": "{title} löschen",
+    "cook": "{title} kochen",
+    "more": "Weitere Aktionen für {title}",
+    "editShort": "Bearbeiten",
+    "duplicateShort": "Duplizieren",
+    "moveUpShort": "In den Favoriten nach oben",
+    "moveDownShort": "In den Favoriten nach unten",
+    "deleteShort": "Löschen",
+    "pagination": {
+      "label": "Seiten der Bibliothek",
+      "previous": "Vorherige Seite",
+      "next": "Nächste Seite",
+      "position": "Seite {page} von {pages} · {total, plural, one {# Rezept} other {# Rezepte}}"
+    },
+    "plan": {
+      "action": "{title} einplanen",
+      "title": "„{title}“ einplanen",
+      "close": "Schliessen",
+      "day": "Welcher Tag",
+      "slot": "Welche Mahlzeit",
+      "todayIs": "{day} · heute",
+      "confirm": "Zum Wochenplan hinzufügen",
+      "cancel": "Abbrechen",
+      "failed": "Diese Mahlzeit konnte nicht hinzugefügt werden. Versuch es nochmals.",
+      "done": "„{title}“ steht im Plan: {day}, {slot}.",
+      "open": "Wochenplan öffnen",
+      "dismiss": "Schliessen",
+      "untitled": "Ohne Titel",
+      "slots": {
+        "BREAKFAST": "Frühstück",
+        "LUNCH": "Mittagessen",
+        "DINNER": "Abendessen",
+        "SNACK": "Snack"
+      }
+    },
     "search": {
       "label": "Suchen",
       "placeholder": "Titel oder Zutat",
@@ -71,7 +111,8 @@
       "household": "Haushalt",
       "shopping": "Einkauf",
       "journal": "Tagebuch",
-      "idea": "Eine Idee?"
+      "idea": "Eine Idee?",
+      "costs": "Kosten der KI-Lesungen"
     }
   },
   "plan": {
@@ -894,6 +935,7 @@
     "open": "Öffnen",
     "keep": "Als Entwurf übernehmen",
     "addMissing": "Fehlendes auf die Liste setzen",
+    "more": "Weitere Aktionen für {title}",
     "added": "Zur Einkaufsliste hinzugefügt.",
     "empty": "Damit fällt mir nichts ein. Schreib etwas anderes, oder tippe das Rezept von Hand ein.",
     "assisted": "Die Ideen kommen von einem Modell: vor dem Kochen durchlesen.",

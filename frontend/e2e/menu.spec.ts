@@ -37,8 +37,14 @@ test.beforeEach(async ({ request, context }) => {
   await signIn(request, context);
 });
 
-test("an idea is one tap away from anywhere in the app", async ({ page }) => {
-  await page.goto("/fr/app/journal");
+test("an idea sits under the list that did not answer the question", async ({
+  page,
+}) => {
+  // It used to be a button in the header, beside the account controls, which
+  // is where chrome lives. It is not chrome: it is what to do when the list
+  // you have just read did not answer the question.
+  await page.goto("/fr/app");
+  await expect(page.getByRole("banner").getByTestId("ask-idea")).toHaveCount(0);
   await page.getByTestId("ask-idea").click();
 
   await expect(page).toHaveURL(/\/fr\/app\/idees$/);
@@ -56,7 +62,7 @@ test("the cook's own recipes answer first", async ({ request, page }) => {
 
   const suggestions = page.getByTestId("suggestions");
   await expect(suggestions).toBeVisible();
-  // Their own, named as theirs — and each card carries an illustration.
+  // Their own, named as theirs, in the same list the library uses.
   await expect(suggestions.getByText("Ta recette").first()).toBeVisible();
   await expect(suggestions).toContainText("Curry de poulet");
   await expect(suggestions.getByRole("link", { name: "Ouvrir" }).first()).toBeVisible();
@@ -75,7 +81,11 @@ test("what is missing goes on the shopping list in one gesture", async ({
   await page.getByTestId("ask").click();
   await expect(page.getByTestId("suggestions")).toBeVisible();
 
-  await page.getByRole("button", { name: "Ajouter ce qui manque à la liste" }).first().click();
+  // Behind the row's menu, like every secondary action on a list row.
+  await page.getByRole("button", { name: /Autres actions pour/ }).first().click();
+  await page
+    .getByRole("menuitem", { name: "Ajouter ce qui manque à la liste" })
+    .click();
   await expect(page.getByTestId("added")).toBeVisible();
 });
 

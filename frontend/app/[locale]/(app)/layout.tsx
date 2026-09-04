@@ -32,7 +32,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-bg">
-      <AppHeader email={session.email} name={session.name} />
+      <AppHeader email={session.email} name={session.name} role={session.role} />
       {!session.emailVerified && <VerifyEmailBanner email={session.email} />}
       {/* A dish left mid-way is the first thing to say on coming back, and it
           belongs on every screen of the app rather than on one of them. */}

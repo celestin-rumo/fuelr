@@ -106,3 +106,23 @@ test("the table scrolls in its own box rather than moving the page", async ({
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("an operator has a way in, and nobody else sees one", async ({
+  request,
+  context,
+  page,
+}) => {
+  // The page had no link anywhere: it was reachable only by typing a URL
+  // nobody had written down. The link follows the same rule the page does —
+  // it appears for an admin and for nobody else, because a screen that exists
+  // only for operators has no reason to confirm to anybody else that it
+  // exists.
+  await signInAsSomebodyElse(request, context);
+  await page.goto("/fr/app");
+  await expect(page.getByTestId("costs-link")).toHaveCount(0);
+
+  await signInAs(request, context, ADMIN_EMAIL, ADMIN_PASSWORD);
+  await page.goto("/fr/app");
+  await page.getByTestId("costs-link").click();
+  await expect(page).toHaveURL(/\/total-costs$/);
+});

@@ -44,11 +44,51 @@
     },
     "copySuffix": " (copy)",
     "export": "Export",
+    "libraryMenu": "More library actions",
+    "idea": {
+      "title": "Not sure what to cook?",
+      "body": "Say what you have to hand — chicken, courgettes, a lemon — and Fuelr looks through your own recipes first.",
+      "action": "An idea?"
+    },
     "moveUp": "Move {title} up in favourites",
     "moveDown": "Move {title} down in favourites",
     "duplicate": "Duplicate {title}",
     "edit": "Edit {title}",
     "delete": "Delete {title}",
+    "cook": "Cook {title}",
+    "more": "More actions for {title}",
+    "editShort": "Edit",
+    "duplicateShort": "Duplicate",
+    "moveUpShort": "Move up in favourites",
+    "moveDownShort": "Move down in favourites",
+    "deleteShort": "Delete",
+    "pagination": {
+      "label": "Library pages",
+      "previous": "Previous page",
+      "next": "Next page",
+      "position": "Page {page} of {pages} · {total, plural, one {# recipe} other {# recipes}}"
+    },
+    "plan": {
+      "action": "Add {title} to the plan",
+      "title": "Plan “{title}”",
+      "close": "Close",
+      "day": "Which day",
+      "slot": "Which meal",
+      "todayIs": "{day} · today",
+      "confirm": "Add to the plan",
+      "cancel": "Cancel",
+      "failed": "This meal could not be added. Try again.",
+      "done": "“{title}” is on the plan: {day}, {slot}.",
+      "open": "Open the plan",
+      "dismiss": "Close",
+      "untitled": "Untitled",
+      "slots": {
+        "BREAKFAST": "Breakfast",
+        "LUNCH": "Lunch",
+        "DINNER": "Dinner",
+        "SNACK": "Snack"
+      }
+    },
     "search": {
       "label": "Search",
       "placeholder": "Title or ingredient",
@@ -71,7 +111,8 @@
       "household": "Household",
       "shopping": "Shopping",
       "journal": "Diary",
-      "idea": "An idea?"
+      "idea": "An idea?",
+      "costs": "AI reading costs"
     }
   },
   "plan": {
@@ -894,6 +935,7 @@
     "open": "Open",
     "keep": "Make it a draft",
     "addMissing": "Add what is missing to the list",
+    "more": "More actions for {title}",
     "added": "Added to the shopping list.",
     "empty": "Nothing comes to mind with that. Try something else, or write the recipe in by hand.",
     "assisted": "The ideas come from a model: worth reading before cooking.",

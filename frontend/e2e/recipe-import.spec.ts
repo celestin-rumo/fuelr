@@ -17,9 +17,15 @@ test.beforeEach(async ({ request, context }) => {
   await signIn(request, context);
 });
 
-test("the library offers importing beside creating", async ({ page }) => {
+test("importing is one press from the library", async ({ page }) => {
+  // Beside "new recipe" rather than a third equal button: creating is what
+  // somebody came to do, importing is occasional, and three buttons was
+  // 428px of controls on a screen that has 320.
   await page.goto("/fr/app");
-  await page.getByRole("link", { name: "Importer" }).first().click();
+  await page
+    .getByRole("button", { name: "Autres actions sur la bibliothèque" })
+    .click();
+  await page.getByRole("menuitem", { name: "Importer" }).click();
   await expect(page).toHaveURL(/\/fr\/app\/recettes\/importer$/);
 });
 

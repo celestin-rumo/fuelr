@@ -2,8 +2,7 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Badge } from "@ui/badge";
 import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
@@ -19,13 +18,20 @@ import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Dialog } from "@ui/dialog";
 import { Icon } from "@ui/icons";
 import { ListRow, ListRowActions } from "@ui/list-row";
+import { Menu } from "@ui/menu";
 import { Segmented, SegmentedCount } from "@ui/segmented";
+import { Pagination } from "@ui/pagination";
+import { Banner } from "@ui/banner";
+import { PlanDialog } from "./plan-dialog";
 
 /**
  * The backend already returns the library in order — pinned first, in the
  * chosen rank. This only re-applies the favourite split so an optimistic pin
  * moves the card immediately, without waiting for the refetch.
  */
+/** How many rows a page holds. Six is what fits a phone without scrolling. */
+const PER_PAGE = 6;
+
 function sorted(recipes: RecipeSummary[]) {
   return [...recipes].sort((a, b) => Number(b.favorite) - Number(a.favorite));
 }
@@ -46,7 +52,10 @@ export function RecipeGrid({
 }) {
   const t = useTranslations("app");
   const [confirming, setConfirming] = useState<RecipeSummary | null>(null);
+  const [planning, setPlanning] = useState<RecipeSummary | null>(null);
+  const [planned, setPlanned] = useState<string | null>(null);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [page, setPage] = useState(0);
   const [, startTransition] = useTransition();
   const router = useRouter();
 
@@ -60,8 +69,19 @@ export function RecipeGrid({
       ),
   );
 
-  const shown = sorted(optimistic).filter((r) => !onlyFavorites || r.favorite);
+  const matching = sorted(optimistic).filter((r) => !onlyFavorites || r.favorite);
   const favoriteCount = optimistic.filter((r) => r.favorite).length;
+
+  /*
+   * Six a page. A library of two hundred recipes is not a decision anybody
+   * makes by scrolling: the filters above are how it is narrowed, and the
+   * page is how what is left is read. Clamped rather than trusted, because
+   * the last page disappears the moment a filter removes a row and the state
+   * would otherwise point past the end.
+   */
+  const pages = Math.max(1, Math.ceil(matching.length / PER_PAGE));
+  const current = Math.min(page, pages - 1);
+  const shown = matching.slice(current * PER_PAGE, current * PER_PAGE + PER_PAGE);
 
   function move(recipe: RecipeSummary, direction: -1 | 1) {
     startTransition(async () => {
@@ -134,8 +154,11 @@ export function RecipeGrid({
         // has not left the application — it is on the recipe, where it is of
         // something.
         <ul data-testid="recipe-grid" className="flex flex-col gap-2">
-          {shown.map((recipe, index) => {
+          {shown.map((recipe, onPage) => {
             const title = recipe.title?.trim() || t("untitled");
+            // Position in the whole filtered list, not on this page: "first
+            // favourite" must not become true again at the top of page two.
+            const index = current * PER_PAGE + onPage;
             return (
               <ListRow
                 as="li"
@@ -145,35 +168,16 @@ export function RecipeGrid({
                 selected={recipe.favorite}
                 trailing={
                   <ListRowActions>
-                    {/* Reordering only applies to a pinned recipe, so on every
-                        other row these are disabled rather than absent: a
-                        control that comes and goes moves the ones after it,
-                        and the one you land on when you miss is "delete". */}
-                    <IconButton
-                      aria-label={t("moveUp", { title })}
-                      variant="quiet"
-                      className="relative z-10"
-                      disabled={!recipe.favorite || index === 0}
-                      onClick={() => move(recipe, -1)}
-                    >
-                      <Icon name="arrowUp" />
-                    </IconButton>
-                    <IconButton
-                      aria-label={t("moveDown", { title })}
-                      variant="quiet"
-                      className="relative z-10"
-                      disabled={!recipe.favorite || index === favoriteCount - 1}
-                      onClick={() => move(recipe, 1)}
-                    >
-                      <Icon name="arrowDown" />
-                    </IconButton>
-                    {/* Editing navigates, so it is an anchor wearing the
-                        button's clothes — a Button inside a Link is two
-                        interactive elements where the markup promises one. */}
+                    {/*
+                     * The two things somebody opens the library to do are
+                     * visible; the rest is one press away. Seven controls in
+                     * a rail is 308px of buttons on a 360px screen, and the
+                     * two that matter most would have been the ones to wrap.
+                     */}
                     <Link
-                      aria-label={t("edit", { title })}
+                      aria-label={t("cook", { title })}
                       href={{
-                        pathname: "/app/recipes/[id]",
+                        pathname: "/app/recipes/[id]/cook",
                         params: { id: String(recipe.id) },
                       }}
                       className={buttonClasses({
@@ -182,24 +186,59 @@ export function RecipeGrid({
                         className: "relative z-10 h-11 w-11 shrink-0 p-0",
                       })}
                     >
-                      <Icon name="pencil" />
+                      <Icon name="flame" />
                     </Link>
                     <IconButton
-                      aria-label={t("duplicate", { title })}
+                      aria-label={t("plan.action", { title })}
                       variant="quiet"
                       className="relative z-10"
-                      onClick={() => duplicate(recipe)}
+                      onClick={() => setPlanning(recipe)}
                     >
-                      <Icon name="copy" />
+                      <Icon name="calendarPlus" />
                     </IconButton>
-                    <IconButton
-                      aria-label={t("delete", { title })}
-                      variant="dangerText"
-                      className="relative z-10"
-                      onClick={() => setConfirming(recipe)}
-                    >
-                      <Icon name="trash" />
-                    </IconButton>
+                    <Menu
+                      label={t("more", { title })}
+                      items={[
+                        {
+                          label: t("editShort"),
+                          icon: "pencil",
+                          testId: `edit-${recipe.id}`,
+                          onSelect: () =>
+                            router.push({
+                              pathname: "/app/recipes/[id]",
+                              params: { id: String(recipe.id) },
+                            }),
+                        },
+                        {
+                          label: t("duplicateShort"),
+                          icon: "copy",
+                          onSelect: () => duplicate(recipe),
+                        },
+                        // Reordering only applies to a pinned recipe, so on
+                        // every other row it is disabled inside the menu
+                        // rather than missing from it: an item that comes and
+                        // goes moves every item after it.
+                        {
+                          label: t("moveUpShort"),
+                          icon: "arrowUp",
+                          disabled: !recipe.favorite || index === 0,
+                          onSelect: () => move(recipe, -1),
+                        },
+                        {
+                          label: t("moveDownShort"),
+                          icon: "arrowDown",
+                          disabled:
+                            !recipe.favorite || index === favoriteCount - 1,
+                          onSelect: () => move(recipe, 1),
+                        },
+                        {
+                          label: t("deleteShort"),
+                          icon: "trash",
+                          destructive: true,
+                          onSelect: () => setConfirming(recipe),
+                        },
+                      ]}
+                    />
                   </ListRowActions>
                 }
                 leading={
@@ -275,6 +314,55 @@ export function RecipeGrid({
             );
           })}
         </ul>
+      )}
+
+      {pages > 1 && (
+        <Pagination
+          page={current}
+          pages={pages}
+          onChange={setPage}
+          labels={{
+            nav: t("pagination.label"),
+            previous: t("pagination.previous"),
+            next: t("pagination.next"),
+            position: t("pagination.position", {
+              page: current + 1,
+              pages,
+              total: matching.length,
+            }),
+          }}
+        />
+      )}
+
+      {planned && (
+        <Banner
+          tone="success"
+          data-testid="planned"
+          onDismiss={() => setPlanned(null)}
+          dismissLabel={t("plan.dismiss")}
+          action={
+            <Link
+              href="/app/plan"
+              className={buttonClasses({ variant: "secondary", size: "sm" })}
+            >
+              {t("plan.open")}
+            </Link>
+          }
+        >
+          {planned}
+        </Banner>
+      )}
+
+      {planning && (
+        <PlanDialog
+          recipe={planning}
+          today={today}
+          onClose={() => setPlanning(null)}
+          onPlanned={(message) => {
+            setPlanning(null);
+            setPlanned(message);
+          }}
+        />
       )}
 
       {confirming && (
