@@ -17,6 +17,8 @@ import { RecipeCard } from "@ui/recipe-card";
 import { Icon } from "@ui/icons";
 import { Segmented, SegmentedCount } from "@ui/segmented";
 import { Stepper } from "@ui/stepper";
+import { Menu } from "@ui/menu";
+import { Pagination } from "@ui/pagination";
 import { SectionHead } from "@ui/section-head";
 import {
   ListRow,
@@ -187,6 +189,7 @@ export default function DesignSystemPage() {
   const [scope, setScope] = useState<"all" | "favorites">("all");
   const [goal, setGoal] = useState<"lose" | "maintain" | "gain">("maintain");
   const [servings, setServings] = useState(4);
+  const [libraryPage, setLibraryPage] = useState(1);
 
   return (
     <div className="min-h-full bg-bg">
@@ -773,6 +776,9 @@ export default function DesignSystemPage() {
                 "pause",
                 "clock",
                 "alert",
+                "more",
+                "flame",
+                "calendarPlus",
               ] as const
             ).map((name) => (
               <div
@@ -999,6 +1005,52 @@ export default function DesignSystemPage() {
 
         <Section
           num="16"
+          title="Menu"
+          intro="A button that shows what else can be done, so a row of controls stays short. Seven actions in a recipe rail is 308px of buttons on a 360px screen, and the two that matter — cook it, plan it — would have been the ones to wrap. The trigger sits in the same place on every row and an item that does not apply is disabled inside the menu rather than missing from it. An item that goes somewhere renders as a link, so it can be opened in a new tab and a download is the browser's navigation rather than a script assigning `location`."
+        >
+          <div className="flex flex-wrap items-start gap-4">
+            <Menu
+              label="Autres actions pour Curry de lentilles"
+              items={[
+                { label: "Modifier", icon: "pencil" },
+                { label: "Dupliquer", icon: "copy" },
+                { label: "Monter dans les favoris", icon: "arrowUp", disabled: true },
+                { label: "Descendre dans les favoris", icon: "arrowDown", disabled: true },
+                { label: "Supprimer", icon: "trash", destructive: true },
+              ]}
+            />
+            <Menu
+              label="Autres actions sur la bibliothèque"
+              align="start"
+              trigger="Plus d&apos;actions"
+              items={[
+                { label: "Importer une recette", icon: "book" },
+                { label: "Exporter", icon: "arrowDown", href: "#", download: true },
+              ]}
+            />
+          </div>
+        </Section>
+
+        <Section
+          num="17"
+          title="Pagination"
+          intro="Previous, where you are, next. No numbered pages: a library is narrowed with its filters, not by jumping to page seven of twelve, and a row of numbers is a row of 44px targets a 360px screen cannot hold. The position is a sentence rather than “3 / 12”, and it is announced when it changes — pressing “next” moves rows somebody cannot see."
+        >
+          <Pagination
+            page={libraryPage}
+            pages={3}
+            onChange={setLibraryPage}
+            labels={{
+              nav: "Pages de la bibliothèque",
+              previous: "Page précédente",
+              next: "Page suivante",
+              position: `Page ${libraryPage + 1} sur 3 · 14 recettes`,
+            }}
+          />
+        </Section>
+
+        <Section
+          num="18"
           title="Banners"
           intro="Three tones, because the system gives one meaning per colour. Errors take role=alert and interrupt; the rest wait their turn. `position=&quot;fixed&quot;` pins one to the bottom of the viewport for something wrong with the page as a whole."
         >
@@ -1015,7 +1067,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section
-          num="17"
+          num="19"
           title="Dialogs"
           intro="One modal for the whole app. The overlay scrolls and the card is capped at the visible height, so the bottom of a long sheet is reachable on a 360×480 screen; the head stays put while the body scrolls. Escape closes it and focus opens on the close button."
         >
@@ -1045,7 +1097,7 @@ export default function DesignSystemPage() {
           )}
         </Section>
 
-        <Section num="18" title="Data & system states">
+        <Section num="20" title="Data & system states">
           <div className="grid gap-5 md:grid-cols-2">
             <EmptyState
               icon={<Icon name="cart" size={24} />}

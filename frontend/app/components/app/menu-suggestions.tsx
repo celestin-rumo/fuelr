@@ -1,14 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@ui/badge";
 import { Banner } from "@ui/banner";
-import { Button } from "@ui/button";
+import { Button, buttonClasses } from "@ui/button";
 import { Card } from "@ui/card";
 import { Input } from "@ui/input";
 import { cn } from "@ui/cn";
+import { Link } from "@/i18n/navigation";
+import { Menu } from "@ui/menu";
+import {
+  ListRow,
+  ListRowActions,
+  ListRowMeta,
+  ListRowTitle,
+} from "@ui/list-row";
 import type { Suggestion, Suggestions } from "@app/lib/api";
 import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/actions";
 
@@ -23,7 +31,6 @@ import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/ac
  */
 export function MenuSuggestions({ week }: { week: string }) {
   const t = useTranslations("menu");
-  const locale = useLocale();
   const router = useRouter();
 
   const [have, setHave] = useState("");
@@ -123,19 +130,20 @@ export function MenuSuggestions({ week }: { week: string }) {
 
       {answer && answer.suggestions.length > 0 && (
         <>
-          <ul
-            data-testid="suggestions"
-            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-          >
+          {/* The same list the library uses. A suggestion is read the way a
+              recipe is read — title, time, what it would cost to make — and
+              two ways of drawing that is one way too many. It also settles
+              the illustration question honestly: no row anywhere in this app
+              carries a photograph, so an idea is not made to look like it is
+              missing one. */}
+          <ul data-testid="suggestions" className="flex flex-col gap-2">
             {answer.suggestions.map((suggestion, index) => (
-              <li key={`${suggestion.title}-${index}`}>
-                <SuggestionCard
-                  suggestion={suggestion}
-                  locale={locale}
-                  onKeep={() => keep(suggestion)}
-                  onShop={() => shop(suggestion)}
-                />
-              </li>
+              <SuggestionRow
+                key={`${suggestion.title}-${index}`}
+                suggestion={suggestion}
+                onKeep={() => keep(suggestion)}
+                onShop={() => shop(suggestion)}
+              />
             ))}
           </ul>
 
@@ -148,14 +156,12 @@ export function MenuSuggestions({ week }: { week: string }) {
   );
 }
 
-function SuggestionCard({
+function SuggestionRow({
   suggestion,
-  locale,
   onKeep,
   onShop,
 }: {
   suggestion: Suggestion;
-  locale: string;
   onKeep: () => void;
   onShop: () => void;
 }) {
@@ -163,95 +169,58 @@ function SuggestionCard({
   const own = suggestion.origin === "RECIPE";
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-md border border-line bg-bg-raised">
-      <div className="relative aspect-[4/3] overflow-hidden bg-bg-raised-2">
-        {own && suggestion.hasPhoto ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`/api/recipes/${suggestion.recipeId}/photo`}
-            alt=""
-            className="size-full object-cover"
-          />
-        ) : (
-          <Tile title={suggestion.title} />
-        )}
-        <span className="absolute top-3 left-3">
-          <Badge tone={own ? "accent" : "neutral"}>
-            {own ? t("yours") : t("idea")}
-          </Badge>
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h2 className="font-display text-base font-bold text-text">{suggestion.title}</h2>
-
-        {suggestion.minutes != null && (
-          <p className="tnum font-mono text-[13px] text-gray">
-            {t("minutes", { count: suggestion.minutes })}
-          </p>
-        )}
-
-        <p className="text-[13px] font-medium text-text-dim">
-          {suggestion.missing.length === 0
-            ? t("nothingMissing")
-            : t("missing", { items: suggestion.missing.join(", ") })}
-        </p>
-
-        <div className="mt-auto flex flex-wrap gap-2 pt-3">
+    <ListRow
+      as="li"
+      selected={own}
+      trailing={
+        <ListRowActions className="gap-2">
           {own ? (
-            <a
-              href={`/${locale}/app/recettes/${suggestion.recipeId}`}
-              className="text-[13px] font-semibold text-mint-ink hover:underline"
+            <Link
+              href={{
+                pathname: "/app/recipes/[id]",
+                params: { id: String(suggestion.recipeId) },
+              }}
+              className={buttonClasses({ variant: "secondary", size: "sm" })}
             >
               {t("open")}
-            </a>
+            </Link>
           ) : (
             <Button variant="secondary" size="sm" onClick={onKeep}>
               {t("keep")}
             </Button>
           )}
-
           {suggestion.missing.length > 0 && (
-            <Button variant="text" size="sm" onClick={onShop}>
-              {t("addMissing")}
-            </Button>
+            <Menu
+              label={t("more", { title: suggestion.title })}
+              items={[
+                {
+                  label: t("addMissing"),
+                  icon: "cart",
+                  onSelect: onShop,
+                },
+              ]}
+            />
           )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/**
- * An illustration for a dish that has no photograph.
- *
- * Drawn from the title, so two ideas never look alike and the same idea looks
- * the same twice. It is deliberately not a picture of food: generating one
- * would put a photograph of a dish nobody cooked next to photographs of dishes
- * somebody did, which is the one thing this application does not do with a
- * guess.
- */
-function Tile({ title }: { title: string }) {
-  const hue = [...title].reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % 360;
-  const initials = title
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("");
-
-  return (
-    <div
-      aria-hidden
-      className="grid size-full place-items-center"
-      style={{
-        background: `linear-gradient(135deg,
-          color-mix(in srgb, hsl(${hue} 70% 55%) 26%, transparent),
-          color-mix(in srgb, hsl(${(hue + 40) % 360} 70% 55%) 18%, transparent))`,
-      }}
+        </ListRowActions>
+      }
     >
-      <span className="font-display text-[28px] font-extrabold text-text opacity-45">
-        {initials}
-      </span>
-    </div>
+      <ListRowTitle className="flex flex-wrap items-center gap-2">
+        {suggestion.title}
+        <Badge tone={own ? "accent" : "neutral"}>
+          {own ? t("yours") : t("idea")}
+        </Badge>
+      </ListRowTitle>
+      <ListRowMeta>
+        {suggestion.minutes != null && (
+          <span className="tnum font-mono text-gray">
+            {t("minutes", { count: suggestion.minutes })}
+            {" · "}
+          </span>
+        )}
+        {suggestion.missing.length === 0
+          ? t("nothingMissing")
+          : t("missing", { items: suggestion.missing.join(", ") })}
+      </ListRowMeta>
+    </ListRow>
   );
 }

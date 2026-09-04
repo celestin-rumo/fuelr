@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { buttonClasses } from "@ui/button";
+import { Icon } from "@ui/icons";
 import { ThemeToggle } from "@app/components/theme-toggle";
 import { LogoutButton } from "./logout-button";
 import { Container } from "@app/components/site/section";
@@ -12,9 +12,11 @@ import { Container } from "@app/components/site/section";
 export function AppHeader({
   email,
   name,
+  role,
 }: {
   email: string;
   name: string | null;
+  role: string;
 }) {
   const t = useTranslations("app");
 
@@ -81,16 +83,23 @@ export function AppHeader({
 
         <div className="flex-1" />
 
-        {/* An action, not a section: it is asked from wherever somebody is,
-            which is why it sits with the controls rather than in the nav —
-            a sixth nav item would also cost the toggle its place at 360px. */}
-        <Link
-          href="/app/menu"
-          data-testid="ask-idea"
-          className={buttonClasses({ variant: "soft", size: "sm" })}
-        >
-          {t("nav.idea")}
-        </Link>
+        {/*
+         * The operator's page had no link anywhere: it was reachable only by
+         * typing a URL nobody had written down. It appears for an admin and
+         * for nobody else — which is the same rule the page and the endpoint
+         * already follow, since a screen that exists only for operators has
+         * no reason to confirm to anybody else that it exists.
+         */}
+        {role === "ADMIN" && (
+          <Link
+            href="/total-costs"
+            aria-label={t("nav.costs")}
+            data-testid="costs-link"
+            className="grid size-11 shrink-0 place-items-center rounded-full text-gray transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          >
+            <Icon name="clock" />
+          </Link>
+        )}
 
         <span className="hidden text-[13px] font-semibold text-text-dim sm:inline">
           {name ?? email}

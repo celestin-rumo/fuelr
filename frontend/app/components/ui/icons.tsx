@@ -53,6 +53,25 @@ const paths = {
   arrowLeft: <path d="M19 12H5M12 19l-7-7 7-7" />,
   arrowRight: <path d="M5 12h14M12 5l7 7-7 7" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  /** "What else can be done here" — the trigger of `Menu`. */
+  more: (
+    <>
+      <circle cx="5" cy="12" r="1.4" />
+      <circle cx="12" cy="12" r="1.4" />
+      <circle cx="19" cy="12" r="1.4" />
+    </>
+  ),
+  /** Start cooking. A flame, which is what the action is. */
+  flame: (
+    <path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-1.7.7-3.1 1.5-4.2.4 1 1.1 1.7 2 2C10.4 7.6 10.8 5.2 12 3Z" />
+  ),
+  /** Add to the week. A calendar with a plus. */
+  calendarPlus: (
+    <>
+      <path d="M21 11V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6" />
+      <path d="M8 3v4M16 3v4M3 11h18M18 15v6M15 18h6" />
+    </>
+  ),
   /** Cooking mode's timers. Filled, because a transport control is a solid. */
   play: <path d="M8 5.5v13l11-6.5Z" />,
   pause: <path d="M9 5v14M15 5v14" />,

@@ -3,9 +3,11 @@ import { Link } from "@/i18n/navigation";
 import { getSession } from "@app/lib/session";
 import { apiFetch } from "@app/lib/api";
 import type { RecipeSummary } from "@app/lib/api";
-import { Button } from "@ui/button";
+import { Button, buttonClasses } from "@ui/button";
+import { Card, CardBody, CardTitle } from "@ui/card";
 import { EmptyState } from "@ui/empty-state";
 import { RecipeGrid } from "@app/components/app/recipe-grid";
+import { LibraryActions } from "@app/components/app/library-actions";
 import { Container } from "@app/components/site/section";
 import { isSeason } from "@app/lib/seasons";
 import { todayIso } from "@app/lib/week";
@@ -51,40 +53,7 @@ export default async function AppHomePage({
             {t("greeting", { name: session?.name ?? session?.email ?? "" })}
           </h1>
         </div>
-        {/* Three actions are 428px of buttons and a 360px screen has 320 of
-            room, so on a phone they stack — and they stack in order of what
-            somebody came to do. Creating leads, importing follows, exporting
-            is a twice-a-year errand and goes last. Above `sm` the row reads
-            the other way round, weakest first, ending on the primary. */}
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-          <Link
-            href="/app/recipes/new"
-            className="order-1 w-full sm:order-3 sm:w-auto"
-          >
-            <Button size="lg" fullWidth className="sm:w-auto">
-              {t("newRecipe")}
-            </Button>
-          </Link>
-          {/* Importing sits beside creating, not hidden inside it: pasting a
-              link is a different intent from starting a blank recipe. */}
-          <Link
-            href="/app/recipes/import"
-            className="order-2 w-full sm:order-2 sm:w-auto"
-          >
-            <Button size="lg" variant="secondary" fullWidth className="sm:w-auto">
-              {t("importRecipe")}
-            </Button>
-          </Link>
-          {recipes.length > 0 && (
-            <a
-              href="/api/recipes/export"
-              download
-              className="order-3 inline-flex min-h-11 items-center justify-center rounded-full border border-line px-4 text-[13px] font-semibold text-text-dim hover:border-gray hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:order-1 sm:min-h-9"
-            >
-              {t("export")}
-            </a>
-          )}
-        </div>
+        <LibraryActions canExport={recipes.length > 0} />
       </div>
 
       {recipes.length === 0 && !filtering ? (
@@ -107,6 +76,31 @@ export default async function AppHomePage({
           today={todayIso()}
         />
       )}
+
+      {/*
+       * Below the list, not in the header. It was a button beside the account
+       * controls, which is where the app's chrome lives — and it is not
+       * chrome, it is what to do when the list you have just read did not
+       * answer the question. So it sits where that happens.
+       */}
+      <Card
+        as="panel"
+        data-testid="ask-idea-block"
+        className="flex flex-wrap items-center justify-between gap-4"
+      >
+        <div className="min-w-0">
+          <CardTitle>{t("idea.title")}</CardTitle>
+          <CardBody className="mt-1">{t("idea.body")}</CardBody>
+        </div>
+        <Link
+          href="/app/menu"
+          data-testid="ask-idea"
+          className={buttonClasses({ variant: "soft", className: "shrink-0 gap-1.5" })}
+        >
+          <Icon name="flame" size={17} />
+          {t("idea.action")}
+        </Link>
+      </Card>
     </Container>
   );
 }
