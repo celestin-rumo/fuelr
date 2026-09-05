@@ -68,6 +68,11 @@ function overflow(page: Page) {
  * line by definition, and padding one to 44px would tear the paragraph apart.
  * Everything with a box of its own — buttons, chips, links that look like
  * buttons — has no such excuse.
+ *
+ * So is a control that is off-screen until focus reaches it. The skip link is
+ * clipped to a pixel while nothing has focused it — that is what makes it
+ * invisible to a pointer and reachable by Tab — and it becomes a 44px control
+ * the moment it matters. `e2e/accessibility.spec.ts` is what holds it to that.
  */
 async function shortTargets(page: Page) {
   return page.evaluate((floor) => {
@@ -80,6 +85,12 @@ async function shortTargets(page: Page) {
       if (style.display === "none" || style.visibility === "hidden") continue;
       // Written into a sentence rather than placed on the page.
       if (style.display === "inline") continue;
+      // Clipped away until focused — a skip link, and nothing else so far.
+      // Measured on the clip rather than a class name, so any implementation
+      // of the same idea is exempt and nothing else is.
+      if (style.clipPath === "inset(50%)" || style.clip === "rect(0px, 0px, 0px, 0px)") {
+        continue;
+      }
       const box = control.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) continue;
       if (box.height >= floor) continue;

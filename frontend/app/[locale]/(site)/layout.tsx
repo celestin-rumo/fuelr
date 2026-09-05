@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@app/components/site/site-header";
 import { SiteFooter } from "@app/components/site/site-footer";
+import { MAIN_ID } from "@app/components/skip-link";
 
 /**
  * Public marketing shell. The product lives under /app with its own layout —
@@ -20,7 +21,9 @@ export default async function SiteLayout({
   return (
     <div className="flex min-h-full flex-1 flex-col bg-bg">
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main id={MAIN_ID} tabIndex={-1} className="flex-1">
+        {children}
+      </main>
       <SiteFooter />
     </div>
   );
