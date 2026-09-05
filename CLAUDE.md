@@ -618,12 +618,51 @@ this cannot be used to take an account over — `ADMIN_PASSWORD` is only ever
 used for an account being created here. An address nobody holds creates an
 account only when there is no admin at all, so a typo cannot add a second one.
 
+**One door, one role, and it answers 404.** `/admin` is the operator's panel
+— accounts, subscriptions, usage, AI costs — and `AdminAccess.require` is the
+only place the role is checked, on the claim in the verified token. It throws
+`NOT_FOUND`, never 403: a panel that exists only for the operator has no
+reason to confirm to anybody else that it exists, and 403 answers a question
+nobody should be able to ask. The layout does the same for the pages, so the
+two cannot disagree. Internal like `/design-system`: English copy, not
+translated.
+
+**Deleting an account would have deleted somebody else's week.** This is the
+trap the schema sets, and it is a chain: `households.owner_user_id` cascades
+from `users`, `planned_meals.household_id` cascades from `households`. Erasing
+one person on their own request would silently take away every meal every
+*member* had put on that shared week. `AccountDeletion` hands the household to
+its longest-standing member instead — nothing that belongs to somebody else is
+deleted, and sharing then simply stops if the new owner is not entitled, which
+is the rule `activeHouseholdFor` already applies. The dialog says so, from
+what the server reports rather than from a sentence in the component.
+
+The photographs go too, one file at a time, before the rows that name them.
+Nothing on disk has a foreign key. (Deleting a single *recipe* still leaks its
+photo — a separate defect.)
+
+**A tier granted by hand goes through `SubscriptionService.grant`**, which
+makes an order and calls `confirm` — the same path a payment webhook takes. A
+subscription row written directly would be a second way for one to exist, and
+the second way is the one that ends up missing a field. Who granted it and why
+is in `admin_actions`, which is a trace and not a feature: nothing reads it to
+decide anything, and it keeps the subject's email as text because the id stops
+resolving the day that account is gone.
+
+**The panel counts, it does not measure people.** Usage comes from rows the
+database already holds — `recipes.source_url` separates an import from a typed
+recipe, `meal_log.source` a cooked meal from a written one — so the privacy
+page's claim that this application runs no analytics stays true. Nothing in
+that section is nominative. And the subscription figures say *committed*,
+never *revenue*: no provider is wired, every plan was granted, and a
+theoretical number shown as received is how a dashboard starts lying.
+
 **`/total-costs` has a link, and only an admin sees it.** It was reachable
 only by typing a URL nobody had written down. The link sits in the app header
 and follows the same rule as the page and the endpoint: it appears for `ADMIN`
-and for nobody else, since a screen that exists only for operators has no
-reason to confirm to anybody else that it exists. Who that is comes from
-`ADMIN_EMAIL`, above.
+and for nobody else. It points at `/admin`, of which the costs are now a
+section; the old address redirects, because an operator has it in a bookmark.
+Who the operator is comes from `ADMIN_EMAIL`, above.
 
 **Cooking mode reads the recipe and never writes to it.** That is what makes
 it safe to scale the quantities on screen for six people without touching a

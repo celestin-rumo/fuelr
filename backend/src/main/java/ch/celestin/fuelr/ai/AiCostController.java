@@ -1,12 +1,11 @@
 package ch.celestin.fuelr.ai;
 
-import org.springframework.http.HttpStatus;
+import ch.celestin.fuelr.admin.AdminAccess;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,10 +18,12 @@ import java.util.List;
  * the provider bills in — converting to francs here would add a rate to be
  * wrong about on top of a figure that is already exact.
  *
- * Admin only, and the check is on the role in the verified token rather than
- * on anything the caller sent alongside it. It lists other people's email
- * addresses and what they consumed, which is the whole reason it is not a
- * screen anybody can reach.
+ * Admin only, through `AdminAccess` like every other section of the panel: it
+ * lists other people's email addresses and what they consumed, which is the
+ * whole reason it is not a screen anybody can reach. The check used to live
+ * here, privately; with five sections behind the same door a second copy is a
+ * second place to get it wrong, and the way this goes wrong is that one
+ * endpoint answers to everybody.
  */
 @RestController
 @RequestMapping("/api/admin/ai-costs")
@@ -75,15 +76,17 @@ public class AiCostController {
 
     private final AiUsageRepository usage;
     private final AiBudget budget;
+    private final AdminAccess access;
 
-    public AiCostController(AiUsageRepository usage, AiBudget budget) {
+    public AiCostController(AiUsageRepository usage, AiBudget budget, AdminAccess access) {
         this.usage = usage;
         this.budget = budget;
+        this.access = access;
     }
 
     @GetMapping
     public CostReport report(@AuthenticationPrincipal Jwt principal) {
-        requireAdmin(principal);
+        access.require(principal);
 
         List<AccountRow> month = accounts(usage.perAccountSince(AiBudget.period()));
         List<AccountRow> all = accounts(usage.perAccountSince(AiBudget.BEGINNING));
@@ -120,15 +123,4 @@ public class AiCostController {
                 rows.stream().mapToLong(AccountRow::costMicros).sum());
     }
 
-    /**
-     * 404, not 403.
-     *
-     * A page that exists only for operators does not need to confirm to
-     * everybody else that it exists.
-     */
-    private void requireAdmin(Jwt principal) {
-        if (!"ADMIN".equals(principal.getClaimAsString("role"))) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
 }

@@ -12,6 +12,10 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findByUserIdOrderByFavoriteDescUpdatedAtDesc(Long userId);
 
+    List<Recipe> findByUserId(Long userId);
+
+    long countByUserId(Long userId);
+
     Optional<Recipe> findByIdAndUserId(Long id, Long userId);
 
     /**

@@ -58,6 +58,15 @@ public class Household {
         return id;
     }
 
+    /**
+     * Only `AccountDeletion` writes this, handing a shared household to its
+     * longest-standing member so that deleting an owner does not delete
+     * everybody else's week.
+     */
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
     public Long getOwnerUserId() {
         return ownerUserId;
     }

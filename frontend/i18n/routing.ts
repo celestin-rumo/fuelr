@@ -131,8 +131,17 @@ export const routing = defineRouting({
     "/offline": "/offline",
     // Internal reference page; the slug is the same in every locale.
     "/design-system": "/design-system",
-    // Internal, like the design system: one slug, English copy, and no
-    // translation — it is read by whoever runs Fuelr, not by whoever cooks.
+    // The operator's panel. Internal like the design system: one slug in every
+    // locale, English copy, and no translation — it is read by whoever runs
+    // Fuelr, not by whoever cooks with it.
+    "/admin": "/admin",
+    "/admin/accounts": "/admin/accounts",
+    "/admin/accounts/[id]": "/admin/accounts/[id]",
+    "/admin/subscriptions": "/admin/subscriptions",
+    "/admin/usage": "/admin/usage",
+    "/admin/ai-costs": "/admin/ai-costs",
+    // Where the cost page used to live, before it became a section of the
+    // panel. Kept as a redirect: an operator has that URL in a bookmark.
     "/total-costs": "/total-costs",
   },
 });

@@ -161,6 +161,32 @@ public class SubscriptionService {
     }
 
     /**
+     * Give somebody a plan without them paying for it.
+     *
+     * A refund, a gesture, a mistake being put right — the operator's panel is
+     * the only caller. It goes through an order and `confirm`, the same path a
+     * payment takes, so a granted plan is indistinguishable from a bought one
+     * everywhere else: `Entitlements` reads a subscription and does not ask
+     * where it came from. Writing a subscription row directly would be a
+     * second way for one to exist, and the second way is the one that ends up
+     * missing a field.
+     *
+     * `GRANTED` is the provider, which is what makes it carry no end date:
+     * nothing is going to renew it, so nothing should expire it either. Who
+     * granted it and why is in `admin_actions`, not here — this method is also
+     * how `app.subscription.self-activate` works, and that has no operator.
+     */
+    @Transactional
+    public Subscription grant(Long userId, Tier tier) {
+        if (tier == Tier.FREE) {
+            throw new IllegalArgumentException("free_is_not_granted");
+        }
+        SubscriptionOrder order =
+                orders.save(new SubscriptionOrder(userId, tier, BillingPeriod.YEARLY));
+        return confirm(order.getId(), GRANTED, null);
+    }
+
+    /**
      * Ends the plan. Nothing is deleted — that is the promise the pricing page
      * makes, and the shared household is the thing it is easiest to break.
      */
