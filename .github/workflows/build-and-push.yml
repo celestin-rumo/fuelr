@@ -299,6 +299,13 @@ jobs:
             -e ADMIN_EMAIL=admin@fuelr.test -e ADMIN_PASSWORD=changeme \
             -e JWT_SECRET=ci-only-secret-not-used-anywhere-else \
             -e APP_SUBSCRIPTION_SELF_ACTIVATE=true \
+            # Not a secret and not billable: a key that cannot be charged is
+            # enough for `available()`, which only checks that one is set. It
+            # opens the assisted sources so the browser-side half — taking a
+            # photograph, framing it, cropping it — is actually exercised. No
+            # test submits, and one that did would get a 401 rather than a
+            # bill.
+            -e ANTHROPIC_API_KEY=ci-not-a-real-key \
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ github.sha }}
 
           for i in $(seq 1 60); do

@@ -52,7 +52,7 @@ describe("ImportForm", () => {
     // is the shape once the paid boundary is switched on; while nothing is
     // charged the same source comes back OPEN — see the case below.
     expect(screen.getByTestId("import-closed-PLAN")).toHaveTextContent("plan PLUS");
-    expect(screen.queryByLabelText("Photos de la recette")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Choisir un fichier" })).not.toBeInTheDocument();
   });
 
   it("names the gift when an assisted source is open and nothing is charged", async () => {
@@ -68,7 +68,7 @@ describe("ImportForm", () => {
 
     await user.click(screen.getByTestId("source-PHOTO"));
 
-    expect(screen.getByLabelText("Photos de la recette")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choisir un fichier" })).toBeInTheDocument();
     expect(screen.getByTestId("launch-note")).toHaveTextContent(
       "Offert pendant le lancement",
     );
@@ -103,7 +103,7 @@ describe("ImportForm", () => {
 
     await user.click(screen.getByTestId("source-SCREENSHOT"));
 
-    expect(screen.getByLabelText("Photos de la recette")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choisir un fichier" })).toBeInTheDocument();
     // The advice differs by source: framing a book page is not framing a story.
     expect(screen.getByText(/capture d'une autre application/)).toBeInTheDocument();
   });

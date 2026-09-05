@@ -70,7 +70,7 @@ test("the three ways in are offered, and the assisted one says it is a gift", as
   await page.getByTestId("source-PHOTO").click();
   await expect(page.getByTestId("import-closed-PLAN")).toHaveCount(0);
 
-  const files = page.getByLabel("Photos de la recette");
+  const files = page.getByTestId("choose-files");
   if (await files.count()) {
     // A reader is wired: the form is offered, and says it is a gift.
     await expect(files).toBeVisible();

@@ -888,6 +888,8 @@
       "photoHint": "Eine Buchseite, eine Rezeptkarte, etwas von Hand Geschriebenes. Zwei Fotos, wenn das Rezept über zwei Seiten geht.",
       "screenshotHint": "Eine Aufnahme aus einer anderen App, einer Story oder einer Nachricht. Fotografiere das ganze Rezept, nicht nur die Zutaten.",
       "files": "Fotos des Rezepts",
+      "takePhoto": "Foto aufnehmen",
+      "chooseFiles": "Datei wählen",
       "filesHint": "JPEG, PNG oder WebP, höchstens 2 MB pro Bild.",
       "submit": "Rezept lesen"
     },
@@ -902,6 +904,17 @@
         "body": "Dein Plan ist in Ordnung, wir sind noch nicht so weit: Es ist noch kein Leser konfiguriert. Nichts geht verloren — ein Link oder die manuelle Eingabe funktionieren heute.",
         "link": "Pläne ansehen"
       }
+    },
+    "removeShot": "Foto {number} entfernen",
+    "crop": {
+      "title": "Nur das Rezept behalten",
+      "body": "Zieh den Rahmen, um die gegenüberliegende Seite, deine Hand und den Tisch wegzuschneiden. Rührst du nichts an, geht das ganze Bild weg.",
+      "frame": "Zuschnittrahmen",
+      "done": "Übernehmen",
+      "reset": "Neu anfangen",
+      "close": "Schliessen",
+      "cropped": "zugeschnitten",
+      "open": "Foto {number} zuschneiden"
     }
   },
   "manifest": {
