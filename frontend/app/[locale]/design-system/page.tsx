@@ -73,12 +73,12 @@ const RAMPS = [
   {
     name: "Neutral",
     token: "--gray",
-    note: "500 is secondary text, field borders and inactive states. Steps 700–1000 are dark-mode surfaces, 100–200 light-mode ones.",
+    note: "--gray takes 400 in dark and 500 in light: at 500 it is 3.3:1 on --bg-raised-2, below the 4.5:1 WCAG asks of the labels it carries. Steps 700–1000 are dark-mode surfaces, 100–200 light-mode ones.",
     steps: [
       "#F3F4F6", "#E5E7EB", "#D1D5DB", "#9CA3AF", "#6B7280",
       "#4B5563", "#374151", "#1F2937", "#111827", "#030712",
     ],
-    baseIdx: 4,
+    baseIdx: 3,
     inkIdx: -1,
     flipIdx: 4,
   },
@@ -90,7 +90,7 @@ const TOKENS: Array<[string, string, string, string]> = [
   ["--bg-raised-2", "#212121", "#ECE9DF", "Fields, inactive chips, tracks"],
   ["--text", "#F5F5F0", "#15150F", "Primary text"],
   ["--text-dim", "#B9B9B4", "#5B5A50", "Descriptions, metadata"],
-  ["--gray", "#6B7280", "#64635A", "Labels, inactive icons, borders"],
+  ["--gray", "#9CA3AF", "#64635A", "Labels, inactive icons, borders"],
   ["--line", "rgba(…,.08)", "rgba(…,.12)", "Separators and card outlines"],
   ["--lime", "#C4F135", "#C4F135", "Primary action (flat)"],
   ["--lime-ink", "#C4F135", "#4B5E12", "Lime as text or border"],
