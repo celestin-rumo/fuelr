@@ -193,8 +193,12 @@ add it to the library.
 ## Internationalization
 
 `next-intl`, locales `fr` (default), `en`, `de`. Messages live in
-`frontend/app/messages/<locale>/common.json` — one flat namespace for now;
-split it once the app grows.
+`frontend/app/messages/<locale>/`: `common.json` for the application and
+`site.json` for the public pages. Both are filled in for all three locales —
+`site.json` was French in every one of them for a while, so an English visitor
+read French on the front page, and `e2e/site.spec.ts` now asserts the rendered
+copy rather than only the localised slug. A translated URL over French words
+is exactly the failure that hid it.
 
 Every new route needs an entry in `frontend/i18n/routing.ts` under `pathnames`
 with a translated slug per locale. Always import `Link`, `redirect`,
@@ -203,6 +207,12 @@ or `next/navigation`, or locale prefixes get lost.
 
 The `/design-system` page is an internal reference and is deliberately not
 translated — its copy is English like the rest of the codebase.
+
+**The German is Swiss German.** No eszett — `gross`, `Schliessen` — and the
+guillemets Switzerland uses (`« … »`) rather than the German low-9 pair. The
+catalogue held both spellings for a while, which is how a product billed in
+francs ends up reading as though it were written elsewhere. `e2e/site.spec.ts`
+asserts the rendered page, because this drifts back one string at a time.
 
 **Translation is an acceptance criterion.** Whenever a story displays text —
 labels, headings, buttons, hints, errors, empty states, emails, page titles and

@@ -1,303 +1,302 @@
 {
-  "_todo": "TODO_TRANSLATE — this file still holds the French copy; translate before launch.",
   "nav": {
-    "home": "Accueil",
-    "features": "Fonctionnalités",
-    "pricing": "Tarifs",
-    "about": "À propos",
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
     "contact": "Contact",
-    "cta": "Essayer gratuitement"
+    "cta": "Try it free"
   },
   "hero": {
-    "badge": "Nouveau · Analyse photo d'un plat",
-    "title": "Planifie tes repas, atteins tes objectifs.",
-    "text": "Fuelr transforme tes recettes en plan de la semaine, en liste de courses et en journal nutritionnel. Une seule boucle : planifier, acheter, cuisiner, mesurer.",
-    "ctaPrimary": "Commencer — c'est gratuit",
-    "ctaSecondary": "Voir les fonctionnalités",
+    "badge": "New · Estimate a plate from a photo",
+    "title": "Plan your meals, reach your targets.",
+    "text": "Fuelr turns your recipes into a week's plan, a shopping list and a food diary. One loop: plan, buy, cook, measure.",
+    "ctaPrimary": "Get started — it's free",
+    "ctaSecondary": "See the features",
     "proofs": [
-      "Sans carte bancaire",
-      "Hors ligne en cuisine",
+      "No card needed",
+      "Works offline in the kitchen",
       "iOS · Android · Web"
     ]
   },
   "stats": [
     {
       "value": "12 min",
-      "label": "pour planifier une semaine complète, courses incluses"
+      "label": "to plan a whole week, shopping included"
     },
     {
-      "value": "4 500",
-      "label": "aliments de référence pour le calcul nutritionnel"
+      "value": "4,500",
+      "label": "reference foods behind the nutrition figures"
     },
     {
-      "value": "0 €",
-      "label": "pour les recettes, le planning et la liste de courses"
+      "value": "0 CHF",
+      "label": "for recipes, the weekly plan and the shopping list"
     },
     {
       "value": "100 %",
-      "label": "des fonctions de cuisine utilisables hors ligne"
+      "label": "of the kitchen features usable with no network"
     }
   ],
   "loop": {
-    "label": "La boucle Fuelr",
-    "title": "Cinq étapes qui se referment sur elles-mêmes",
-    "text": "Chaque étape alimente la suivante : ce que tu planifies devient ta liste de courses, ce que tu cuisines devient ton journal, ce que tu mesures corrige le plan.",
+    "label": "The Fuelr loop",
+    "title": "Five steps that close on themselves",
+    "text": "Each step feeds the next: what you plan becomes your shopping list, what you cook becomes your diary, what you measure corrects the plan.",
     "steps": [
       {
         "num": "01",
-        "title": "Planifier",
-        "text": "Glisse tes recettes sur les jours de la semaine. Les portions suivent le foyer."
+        "title": "Plan",
+        "text": "Drag your recipes onto the days of the week. Servings follow the household."
       },
       {
         "num": "02",
-        "title": "Acheter",
-        "text": "La liste de courses se génère et se regroupe par rayon, hors ligne en magasin."
+        "title": "Buy",
+        "text": "The shopping list writes itself and groups by aisle, offline in the shop."
       },
       {
         "num": "03",
-        "title": "Cuisiner",
-        "text": "Une étape par écran, minuteurs détectés, veille désactivée."
+        "title": "Cook",
+        "text": "One step per screen, timers picked up from the text, the screen stays awake."
       },
       {
         "num": "04",
-        "title": "Mesurer",
-        "text": "Le repas cuisiné est journalisé automatiquement, sans double saisie."
+        "title": "Measure",
+        "text": "A meal you cooked is logged for you, with nothing typed twice."
       },
       {
         "num": "05",
-        "title": "Corriger",
-        "text": "Les graphiques de la semaine ajustent le plan suivant."
+        "title": "Correct",
+        "text": "The week's charts adjust the plan that follows."
       }
     ]
   },
   "testimonial": {
-    "label": "Ce qu'en disent les cuisiniers",
-    "quote": "Je passais mes dimanches à recopier des recettes dans un tableur. Fuelr fait la liste de courses toute seule, et je sais enfin ce que je mange.",
-    "author": "Salomé T. · 4 personnes, 2 batchs par semaine"
+    "label": "What cooks say about it",
+    "quote": "I used to spend Sundays copying recipes into a spreadsheet. Fuelr writes the shopping list on its own, and I finally know what I am eating.",
+    "author": "Salomé T. · 4 people, 2 batch cooks a week"
   },
   "features": {
-    "label": "Fonctionnalités",
-    "title": "Tout ce qu'il faut, rien de décoratif",
-    "text": "Neuf parcours produits, une seule règle : chaque écran a une action évidente. Voici ce que tu utiliseras vraiment chaque semaine.",
+    "label": "Features",
+    "title": "Everything you need, nothing decorative",
+    "text": "Nine product journeys, one rule: every screen has an obvious action. Here is what you will actually use each week.",
     "items": [
       {
         "icon": "◷",
         "tone": "accent",
-        "title": "Éditeur de recette",
-        "text": "Titre, photo, portions, ingrédients, étapes réordonnables. Le brouillon existe dès le premier clic — aucune modale « voulez-vous enregistrer ».",
-        "meta": "création · 3 min"
+        "title": "Recipe editor",
+        "text": "Title, photo, servings, ingredients, steps you can reorder. The draft exists from the first click — no “do you want to save?” dialog.",
+        "meta": "writing · 3 min"
       },
       {
         "icon": "↧",
         "tone": "mint",
-        "title": "Import depuis un lien",
-        "text": "Colle l'URL d'une recette : ingrédients et étapes sont extraits, les champs devinés sont marqués « à vérifier ».",
-        "meta": "gain moyen · 4 min"
+        "title": "Import from a link",
+        "text": "Paste a recipe's URL: ingredients and steps are pulled out, and anything guessed is marked “needs a look”.",
+        "meta": "saves on average · 4 min"
       },
       {
         "icon": "▦",
         "tone": "accent",
-        "title": "Planning de la semaine",
-        "text": "Sept jours, quatre repas, glisser-déposer. Les portions s'adaptent au nombre de convives.",
-        "meta": "planning · hebdomadaire"
+        "title": "The week's plan",
+        "text": "Seven days, four meals, drag and drop. Servings follow how many people are eating.",
+        "meta": "planning · weekly"
       },
       {
         "icon": "◔",
         "tone": "mint",
-        "title": "Nutrition en continu",
-        "text": "Kcal et macros par portion recalculés à chaque ajout. Jamais sur demande, jamais approximatif sans le dire.",
-        "meta": "nutrition · temps réel"
+        "title": "Nutrition as you go",
+        "text": "Kcal and macros per serving recomputed on every change. Never on request, never approximate without saying so.",
+        "meta": "nutrition · live"
       },
       {
         "icon": "☰",
         "tone": "accent",
-        "title": "Liste de courses",
-        "text": "Générée depuis le planning, regroupée par rayon, cochable d'une main, fonctionnelle sans réseau.",
-        "meta": "courses · hors ligne"
+        "title": "Shopping list",
+        "text": "Written from the plan, grouped by aisle, ticked one-handed, working with no network.",
+        "meta": "shopping · offline"
       },
       {
         "icon": "◉",
         "tone": "coral",
-        "title": "Analyse photo d'un plat",
-        "text": "Une photo, une estimation éditable en moins de 20 secondes. Estimé et mesuré restent visuellement distincts.",
-        "meta": "journal · 20 s"
+        "title": "Estimate a plate from a photo",
+        "text": "One photo, one editable estimate in under 20 seconds. Estimated and measured stay visibly apart.",
+        "meta": "diary · 20 s"
       }
     ],
     "cooking": {
-      "title": "Le mode cuisine",
-      "text": "Une étape par écran, texte agrandi, veille désactivée, minuteurs détectés depuis le texte. Les mains sales n'ont jamais besoin d'un geste précis.",
+      "title": "Cooking mode",
+      "text": "One step per screen, larger text, the screen kept awake, timers read from the text. Dirty hands never need a precise gesture.",
       "points": [
-        "Zones tactiles de 56 px, contraste maximal, aucun geste précis.",
-        "Minuteurs lus dans le texte de l'étape (« 15 min ») et notifiés en arrière-plan.",
-        "Interruption sans perte : bandeau « Curry — étape 3 sur 5 » au retour."
+        "56px targets, maximum contrast, no precise gesture anywhere.",
+        "Timers read from the step's own words (“15 min”) and rung in the background.",
+        "Interrupted without loss: “Curry — step 3 of 5” waiting when you come back."
       ]
     }
   },
   "pricing": {
-    "label": "Tarifs",
-    "title": "Un prix, pas un labyrinthe",
-    "text": "Le gratuit est utilisable pour de vrai : recettes illimitées et planning complet. On paie pour la nutrition avancée et le partage familial.",
+    "label": "Pricing",
+    "title": "One price, not a maze",
+    "text": "The free plan is genuinely usable: unlimited recipes and the full weekly plan. You pay for the deeper nutrition and for sharing with a household.",
     "cycles": {
-      "monthly": "Mensuel",
-      "yearly": "Annuel · 2 mois offerts"
+      "monthly": "Monthly",
+      "yearly": "Yearly · 2 months free"
     },
     "plans": [
       {
         "tier": "FREE",
-        "name": "Cuisine",
-        "badge": "Gratuit",
-        "perMonthly": "pour toujours",
-        "perYearly": "pour toujours",
-        "pitch": "Recettes illimitées, planning de la semaine, liste de courses.",
-        "cta": "Commencer",
+        "name": "Kitchen",
+        "badge": "Free",
+        "perMonthly": "forever",
+        "perYearly": "forever",
+        "pitch": "Unlimited recipes, the week's plan, the shopping list.",
+        "cta": "Get started",
         "lines": [
           {
             "ok": true,
-            "text": "Recettes et import de liens illimités"
+            "text": "Unlimited recipes and link imports"
           },
           {
             "ok": true,
-            "text": "Planning 7 jours + liste de courses"
+            "text": "7-day plan + shopping list"
           },
           {
             "ok": true,
-            "text": "Mode cuisine hors ligne"
+            "text": "Cooking mode, offline"
           },
           {
             "ok": false,
-            "text": "Macros détaillées par repas"
+            "text": "Detailed macros per meal"
           },
           {
             "ok": false,
-            "text": "Partage familial"
+            "text": "Household sharing"
           }
         ]
       },
       {
         "tier": "PLUS",
         "name": "Fuelr Plus",
-        "badge": "Populaire",
-        "perMonthly": "CHF / mois",
-        "perYearly": "CHF / an",
-        "pitch": "La nutrition complète : macros, objectifs, historique et graphiques.",
-        "cta": "Essayer 14 jours",
+        "badge": "Popular",
+        "perMonthly": "CHF / month",
+        "perYearly": "CHF / year",
+        "pitch": "Nutrition in full: macros, targets, history and charts.",
+        "cta": "Try it 14 days",
         "featured": true,
         "lines": [
           {
             "ok": true,
-            "text": "Tout le plan Cuisine"
+            "text": "Everything in Kitchen"
           },
           {
             "ok": true,
-            "text": "Macros et micronutriments par portion"
+            "text": "Macros and micronutrients per serving"
           },
           {
             "ok": true,
-            "text": "Objectifs et suivi de la semaine"
+            "text": "Targets and the week's tracking"
           },
           {
             "ok": true,
-            "text": "Analyse photo d'un plat"
+            "text": "Estimate a plate from a photo"
           },
           {
             "ok": false,
-            "text": "Comptes partagés"
+            "text": "Shared accounts"
           }
         ]
       },
       {
         "tier": "FAMILY",
-        "name": "Famille",
-        "badge": "Jusqu'à 6",
-        "perMonthly": "CHF / mois",
-        "perYearly": "CHF / an",
-        "pitch": "Un foyer, un planning, six profils nutritionnels distincts.",
-        "cta": "Choisir Famille",
+        "name": "Family",
+        "badge": "Up to 6",
+        "perMonthly": "CHF / month",
+        "perYearly": "CHF / year",
+        "pitch": "One household, one plan, six separate nutrition profiles.",
+        "cta": "Choose Family",
         "lines": [
           {
             "ok": true,
-            "text": "Tout le plan Plus, pour 6 personnes"
+            "text": "Everything in Plus, for 6 people"
           },
           {
             "ok": true,
-            "text": "Planning et courses partagés en direct"
+            "text": "Plan and shopping shared live"
           },
           {
             "ok": true,
-            "text": "Portions par personne"
+            "text": "Servings per person"
           },
           {
             "ok": true,
-            "text": "Préférences et allergies par profil"
+            "text": "Preferences and allergies per profile"
           },
           {
             "ok": true,
-            "text": "Support prioritaire"
+            "text": "Priority support"
           }
         ]
       }
     ],
     "faq": {
-      "title": "Questions fréquentes",
+      "title": "Common questions",
       "items": [
         {
-          "question": "Le plan gratuit est-il limité dans le temps ?",
-          "answer": "Non. Recettes, planning et liste de courses restent gratuits sans limite de durée ni de nombre. On ne coupe rien après 14 jours."
+          "question": "Is the free plan limited in time?",
+          "answer": "No. Recipes, the plan and the shopping list stay free with no time limit and no cap. Nothing is cut off after 14 days."
         },
         {
-          "question": "Mes recettes m'appartiennent-elles ?",
-          "answer": "Oui, et tu peux tout exporter en un fichier lisible à tout moment, y compris après avoir résilié."
+          "question": "Do my recipes belong to me?",
+          "answer": "Yes, and you can export all of them as a readable file at any moment — including after cancelling."
         },
         {
-          "question": "Est-ce que ça marche sans réseau ?",
-          "answer": "Le mode cuisine, la liste de courses et les photos fonctionnent hors ligne. La synchronisation se fait au retour du réseau."
+          "question": "Does it work without a network?",
+          "answer": "Cooking mode, the shopping list and photos work offline. Everything syncs when the network comes back."
         },
         {
-          "question": "Comment sont calculées les valeurs nutritionnelles ?",
-          "answer": "Depuis une base d'aliments de référence. Un ingrédient non reconnu est marqué « estimé » — une valeur devinée n'est jamais présentée comme mesurée."
+          "question": "How are the nutrition figures worked out?",
+          "answer": "From a reference food table. An ingredient it could not recognise is marked “estimated” — a guessed value is never presented as a measured one."
         }
       ]
     },
     "launch": {
       "title": "Everything is open during the launch",
-      "body": "The plans below describe what will become paid. Today, Fuelr Plus and Famille are open to everybody, with no card. We will say so before that changes, and nothing already written will be deleted."
+      "body": "The plans below describe what will become paid. Today, Fuelr Plus and Family are open to everybody, with no card. We will say so before that changes, and nothing already written will be deleted."
     }
   },
   "about": {
-    "label": "À propos",
-    "title": "On voulait juste savoir quoi manger mardi soir",
-    "text": "Fuelr est né d'un tableur partagé entre quatre colocataires qui cuisinaient beaucoup et mesuraient mal. On a gardé la rigueur du tableur et jeté sa laideur : des chiffres honnêtes, des recettes qui se planifient, et zéro culpabilisation.",
+    "label": "About",
+    "title": "We just wanted to know what to eat on Tuesday",
+    "text": "Fuelr came out of a spreadsheet shared between four flatmates who cooked a lot and measured badly. We kept the spreadsheet's rigour and threw away its ugliness: honest figures, recipes that can be planned, and nothing that makes you feel bad.",
     "principles": [
       {
-        "tag": "honnêteté",
+        "tag": "honesty",
         "tone": "mint",
-        "title": "Estimé n'est pas mesuré",
-        "text": "Une valeur devinée est signalée partout où elle apparaît. On préfère « je ne sais pas » à un chiffre faux."
+        "title": "Estimated is not measured",
+        "text": "A guessed value is flagged everywhere it appears. We would rather say “we don't know” than give you a wrong number."
       },
       {
-        "tag": "sobriété",
+        "tag": "restraint",
         "tone": "accent",
-        "title": "Un écran, une action",
-        "text": "Un seul bouton primaire par vue. Les alternatives sont secondaires ou textuelles, jamais criardes."
+        "title": "One screen, one action",
+        "text": "A single primary button per view. The alternatives are secondary or written in text, never shouting."
       },
       {
         "tag": "respect",
         "tone": "coral",
-        "title": "Aucune culpabilisation",
-        "text": "Pas de série à ne pas briser, pas de notification honteuse. Les données servent à décider, pas à punir."
+        "title": "Nothing that shames you",
+        "text": "No streak to keep, no guilt-trip notification. The data is there to help you decide, not to punish you."
       }
     ],
     "team": {
-      "title": "L'équipe",
-      "text": "Quatre personnes, un bureau, beaucoup de vaisselle.",
+      "title": "The team",
+      "text": "Four people, one office, a great deal of washing up.",
       "members": [
         {
           "name": "Salomé",
-          "role": "Produit & design"
+          "role": "Product & design"
         },
         {
           "name": "Noé",
-          "role": "Ingénierie"
+          "role": "Engineering"
         },
         {
           "name": "Yara",
@@ -305,88 +304,88 @@
         },
         {
           "name": "Ilan",
-          "role": "Contenu & recettes"
+          "role": "Content & recipes"
         }
       ]
     }
   },
   "contact": {
     "label": "Contact",
-    "title": "Écris-nous, on répond vraiment",
-    "text": "Un bug, une recette qui s'importe mal, une idée de fonctionnalité : tout arrive dans la même boîte, lue chaque matin.",
+    "title": "Write to us, we do reply",
+    "text": "A bug, a recipe that imports badly, an idea for a feature: it all lands in the same inbox, read every morning.",
     "links": [
       {
-        "label": "Écrire",
+        "label": "Write",
         "value": "bonjour@fuelr.app"
       },
       {
         "label": "Support",
-        "value": "support@fuelr.app · 24 h ouvrées"
+        "value": "support@fuelr.app · within 24 working hours"
       },
       {
-        "label": "Adresse",
+        "label": "Address",
         "value": "Rue du Petit-Chêne 12, 1003 Lausanne"
       }
     ],
     "form": {
-      "name": "Nom",
+      "name": "Name",
       "email": "Email",
-      "subject": "Sujet",
+      "subject": "Subject",
       "message": "Message",
       "subjects": [
-        "Un bug",
-        "Une idée",
-        "Facturation"
+        "A bug",
+        "An idea",
+        "Billing"
       ],
-      "emailHint": "Utilisé uniquement pour te répondre.",
-      "submit": "Envoyer le message",
-      "sending": "Envoi…",
-      "sent": "Envoyé ✓",
-      "success": "Message envoyé — réponse sous 24 h ouvrées.",
+      "emailHint": "Used only to reply to you.",
+      "submit": "Send the message",
+      "sending": "Sending…",
+      "sent": "Sent ✓",
+      "success": "Message sent — a reply within 24 working hours.",
       "errors": {
-        "name": "Indique ton nom.",
-        "email": "Cet email ne ressemble pas à un email.",
-        "emailHint": "Vérifie l'adresse — on ne pourra pas répondre.",
-        "message": "Ton message est un peu court — dis-nous ce qui se passe."
+        "name": "Tell us your name.",
+        "email": "That email does not look like an email.",
+        "emailHint": "Check the address — we would not be able to reply.",
+        "message": "Your message is a little short — tell us what is going on."
       }
     }
   },
   "cta": {
-    "title": "Ta première semaine planifiée en 10 minutes",
-    "text": "Importe trois recettes, choisis tes jours, Fuelr écrit la liste de courses.",
-    "button": "Créer mon compte"
+    "title": "Your first week planned in 10 minutes",
+    "text": "Import three recipes, choose your days, Fuelr writes the shopping list.",
+    "button": "Create my account"
   },
   "footer": {
-    "tagline": "Planifier, acheter, cuisiner, mesurer. Une boucle, pas dix applis.",
+    "tagline": "Plan, buy, cook, measure. One loop, not ten apps.",
     "copyright": "© 2026 Fuelr — Lausanne",
     "legal": "Privacy",
     "columns": [
       {
-        "title": "Produit",
+        "title": "Product",
         "links": [
           {
-            "label": "Fonctionnalités",
+            "label": "Features",
             "href": "/features"
           },
           {
-            "label": "Tarifs",
+            "label": "Pricing",
             "href": "/pricing"
           },
           {
-            "label": "Mode cuisine",
+            "label": "Cooking mode",
             "href": "/features"
           },
           {
-            "label": "Analyse photo",
+            "label": "Photo estimate",
             "href": "/features"
           }
         ]
       },
       {
-        "title": "Entreprise",
+        "title": "Company",
         "links": [
           {
-            "label": "À propos",
+            "label": "About",
             "href": "/about"
           },
           {
@@ -394,32 +393,32 @@
             "href": "/contact"
           },
           {
-            "label": "Presse",
+            "label": "Press",
             "href": "/about"
           },
           {
-            "label": "Nous rejoindre",
+            "label": "Join us",
             "href": "/about"
           }
         ]
       },
       {
-        "title": "Ressources",
+        "title": "Resources",
         "links": [
           {
             "label": "Design system",
             "href": "/design-system"
           },
           {
-            "label": "Journal des versions",
+            "label": "Release notes",
             "href": "/about"
           },
           {
-            "label": "Statut",
+            "label": "Status",
             "href": "/contact"
           },
           {
-            "label": "Aide",
+            "label": "Help",
             "href": "/contact"
           }
         ]
@@ -429,32 +428,32 @@
   "privacy": {
     "label": "Data",
     "title": "Where your data goes",
-    "text": "Fuelr is a cooking app, not an advertising business. This page says what is kept, what leaves the app, and where it goes.",
+    "text": "Fuelr is a cooking app, not an advertising business. This page says what is kept, what leaves the application, and where it goes.",
     "updated": "Updated 3 September 2026",
     "sections": [
       {
         "title": "What Fuelr keeps",
-        "text": "Your account — email address, first name, a one-way encrypted password — and what you write in the app: recipes and photos, the week's plan, the shopping list, the meal diary, the household and its invitations. Nothing else is collected: no advertising tracker, no audience measurement, no profile sold on."
+        "text": "Your account — email address, first name, a one-way encrypted password — and what you write in the application: recipes and photos, the week's plan, the shopping list, the meal diary, your household and its invitations. Nothing else is collected: no advertising trackers, no analytics, no profile sold on."
       },
       {
         "tone": "mint",
-        "title": "Artificial intelligence is processed abroad",
-        "text": "The AI features — reading a badly marked-up recipe page, estimating a photographed plate, transcribing a page of a book — rely on Anthropic, in the United States. What you submit to those features, the photo or the page's content, therefore leaves Switzerland for the length of the analysis. They are optional and part of a paid plan: until you use them, nothing is sent to Anthropic."
+        "title": "The AI features are processed abroad",
+        "text": "The AI features — reading a badly marked-up recipe page, estimating a photographed plate, transcribing a page from a book — rely on Anthropic, in the United States. What you hand to those features, the photo or the page's content, therefore leaves Switzerland for the length of the analysis. They are optional and part of a paid plan: as long as you do not use them, nothing is sent to Anthropic."
       },
       {
         "title": "The two other ways out",
         "items": [
-          "Emails — address confirmation, password reset — are sent through a delivery service based outside Switzerland, which sees your address and the content of the message.",
-          "When you import a recipe from a link, it is Fuelr that fetches the page and its photo. The site visited sees a request from our servers, never from your browser."
+          "Emails — address confirmation, password reset — go through a sending service based outside Switzerland, which sees your address and the message.",
+          "When you import a recipe from a link, it is Fuelr that fetches the page and its photo. The site you are importing from sees a request from our servers, never from your browser."
         ]
       },
       {
         "title": "What stays on your device",
-        "text": "Cooking mode and the offline shopping list keep a copy on the machine you are using, so that a kitchen with no signal is not a dead end; that copy is cleared when you sign out. One cookie is set, the one that keeps you signed in, and there is none for measurement or advertising."
+        "text": "Cooking mode and the offline shopping list keep a copy on the machine you are using, so that a kitchen with no network is not a dead end; that copy is wiped when you sign out. One cookie is set, the one that keeps you signed in, and there is none for analytics or advertising."
       },
       {
         "title": "Your recipes stay yours",
-        "text": "Exporting all of your recipes is available from the library, at any time and with no conditions — including after a cancellation, which deletes nothing. To have your account and its contents erased, write to us: it is done by hand today, and it is done.",
+        "text": "Exporting all of your recipes is available from the library, at any time and with no conditions — including after cancelling, which deletes nothing. To have your account and its contents erased, write to us: it is handled by hand today, and it is handled.",
         "link": "/contact",
         "linkLabel": "Write to us"
       }

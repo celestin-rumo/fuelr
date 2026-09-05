@@ -70,7 +70,7 @@
     },
     "plan": {
       "action": "{title} einplanen",
-      "title": "„{title}“ einplanen",
+      "title": "« {title} » einplanen",
       "close": "Schliessen",
       "day": "Welcher Tag",
       "slot": "Welche Mahlzeit",
@@ -78,7 +78,7 @@
       "confirm": "Zum Wochenplan hinzufügen",
       "cancel": "Abbrechen",
       "failed": "Diese Mahlzeit konnte nicht hinzugefügt werden. Versuch es nochmals.",
-      "done": "„{title}“ steht im Plan: {day}, {slot}.",
+      "done": "« {title} » steht im Plan: {day}, {slot}.",
       "open": "Wochenplan öffnen",
       "dismiss": "Schliessen",
       "untitled": "Ohne Titel",
@@ -97,7 +97,7 @@
       "noResults": "Kein Rezept passt."
     },
     "deleteConfirm": {
-      "title": "„{title}“ löschen?",
+      "title": "« {title} » löschen?",
       "confirm": "Löschen",
       "cancel": "Abbrechen",
       "body": "Das Rezept verschwindet aus deiner Sammlung. Bereits gekochte und protokollierte Mahlzeiten bleiben unberührt.",
@@ -290,7 +290,7 @@
       "title": "Die Liste ist nicht erreichbar",
       "body": "Die Liste konnte nicht geladen werden. Lade die Seite neu — nichts geht verloren."
     },
-    "removed": "„{name}“ von der Liste entfernt.",
+    "removed": "« {name} » von der Liste entfernt.",
     "undo": "Rückgängig",
     "undoDismiss": "Schliessen",
     "print": {
@@ -371,7 +371,7 @@
       "empty": "Diese Woche ist nichts notiert.",
       "figures": "{kcal} kcal · {protein} g Protein",
       "remove": "{title} aus dem Tagebuch entfernen",
-      "removed": "„{title}“ aus dem Tagebuch entfernt.",
+      "removed": "« {title} » aus dem Tagebuch entfernt.",
       "undo": "Rückgängig",
       "undoDismiss": "Schliessen"
     },
@@ -497,7 +497,7 @@
         "setAside": "Beiseitestellen.",
         "bake": "25 Min. bei 180 °C backen."
       },
-      "suggestionsHint": "Tippe „/“, um einen fertigen Schritt einzufügen."
+      "suggestionsHint": "Tippe « / », um einen fertigen Schritt einzufügen."
     },
     "errors": {
       "missing_title": "Gib dem Rezept einen Titel.",
@@ -537,7 +537,7 @@
       "constraints": "JPEG, PNG oder WebP · maximal {megabytes} MB. Das Bild wird vor dem Hochladen auf deinem Gerät verkleinert.",
       "errors": {
         "unsupported_format": "Format nicht akzeptiert. Wähle JPEG, PNG oder WebP.",
-        "file_too_large": "Datei zu groß. Wähle ein leichteres Bild.",
+        "file_too_large": "Datei zu gross. Wähle ein leichteres Bild.",
         "unreadable": "Bild nicht lesbar. Versuche eine andere Datei.",
         "upload_failed": "Hochladen fehlgeschlagen. Bitte erneut versuchen."
       }
@@ -546,7 +546,7 @@
     "nav": {
       "previous": "Zurück",
       "next": "Weiter",
-      "finish": "Schließen"
+      "finish": "Schliessen"
     },
     "review": {
       "title": "Vor dem Veröffentlichen prüfen",
@@ -635,7 +635,7 @@
     "ingredients": {
       "title": "Zutaten",
       "open": "Zutaten",
-      "close": "Zutaten schließen",
+      "close": "Zutaten schliessen",
       "empty": "Dieses Rezept hat keine Zutaten.",
       "unverified": "Prüfen",
       "unverifiedHint": "Ungeprüfte Menge: der Import konnte sie nicht lesen.",
@@ -917,7 +917,7 @@
   "print": {
     "action": "Drucken",
     "back": "Zurück",
-    "hint": "Der Druckdialog bietet auch „Als PDF speichern“."
+    "hint": "Der Druckdialog bietet auch « Als PDF speichern »."
   },
   "menu": {
     "label": "Ideen",
