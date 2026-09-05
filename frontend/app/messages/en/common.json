@@ -888,6 +888,8 @@
       "photoHint": "A page of a book, a recipe card, something written by hand. Two photos if the recipe runs over two pages.",
       "screenshotHint": "A capture from another app, a story or a message. Frame the whole recipe, not only the ingredients.",
       "files": "Photos of the recipe",
+      "takePhoto": "Take a photo",
+      "chooseFiles": "Choose a file",
       "filesHint": "JPEG, PNG or WebP, 2 MB per image at most.",
       "submit": "Read the recipe"
     },
@@ -902,6 +904,17 @@
         "body": "Your plan is fine, we are the ones who are not ready: no reader is configured yet. Nothing is lost — a link or typing it in both work today.",
         "link": "See the plans"
       }
+    },
+    "removeShot": "Remove photo {number}",
+    "crop": {
+      "title": "Keep only the recipe",
+      "body": "Drag the frame to cut away the facing page, your hand, the table. Touch nothing and the whole image is sent.",
+      "frame": "Crop frame",
+      "done": "Done",
+      "reset": "Start again",
+      "close": "Close",
+      "cropped": "cropped",
+      "open": "Crop photo {number}"
     }
   },
   "manifest": {
