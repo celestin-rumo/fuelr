@@ -1,0 +1,18 @@
+[Unit]
+Description=Take a Fuelr backup every night
+Documentation=https://github.com/celestin-rumo/fuelr/blob/main/BACKUPS.md
+
+[Timer]
+# 03:20 UTC. Not on the hour, and not at 03:00: every cron job on every server
+# in the world runs then, and this one shares a disk with the application.
+OnCalendar=*-*-* 03:20:00 UTC
+# Spread over ten minutes, so a fleet does not start together.
+RandomizedDelaySec=10m
+
+# The one line that makes this survive a reboot at the wrong moment: a machine
+# that was off at 03:20 takes its backup when it comes back, instead of
+# skipping a day and nobody noticing until the day it matters.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

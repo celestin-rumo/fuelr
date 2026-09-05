@@ -584,6 +584,18 @@ recipe was picked. `/app/idees` uses the same rows, which settles the
 illustration question honestly: no row anywhere in this app carries a
 photograph, so an idea is not made to look like it is missing one.
 
+**A backup that has not been restored is a hypothesis.** `scripts/backup.sh`
+dumps Postgres, archives the `recipe_media` volume, and then restores the dump
+into a throwaway Postgres and counts what came back before keeping it — an
+empty database restores perfectly, so "it restored" is not the claim worth
+making. The database is dumped *first* and the photos second: a photo uploaded
+between the two is an orphan file in the archive, where the other order gives a
+row pointing at a file that is not in the backup. `pg_dump` runs inside the
+database container so its version can never trail the server's. The whole
+procedure — the timer, the off-host copy, the drill, the destructive restore —
+is `BACKUPS.md`, and `scripts/restore.sh` defaults to a drill because a restore
+nobody has run is a document rather than a procedure.
+
 **`ADMIN_EMAIL` names the operator, at every boot.** `AdminAccountInitializer`
 used to create an account and then never look again, so pointing the variable
 at the address somebody actually uses did nothing and the only answer to "make

@@ -107,6 +107,27 @@ Copy `.env.staging.example` → `.env` (or `.env.prod.example` → `.env`) and f
 docker compose -f docker-compose.staging.yml --env-file .env up -d
 ```
 
+## Backups
+
+Two volumes hold everything that cannot be rebuilt: Postgres, and the recipe
+photos the database only stores paths into. `scripts/backup.sh` takes both —
+and restores the dump into a throwaway Postgres before keeping it, because an
+untested backup is a hypothesis.
+
+```bash
+./scripts/backup.sh                                   # nightly, via the systemd timer
+./scripts/restore.sh /var/backups/fuelr/<stamp>       # a drill: restores into a throwaway
+./scripts/restore.sh /var/backups/fuelr/<stamp> --into live   # the real thing, destructive
+```
+
+**[BACKUPS.md](BACKUPS.md) is the procedure** — installing the timer, sending a
+copy off the host, practising the restore, and putting one back for real. Read
+it before you need it.
+
+One thing it says loudly and is worth repeating here: until
+`FUELR_BACKUP_POST_HOOK` is configured, the backups sit on the same disk as the
+data. That covers a mistake and nothing that happens to the machine.
+
 ## CI/CD
 
 Pushes to `main`, `dev` and tags build and publish the images to `ghcr.io`, then trigger an automatic deployment through a self-hosted runner (prod from `main`/tags, staging from `dev`). The image build is gated on the tests passing first (lint + typecheck + coverage on the frontend, `mvn test` on the backend).

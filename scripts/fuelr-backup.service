@@ -1,0 +1,30 @@
+[Unit]
+Description=Fuelr backup — database, photos, and a restore that is checked
+Documentation=https://github.com/celestin-rumo/fuelr/blob/main/BACKUPS.md
+# Nothing to back up before Docker is up.
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+
+# Where the backups land, how many are kept, and where a copy goes afterwards.
+# EnvironmentFile is optional so the unit starts on a machine that has not
+# written one yet; the defaults in the script then apply.
+EnvironmentFile=-/etc/fuelr/backup.env
+
+# The repository is checked out here by the deploy runner. Adjust if yours
+# lives elsewhere — it is the one path in this file that is not portable.
+WorkingDirectory=/opt/fuelr
+ExecStart=/opt/fuelr/scripts/backup.sh
+
+# A backup is not urgent, and the machine is also serving the application.
+Nice=10
+IOSchedulingClass=idle
+
+# Long enough for a big database and a slow off-site copy, short enough that a
+# hung run is noticed rather than blocking every later one.
+TimeoutStartSec=2h
+
+[Install]
+WantedBy=multi-user.target
