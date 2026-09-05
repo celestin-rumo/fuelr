@@ -56,11 +56,11 @@ test("an operator sees what the assisted reads cost", async ({
   page,
 }) => {
   await signInAs(request, context, ADMIN_EMAIL, ADMIN_PASSWORD);
+  // The old address, which is a redirect into the panel now — an operator has
+  // it in a bookmark.
   await page.goto("/fr/total-costs");
+  await expect(page).toHaveURL(/\/admin\/ai-costs$/);
 
-  await expect(
-    page.getByRole("heading", { name: "Assisted reads, and what they cost" }),
-  ).toBeVisible();
   // The month and the whole of it answer different questions, so both are on
   // screen rather than behind a parameter.
   await expect(page.getByText("This month", { exact: true })).toBeVisible();
@@ -78,10 +78,11 @@ test("anybody else gets a page that does not exist", async ({
 
   // 404, not 403: a screen that exists only for operators has no reason to
   // confirm to everybody else that it exists.
+  // The redirect itself reveals nothing — the panel it points at is what
+  // answers 404, the same as the endpoints behind it.
   expect(response?.status()).toBe(404);
-  await expect(
-    page.getByRole("heading", { name: "Assisted reads, and what they cost" }),
-  ).toHaveCount(0);
+  await expect(page.getByTestId("admin-nav")).toHaveCount(0);
+  await expect(page.getByText("By account, this month")).toHaveCount(0);
 });
 
 test("and neither does somebody with no session at all", async ({ page }) => {

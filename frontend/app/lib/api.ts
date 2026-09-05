@@ -447,3 +447,105 @@ export type RecipeSummary = {
   estimated: boolean;
   seasons: Season[];
 };
+
+// --- the operator's panel -------------------------------------------------
+//
+// Everything here answers 404 to anybody who is not an operator, endpoint as
+// well as page, so `null` is what a non-operator gets and `notFound()` is what
+// the screen does with it. There is deliberately no shape in which a caller
+// can tell "you may not" from "there is nothing here".
+
+export type AdminAccountRow = {
+  id: number;
+  email: string;
+  name: string | null;
+  role: string;
+  createdAt: string;
+  emailVerified: boolean;
+  tier: string;
+  recipes: number;
+  sharesAHousehold: boolean;
+  ownsTheHousehold: boolean;
+};
+
+export type AdminAccountDetail = {
+  account: AdminAccountRow;
+  subscription: {
+    tier: string;
+    status: string;
+    currentPeriodEnd: string | null;
+    grantedByHand: boolean;
+  } | null;
+  household: { owner: boolean; size: number; members: string[] } | null;
+  aiCostMicrosThisMonth: number;
+  aiBudgetMicros: number;
+  history: { actorEmail: string; action: string; detail: string | null; at: string }[];
+};
+
+export type AdminDeletionPreview = {
+  email: string;
+  recipes: number;
+  photos: number;
+  householdHandedOver: boolean;
+  newOwnerEmail: string | null;
+};
+
+export type AdminSubscriptionReport = {
+  accounts: number;
+  tiers: { tier: string; accounts: number; activeSubscriptions: number }[];
+  active: number;
+  cancelled: number;
+  cancelledStillRunning: number;
+  ordersPending: number;
+  ordersPaid: number;
+  months: { month: string; started: number; cancelled: number }[];
+  /** What the active plans would bill — committed, never collected. */
+  monthlyCommittedCents: number;
+  currency: string;
+  anyPaymentEverCollected: boolean;
+};
+
+export type AdminUsageReport = {
+  accounts: number;
+  counts: { what: string; total: number; thisMonth: number; accountsUsing: number }[];
+};
+
+export async function adminAccounts(query: string): Promise<AdminAccountRow[] | null> {
+  const response = await apiFetch(
+    `/api/admin/accounts${query ? `?q=${encodeURIComponent(query)}` : ""}`,
+  );
+  if (!response.ok) return null;
+  return (await response.json()) as AdminAccountRow[];
+}
+
+export async function adminAccount(id: number): Promise<AdminAccountDetail | null> {
+  const response = await apiFetch(`/api/admin/accounts/${id}`);
+  if (!response.ok) return null;
+  return (await response.json()) as AdminAccountDetail;
+}
+
+export async function adminDeletionPreview(
+  id: number,
+): Promise<AdminDeletionPreview | null> {
+  const response = await apiFetch(`/api/admin/accounts/${id}/deletion-preview`);
+  if (!response.ok) return null;
+  return (await response.json()) as AdminDeletionPreview;
+}
+
+export async function adminSubscriptions(): Promise<AdminSubscriptionReport | null> {
+  const response = await apiFetch("/api/admin/subscriptions");
+  if (!response.ok) return null;
+  return (await response.json()) as AdminSubscriptionReport;
+}
+
+export async function adminUsage(): Promise<AdminUsageReport | null> {
+  const response = await apiFetch("/api/admin/usage");
+  if (!response.ok) return null;
+  return (await response.json()) as AdminUsageReport;
+}
+
+export async function adminEnforcement(): Promise<{ enforced: boolean } | null> {
+  const response = await apiFetch("/api/admin/enforcement");
+  if (!response.ok) return null;
+  return (await response.json()) as { enforced: boolean };
+}
