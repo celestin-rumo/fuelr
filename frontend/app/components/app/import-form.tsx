@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useHydrated } from "@app/lib/use-hydrated";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -11,6 +12,24 @@ import { LaunchNote } from "./launch-note";
 import type { ImportSource, ImportSourceState } from "@app/lib/api";
 import { Segmented } from "@ui/segmented";
 import { SectionHead } from "@ui/section-head";
+import { IconButton } from "@ui/button";
+import { Icon } from "@ui/icons";
+import { PhotoCrop } from "./photo-crop";
+import {
+  ACCEPTED_EXTENSIONS,
+  WHOLE_IMAGE,
+  cropImage,
+  isWholeImage,
+  type Crop,
+} from "@app/lib/resize-image";
+
+/**
+ * One picture on its way in: the file as it was taken, and the frame somebody
+ * dragged over it. The crop is kept beside the file rather than applied to it,
+ * so a photograph stays re-croppable until it is sent — you notice you cut off
+ * an ingredient by looking at the thumbnail.
+ */
+type Shot = { id: string; file: File; crop: Crop; preview: string };
 
 /**
  * Three ways into the same editor.
@@ -36,10 +55,54 @@ export function ImportForm({
 
   const [source, setSource] = useState<ImportSource["source"]>("URL");
   const [url, setUrl] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [shots, setShots] = useState<Shot[]>([]);
+  const [cropping, setCropping] = useState<Shot | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const picker = useRef<HTMLInputElement>(null);
+  const camera = useRef<HTMLInputElement>(null);
+
+  /*
+   * Whether a camera exists at all.
+   *
+   * Read after mount, never during render: the server has no idea, and a
+   * button that renders on the server and vanishes on hydration is a flash.
+   * `mediaDevices` is the test rather than a user-agent string — and the
+   * `capture` attribute below needs no permission, so this only decides
+   * whether the button is worth offering. A control that opens a file picker
+   * while promising a camera is worse than no control.
+   */
+  const hydrated = useHydrated();
+  const hasCamera = hydrated && Boolean(navigator.mediaDevices);
+
+  // Object URLs are a leak with a nice name: released when the shot goes.
+  useEffect(
+    () => () => shots.forEach((shot) => URL.revokeObjectURL(shot.preview)),
+    [shots],
+  );
+
+  /** Pictures accumulate: a recipe spans two pages, and the reader takes several. */
+  function add(picked: FileList | null) {
+    const taken = Array.from(picked ?? []);
+    if (taken.length === 0) return;
+    setError(null);
+    setShots((was) => [
+      ...was,
+      ...taken.map((file) => ({
+        id: `${file.name}-${file.lastModified}-${Math.random()}`,
+        file,
+        crop: WHOLE_IMAGE,
+        preview: URL.createObjectURL(file),
+      })),
+    ]);
+  }
+
+  function remove(id: string) {
+    setShots((was) => {
+      was.filter((shot) => shot.id === id).forEach((shot) => URL.revokeObjectURL(shot.preview));
+      return was.filter((shot) => shot.id !== id);
+    });
+  }
 
   const chosen = sources.find((one) => one.source === source);
   const open = chosen?.state === "OPEN";
@@ -80,14 +143,27 @@ export function ImportForm({
 
   async function submitPhotos(event: React.FormEvent) {
     event.preventDefault();
-    if (files.length === 0) {
+    if (shots.length === 0) {
       setError("no_file");
       return;
     }
     setBusy(true);
     setError(null);
+
+    // The crop is applied here and nowhere else: what leaves the device is an
+    // image, never an original plus coordinates for somebody else to honour.
+    // Once, at the end — not on every pointer move.
     const body = new FormData();
-    files.forEach((file) => body.append("files", file));
+    for (const shot of shots) {
+      const cut = await cropImage(shot.file, shot.crop);
+      if (!cut.ok) {
+        setBusy(false);
+        setError(cut.error);
+        return;
+      }
+      body.append("files", cut.blob, `${shot.id}.jpg`);
+    }
+
     const response = await fetch(`/api/recipes/import/photos?source=${source}`, {
       method: "POST",
       body,
@@ -135,25 +211,75 @@ export function ImportForm({
         </form>
       ) : open ? (
         <form onSubmit={submitPhotos} noValidate className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="import-files"
-              className="text-[13px] font-semibold text-text"
-            >
-              {t("sources.files")}
-            </label>
-            <input
-              id="import-files"
-              ref={picker}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              onChange={(event) => {
-                setFiles(Array.from(event.target.files ?? []));
-                setError(null);
-              }}
-              className="min-h-11 w-full rounded-sm border-[1.5px] border-gray bg-bg px-4 py-2 text-[15px] text-text file:mr-3 file:rounded-full file:border-0 file:bg-bg-raised-2 file:px-4 file:py-2 file:text-[13px] file:font-bold file:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
-            />
+          <div className="flex flex-col gap-3">
+            <SectionHead as="h3">{t("sources.files")}</SectionHead>
+
+            <div className="flex flex-wrap gap-3">
+              {/*
+               * The book is open in front of you, now. Without this, that
+               * gesture goes through four screens, three of which are not
+               * ours.
+               *
+               * `capture` hands off to the system camera rather than opening a
+               * `getUserMedia` stream in the page: the native app brings
+               * autofocus, exposure and the whole sensor, which on small print
+               * is the difference between a reading that works and one that
+               * fails — and a failed reading is billed like a successful one.
+               * It also means no camera permission to ask for and no stream to
+               * release. On a machine with no camera the browser falls back to
+               * the file picker rather than breaking.
+               */}
+              {hasCamera && (
+                <>
+                  <input
+                    ref={camera}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="sr-only"
+                    data-testid="import-camera"
+                    onChange={(event) => {
+                      add(event.target.files);
+                      event.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="gap-2"
+                    data-testid="take-photo"
+                    onClick={() => camera.current?.click()}
+                  >
+                    <Icon name="calendarPlus" size={17} />
+                    {t("sources.takePhoto")}
+                  </Button>
+                </>
+              )}
+
+              <input
+                id="import-files"
+                ref={picker}
+                type="file"
+                accept={ACCEPTED_EXTENSIONS}
+                multiple
+                className="sr-only"
+                onChange={(event) => {
+                  add(event.target.files);
+                  event.target.value = "";
+                }}
+              />
+              <Button
+                type="button"
+                variant={hasCamera ? "tertiary" : "secondary"}
+                className="gap-2"
+                data-testid="choose-files"
+                onClick={() => picker.current?.click()}
+              >
+                <Icon name="book" size={17} />
+                {t("sources.chooseFiles")}
+              </Button>
+            </div>
+
             <span className="text-[12px] font-medium text-gray">
               {source === "PHOTO" ? t("sources.photoHint") : t("sources.screenshotHint")}
             </span>
@@ -166,11 +292,72 @@ export function ImportForm({
             {openPeriod && <LaunchNote className="mt-1" />}
           </div>
 
+          {/* Nothing leaves until somebody presses "read": taking a photograph
+              is not submitting it. A blurred page shows in the thumbnail and
+              not in the result, and a wasted reading costs the same as a good
+              one. */}
+          {shots.length > 0 && (
+            <ul data-testid="import-shots" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {shots.map((shot, index) => (
+                <li
+                  key={shot.id}
+                  className="relative overflow-hidden rounded-md border border-line bg-bg-raised-2"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={shot.preview}
+                    alt=""
+                    className="block aspect-[3/4] w-full object-cover"
+                  />
+                  <span className="absolute top-2 left-2 rounded-full bg-[rgba(18,18,18,.7)] px-2 py-0.5 font-mono text-[11px] font-bold text-[#f5f5f0]">
+                    {index + 1}
+                    {!isWholeImage(shot.crop) && ` · ${t("crop.cropped")}`}
+                  </span>
+                  <div className="absolute right-1 bottom-1 flex gap-1">
+                    <IconButton
+                      aria-label={t("crop.open", { number: index + 1 })}
+                      variant="tertiary"
+                      data-testid={`crop-${index}`}
+                      onClick={() => setCropping(shot)}
+                    >
+                      <Icon name="pencil" />
+                    </IconButton>
+                    <IconButton
+                      aria-label={t("removeShot", { number: index + 1 })}
+                      variant="dangerText"
+                      className="bg-bg-raised"
+                      data-testid={`remove-shot-${index}`}
+                      onClick={() => remove(shot.id)}
+                    >
+                      <Icon name="trash" />
+                    </IconButton>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
           {error && <Failure error={error} />}
 
+          {/* Not disabled with nothing picked: a disabled control explains
+              nothing, and the refusal below names what is missing. */}
           <Button type="submit" size="lg" loading={busy}>
             {t("sources.submit")}
           </Button>
+
+          {cropping && (
+            <PhotoCrop
+              file={cropping.file}
+              crop={cropping.crop}
+              onCancel={() => setCropping(null)}
+              onDone={(crop) => {
+                setShots((was) =>
+                  was.map((shot) => (shot.id === cropping.id ? { ...shot, crop } : shot)),
+                );
+                setCropping(null);
+              }}
+            />
+          )}
         </form>
       ) : (
         // Not a dead button and not a mystery: the reason has a name, and the

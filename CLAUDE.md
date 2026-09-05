@@ -392,6 +392,29 @@ decline the assisted attempt becomes the same answer it has always given: this
 page holds nothing, here is manual entry. Offering to sell somebody a plan in
 the middle of a failed import would be reading the room badly.
 
+**A page is photographed from the app, and cropped before it is paid for.**
+`capture="environment"` hands off to the *system* camera rather than opening a
+`getUserMedia` stream: the native app brings autofocus, exposure and the whole
+sensor, which on small print is the difference between a reading that works
+and one that fails — and a failed reading is billed like a successful one. It
+also means no camera permission to ask for and no stream to release, and on a
+machine with no camera the browser falls back to the file picker instead of
+breaking.
+
+The crop is kept beside the file as fractions, never applied to it, until
+somebody presses "read": that is what lets a frame dragged over a 320px
+preview apply to a 4000px photograph, and what keeps a photo re-croppable. It
+is applied exactly once, at submit — a 12-megapixel redraw per pointer move
+freezes the thread the drag runs on. And it is not only framing: what goes to
+a model is billed by its size, so cutting the facing page removes tokens as
+well as noise.
+
+Two things that cost an afternoon there. **A handle that hangs outside an
+`overflow-hidden` container is not merely clipped, it stops being
+hit-testable** — the drag silently did nothing, with no error anywhere. And a
+hand-written base64 "PNG" is not a PNG: `createImageBitmap` rejects it and the
+failure surfaces three steps later as `unreadable`. Generate the fixture.
+
 **An estimate is offered, never written.** `POST /api/log/estimate` reads a
 photographed plate and hands back figures for a form; what lands in the diary
 is what somebody looked at and accepted. A model that cannot recognise the

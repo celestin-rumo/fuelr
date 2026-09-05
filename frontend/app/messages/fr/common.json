@@ -888,6 +888,8 @@
       "photoHint": "Une page de livre, une fiche cartonnée, une recette écrite à la main. Deux photos si la recette tient sur deux pages.",
       "screenshotHint": "Une capture d'une autre application, d'une story ou d'un message. Cadre la recette entière, pas seulement les ingrédients.",
       "files": "Photos de la recette",
+      "takePhoto": "Prendre une photo",
+      "chooseFiles": "Choisir un fichier",
       "filesHint": "JPEG, PNG ou WebP, 2 Mo par image au maximum.",
       "submit": "Lire la recette"
     },
@@ -902,6 +904,17 @@
         "body": "Le plan est bon, c'est nous qui ne sommes pas prêts : aucun lecteur n'est configuré pour l'instant. Rien ne se perd — un lien ou la saisie à la main marchent aujourd'hui.",
         "link": "Voir les plans"
       }
+    },
+    "removeShot": "Retirer la photo {number}",
+    "crop": {
+      "title": "Ne garder que la recette",
+      "body": "Déplace le cadre pour couper la page d'en face, ta main, la table. Ne touche à rien et l'image part entière.",
+      "frame": "Cadre de recadrage",
+      "done": "Valider",
+      "reset": "Tout reprendre",
+      "close": "Fermer",
+      "cropped": "recadrée",
+      "open": "Recadrer la photo {number}"
     }
   },
   "manifest": {
