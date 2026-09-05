@@ -167,3 +167,46 @@ test("the data page holds up on a 360px phone", async ({ page }) => {
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("the public site is in the visitor's language, not French with a flag", async ({
+  page,
+}) => {
+  // `site.json` was French in all three locales: an English visitor read
+  // French on the front page. This is the criterion, and it is asserted on
+  // the copy rather than on the slug — a translated URL over French words is
+  // the failure this replaces.
+  await page.goto("/en");
+  await expect(
+    page.getByRole("heading", { name: "Plan your meals, reach your targets." }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pricing" }).first()).toBeVisible();
+  await expect(page.getByText("Planifie tes repas")).toHaveCount(0);
+
+  await page.goto("/de");
+  await expect(
+    page.getByRole("heading", { name: "Plane deine Mahlzeiten, erreich deine Ziele." }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Preise" }).first()).toBeVisible();
+  await expect(page.getByText("Planifie tes repas")).toHaveCount(0);
+});
+
+test("the German is Swiss German", async ({ page }) => {
+  // No eszett, and the guillemets Switzerland uses rather than the German
+  // low-9 pair. Cheap to assert, and the kind of thing that drifts back one
+  // string at a time.
+  await page.goto("/de");
+  const text = await page.locator("body").innerText();
+  expect(text).not.toContain("ß");
+  expect(text).not.toContain("„");
+});
+
+test("the price is in francs everywhere, including the figure that is zero", async ({
+  page,
+}) => {
+  // The stats band said "0 €" on a product billed in CHF.
+  for (const path of ["/fr", "/en", "/de"]) {
+    await page.goto(path);
+    await expect(page.getByText("0 CHF")).toBeVisible();
+    await expect(page.getByText("0 €")).toHaveCount(0);
+  }
+});
