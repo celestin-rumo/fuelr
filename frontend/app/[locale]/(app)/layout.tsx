@@ -6,6 +6,7 @@ import { AppHeader } from "@app/components/app/app-header";
 import { VerifyEmailBanner } from "@app/components/app/verify-email-banner";
 import { CookingResumeBanner } from "@app/components/app/cooking-resume-banner";
 import { AppTabs } from "@app/components/app/app-tabs";
+import { MAIN_ID } from "@app/components/skip-link";
 
 /**
  * Everything under /app is behind this layout, and this is where access is
@@ -39,7 +40,14 @@ export default async function AppLayout({
       <CookingResumeBanner />
       {/* The tab bar is fixed, so the content reserves the room rather than
           being covered by it — 56px of bar plus the home indicator below. */}
-      <main className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0">
+      {/* `tabIndex={-1}` so the skip link can actually put focus here: an
+          element with no tab index is a fragment target the browser scrolls
+          to and then leaves focus where it was. */}
+      <main
+        id={MAIN_ID}
+        tabIndex={-1}
+        className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0"
+      >
         {children}
       </main>
       <AppTabs />

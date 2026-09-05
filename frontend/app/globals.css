@@ -63,7 +63,12 @@
 
   --text: #f5f5f0;
   --text-dim: #b9b9b4;
-  --gray: #6b7280;
+  /* Neutral 400, not 500. Step 500 is 3.3:1 on `--bg-raised-2` and 3.9:1 on
+     `--bg`, and this token carries *labels* — text, at 11px and 12px, which
+     WCAG asks 4.5:1 of. The dark theme takes a lighter step than the light
+     one for the same reason `--lime-ink` does: a ramp step is only readable
+     against a particular ground. */
+  --gray: #9ca3af;
   --line: rgba(245, 245, 240, 0.08);
 
   --lime: #c4f135;

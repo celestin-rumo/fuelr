@@ -53,6 +53,16 @@ async function createRecipe(request: APIRequestContext) {
 async function undersizedTargets(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll("button, a[href], [role=button]")]
+      .filter((element) => {
+        // Clipped away until focus reaches it — the skip link, which becomes
+        // a 44px control the moment it matters and is held to that in
+        // `e2e/accessibility.spec.ts`.
+        const style = getComputedStyle(element);
+        return (
+          style.clipPath !== "inset(50%)" &&
+          style.clip !== "rect(0px, 0px, 0px, 0px)"
+        );
+      })
       .map((element) => {
         const box = element.getBoundingClientRect();
         return {
