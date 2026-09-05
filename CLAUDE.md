@@ -29,7 +29,7 @@ single component.
 | `--bg-raised-2`   | `#212121`   | `#ECE9DF`   | Fields, inactive chips, tracks   |
 | `--text`          | `#F5F5F0`   | `#15150F`   | Primary text                     |
 | `--text-dim`      | `#B9B9B4`   | `#5B5A50`   | Descriptions, metadata           |
-| `--gray`          | `#6B7280`   | `#64635A`   | Labels, inactive icons, borders  |
+| `--gray`          | `#9CA3AF`   | `#64635A`   | Labels, inactive icons, borders  |
 | `--line`          | `f5f5f0/8%` | `15150f/12%`| Separators, card outlines        |
 | `--lime`          | `#C4F135`   | `#C4F135`   | Primary action (flat)            |
 | `--lime-ink`      | `#C4F135`   | `#4B5E12`   | Lime as text or border           |
@@ -795,6 +795,34 @@ When a control loses its visible label that way, give it an explicit
 twice: the button keeps its name, but a button whose label is `hidden` has none
 at all.
 
+**Accessible is measured too, and the token table was wrong.** `--gray` is
+what carries every label, hint and meta line, and at neutral-500 it was 3.3:1
+on `--bg-raised-2` — below the 4.5:1 WCAG asks of text. The design system
+*claimed* its ratios in a table nobody computed. It now takes neutral-400 in
+dark, for the same reason `--lime-ink` takes a different step per theme: a
+ramp step is only readable against a particular ground.
+
+Two things hold it. `app/lib/contrast.test.ts` reads `globals.css` and
+computes every text token against every surface — no browser, one second, and
+a bad colour fails the moment it is written. `e2e/accessibility.spec.ts` runs
+axe over sixteen screens for WCAG 2.1 A/AA, and then does what axe cannot:
+Tab actually reaching a row, the focus ring actually drawing an outline,
+Escape closing a menu and handing focus back, a dialog opening with focus
+inside it. Scoped to `wcag2a`/`wcag2aa` on purpose — "best practice" findings
+are opinions, and a suite that fails on an opinion gets switched off.
+
+One thing is deliberately not asserted: a flat accent against its ground.
+`--lime` on a white card is 1.08:1 and that is *correct* — WCAG asks 3:1 of a
+boundary only where the boundary identifies the control, and a lime button
+carries its label at 12:1.
+
+**The first Tab is a skip link.** `SkipLink` is `sr-only` until focused, which
+is what makes it invisible to a pointer and reachable by a keyboard, and
+`<main>` carries `tabIndex={-1}` so focus can actually land there — an element
+with no tab index is a fragment target the browser scrolls to while leaving
+focus where it was. It is exempt from the 44px floor in `mobile-360` and
+`cooking-a11y`, matched on the *clip* rather than a class name.
+
 **360px is the floor, and it is measured rather than argued about.**
 `e2e/mobile-360.spec.ts` opens every screen at 360×640 and asserts three
 things: the page does not scroll sideways, every control the browser painted is
@@ -852,6 +880,12 @@ with a clean terminal on both sides. `next.config.ts` reads `NEXT_DIST_DIR` and
 `playwright.config.ts` sets it to `.next-e2e` for exactly this reason. If the
 app ever goes inert in the browser while the e2e suite passes, check for
 refused `/_next/static/chunks/*` before suspecting anything else.
+
+**A dependency added in the dev container is invisible to the e2e run.**
+`npm install` inside `frontend` writes to the `frontend_node_modules` volume;
+the Playwright container mounts the host directory and reads the host's
+`node_modules`. The symptom is a build that fails only under Playwright with
+`Cannot find module`. Install in both, or once through the Playwright image.
 
 Playwright browsers are not in the dev image, so `test:e2e` runs through the
 official Playwright image instead — see the README for the command. The e2e

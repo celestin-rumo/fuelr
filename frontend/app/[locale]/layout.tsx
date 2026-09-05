@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Poppins, Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@app/components/theme-provider";
+import { SkipLink } from "@app/components/skip-link";
 import { HydrationBanner } from "@app/components/app/hydration-banner";
 import { ServiceWorker } from "@app/components/app/service-worker";
 import { routing } from "@/i18n/routing";
@@ -67,6 +68,8 @@ export default async function LocaleLayout({
             the action. Light is a mirror, not a second system. */}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <NextIntlClientProvider>
+            {/* First in the DOM, so it is the first thing Tab reaches. */}
+            <SkipLink />
             {children}
             <ServiceWorker />
             {/* Last, so it sits above the page it is complaining about. */}

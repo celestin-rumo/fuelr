@@ -827,7 +827,8 @@
       "title": "Diese Seite reagiert nicht",
       "body": "Sie wurde angezeigt, aber ihr Code wurde nicht geladen: Schaltflächen und Formulare tun nichts. Lade die Seite neu.",
       "reload": "Seite neu laden"
-    }
+    },
+    "skipToContent": "Zum Inhalt springen"
   },
   "import": {
     "title": "Rezept importieren",
