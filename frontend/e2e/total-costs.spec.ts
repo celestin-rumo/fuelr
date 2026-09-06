@@ -113,8 +113,8 @@ test("an operator has a way in, and nobody else sees one", async ({
   context,
   page,
 }) => {
-  // The page had no link anywhere: it was reachable only by typing a URL
-  // nobody had written down. The link follows the same rule the page does —
+  // The panel had no link anywhere: it was reachable only by typing a URL
+  // nobody had written down. The link follows the same rule the pages do —
   // it appears for an admin and for nobody else, because a screen that exists
   // only for operators has no reason to confirm to anybody else that it
   // exists.
@@ -125,5 +125,7 @@ test("an operator has a way in, and nobody else sees one", async ({
   await signInAs(request, context, ADMIN_EMAIL, ADMIN_PASSWORD);
   await page.goto("/fr/app");
   await page.getByTestId("costs-link").click();
-  await expect(page).toHaveURL(/\/total-costs$/);
+  // Into the panel: the costs are a section of it now, and `/total-costs`
+  // redirects there for whoever has the old address in a bookmark.
+  await expect(page).toHaveURL(/\/admin\//);
 });
