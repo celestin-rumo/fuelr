@@ -26,7 +26,9 @@ public final class RecipeDtos {
             List<String> steps,
             Set<String> tags,
             /** Zero, one or several of SPRING, SUMMER, AUTUMN, WINTER. */
-            Set<String> seasons) {
+            Set<String> seasons,
+            /** One of {@link Cuisine}, or null — which is the common case. */
+            String cuisine) {
     }
 
     /**
@@ -59,6 +61,7 @@ public final class RecipeDtos {
             List<String> steps,
             Set<String> tags,
             Set<String> seasons,
+            String cuisine,
             String sourceUrl,
             Integer totalMinutes,
             /** Field names the import had to guess at: "servings", "steps", "title". */
@@ -81,7 +84,8 @@ public final class RecipeDtos {
             Double kcalPerServing, Double proteinPerServing,
             Double carbsPerServing, Double fatPerServing,
             boolean estimated,
-            Set<String> seasons) {
+            Set<String> seasons,
+            String cuisine) {
     }
 
     /** What blocks publishing, so the editor can point at the right tab. */

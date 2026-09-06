@@ -223,12 +223,20 @@ public class RecipeController {
             @AuthenticationPrincipal Jwt principal,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) java.util.Set<String> tags,
-            @RequestParam(required = false) java.util.Set<String> seasons) {
+            @RequestParam(required = false) java.util.Set<String> seasons,
+            @RequestParam(required = false) java.util.Set<String> cuisines) {
         try {
             java.util.Set<String> wanted = seasons == null ? null
                     : seasons.stream().map(Season::parse).map(Enum::name)
                             .collect(java.util.stream.Collectors.toSet());
-            return recipes.search(userId(principal), q, tags, wanted).stream()
+            // Anything outside the domain is dropped rather than refused: a
+            // stale bookmark naming a cuisine that no longer exists should
+            // show a library, not a 400.
+            java.util.Set<String> fromThere = cuisines == null ? null
+                    : cuisines.stream().map(Cuisine::parseOrNull)
+                            .filter(java.util.Objects::nonNull).map(Enum::name)
+                            .collect(java.util.stream.Collectors.toSet());
+            return recipes.search(userId(principal), q, tags, wanted, fromThere).stream()
                     .map(this::toSummary).toList();
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -259,7 +267,7 @@ public class RecipeController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "not_a_favorite");
         }
-        return list(principal, null, null, null);
+        return list(principal, null, null, null, null);
     }
 
     public record MoveRequest(int direction) {
@@ -314,7 +322,8 @@ public class RecipeController {
                 breakdown == null ? null : breakdown.perServing().carbsG(),
                 breakdown == null ? null : breakdown.perServing().fatG(),
                 breakdown != null && breakdown.containsEstimates(),
-                recipe.getSeasons());
+                recipe.getSeasons(),
+                recipe.getCuisine());
     }
 
     @GetMapping("/{id}")
@@ -405,6 +414,7 @@ public class RecipeController {
                 recipe.getSteps().stream().map(RecipeStep::getText).toList(),
                 recipe.getTags(),
                 recipe.getSeasons(),
+                recipe.getCuisine(),
                 recipe.getSourceUrl(),
                 recipe.getTotalMinutes(),
                 recipe.getUnverified() == null || recipe.getUnverified().isBlank()

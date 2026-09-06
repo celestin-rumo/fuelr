@@ -114,6 +114,13 @@ public class Recipe {
     @Column(name = "season", nullable = false)
     private Set<String> seasons = new LinkedHashSet<>();
 
+    /**
+     * At most one, and usually none. A column rather than a collection because
+     * a dish is not of two cuisines at a time — see {@link Cuisine}.
+     */
+    @Column
+    private String cuisine;
+
     protected Recipe() {
     }
 
@@ -240,5 +247,14 @@ public class Recipe {
 
     public Set<String> getSeasons() {
         return seasons;
+    }
+
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    /** Null clears it, which is the normal state for most recipes. */
+    public void setCuisine(Cuisine cuisine) {
+        this.cuisine = cuisine == null ? null : cuisine.name();
     }
 }

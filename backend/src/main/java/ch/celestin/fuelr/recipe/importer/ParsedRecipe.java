@@ -25,7 +25,18 @@ public class ParsedRecipe {
     private final Set<String> tags = new LinkedHashSet<>();
     private final Set<String> unverified = new LinkedHashSet<>();
 
+    /** One of {@code Cuisine}, or null — which is the usual answer. */
+    private String cuisine;
+
     public record ParsedIngredient(String name, double quantity, String unit, boolean needsReview) {
+    }
+
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    public void setCuisine(String cuisine) {
+        this.cuisine = cuisine;
     }
 
     public String getTitle() {
