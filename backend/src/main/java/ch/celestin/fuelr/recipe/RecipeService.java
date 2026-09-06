@@ -53,19 +53,48 @@ public class RecipeService {
      */
     public List<Recipe> search(Long userId, String term, java.util.Set<String> tags,
                                java.util.Set<String> seasons) {
+        return search(userId, term, tags, seasons, null);
+    }
+
+    /**
+     * The library, narrowed.
+     *
+     * Tags are cumulative — asking for two means both — while seasons and
+     * cuisines are alternatives: two of them means either. That is not an
+     * inconsistency, it is what each one means. A dish is vegetarian *and*
+     * quick; it is of autumn *or* winter.
+     *
+     * The cuisine is applied here rather than inside the query: it is a plain
+     * column on rows already scoped to one account, and the tag/season query
+     * counts matches in a way that is delicate enough not to disturb for a
+     * filter a stream expresses in one line.
+     */
+    public List<Recipe> search(Long userId, String term, java.util.Set<String> tags,
+                               java.util.Set<String> seasons,
+                               java.util.Set<String> cuisines) {
         String normalised = term == null || term.isBlank() ? null
                 : "%" + term.trim().toLowerCase() + "%";
         java.util.Set<String> wanted = tags == null ? java.util.Set.of() : tags;
         java.util.Set<String> inSeason = seasons == null ? java.util.Set.of() : seasons;
+        java.util.Set<String> fromThere = cuisines == null ? java.util.Set.of() : cuisines;
+
+        List<Recipe> found;
         if (normalised == null && wanted.isEmpty() && inSeason.isEmpty()) {
-            return list(userId);
+            found = list(userId);
+        } else {
+            found = recipes.search(
+                    userId, normalised,
+                    wanted.isEmpty() ? java.util.Set.of("") : wanted,
+                    wanted.size(),
+                    inSeason.isEmpty() ? java.util.Set.of("") : inSeason,
+                    inSeason.size());
         }
-        List<Recipe> found = recipes.search(
-                userId, normalised,
-                wanted.isEmpty() ? java.util.Set.of("") : wanted,
-                wanted.size(),
-                inSeason.isEmpty() ? java.util.Set.of("") : inSeason,
-                inSeason.size());
+        if (!fromThere.isEmpty()) {
+            found = found.stream()
+                    .filter(recipe -> recipe.getCuisine() != null
+                            && fromThere.contains(recipe.getCuisine()))
+                    .toList();
+        }
         // The query cannot express the library ordering, so it is applied
         // here rather than left to insertion order.
         return found.stream().sorted(LIBRARY_ORDER).toList();
@@ -128,6 +157,9 @@ public class RecipeService {
             body.seasons().stream().map(Season::parse).map(Enum::name)
                     .forEach(recipe.getSeasons()::add);
         }
+        // Anything outside the domain clears it rather than being stored: a
+        // cuisine no filter can find is worse than no cuisine at all.
+        recipe.setCuisine(Cuisine.parseOrNull(body.cuisine()));
 
         // Status is a consequence of the content, not a button someone presses.
         // The editor autosaves, so completeness is re-derived on every save and

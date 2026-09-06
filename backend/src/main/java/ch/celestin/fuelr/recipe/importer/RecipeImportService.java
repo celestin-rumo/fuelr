@@ -188,6 +188,10 @@ public class RecipeImportService {
         // Only ever the library's own filter values: a tag outside that list
         // is a recipe no filter will ever find.
         recipe.getTags().addAll(parsed.getTags());
+        // Parsed again on the way in: what a reader answered has already been
+        // checked once, and checking twice costs nothing next to a column full
+        // of values no filter can find.
+        recipe.setCuisine(ch.celestin.fuelr.recipe.Cuisine.parseOrNull(parsed.getCuisine()));
 
         // The photo is a bonus, so it never decides whether the import worked:
         // a page with none, an image that is too heavy, or one that turns out

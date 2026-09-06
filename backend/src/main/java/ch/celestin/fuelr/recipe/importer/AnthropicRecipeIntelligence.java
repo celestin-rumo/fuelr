@@ -262,6 +262,19 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
         var allowed = tagItems.putArray("enum");
         TAGS.forEach(allowed::add);
 
+        // The cuisine, offered as a list rather than asked for in the open.
+        // A model left to invent "fusion asiatique" fills the column with
+        // values no filter will ever find — which is the mistake a tag called
+        // "soupe" already made here once.
+        var cuisine = props.putObject("cuisine");
+        cuisine.put("type", "string");
+        cuisine.put("description",
+                "La cuisine du plat, seulement si elle est évidente. "
+                        + "Omets-la pour un plat qui n'est de nulle part — "
+                        + "c'est le cas le plus fréquent, et ce n'est pas un oubli.");
+        var cuisines = cuisine.putArray("enum");
+        ch.celestin.fuelr.recipe.Cuisine.names().forEach(cuisines::add);
+
         ObjectNode steps = props.putObject("steps");
         steps.put("type", "array");
         steps.putObject("items").put("type", "string");
@@ -368,6 +381,12 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
                 recipe.getTags().add(written);
             }
         }
+
+        // Checked against the domain like everything else that comes back: a
+        // schema is a request, not a promise.
+        ch.celestin.fuelr.recipe.Cuisine guessed =
+                ch.celestin.fuelr.recipe.Cuisine.parseOrNull(text(input.get("cuisine")));
+        recipe.setCuisine(guessed == null ? null : guessed.name());
 
         for (JsonNode step : input.path("steps")) {
             String written = text(step);
