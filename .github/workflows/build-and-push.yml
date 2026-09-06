@@ -290,6 +290,16 @@ jobs:
       # and reports itself "not wired" to the e2e suite.
       - name: Start the backend image built by this run
         run: |
+          # ANTHROPIC_API_KEY below is not a secret and cannot be billed: a
+          # key that cannot be charged is enough for `available()`, which only
+          # checks that one is set. It opens the assisted sources so the
+          # browser-side half of the import — taking a photograph, framing it,
+          # cropping it — is exercised here. No test submits, and one that did
+          # would get a 401 rather than a bill.
+          #
+          # It goes here and not among the flags: a comment inside a backslash
+          # continuation makes the shell swallow the rest of the command, and
+          # `docker run` then runs with no image at all.
           docker run -d --name backend --network host \
             -e DB_URL=jdbc:postgresql://localhost:5432/fuelr \
             -e DB_USERNAME=fuelr -e DB_PASSWORD=fuelr \
@@ -299,12 +309,6 @@ jobs:
             -e ADMIN_EMAIL=admin@fuelr.test -e ADMIN_PASSWORD=changeme \
             -e JWT_SECRET=ci-only-secret-not-used-anywhere-else \
             -e APP_SUBSCRIPTION_SELF_ACTIVATE=true \
-            # Not a secret and not billable: a key that cannot be charged is
-            # enough for `available()`, which only checks that one is set. It
-            # opens the assisted sources so the browser-side half — taking a
-            # photograph, framing it, cropping it — is actually exercised. No
-            # test submits, and one that did would get a 401 rather than a
-            # bill.
             -e ANTHROPIC_API_KEY=ci-not-a-real-key \
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_BACKEND_NAME }}:${{ github.sha }}
 

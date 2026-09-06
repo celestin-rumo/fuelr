@@ -920,6 +920,12 @@ would hand back a different meal the moment the recipe had been edited since.
 The restore takes every figure instead, which is the same rule as the log
 itself: **a logged meal copies its values, never references the recipe.**
 
+**A comment inside a backslash continuation swallows the rest of the
+command.** A `#` line among the flags of a multi-line `docker run` makes the
+shell drop everything after it, so the command ran with no image and the job
+died with `docker run requires at least 1 argument`. It cannot fail locally —
+the file only runs in CI — so notes about a flag go *above* the command.
+
 **A green local suite can be testing files the repository does not have.**
 `.gitignore` carried a bare `target/` for Maven, which is unanchored and so
 swallowed `app/api/nutrition/target/` too: the onboarding preview route lived
