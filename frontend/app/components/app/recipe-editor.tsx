@@ -20,6 +20,7 @@ import {
 import type { Nutrition } from "@app/[locale]/(app)/app/recipes/actions";
 import { NutritionPanel } from "./nutrition-panel";
 import { SEASONS } from "@app/lib/seasons";
+import { CUISINES } from "@app/lib/cuisines";
 import { StepTextarea } from "./step-suggestions";
 import { NutritionDetailPanel } from "./nutrition-detail";
 import { RecipePhoto } from "./recipe-photo";
@@ -55,6 +56,7 @@ function toDraft(recipe: Recipe): RecipeDraft {
     steps: recipe.steps,
     tags: recipe.tags,
     seasons: recipe.seasons,
+    cuisine: recipe.cuisine,
   };
 }
 
@@ -506,6 +508,34 @@ export function RecipeEditor({
               </div>
               <span className="text-[12px] font-medium text-gray">
                 {t("base.seasonsHint")}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-[13px] font-semibold text-text-dim">
+                {t("cuisines.label")}
+              </span>
+              {/* At most one, unlike the seasons: a dish is not of two
+                  cuisines at a time. Choosing the one already chosen clears
+                  it, so "none" needs no separate control — and "none" is the
+                  answer for most recipes. */}
+              <div className="flex flex-wrap gap-2" data-testid="cuisine-picker">
+                {CUISINES.map((cuisine) => (
+                  <Chip
+                    key={cuisine}
+                    active={draft.cuisine === cuisine}
+                    onClick={() =>
+                      update({
+                        cuisine: draft.cuisine === cuisine ? null : cuisine,
+                      })
+                    }
+                  >
+                    {t(`cuisines.${cuisine}`)}
+                  </Chip>
+                ))}
+              </div>
+              <span className="text-[12px] font-medium text-gray">
+                {t("cuisines.hint")}
               </span>
             </div>
           </div>

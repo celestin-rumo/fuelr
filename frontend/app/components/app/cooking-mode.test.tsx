@@ -24,6 +24,7 @@ function recipeWith(overrides: Partial<Recipe> = {}): Recipe {
     totalMinutes: null,
     unverified: [],
     seasons: [],
+    cuisine: null,
     ...overrides,
   };
 }

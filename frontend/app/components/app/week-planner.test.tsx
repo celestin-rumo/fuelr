@@ -99,6 +99,7 @@ const RECIPES: RecipeSummary[] = [
     fatPerServing: 12,
     estimated: false,
     seasons: [],
+    cuisine: null,
   },
   {
     id: 8,
@@ -116,6 +117,7 @@ const RECIPES: RecipeSummary[] = [
     fatPerServing: 30,
     estimated: false,
     seasons: [],
+    cuisine: null,
   },
 ];
 

@@ -159,6 +159,11 @@ test.describe("signed in", () => {
     // Tab until the recipe's own link has focus. The cap is a bound on the
     // failure, not an expectation: if the row is unreachable this stops
     // rather than hanging for thirty seconds.
+    //
+    // It is generous because the filter bar is long — six tags, five seasons,
+    // twelve cuisines — and every chip is a stop before the first recipe. That
+    // is a real cost for somebody navigating this way, and the skip link does
+    // not help: it lands on `<main>`, and the filters are inside it.
     // Exact: "Cuisiner Curry de lentilles corail" is a link on the same row,
     // and a substring match would resolve to both.
     const link = page.getByRole("link", {
@@ -166,7 +171,7 @@ test.describe("signed in", () => {
       exact: true,
     });
     let reached = false;
-    for (let press = 0; press < 40 && !reached; press++) {
+    for (let press = 0; press < 90 && !reached; press++) {
       await page.keyboard.press("Tab");
       reached = await link.evaluate((node) => node === document.activeElement);
     }
