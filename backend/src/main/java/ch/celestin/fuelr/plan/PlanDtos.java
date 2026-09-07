@@ -57,7 +57,12 @@ public final class PlanDtos {
              */
             String plannedBy,
             /** Said out loud by somebody; it is what empties the cupboard. */
-            boolean cooked) {
+            boolean cooked,
+            /**
+             * False when somebody has said they already have everything for
+             * this one. The meal is unchanged; the shopping list stops asking.
+             */
+            boolean inShopping) {
     }
 
     public record DayTotals(LocalDate date, int meals, Double kcal) {
@@ -79,7 +84,12 @@ public final class PlanDtos {
     public record UpdateMealRequest(
             LocalDate date,
             String slot,
-            @Min(1) @Max(24) Integer servings) {
+            @Min(1) @Max(24) Integer servings,
+            /**
+             * Whether this meal still has anything to buy. Null leaves it
+             * alone, like every other field here.
+             */
+            Boolean inShopping) {
     }
 
     /**

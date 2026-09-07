@@ -167,7 +167,9 @@
       "remove": "Aus dem Plan entfernen",
       "plannedBy": "Hinzugefügt von {name}",
       "cooked": "Gekocht",
-      "cookedHint": "Nimmt die Zutaten aus dem Vorrat."
+      "cookedHint": "Nimmt die Zutaten aus dem Vorrat.",
+      "haveEverything": "Für dieses Essen habe ich schon alles",
+      "haveEverythingHint": "Seine Zutaten verlassen die Einkaufsliste. Das Essen bleibt im Plan."
     },
     "noRecipes": {
       "title": "Kein Rezept zum Planen",
@@ -180,7 +182,60 @@
     },
     "sharedWith": "Haushalt · {count} Konten",
     "addToDay": "+ Mahlzeit hinzufügen",
-    "addToDayLabel": "Mahlzeit hinzufügen — {day}"
+    "addToDayLabel": "Mahlzeit hinzufügen — {day}",
+    "suggest": {
+      "action": "Woche füllen",
+      "close": "Schliessen",
+      "cancel": "Abbrechen",
+      "working": "Wir sehen in Ihren Rezepten nach…",
+      "failed": "Der Vorschlag kam nicht zurück. Bitte erneut versuchen.",
+      "minutes": "{count} Min.",
+      "refuse": "Dieses nicht",
+      "undoRefuse": "Doch behalten",
+      "whyNot": "Warum dieses nicht?",
+      "because": {
+        "MATCHED_CUISINE": "Ihr Rezept",
+        "MATCHED_INTENT": "Ihr Rezept",
+        "LIBRARY": "Ihr Rezept",
+        "IDEA": "Idee zum Schreiben"
+      },
+      "reasons": {
+        "notTonight": "Keine Lust",
+        "tooLong": "Zu lange",
+        "tooOften": "Zu oft",
+        "missingIngredients": "Zutaten fehlen"
+      },
+      "asking": {
+        "title": "Woche füllen",
+        "body": "Sagen Sie die Richtung — zuerst sehen wir in Ihren eigenen Rezepten nach.",
+        "intents": "Lust auf",
+        "intentsHint": "Mehrere zählen zusammen: vegetarisch und schnell heisst beides.",
+        "cuisines": "Küchen",
+        "cuisinesHint": "Mehrere Küchen sind eine Wahl zwischen ihnen.",
+        "slots": "Mahlzeiten",
+        "slotsHint": "Standardmässig das Abendessen — darum herum wird eine Woche geplant.",
+        "submit": "Woche vorschlagen"
+      },
+      "reviewing": {
+        "title": "Die vorgeschlagene Woche",
+        "body": "{count, plural, =0 {Noch nichts vorzuschlagen.} one {Ein Gericht vorgeschlagen.} other {# Gerichte vorgeschlagen.}} Im Plan steht noch nichts.",
+        "assisted": "Ihre Rezepte haben nicht gereicht: Die Ideen stammen von einem Modell.",
+        "unfilled": "{count, plural, one {Eine Mahlzeit ohne Vorschlag.} other {# Mahlzeiten ohne Vorschlag.}}",
+        "note": "Noch etwas dazu?",
+        "noteHint": "Zum Beispiel „weniger Pasta“. Freiwillig.",
+        "reask": "Neu vorschlagen für {count, plural, one {die abgelehnte Mahlzeit} other {die # abgelehnten Mahlzeiten}}",
+        "accept": "{count, plural, one {Die Mahlzeit} other {Die # Mahlzeiten}} in den Plan aufnehmen",
+        "acceptKept": "Nur {count, plural, one {diese Mahlzeit} other {diese # Mahlzeiten}} behalten",
+        "enough": "Genug Versuche für diesmal. Behalten Sie, was passt, den Rest ergänzen Sie von Hand."
+      },
+      "done": {
+        "title": "Es steht im Plan",
+        "body": "{count, plural, =0 {Nichts wurde aufgenommen.} one {Eine Mahlzeit zur Woche hinzugefügt.} other {# Mahlzeiten zur Woche hinzugefügt.}}",
+        "shopping": "Die Einkaufsliste ist bereits aktuell. Sie können weiterhin herausnehmen, was Sie schon haben.",
+        "toShopping": "Einkaufsliste ansehen",
+        "stay": "Im Plan bleiben"
+      }
+    }
   },
   "household": {
     "label": "Haushalt",
@@ -299,6 +354,13 @@
       "week": "Woche vom {date}",
       "covered": "Schon im Vorrat",
       "empty": "Diese Woche nichts zu kaufen."
+    },
+    "meals": {
+      "title": "{count, plural, one {Die Mahlzeit der Woche} other {Die # Mahlzeiten der Woche}}",
+      "excluded": "{count, plural, one {1 herausgenommen} other {# herausgenommen}}",
+      "hint": "Haken Sie eine Mahlzeit ab, für die Sie schon alles haben: Ihre Zutaten verlassen die Liste, die Mahlzeit bleibt im Plan.",
+      "row": "{day} · {slot} — {title}",
+      "untitled": "Ohne Titel"
     }
   },
   "journal": {

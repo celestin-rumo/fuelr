@@ -60,6 +60,18 @@ public class PlannedMeal {
     @Column(nullable = false)
     private int servings;
 
+    /**
+     * Whether this meal still has anything to buy.
+     *
+     * True for every meal ever planned, and turned off by somebody saying "I
+     * already have everything for this one". It is deliberately a fact about
+     * the meal rather than about the list: the list is regenerated from the
+     * week every time it is read, so a decision stored on a line would be
+     * taken again next Monday.
+     */
+    @Column(name = "in_shopping", nullable = false)
+    private boolean inShopping = true;
+
     /** Set the moment somebody says they cooked it. Null until then. */
     @Column(name = "cooked_at")
     private Instant cookedAt;
@@ -152,5 +164,13 @@ public class PlannedMeal {
 
     public void setServings(int servings) {
         this.servings = servings;
+    }
+
+    public boolean isInShopping() {
+        return inShopping;
+    }
+
+    public void setInShopping(boolean inShopping) {
+        this.inShopping = inShopping;
     }
 }

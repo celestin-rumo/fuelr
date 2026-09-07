@@ -78,6 +78,11 @@ export type PlannedMeal = {
   plannedBy: string | null;
   /** Said out loud by somebody; it is what empties the cupboard. */
   cooked: boolean;
+  /**
+   * False when somebody has said they already have everything for this one.
+   * The meal is unchanged; the shopping list stops asking for it.
+   */
+  inShopping: boolean;
 };
 
 /** Always seven, empty days included — a missing day would read as a failure. */
@@ -430,6 +435,39 @@ export type Suggestion = {
 export type Suggestions = {
   suggestions: Suggestion[];
   /** False when the library answered on its own, and nothing was spent. */
+  assisted: boolean;
+};
+
+/**
+ * One dish proposed for one meal of the week.
+ *
+ * `recipeId` is null for an idea, which is not a recipe and may never become
+ * one: accepting it writes a draft first. `because` is why it was chosen, and
+ * it travels because a suggestion nobody can account for is one nobody trusts.
+ */
+export type WeekProposal = {
+  date: string;
+  slot: Slot;
+  recipeId: number | null;
+  title: string;
+  minutes: number | null;
+  cuisine: string | null;
+  tags: string[];
+  hasPhoto: boolean;
+  because: "MATCHED_CUISINE" | "MATCHED_INTENT" | "LIBRARY" | "IDEA";
+  idea: {
+    title: string;
+    minutes: number | null;
+    ingredients: { name: string; quantity: number; unit: string; needsReview: boolean }[];
+    steps: string[];
+  } | null;
+};
+
+export type WeekSuggestion = {
+  proposals: WeekProposal[];
+  /** Slots asked about that nothing could be found for. Not an error. */
+  unfilled: number;
+  /** True when a model was asked; the screen says so, as everywhere else. */
   assisted: boolean;
 };
 

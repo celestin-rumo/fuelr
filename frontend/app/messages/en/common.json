@@ -167,7 +167,9 @@
       "remove": "Remove from the plan",
       "plannedBy": "Added by {name}",
       "cooked": "Cooked",
-      "cookedHint": "Takes the ingredients out of the cupboard."
+      "cookedHint": "Takes the ingredients out of the cupboard.",
+      "haveEverything": "I already have everything for this meal",
+      "haveEverythingHint": "Its ingredients leave the shopping list. The meal stays on the plan."
     },
     "noRecipes": {
       "title": "No recipe to plan with",
@@ -180,7 +182,60 @@
     },
     "sharedWith": "Household · {count} accounts",
     "addToDay": "+ Add a meal",
-    "addToDayLabel": "Add a meal — {day}"
+    "addToDayLabel": "Add a meal — {day}",
+    "suggest": {
+      "action": "Fill the week",
+      "close": "Close",
+      "cancel": "Cancel",
+      "working": "Looking through your recipes…",
+      "failed": "The suggestion did not come back. Try again.",
+      "minutes": "{count} min",
+      "refuse": "Not this one",
+      "undoRefuse": "Keep it after all",
+      "whyNot": "Why not this one?",
+      "because": {
+        "MATCHED_CUISINE": "Your recipe",
+        "MATCHED_INTENT": "Your recipe",
+        "LIBRARY": "Your recipe",
+        "IDEA": "Idea to write"
+      },
+      "reasons": {
+        "notTonight": "Not in the mood",
+        "tooLong": "Too long",
+        "tooOften": "Too often",
+        "missingIngredients": "Missing ingredients"
+      },
+      "asking": {
+        "title": "Fill the week",
+        "body": "Say which direction, and we look through your own recipes first.",
+        "intents": "In the mood for",
+        "intentsHint": "Several add up: vegetarian and quick means both.",
+        "cuisines": "Cuisines",
+        "cuisinesHint": "Several cuisines is a choice between them.",
+        "slots": "Meals",
+        "slotsHint": "Dinner by default, because that is what a week is planned around.",
+        "submit": "Suggest a week"
+      },
+      "reviewing": {
+        "title": "The week suggested",
+        "body": "{count, plural, =0 {Nothing to suggest yet.} one {One dish suggested.} other {# dishes suggested.}} Nothing is on the plan yet.",
+        "assisted": "Your recipes were not enough: the ideas come from a model.",
+        "unfilled": "{count, plural, one {One meal with no suggestion.} other {# meals with no suggestion.}}",
+        "note": "Anything else to say?",
+        "noteHint": "“Less pasta”, for instance. Optional.",
+        "reask": "Suggest again for {count, plural, one {the refused meal} other {the # refused meals}}",
+        "accept": "Add {count, plural, one {the meal} other {the # meals}} to the plan",
+        "acceptKept": "Keep only {count, plural, one {this meal} other {these # meals}}",
+        "enough": "Enough tries for now. Keep what suits you and fill the rest by hand."
+      },
+      "done": {
+        "title": "It is on the plan",
+        "body": "{count, plural, =0 {Nothing was added.} one {One meal added to the week.} other {# meals added to the week.}}",
+        "shopping": "The shopping list is already up to date. You can still take out what you already have.",
+        "toShopping": "See the shopping list",
+        "stay": "Stay on the plan"
+      }
+    }
   },
   "household": {
     "label": "Household",
@@ -299,6 +354,13 @@
       "week": "Week of {date}",
       "covered": "Already in the cupboard",
       "empty": "Nothing to buy this week."
+    },
+    "meals": {
+      "title": "{count, plural, one {The week's meal} other {The week's # meals}}",
+      "excluded": "{count, plural, one {1 taken out} other {# taken out}}",
+      "hint": "Untick a meal you already have everything for: its ingredients leave the list, the meal stays on the plan.",
+      "row": "{day} · {slot} — {title}",
+      "untitled": "Untitled"
     }
   },
   "journal": {

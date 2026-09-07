@@ -400,6 +400,99 @@ class ShoppingApiTest {
                 .andExpect(status().isNotFound());
     }
 
+    // --- a meal somebody already has everything for --------------------------
+
+    @Test
+    void aMealTakenOutOfTheShoppingBuysNothingAndStaysOnThePlan() throws Exception {
+        long curry = recipe("Curry", """
+                {"name":"Lentilles","quantity":200,"unit":"g"}""");
+        long risotto = recipe("Risotto", """
+                {"name":"Riz","quantity":300,"unit":"g"}""");
+        long mealId = plan(WEDNESDAY, "DINNER", curry);
+        plan(THURSDAY, "DINNER", risotto);
+
+        mvc.perform(put("/api/plan/" + mealId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"inShopping":false}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inShopping").value(false));
+
+        // Its ingredients are gone from the list, and the other meal's are not.
+        assert line("Lentilles") == null;
+        assert line("Riz") != null;
+
+        // The meal itself is untouched: still planned, still counted, still
+        // something somebody is going to cook on Wednesday.
+        mvc.perform(get("/api/plan").param("week", MONDAY)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.meals.length()").value(2));
+    }
+
+    @Test
+    void puttingAMealBackBringsItsIngredientsBack() throws Exception {
+        long curry = recipe("Curry", """
+                {"name":"Lentilles","quantity":200,"unit":"g"}""");
+        long mealId = plan(WEDNESDAY, "DINNER", curry);
+
+        mvc.perform(put("/api/plan/" + mealId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"inShopping":false}"""))
+                .andExpect(status().isOk());
+        assert line("Lentilles") == null;
+
+        mvc.perform(put("/api/plan/" + mealId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"inShopping":true}"""))
+                .andExpect(status().isOk());
+
+        // Regenerating is what puts it back — there is no button for it, and
+        // there is nothing to remember to press.
+        var lentilles = line("Lentilles");
+        assert lentilles != null;
+        assert lentilles.get("quantity").asDouble() == 200d;
+    }
+
+    @Test
+    void aTickSurvivesAMealBeingTakenOutAndPutBack() throws Exception {
+        long curry = recipe("Curry", """
+                {"name":"Lentilles","quantity":200,"unit":"g"},
+                {"name":"Riz","quantity":300,"unit":"g"}""");
+        long mealId = plan(WEDNESDAY, "DINNER", curry);
+        long other = recipe("Salade", """
+                {"name":"Riz","quantity":100,"unit":"g"}""");
+        plan(THURSDAY, "DINNER", other);
+
+        var riz = line("Riz");
+        assert riz != null;
+        mvc.perform(put("/api/shopping/items/" + riz.get("id").asLong())
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"checked":true}"""))
+                .andExpect(status().isOk());
+
+        mvc.perform(put("/api/plan/" + mealId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"inShopping":false}"""))
+                .andExpect(status().isOk());
+
+        // The quantity follows the week; the tick belongs to somebody standing
+        // in a shop and is nobody's to undo.
+        var after = line("Riz");
+        assert after != null;
+        assert after.get("quantity").asDouble() == 100d;
+        assert after.get("checked").asBoolean();
+    }
+
     @Test
     void theListIsNotPublic() throws Exception {
         mvc.perform(get("/api/shopping")).andExpect(status().isUnauthorized());

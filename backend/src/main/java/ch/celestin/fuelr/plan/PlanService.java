@@ -136,6 +136,10 @@ public class PlanService {
     /**
      * Every ingredient line of the week, scaled to the servings each meal was
      * planned for. The shopping list aggregates this; nothing else does.
+     *
+     * A meal somebody has already got everything for contributes nothing. It
+     * is still on the plan, still cooked, still counted in the nutrition —
+     * excluding it is a statement about a cupboard, not about a dinner.
      */
     public List<PlannedIngredientView> ingredients(Long userId, LocalDate anyDay) {
         Household household = householdService.activeHouseholdFor(userId);
@@ -147,6 +151,7 @@ public class PlanService {
 
         List<PlannedIngredientView> lines = new ArrayList<>();
         for (PlannedMeal meal : planned) {
+            if (!meal.isInShopping()) continue;
             Recipe recipe = recipesById.get(meal.getRecipeId());
             if (recipe == null) continue;
             double factor = scale(meal, recipe);
@@ -202,6 +207,9 @@ public class PlanService {
         }
         if (request.servings() != null) {
             meal.setServings(request.servings());
+        }
+        if (request.inShopping() != null) {
+            meal.setInShopping(request.inShopping());
         }
         if (moved) {
             // Landing in a new slot means landing at its end, never on top of
@@ -401,7 +409,8 @@ public class PlanService {
                 breakdown != null && breakdown.containsEstimates(),
                 // The name is only worth showing for somebody else's doing.
                 meal.getCreatedBy() != null && meal.getCreatedBy().equals(viewer) ? null : author,
-                meal.getCookedAt() != null);
+                meal.getCookedAt() != null,
+                meal.isInShopping());
     }
 
     private void compact(Long householdId, LocalDate date, MealSlot slot, Long removedId) {

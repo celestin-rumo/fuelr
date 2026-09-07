@@ -1,10 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { apiFetch } from "@app/lib/api";
-import type { PantryItem, ShoppingListView } from "@app/lib/api";
+import type { PantryItem, ShoppingListView, WeekPlan } from "@app/lib/api";
 import { isIsoDate, mondayOf, todayIso } from "@app/lib/week";
 import { EmptyState } from "@ui/empty-state";
 import { Container } from "@app/components/site/section";
 import { ShoppingList } from "@app/components/app/shopping-list";
+import { ShoppingMeals } from "@app/components/app/shopping-meals";
 import { Icon } from "@ui/icons";
 
 export const dynamic = "force-dynamic";
@@ -17,13 +18,18 @@ export default async function ShoppingPage({
   const { week } = await searchParams;
   const requested = isIsoDate(week) ? week : todayIso();
 
-  const [listResponse, pantryResponse] = await Promise.all([
+  const [listResponse, pantryResponse, planResponse] = await Promise.all([
     apiFetch(`/api/shopping?week=${requested}`),
     apiFetch("/api/pantry"),
+    // What the list is buying for. Read here rather than derived from the
+    // lines, because a meal taken out of the shopping contributes no lines and
+    // is exactly the one somebody may want to put back.
+    apiFetch(`/api/plan?week=${requested}`),
   ]);
 
   const list: ShoppingListView | null = listResponse.ok ? await listResponse.json() : null;
   const pantry: PantryItem[] = pantryResponse.ok ? await pantryResponse.json() : [];
+  const plan: WeekPlan | null = planResponse.ok ? await planResponse.json() : null;
 
   if (!list) {
     return (
@@ -51,6 +57,8 @@ export default async function ShoppingPage({
           {t("intro")}
         </p>
       </div>
+
+      {plan && <ShoppingMeals meals={plan.meals} />}
 
       {/* The week comes back from the server already normalised to its Monday,
           so the links either side move by whole weeks from the same place. */}

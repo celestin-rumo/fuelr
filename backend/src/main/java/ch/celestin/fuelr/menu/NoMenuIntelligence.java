@@ -34,7 +34,7 @@ public class NoMenuIntelligence implements MenuIntelligence {
 
     @Override
     public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                            int wanted, List<String> already) {
+                            int wanted, List<String> already, String note) {
         return nothing();
     }
 
