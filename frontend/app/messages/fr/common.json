@@ -235,6 +235,86 @@
         "toShopping": "Voir la liste de courses",
         "stay": "Rester sur le planning"
       }
+    },
+    "batch": {
+      "action": "Cuisiner en une fois",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "working": "On cherche ce qui se prépare ensemble…",
+      "failed": "La proposition n'a pas abouti. Réessayez.",
+      "minutes": "{count} min",
+      "tagged": "Batch cooking",
+      "idea": "Idée à écrire",
+      "base": "{name} — {quantity} {unit} pour {count, plural, one {1 plat} other {# plats}}",
+      "asking": {
+        "title": "Cuisiner en une fois",
+        "body": "On cherche des plats bâtis sur une base commune, pour que l'épluchage et la cuisson se fassent une seule fois.",
+        "size": "Combien de plats",
+        "fewer": "Un plat de moins",
+        "more": "Un plat de plus",
+        "intents": "Envie",
+        "cuisines": "Cuisines",
+        "submit": "Chercher un ensemble"
+      },
+      "choosing": {
+        "title": "Ce qui se prépare ensemble",
+        "body": "{count, plural, one {Un ensemble trouvé.} other {# ensembles trouvés.}} Rien n'est encore au planning.",
+        "assisted": "Vos recettes ne formaient pas d'ensemble : celui-ci vient d'un modèle.",
+        "shared": "{count} plats sur {total} sont bâtis sur {base}.",
+        "choose": "Prendre cet ensemble",
+        "none": "Rien dans vos recettes ne se prépare vraiment ensemble. C'est une bibliothèque variée, pas une erreur — deux plats qui partagent un oignon ne font pas un batch.",
+        "back": "Changer la demande"
+      },
+      "placing": {
+        "title": "Sur quels jours",
+        "body": "Les dîners libres de la semaine, dans l'ordre. Changez ce qui ne va pas.",
+        "submit": "Ajouter {count, plural, one {le plat} other {les # plats}} au planning",
+        "back": "Revenir aux ensembles"
+      },
+      "done": {
+        "title": "C'est au planning",
+        "body": "{count, plural, =0 {Rien n'a été ajouté.} one {Un plat ajouté à la semaine.} other {# plats ajoutés à la semaine.}}",
+        "next": "Le plan de travail lit la semaine entière et dit ce qui se prépare une fois pour plusieurs plats.",
+        "toPrep": "Voir le plan de travail",
+        "stay": "Rester sur le planning"
+      }
+    },
+    "prep": {
+      "action": "Plan de travail",
+      "label": "Préparation",
+      "title": "Cuisiner la semaine en une fois",
+      "intro": "Ce qui se prépare une seule fois pour plusieurs repas, puis chaque plat, le plus long d'abord.",
+      "backToPlan": "Revenir au planning",
+      "print": {
+        "title": "Plan de travail",
+        "week": "Semaine du {date}",
+        "empty": "Rien n'est posé sur cette semaine.",
+        "button": "Imprimer"
+      },
+      "keeping": "Fuelr ne connaît pas les durées de conservation et n'en invente pas. À vous de juger ce qui se garde jusqu'à quel jour.",
+      "bases": {
+        "title": "Bases communes",
+        "hint": "À préparer une fois, pour toute la semaine.",
+        "quantity": "{quantity} {unit}",
+        "forDishes": "Pour : {dishes}",
+        "none": "Aucune base commune cette semaine. Les plats posés ne partagent rien qu'on prépare une seule fois — c'est une semaine variée, pas un problème."
+      },
+      "dishes": {
+        "title": "Puis chaque plat",
+        "hint": "Le plus long commence ; ce qui refroidit attend.",
+        "meta": "{day} · {slot} · {minutes} min · {servings} pers.",
+        "line": "{quantity} {unit} {name}",
+        "allShared": "Tout est déjà prêt dans les bases communes."
+      },
+      "empty": {
+        "title": "Rien à préparer cette semaine",
+        "body": "Le plan de travail lit ce qui est posé sur les jours. Remplissez la semaine, et il aura quelque chose à organiser.",
+        "action": "Aller au planning"
+      },
+      "unavailable": {
+        "title": "Plan de travail indisponible",
+        "body": "La semaine n'a pas pu être lue. Réessayez dans un instant."
+      }
     }
   },
   "household": {

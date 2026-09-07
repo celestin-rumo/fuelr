@@ -163,6 +163,24 @@ test("filling the week holds up on a phone", async ({ request, page }) => {
   await holdsUp(page);
 });
 
+test("cooking the week in one go holds up on a phone", async ({ request, page }) => {
+  const recipe = await seed(request, "Dahl de lentilles");
+  await request.post(`${BACKEND}/api/plan`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { date: MONDAY, slot: "DINNER", recipeId: recipe, servings: 4 },
+  });
+
+  await page.goto(`/fr/app/planning?week=${MONDAY}`);
+  await page.getByTestId("suggest-batch").click();
+  await expect(page.getByTestId("batch-dialog")).toBeVisible();
+  await holdsUp(page);
+
+  // And the work plan, which is a screen of its own.
+  await page.goto(`/fr/app/planning/preparation?week=${MONDAY}`);
+  await expect(page.getByTestId("prep-dishes")).toBeVisible();
+  await holdsUp(page);
+});
+
 test("a dialog can be read to its bottom on a short screen", async ({
   request,
   page,

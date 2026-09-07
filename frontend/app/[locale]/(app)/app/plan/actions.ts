@@ -1,7 +1,12 @@
 "use server";
 
 import { apiFetch } from "@app/lib/api";
-import type { WeekPlan, WeekProposal, WeekSuggestion } from "@app/lib/api";
+import type {
+  BatchSets,
+  WeekPlan,
+  WeekProposal,
+  WeekSuggestion,
+} from "@app/lib/api";
 import type { Slot } from "@app/lib/week";
 
 /**
@@ -148,4 +153,27 @@ export async function acceptProposal(proposal: WeekProposal) {
     body: JSON.stringify({ date: proposal.date, slot: proposal.slot, recipeId }),
   });
   return { ok: planned.ok };
+}
+
+/**
+ * Asks for dishes that batch together.
+ *
+ * A different question from `suggestWeek`, and the contrast is the point: that
+ * one fills a week in a direction, this one chooses one so that cooking it in
+ * a single session is possible at all. Whether two recipes share a base is
+ * arithmetic over lines already stored, so the common case costs nothing —
+ * and a set always says what it shares because somebody counted.
+ */
+export async function suggestBatch(input: {
+  size: number;
+  intents: string[];
+  cuisines: string[];
+  exclude: number[];
+}): Promise<{ ok: true; sets: BatchSets } | { ok: false }> {
+  const response = await apiFetch("/api/plan/suggest/batch", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) return { ok: false };
+  return { ok: true, sets: await response.json() };
 }

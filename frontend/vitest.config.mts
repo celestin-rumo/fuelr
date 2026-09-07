@@ -27,6 +27,16 @@ export default defineConfig({
         inline: ["next-intl"],
       },
     },
+    /**
+     * Fifteen seconds, not five.
+     *
+     * These are component tests driven through `userEvent`, which types and
+     * clicks at a human pace on purpose, and they run several files at a time
+     * inside a container. Passing alone and failing in the full run is a
+     * scheduler telling you the default was sized for a smaller suite — not a
+     * component that got slower.
+     */
+    testTimeout: 15_000,
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],

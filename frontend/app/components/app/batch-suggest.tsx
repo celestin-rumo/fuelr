@@ -1,0 +1,447 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
+import { Button, buttonClasses } from "@ui/button";
+import { Badge } from "@ui/badge";
+import { Chip } from "@ui/chip";
+import { Dialog } from "@ui/dialog";
+import { Stepper } from "@ui/stepper";
+import { Spinner } from "@ui/spinner";
+import { cn } from "@ui/cn";
+import { CUISINES } from "@app/lib/cuisines";
+import { formatDay, weekDays } from "@app/lib/week";
+import type { Slot } from "@app/lib/week";
+import type { BatchMember, BatchSet, WeekProposal } from "@app/lib/api";
+import { acceptProposal, suggestBatch } from "@app/[locale]/(app)/app/plan/actions";
+
+const INTENTS = ["vegetarian", "protein", "quick", "cheap"] as const;
+
+/** Two is the fewest that shares anything; six is a Sunday afternoon. */
+const FEWEST = 2;
+const MOST = 6;
+
+type Stage = "asking" | "choosing" | "placing" | "done";
+
+/** A dish and the evening it was given. */
+type Placement = { member: BatchMember; date: string };
+
+export function BatchSuggest({
+  weekStart,
+  /** `date:slot` for every slot that already holds a meal. */
+  planned,
+}: {
+  weekStart: string;
+  planned: string[];
+}) {
+  const t = useTranslations("plan.batch");
+  const tTags = useTranslations("recipe.tags");
+  const tCuisines = useTranslations("recipe.cuisines");
+  const locale = useLocale();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  const [open, setOpen] = useState(false);
+  const [stage, setStage] = useState<Stage>("asking");
+  const [failed, setFailed] = useState(false);
+
+  const [size, setSize] = useState(4);
+  const [intents, setIntents] = useState<string[]>([]);
+  const [cuisines, setCuisines] = useState<string[]>([]);
+
+  const [sets, setSets] = useState<BatchSet[]>([]);
+  const [assisted, setAssisted] = useState(false);
+  const [placements, setPlacements] = useState<Placement[]>([]);
+  const [added, setAdded] = useState(0);
+
+  const days = weekDays(weekStart);
+  /** The dinners nothing is on yet, in order — where a set naturally lands. */
+  const free = days.filter((date) => !planned.includes(`${date}:DINNER`));
+
+  function reset() {
+    setStage("asking");
+    setSets([]);
+    setPlacements([]);
+    setAdded(0);
+    setAssisted(false);
+    setFailed(false);
+  }
+
+  function toggle(list: string[], value: string, set: (next: string[]) => void) {
+    set(list.includes(value) ? list.filter((one) => one !== value) : [...list, value]);
+  }
+
+  function ask() {
+    setFailed(false);
+    startTransition(async () => {
+      const result = await suggestBatch({ size, intents, cuisines, exclude: [] });
+      if (!result.ok) {
+        setFailed(true);
+        return;
+      }
+      setSets(result.sets.sets);
+      setAssisted(result.sets.assisted);
+      setStage("choosing");
+    });
+  }
+
+  /**
+   * Takes a set and pre-answers the question nobody wants to be asked five
+   * times: which evening. The free dinners of the week, in order, and every
+   * one of them can still be changed before anything is written.
+   */
+  function choose(set: BatchSet) {
+    setPlacements(
+      set.members.map((member, at) => ({
+        member,
+        date: free[at] ?? days[at % days.length],
+      })),
+    );
+    setStage("placing");
+  }
+
+  function place() {
+    startTransition(async () => {
+      let written = 0;
+      for (const one of placements) {
+        const proposal: WeekProposal = {
+          date: one.date,
+          slot: "DINNER" as Slot,
+          recipeId: one.member.recipeId,
+          title: one.member.title,
+          minutes: one.member.minutes,
+          cuisine: one.member.cuisine,
+          tags: one.member.tags,
+          hasPhoto: one.member.hasPhoto,
+          because: one.member.recipeId == null ? "IDEA" : "LIBRARY",
+          idea: one.member.idea,
+        };
+        const result = await acceptProposal(proposal);
+        if (result.ok) written += 1;
+      }
+      setAdded(written);
+      setStage("done");
+      router.refresh();
+    });
+  }
+
+  return (
+    <>
+      <Button
+        variant="secondary"
+        data-testid="suggest-batch"
+        onClick={() => {
+          reset();
+          setOpen(true);
+        }}
+      >
+        {t("action")}
+      </Button>
+
+      {open && (
+        <Dialog
+          title={t(`${stage}.title`)}
+          closeLabel={t("close")}
+          data-testid="batch-dialog"
+          onClose={() => setOpen(false)}
+        >
+          {stage === "asking" && (
+            <div className="mt-3 flex flex-col gap-6">
+              <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                {t("asking.body")}
+              </p>
+
+              <div className="flex flex-col gap-2">
+                <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+                  {t("asking.size")}
+                </span>
+                <Stepper
+                  data-testid="batch-size"
+                  value={size}
+                  onChange={setSize}
+                  min={FEWEST}
+                  max={MOST}
+                  size="xl"
+                  decreaseLabel={t("asking.fewer")}
+                  increaseLabel={t("asking.more")}
+                />
+              </div>
+
+              <Choices
+                label={t("asking.intents")}
+                values={INTENTS as readonly string[]}
+                selected={intents}
+                nameOf={(value) => tTags(value)}
+                onToggle={(value) => toggle(intents, value, setIntents)}
+              />
+
+              <Choices
+                label={t("asking.cuisines")}
+                values={CUISINES}
+                selected={cuisines}
+                nameOf={(value) => tCuisines(value)}
+                onToggle={(value) => toggle(cuisines, value, setCuisines)}
+              />
+
+              {failed && (
+                <p role="status" className="text-[13px] font-semibold text-coral-ink">
+                  {t("failed")}
+                </p>
+              )}
+
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={ask} loading={pending}>
+                  {t("asking.submit")}
+                </Button>
+                <Button variant="secondary" onClick={() => setOpen(false)}>
+                  {t("cancel")}
+                </Button>
+              </div>
+
+              {pending && (
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-text-dim">
+                  <Spinner /> {t("working")}
+                </p>
+              )}
+            </div>
+          )}
+
+          {stage === "choosing" && (
+            <div className="mt-3 flex flex-col gap-5">
+              {/* Nothing batches together is an answer, and it is often the
+                  right one: it means the library is varied, not broken. */}
+              {sets.length === 0 ? (
+                <>
+                  <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                    {t("choosing.none")}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="secondary" onClick={() => setStage("asking")}>
+                      {t("choosing.back")}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                    {t("choosing.body", { count: sets.length })}
+                  </p>
+                  {assisted && (
+                    <p className="text-[13px] font-semibold text-mint-ink">
+                      {t("choosing.assisted")}
+                    </p>
+                  )}
+
+                  <ul className="flex flex-col gap-3" data-testid="batch-sets">
+                    {sets.map((set, at) => (
+                      <SetCard
+                        key={at}
+                        set={set}
+                        index={at}
+                        onChoose={() => choose(set)}
+                      />
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+
+          {stage === "placing" && (
+            <div className="mt-3 flex flex-col gap-5">
+              <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                {t("placing.body")}
+              </p>
+
+              <ul className="flex flex-col gap-3" data-testid="batch-placements">
+                {placements.map((one, at) => (
+                  <li
+                    key={`${one.member.title}-${at}`}
+                    className="flex flex-col gap-2 rounded-sm border border-line bg-bg-raised-2 p-3"
+                  >
+                    <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
+                      {one.member.title}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {days.map((date) => (
+                        <Chip
+                          key={date}
+                          active={date === one.date}
+                          onClick={() =>
+                            setPlacements((current) =>
+                              current.map((other, index) =>
+                                index === at ? { ...other, date } : other,
+                              ),
+                            )
+                          }
+                        >
+                          <span className="capitalize">
+                            {formatDay(date, locale, { weekday: "short" })}
+                          </span>
+                        </Chip>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-wrap gap-3">
+                <Button data-testid="place-batch" loading={pending} onClick={place}>
+                  {t("placing.submit", { count: placements.length })}
+                </Button>
+                <Button variant="secondary" onClick={() => setStage("choosing")}>
+                  {t("placing.back")}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {stage === "done" && (
+            <div className="mt-3 flex flex-col gap-5">
+              <p className="text-[15px] leading-[1.5] font-medium text-text">
+                {t("done.body", { count: added })}
+              </p>
+              <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+                {t("done.next")}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {/* A link that looks like a control, for the reason the rest
+                    of this codebase gives: a Button inside a Link is two
+                    interactive elements where the markup promises one. */}
+                <Link
+                  href={{ pathname: "/app/plan/prep", query: { week: weekStart } }}
+                  data-testid="to-prep"
+                  className={buttonClasses()}
+                  onClick={() => setOpen(false)}
+                >
+                  {t("done.toPrep")}
+                </Link>
+                <Button variant="secondary" onClick={() => setOpen(false)}>
+                  {t("done.stay")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </Dialog>
+      )}
+    </>
+  );
+}
+
+function Choices({
+  label,
+  values,
+  selected,
+  nameOf,
+  onToggle,
+}: {
+  label: string;
+  values: readonly string[];
+  selected: string[];
+  nameOf: (value: string) => string;
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+        {label}
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {values.map((value) => (
+          <Chip
+            key={value}
+            active={selected.includes(value)}
+            onClick={() => onToggle(value)}
+          >
+            {nameOf(value)}
+          </Chip>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+/**
+ * One set, and what makes it one.
+ *
+ * The bases are the whole card: "these four, trust me" asks for faith, and
+ * "three of the four are built on the same 900 g of lentils" can be checked in
+ * a second by the person reading it.
+ */
+function SetCard({
+  set,
+  index,
+  onChoose,
+}: {
+  set: BatchSet;
+  index: number;
+  onChoose: () => void;
+}) {
+  const t = useTranslations("plan.batch");
+
+  return (
+    <li
+      data-testid={`batch-set-${index}`}
+      className="flex flex-col gap-3 rounded-md border border-line bg-bg-raised-2 p-4"
+    >
+      <p className="text-[13px] font-semibold text-text-dim">
+        {t("choosing.shared", {
+          count: set.sharedBy,
+          total: set.members.length,
+          base: set.bases[0]?.name ?? "",
+        })}
+      </p>
+
+      <ul className="flex flex-col gap-1">
+        {set.members.map((member, at) => (
+          <li key={`${member.title}-${at}`} className="flex flex-wrap items-center gap-2">
+            <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
+              {member.title}
+            </span>
+            {member.taggedBatch && <Badge tone="accent">{t("tagged")}</Badge>}
+            {member.recipeId == null && <Badge tone="mint">{t("idea")}</Badge>}
+            {member.minutes != null && (
+              <span className="tnum font-mono text-[11px] text-gray">
+                {t("minutes", { count: member.minutes })}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {/* Every base, not only the headline one: the second and third are what
+          say whether the afternoon is really shorter. */}
+      {set.bases.length > 0 && (
+        <ul className="flex flex-wrap gap-2">
+          {set.bases.map((base) => (
+            <li
+              key={`${base.name}-${base.unit}`}
+              className={cn(
+                "tnum rounded-full bg-bg-raised px-3 py-1 font-mono text-[11px] text-text-dim",
+              )}
+            >
+              {t("base", {
+                name: base.name,
+                quantity: base.quantity,
+                unit: base.unit,
+                count: base.dishes,
+              })}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div>
+        <Button
+          size="sm"
+          variant="secondary"
+          data-testid={`choose-set-${index}`}
+          onClick={onChoose}
+        >
+          {t("choosing.choose")}
+        </Button>
+      </div>
+    </li>
+  );
+}

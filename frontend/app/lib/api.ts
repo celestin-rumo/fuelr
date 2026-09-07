@@ -471,6 +471,74 @@ export type WeekSuggestion = {
   assisted: boolean;
 };
 
+/**
+ * One ingredient several dishes of a set are built on.
+ *
+ * Counted from lines the library already holds, never asserted: a set that
+ * says "these four, trust me" asks for faith, and one that says "three of the
+ * four are built on the same 900 g of lentils" can be checked in a second.
+ */
+export type BatchBase = {
+  name: string;
+  unit: string;
+  quantity: number;
+  dishes: number;
+};
+
+export type BatchMember = {
+  /** Null for an idea: it is not a recipe yet, and may never be. */
+  recipeId: number | null;
+  title: string;
+  minutes: number | null;
+  cuisine: string | null;
+  tags: string[];
+  hasPhoto: boolean;
+  /** Somebody had already said this one suits batch cooking. */
+  taggedBatch: boolean;
+  idea: WeekProposal["idea"];
+};
+
+export type BatchSet = {
+  members: BatchMember[];
+  bases: BatchBase[];
+  /** How many of the dishes the strongest base is used by. */
+  sharedBy: number;
+};
+
+export type BatchSets = {
+  sets: BatchSet[];
+  assisted: boolean;
+};
+
+/** One ingredient prepared once for several of the week's dishes. */
+export type PrepBase = {
+  name: string;
+  unit: string;
+  /** Summed across the dishes, at the servings each was planned for. */
+  quantity: number;
+  dishes: string[];
+};
+
+/** One dish's own work, once the shared bases are made. */
+export type PrepDish = {
+  mealId: number;
+  date: string;
+  slot: Slot;
+  title: string | null;
+  minutes: number;
+  servings: number;
+  steps: string[];
+  /** What is left after the shared bases, so nothing is done twice. */
+  rest: { name: string; quantity: number; unit: string }[];
+};
+
+export type PrepSession = {
+  weekStart: string;
+  bases: PrepBase[];
+  /** Longest first: what takes the longest starts, what cools waits. */
+  dishes: PrepDish[];
+};
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

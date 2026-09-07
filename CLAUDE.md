@@ -578,6 +578,41 @@ The loop is bounded at four rounds. A conversation that cannot end is not one,
 so what is offered instead is the honest exit: keep what suits you and fill the
 rest by hand.
 
+**Sharing an ingredient is not sharing work.** Two dishes that both use onion
+do not get prepared together for that reason, and a set built by counting every
+ingredient in common produces absurd groupings that look rigorous — four dishes
+"sharing" salt, pepper and olive oil. `SharedBase` is the whole rule and it is
+about quantity rather than names: the unit has to be one you weigh or count
+(`g`, `ml`, `pcs` — a tablespoon of anything is a seasoning by definition), and
+the amount has to be a real one, which is what keeps saffron out. A line with no
+unit counts for nothing, as everywhere else. Keys come from
+`ShoppingService.key`, because a base counted under one key and bought under
+another is a plan that disagrees with the list it was built from.
+
+**Two ends of the word "preparation", and they must not be one screen.**
+`BatchSuggestionService` *chooses* a week so the work can be shared:
+`POST /api/plan/suggest/batch` grows sets from a seed, and a group where no base
+is used by more than half its members is dropped rather than offered — three
+curries with nothing in common are not a batch. `PrepService` reads a week
+somebody already filled and organises it: `GET /api/plan/prep` groups by shared
+base, gives the total actually to cook, orders dishes longest-first, and leaves
+out of each dish whatever the bases already made. Both are arithmetic over lines
+already stored, so the common case costs nothing.
+
+A model is asked only when the library cannot form a single set — and what it
+returns goes through the same arithmetic, so a set always says what it shares
+because somebody counted. Asking for a common base and being told there is one
+are two different things, and only the second is checkable: a set that turns
+out to share nothing is dropped rather than dressed up.
+
+**Nothing anywhere says how long anything keeps.** No published figure sits
+behind a shelf life, and an invented one is a health risk rather than an
+approximation. The work plan says out loud that it does not know and leaves the
+decision with the person who can smell the fridge. It is also not cooking mode:
+that follows one recipe, one step at a time, with dirty hands, while this is a
+sheet read before starting — and printed, because two hours of cooking happen
+with wet hands and a phone that has gone dark.
+
 **The shopping list is stored, not derived.** A ticked box is a fact about
 somebody standing in a shop, so it has to survive the plan changing under it.
 Reading the list regenerates it — quantities recomputed, lines the week no

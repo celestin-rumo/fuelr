@@ -235,6 +235,86 @@
         "toShopping": "Einkaufsliste ansehen",
         "stay": "Im Plan bleiben"
       }
+    },
+    "batch": {
+      "action": "Auf einmal kochen",
+      "close": "Schliessen",
+      "cancel": "Abbrechen",
+      "working": "Wir suchen, was sich zusammen vorbereiten lässt…",
+      "failed": "Der Vorschlag kam nicht zurück. Bitte erneut versuchen.",
+      "minutes": "{count} Min.",
+      "tagged": "Batch Cooking",
+      "idea": "Idee zum Schreiben",
+      "base": "{name} — {quantity} {unit} für {count, plural, one {1 Gericht} other {# Gerichte}}",
+      "asking": {
+        "title": "Auf einmal kochen",
+        "body": "Wir suchen Gerichte auf einer gemeinsamen Basis, damit Rüsten und Garen nur einmal anfallen.",
+        "size": "Wie viele Gerichte",
+        "fewer": "Ein Gericht weniger",
+        "more": "Ein Gericht mehr",
+        "intents": "Lust auf",
+        "cuisines": "Küchen",
+        "submit": "Eine Gruppe suchen"
+      },
+      "choosing": {
+        "title": "Was sich zusammen vorbereiten lässt",
+        "body": "{count, plural, one {Eine Gruppe gefunden.} other {# Gruppen gefunden.}} Im Plan steht noch nichts.",
+        "assisted": "Ihre Rezepte ergaben keine Gruppe: Diese stammt von einem Modell.",
+        "shared": "{count} von {total} Gerichten bauen auf {base} auf.",
+        "choose": "Diese Gruppe nehmen",
+        "none": "Nichts in Ihren Rezepten lässt sich wirklich zusammen vorbereiten. Das ist eine vielseitige Sammlung, kein Fehler — zwei Gerichte mit einer Zwiebel sind kein Batch.",
+        "back": "Anfrage ändern"
+      },
+      "placing": {
+        "title": "An welchen Tagen",
+        "body": "Die freien Abendessen der Woche, der Reihe nach. Ändern Sie, was nicht passt.",
+        "submit": "{count, plural, one {Das Gericht} other {Die # Gerichte}} in den Plan aufnehmen",
+        "back": "Zurück zu den Gruppen"
+      },
+      "done": {
+        "title": "Es steht im Plan",
+        "body": "{count, plural, =0 {Nichts wurde aufgenommen.} one {Ein Gericht zur Woche hinzugefügt.} other {# Gerichte zur Woche hinzugefügt.}}",
+        "next": "Der Arbeitsplan liest die ganze Woche und sagt, was einmal für mehrere Gerichte vorbereitet wird.",
+        "toPrep": "Arbeitsplan ansehen",
+        "stay": "Im Plan bleiben"
+      }
+    },
+    "prep": {
+      "action": "Arbeitsplan",
+      "label": "Vorbereitung",
+      "title": "Die Woche in einer Session kochen",
+      "intro": "Was einmal für mehrere Mahlzeiten vorbereitet wird, dann jedes Gericht, das längste zuerst.",
+      "backToPlan": "Zurück zum Plan",
+      "print": {
+        "title": "Arbeitsplan",
+        "week": "Woche vom {date}",
+        "empty": "Für diese Woche ist nichts geplant.",
+        "button": "Drucken"
+      },
+      "keeping": "Fuelr kennt keine Haltbarkeitsdauern und erfindet auch keine. Was sich bis wann hält, beurteilen Sie selbst.",
+      "bases": {
+        "title": "Gemeinsame Basis",
+        "hint": "Einmal vorbereiten, für die ganze Woche.",
+        "quantity": "{quantity} {unit}",
+        "forDishes": "Für: {dishes}",
+        "none": "Diese Woche gibt es keine gemeinsame Basis. Die geplanten Gerichte teilen nichts, was man einmal vorbereitet — eine vielseitige Woche, kein Problem."
+      },
+      "dishes": {
+        "title": "Dann jedes Gericht",
+        "hint": "Das längste beginnt; was abkühlt, wartet.",
+        "meta": "{day} · {slot} · {minutes} Min. · {servings} Pers.",
+        "line": "{quantity} {unit} {name}",
+        "allShared": "Alles ist schon in der gemeinsamen Basis fertig."
+      },
+      "empty": {
+        "title": "Diese Woche gibt es nichts vorzubereiten",
+        "body": "Der Arbeitsplan liest, was auf den Tagen steht. Füllen Sie die Woche, dann hat er etwas zu ordnen.",
+        "action": "Zum Plan"
+      },
+      "unavailable": {
+        "title": "Arbeitsplan nicht verfügbar",
+        "body": "Die Woche konnte nicht gelesen werden. Bitte gleich erneut versuchen."
+      }
     }
   },
   "household": {

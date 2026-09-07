@@ -49,4 +49,25 @@ public interface MenuIntelligence {
      */
     Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
                      int wanted, List<String> already, String note);
+
+    /**
+     * Dishes meant to be cooked in one session.
+     *
+     * A third method, and again because the prompt is a different question:
+     * `suggestFor` asks for dishes that each answer a wish, and any four of
+     * them may share nothing at all. This one asks for a *set* — dishes built
+     * on the same base, so the peeling and the roasting happen once.
+     *
+     * What comes back is still only a list of dishes with their ingredients.
+     * What the set actually shares is computed from those lines by
+     * `SharedBase`, never taken from anything the model says about itself: a
+     * claim of sharing is exactly the kind of thing that is cheap to assert
+     * and expensive to be wrong about.
+     *
+     * @param intents  closed-domain tags: vegetarian, quick, protein…
+     * @param cuisines closed-domain cuisines; several mean either
+     * @param wanted   how many dishes the set should hold
+     */
+    Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                       int wanted);
 }

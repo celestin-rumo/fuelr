@@ -54,7 +54,7 @@ function answer(proposals: WeekProposal[], rest: Partial<WeekSuggestion> = {}) {
 
 /** The whole first screen, up to the proposals being on show. */
 async function askFor(proposals: WeekProposal[], rest: Partial<WeekSuggestion> = {}) {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   suggestWeek.mockResolvedValueOnce(answer(proposals, rest));
   renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[]} />);
   await user.click(screen.getByTestId("suggest-week"));
@@ -68,7 +68,7 @@ beforeEach(() => {
 });
 
 it("asks in the direction that was chosen, and writes nothing by asking", async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   suggestWeek.mockResolvedValueOnce(answer([proposal()]));
   renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[`${TUESDAY}:DINNER`]} />);
 
