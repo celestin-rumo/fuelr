@@ -55,10 +55,33 @@ public class WeekSuggestionController {
             Set<String> intents,
             Set<String> cuisines,
             List<String> slots,
-            /** Days to leave alone: already planned, or pinned by the cook. */
-            List<String> skipDays,
+            /**
+             * Slots already decided — kept from a previous answer, or already
+             * planned. Per slot rather than per day, because correcting a week
+             * happens one dinner at a time: keeping Tuesday must not mean
+             * giving up on Tuesday lunch.
+             */
+            List<Taken> keep,
             /** Recipes not to propose again — refused, or already placed. */
-            Set<Long> exclude) {
+            Set<Long> exclude,
+            /**
+             * Titles already seen, kept or refused.
+             *
+             * An idea has no id, so it can only be excluded by its name — and
+             * a proposal that comes back after a refusal is the fastest way to
+             * lose somebody.
+             */
+            Set<String> excludeTitles,
+            /**
+             * What somebody typed when refusing — "moins de pâtes", "quelque
+             * chose de plus léger". Optional, and it only reaches the model:
+             * the library matches on tags and a cuisine, and inventing a search
+             * over free text would be guessing at what somebody meant.
+             */
+            String note) {
+    }
+
+    public record Taken(String date, String slot) {
     }
 
     public record Idea(
@@ -110,31 +133,32 @@ public class WeekSuggestionController {
         Long userId = Long.valueOf(principal.getSubject());
 
         LocalDate monday = PlanService.weekStart(LocalDate.parse(request.week()));
-        Set<String> skip = request.skipDays() == null
-                ? Set.of() : Set.copyOf(request.skipDays());
-        List<LocalDate> days = new ArrayList<>();
-        for (int day = 0; day < 7; day++) {
-            LocalDate date = monday.plusDays(day);
-            if (!skip.contains(date.toString())) {
-                days.add(date);
-            }
-        }
 
         List<MealSlot> slots = request.slots() == null || request.slots().isEmpty()
                 // Dinner, because that is the meal a week is planned around.
                 ? List.of(MealSlot.DINNER)
                 : request.slots().stream().map(MealSlot::valueOf).toList();
 
-        // Trimmed rather than refused: asking for the whole week is a
-        // reasonable thing to try, and answering fourteen of it beats a 400.
-        while (days.size() * slots.size() > MOST_SLOTS && !days.isEmpty()) {
-            days.remove(days.size() - 1);
+        Set<String> taken = request.keep() == null ? Set.of()
+                : request.keep().stream().map(one -> one.date() + one.slot())
+                        .collect(java.util.stream.Collectors.toSet());
+
+        // Every slot of the week that is still open, in order.
+        List<WeekSuggestionService.Slot> open = new ArrayList<>();
+        for (int day = 0; day < 7 && open.size() < MOST_SLOTS; day++) {
+            LocalDate date = monday.plusDays(day);
+            for (MealSlot slot : slots) {
+                if (!taken.contains(date + slot.name()) && open.size() < MOST_SLOTS) {
+                    open.add(new WeekSuggestionService.Slot(date, slot));
+                }
+            }
         }
 
         WeekSuggestionService.Wanted wanted = new WeekSuggestionService.Wanted(
                 request.intents(),
                 WeekSuggestionService.knownCuisines(request.cuisines()),
-                days, slots, request.exclude());
+                open, request.exclude(),
+                request.excludeTitles() == null ? Set.of() : request.excludeTitles());
 
         WeekSuggestionService.Suggestion own = suggestions.fromLibrary(userId, wanted);
         List<ProposalView> proposals = new ArrayList<>(own.proposals().stream()
@@ -142,13 +166,13 @@ public class WeekSuggestionController {
 
         boolean assisted = false;
         if (own.unfilled() > 0) {
-            List<ProposalView> invented = fromModel(userId, wanted, own, proposals);
+            List<ProposalView> invented =
+                    fromModel(userId, wanted, own, proposals, request.note());
             assisted = !invented.isEmpty();
             proposals.addAll(invented);
         }
 
-        int asked = days.size() * slots.size();
-        return new SuggestionView(proposals, asked - proposals.size(), assisted);
+        return new SuggestionView(proposals, open.size() - proposals.size(), assisted);
     }
 
     /**
@@ -161,7 +185,7 @@ public class WeekSuggestionController {
      */
     private List<ProposalView> fromModel(Long userId, WeekSuggestionService.Wanted wanted,
                                          WeekSuggestionService.Suggestion own,
-                                         List<ProposalView> already) {
+                                         List<ProposalView> already, String note) {
         MenuIntelligence reader = readers.stream()
                 .filter(MenuIntelligence::available)
                 .findFirst()
@@ -181,31 +205,30 @@ public class WeekSuggestionController {
                     wanted.intents() == null ? Set.of() : wanted.intents(),
                     wanted.cuisines(),
                     own.unfilled(),
-                    already.stream().map(ProposalView::title).toList());
+                    already.stream().map(ProposalView::title).toList(),
+                    note);
             budget.record(userId, "WEEK_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
             // Laid onto the slots the library left empty, in order.
             List<ProposalView> placed = new ArrayList<>();
-            Set<String> taken = new LinkedHashSet<>();
-            already.forEach(one -> taken.add(one.date() + one.slot()));
+            Set<String> filled = new LinkedHashSet<>();
+            already.forEach(one -> filled.add(one.date() + one.slot()));
 
             int at = 0;
-            for (LocalDate day : wanted.days()) {
-                for (MealSlot slot : wanted.slots()) {
-                    if (taken.contains(day + slot.name())) {
-                        continue;
-                    }
-                    if (at >= ideas.suggestions().size()) {
-                        return placed;
-                    }
-                    MenuDtos.Suggestion idea = ideas.suggestions().get(at++);
-                    placed.add(new ProposalView(
-                            day.toString(), slot.name(), null, idea.title(),
-                            idea.minutes(), null, Set.of(), false, "IDEA",
-                            new Idea(idea.title(), idea.minutes(),
-                                    idea.ingredients(), idea.steps())));
+            for (WeekSuggestionService.Slot slot : wanted.slots()) {
+                if (filled.contains(slot.date() + slot.slot().name())) {
+                    continue;
                 }
+                if (at >= ideas.suggestions().size()) {
+                    return placed;
+                }
+                MenuDtos.Suggestion idea = ideas.suggestions().get(at++);
+                placed.add(new ProposalView(
+                        slot.date().toString(), slot.slot().name(), null, idea.title(),
+                        idea.minutes(), null, Set.of(), false, "IDEA",
+                        new Idea(idea.title(), idea.minutes(),
+                                idea.ingredients(), idea.steps())));
             }
             return placed;
         } catch (RuntimeException e) {

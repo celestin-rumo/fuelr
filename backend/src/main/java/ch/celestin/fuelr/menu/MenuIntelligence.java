@@ -48,5 +48,5 @@ public interface MenuIntelligence {
      * @param already  titles already proposed, not to be repeated
      */
     Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                     int wanted, List<String> already);
+                     int wanted, List<String> already, String note);
 }

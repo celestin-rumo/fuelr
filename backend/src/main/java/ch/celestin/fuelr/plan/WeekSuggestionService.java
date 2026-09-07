@@ -62,14 +62,27 @@ public class WeekSuggestionService {
             boolean libraryExhausted) {
     }
 
+    /** One place on the week that still wants a dish. */
+    public record Slot(LocalDate date, MealSlot slot) {
+    }
+
     /** What somebody asked for. Both halves are optional, and often both are set. */
     public record Wanted(
             Set<String> intents,
             Set<String> cuisines,
-            List<LocalDate> days,
-            List<MealSlot> slots,
+            /**
+             * The slots still open, in order. Per slot rather than per day,
+             * because correcting a week happens one dinner at a time.
+             */
+            List<Slot> slots,
             /** Recipes not to propose: already on the plan, or already refused. */
-            Set<Long> exclude) {
+            Set<Long> exclude,
+            /**
+             * Titles already seen. An idea has no id, so a refusal can only be
+             * remembered by name — and a proposal that comes back after being
+             * refused is the fastest way to lose somebody.
+             */
+            Set<String> excludeTitles) {
     }
 
     private final RecipeService recipes;
@@ -91,9 +104,13 @@ public class WeekSuggestionService {
         Set<String> intents = wanted.intents() == null ? Set.of() : wanted.intents();
         Set<String> cuisines = wanted.cuisines() == null ? Set.of() : wanted.cuisines();
         Set<Long> exclude = wanted.exclude() == null ? Set.of() : wanted.exclude();
+        Set<String> refused = wanted.excludeTitles() == null
+                ? Set.of() : wanted.excludeTitles();
 
         List<Recipe> matching = recipes.list(userId).stream()
                 .filter(recipe -> !exclude.contains(recipe.getId()))
+                .filter(recipe -> recipe.getTitle() == null
+                        || !refused.contains(recipe.getTitle()))
                 // A draft is a recipe somebody has not finished writing. It has
                 // no business being proposed for Thursday.
                 .filter(recipe -> recipe.getStatus() == Recipe.Status.PUBLISHED)
@@ -106,22 +123,21 @@ public class WeekSuggestionService {
         Set<Long> used = new LinkedHashSet<>();
         int at = 0;
 
-        for (LocalDate day : wanted.days()) {
-            for (MealSlot slot : wanted.slots()) {
-                // Each recipe once. Running out is an honest answer.
-                while (at < matching.size() && used.contains(matching.get(at).getId())) {
-                    at++;
-                }
-                if (at >= matching.size()) {
-                    break;
-                }
-                Recipe recipe = matching.get(at++);
-                used.add(recipe.getId());
-                proposals.add(proposalOf(day, slot, recipe, intents, cuisines));
+        for (Slot slot : wanted.slots()) {
+            // Each recipe once. Running out is an honest answer; the same dish
+            // four times is a proposal somebody deletes rather than reads.
+            while (at < matching.size() && used.contains(matching.get(at).getId())) {
+                at++;
             }
+            if (at >= matching.size()) {
+                break;
+            }
+            Recipe recipe = matching.get(at++);
+            used.add(recipe.getId());
+            proposals.add(proposalOf(slot.date(), slot.slot(), recipe, intents, cuisines));
         }
 
-        int asked = wanted.days().size() * wanted.slots().size();
+        int asked = wanted.slots().size();
         return new Suggestion(
                 proposals, asked - proposals.size(), proposals.size() < asked);
     }

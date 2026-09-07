@@ -167,7 +167,9 @@
       "remove": "Retirer du planning",
       "plannedBy": "Ajouté par {name}",
       "cooked": "Cuisiné",
-      "cookedHint": "Retire les ingrédients du placard."
+      "cookedHint": "Retire les ingrédients du placard.",
+      "haveEverything": "J'ai déjà tout pour ce repas",
+      "haveEverythingHint": "Ses ingrédients sortent de la liste de courses. Le repas reste au planning."
     },
     "noRecipes": {
       "title": "Aucune recette à planifier",
@@ -180,7 +182,60 @@
     },
     "sharedWith": "Foyer · {count} comptes",
     "addToDay": "+ Ajouter un repas",
-    "addToDayLabel": "Ajouter un repas — {day}"
+    "addToDayLabel": "Ajouter un repas — {day}",
+    "suggest": {
+      "action": "Remplir la semaine",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "working": "On cherche dans vos recettes…",
+      "failed": "La proposition n'a pas abouti. Réessayez.",
+      "minutes": "{count} min",
+      "refuse": "Pas celui-là",
+      "undoRefuse": "Le garder finalement",
+      "whyNot": "Pourquoi pas celui-là ?",
+      "because": {
+        "MATCHED_CUISINE": "Votre recette",
+        "MATCHED_INTENT": "Votre recette",
+        "LIBRARY": "Votre recette",
+        "IDEA": "Idée à écrire"
+      },
+      "reasons": {
+        "notTonight": "Pas envie",
+        "tooLong": "Trop long",
+        "tooOften": "Trop souvent",
+        "missingIngredients": "Ingrédients manquants"
+      },
+      "asking": {
+        "title": "Remplir la semaine",
+        "body": "Dites dans quelle direction, et on regarde d'abord dans vos recettes.",
+        "intents": "Envie",
+        "intentsHint": "Plusieurs envies se cumulent : végétarien et rapide veut dire les deux.",
+        "cuisines": "Cuisines",
+        "cuisinesHint": "Plusieurs cuisines, c'est un choix entre elles.",
+        "slots": "Repas",
+        "slotsHint": "Le dîner par défaut, parce que c'est autour de lui qu'une semaine se planifie.",
+        "submit": "Proposer une semaine"
+      },
+      "reviewing": {
+        "title": "La semaine proposée",
+        "body": "{count, plural, =0 {Rien à proposer pour l'instant.} one {Un plat proposé.} other {# plats proposés.}} Rien n'est encore au planning.",
+        "assisted": "Vos recettes n'ont pas suffi : les idées viennent d'un modèle.",
+        "unfilled": "{count, plural, one {Un repas sans proposition.} other {# repas sans proposition.}}",
+        "note": "Autre chose à préciser ?",
+        "noteHint": "Par exemple « moins de pâtes ». Facultatif.",
+        "reask": "Reproposer {count, plural, one {le repas refusé} other {les # repas refusés}}",
+        "accept": "Ajouter {count, plural, one {le repas} other {les # repas}} au planning",
+        "acceptKept": "Garder seulement {count, plural, one {ce repas} other {ces # repas}}",
+        "enough": "Assez d'essais pour cette fois. Gardez ce qui vous va, le reste se complète à la main."
+      },
+      "done": {
+        "title": "C'est au planning",
+        "body": "{count, plural, =0 {Rien n'a été ajouté.} one {Un repas ajouté à la semaine.} other {# repas ajoutés à la semaine.}}",
+        "shopping": "La liste de courses est déjà à jour. Vous pouvez encore en retirer ce que vous avez déjà.",
+        "toShopping": "Voir la liste de courses",
+        "stay": "Rester sur le planning"
+      }
+    }
   },
   "household": {
     "label": "Foyer",
@@ -299,6 +354,13 @@
       "week": "Semaine du {date}",
       "covered": "Déjà au placard",
       "empty": "Rien à acheter cette semaine."
+    },
+    "meals": {
+      "title": "{count, plural, one {Le repas de la semaine} other {Les # repas de la semaine}}",
+      "excluded": "{count, plural, one {1 retiré} other {# retirés}}",
+      "hint": "Décochez un repas dont vous avez déjà tout : ses ingrédients sortent de la liste, le repas reste au planning.",
+      "row": "{day} · {slot} — {title}",
+      "untitled": "Sans titre"
     }
   },
   "journal": {

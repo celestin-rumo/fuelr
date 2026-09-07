@@ -15,6 +15,7 @@ import { SLOTS, addDays, formatDay, weekDays } from "@app/lib/week";
 import { kcal } from "@app/lib/nutrition-format";
 import type { Slot } from "@app/lib/week";
 import { SectionHead } from "@ui/section-head";
+import { WeekSuggest } from "@app/components/app/week-suggest";
 import { Icon } from "@ui/icons";
 import {
   copyWeek,
@@ -130,6 +131,12 @@ export function WeekPlanner({
         accounts={plan.accounts}
         onHousehold={changeHousehold}
         onDuplicate={() => duplicate(false)}
+        suggest={
+          <WeekSuggest
+            weekStart={plan.weekStart}
+            planned={plan.meals.map((meal) => `${meal.date}:${meal.slot}`)}
+          />
+        }
       />
 
       <div className="grid gap-6 xl:grid-cols-[240px_1fr]">
@@ -334,6 +341,9 @@ export function WeekPlanner({
           }
           onMove={(patch) => run(() => updatePlannedMeal(editingMeal.id, patch))}
           onCooked={(cooked) => run(() => markCooked(editingMeal.id, cooked))}
+          onShopping={(inShopping) =>
+            run(() => updatePlannedMeal(editingMeal.id, { inShopping }))
+          }
           onRemove={() => {
             setEditing(null);
             run(() => removePlannedMeal(editingMeal.id));
@@ -375,6 +385,7 @@ function Toolbar({
   accounts,
   onHousehold,
   onDuplicate,
+  suggest,
 }: {
   weekStart: string;
   today: string;
@@ -384,6 +395,8 @@ function Toolbar({
   accounts: number;
   onHousehold: (size: number) => void;
   onDuplicate: () => void;
+  /** The whole suggestion flow, which owns its own dialog. */
+  suggest: ReactNode;
 }) {
   const t = useTranslations("plan");
   const label = t("week", {
@@ -442,6 +455,8 @@ function Toolbar({
           increaseLabel={t("household.more")}
         />
       </div>
+
+      {suggest}
 
       <Button variant="secondary" onClick={onDuplicate}>
         {t("duplicate.action")}
@@ -636,6 +651,7 @@ function MealSheet({
   onServings,
   onMove,
   onCooked,
+  onShopping,
   onRemove,
   onClose,
 }: {
@@ -645,6 +661,7 @@ function MealSheet({
   onServings: (servings: number) => void;
   onMove: (patch: { date?: string; slot?: Slot }) => void;
   onCooked: (cooked: boolean) => void;
+  onShopping: (inShopping: boolean) => void;
   onRemove: () => void;
   onClose: () => void;
 }) {
@@ -714,6 +731,22 @@ function MealSheet({
           label={t("meal.cooked")}
         />
         <p className="mt-1 text-[13px] font-semibold text-gray">{t("meal.cookedHint")}</p>
+      </section>
+
+      <section className="mt-6">
+        {/* A statement about a cupboard, not about a dinner: the meal stays
+            planned, keeps its figures and is still cooked — only the shopping
+            list stops asking for it. */}
+        <Checkbox
+          className="min-h-11"
+          checked={!meal.inShopping}
+          onChange={(event) => onShopping(!event.target.checked)}
+          data-testid="meal-have-everything"
+          label={t("meal.haveEverything")}
+        />
+        <p className="mt-1 text-[13px] font-semibold text-gray">
+          {t("meal.haveEverythingHint")}
+        </p>
       </section>
 
       <div className="mt-8 flex flex-wrap gap-3">

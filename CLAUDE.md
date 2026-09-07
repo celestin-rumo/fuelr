@@ -551,6 +551,33 @@ three chances for the pricing page to disagree with what a checkout charges.
 session (the pricing page is read by people who have no account), and each
 locale formats them for its own reader.
 
+**Filling a week is a proposal, and correcting it is the point.**
+`POST /api/plan/suggest` answers with dishes laid on days and writes nothing —
+`WeekSuggestionService` searches the cook's own recipes first, where an
+intention is a tag and a cuisine is a column, so the common case costs nothing
+at all. A model is asked only for the slots the library could not fill, only
+for an account entitled to it, and only while there is budget; every one of
+those refusals ends the same way, with fewer proposals rather than an error.
+
+The request is per *slot*, not per day: `keep` carries what is already decided
+— the meals on the plan and the proposals somebody chose to keep — so a second
+round replaces exactly what was turned down. Keeping Tuesday's dinner must not
+give up on Tuesday's lunch. What was refused travels back as `exclude` **and**
+`excludeTitles`, because an idea has no id and a dish that reappears after
+being turned down is the fastest way to lose somebody.
+
+Refusals come from a closed list, and only one of them does anything: "trop
+long" adds `quick` to the next ask, and the chip lighting up says so. The other
+three are honest exclusions — acting on "pas envie" would be inventing a rule
+nobody asked for. Beside them is one free-text `note`, which reaches a model
+and nothing else: it is quoted into the prompt as something somebody said,
+never as an instruction, with its own quotes flattened and 200 characters as
+the cap. It is the import's SSRF lesson again, in the third costume.
+
+The loop is bounded at four rounds. A conversation that cannot end is not one,
+so what is offered instead is the honest exit: keep what suits you and fill the
+rest by hand.
+
 **The shopping list is stored, not derived.** A ticked box is a fact about
 somebody standing in a shop, so it has to survive the plan changing under it.
 Reading the list regenerates it — quantities recomputed, lines the week no
@@ -558,6 +585,16 @@ longer needs dropped, new ones added — and the merge leaves every tick and
 every free item exactly where they were. That is why a GET writes, and why
 there is no "regenerate" button: a list that only followed the plan when
 somebody remembered to press one would be wrong most of the time.
+
+**A meal somebody already has everything for buys nothing.**
+`planned_meals.in_shopping` is a fact about a cupboard, not about a dinner: the
+meal stays on the plan, keeps its figures, is still cooked and still counted —
+only `PlanService.ingredients` stops reporting it, and the list regenerates
+without those lines on the next read. It had to live on the meal rather than on
+a list line, because the list is rebuilt from the week every time it is opened
+and a decision stored on a line would be taken again next Monday. Ticks and
+hand-added items survive it untouched, which is the same merge that has always
+run.
 
 **A line is identified by its name and its unit, and by one function.**
 `ShoppingService.key` is the only definition. There were two once — a space on

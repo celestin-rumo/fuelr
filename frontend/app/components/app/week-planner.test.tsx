@@ -26,6 +26,11 @@ const updatePlannedMeal = vi.fn(async () => ({ ok: true }));
 const removePlannedMeal = vi.fn(async () => ({ ok: true }));
 const setHouseholdSize = vi.fn(async () => ({ ok: true }));
 const copyWeek = vi.fn(async () => ({ ok: true as const, week: {} as WeekPlan }));
+const suggestWeek = vi.fn(async () => ({
+  ok: true as const,
+  suggestion: { proposals: [], unfilled: 0, assisted: false },
+}));
+const acceptProposal = vi.fn(async () => ({ ok: true }));
 
 vi.mock("@app/[locale]/(app)/app/plan/actions", () => ({
   planMeal: (...args: unknown[]) => planMeal(...(args as [])),
@@ -33,6 +38,8 @@ vi.mock("@app/[locale]/(app)/app/plan/actions", () => ({
   removePlannedMeal: (...args: unknown[]) => removePlannedMeal(...(args as [])),
   setHouseholdSize: (...args: unknown[]) => setHouseholdSize(...(args as [])),
   copyWeek: (...args: unknown[]) => copyWeek(...(args as [])),
+  suggestWeek: (...args: unknown[]) => suggestWeek(...(args as [])),
+  acceptProposal: (...args: unknown[]) => acceptProposal(...(args as [])),
 }));
 
 const MONDAY = "2026-03-02";
@@ -54,6 +61,7 @@ function mealWith(overrides: Partial<PlannedMeal> = {}): PlannedMeal {
     estimated: false,
     plannedBy: null,
     cooked: false,
+    inShopping: true,
     ...overrides,
   };
 }

@@ -147,6 +147,22 @@ test("the planner offers a day rather than seven empty slots", async ({
   await holdsUp(page);
 });
 
+test("filling the week holds up on a phone", async ({ request, page }) => {
+  await seed(request, "Dahl de lentilles");
+  await page.goto(`/fr/app/planning?week=${MONDAY}`);
+  await expect(page.getByTestId("week-grid")).toBeVisible();
+  await holdsUp(page);
+
+  // Three rows of chips and a submit, on 360px.
+  await page.getByTestId("suggest-week").click();
+  await expect(page.getByTestId("suggest-dialog")).toBeVisible();
+  await holdsUp(page);
+
+  await page.getByRole("button", { name: "Proposer une semaine" }).click();
+  await expect(page.getByTestId("proposals")).toBeVisible();
+  await holdsUp(page);
+});
+
 test("a dialog can be read to its bottom on a short screen", async ({
   request,
   page,
