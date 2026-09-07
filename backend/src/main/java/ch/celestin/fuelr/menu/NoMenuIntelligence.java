@@ -28,19 +28,21 @@ public class NoMenuIntelligence implements MenuIntelligence {
     }
 
     @Override
-    public Ideas suggest(String have, int wanted, List<String> already) {
+    public Ideas suggest(String have, int wanted, List<String> already,
+                         ch.celestin.fuelr.preferences.Constraints constraints) {
         return nothing();
     }
 
     @Override
     public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                            int wanted, List<String> already, String note) {
+                            int wanted, List<String> already, String note,
+                            ch.celestin.fuelr.preferences.Constraints constraints) {
         return nothing();
     }
 
     @Override
     public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                              int wanted) {
+                              int wanted, ch.celestin.fuelr.preferences.Constraints constraints) {
         return nothing();
     }
 

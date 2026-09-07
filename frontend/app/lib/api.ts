@@ -4,6 +4,7 @@ import type { Slot } from "./week";
 import type { Season } from "./seasons";
 import type { Cuisine } from "./cuisines";
 import type { RecipeOrigin } from "./origins";
+import type { Allergen, Diet } from "./preferences";
 
 function backendUrl() {
   return process.env.BACKEND_INTERNAL_URL ?? "http://backend:8080";
@@ -565,6 +566,16 @@ export type WeightView = {
   latest: WeightEntry | null;
   /** What the journal's target is computed from today. Null without a profile. */
   profileWeightKg: number | null;
+};
+
+/**
+ * What somebody does not eat, said once. The two closed lists constrain the
+ * AI screens by code; the free line reaches a model quoted and nothing else.
+ */
+export type DietaryPreferences = {
+  diet: Diet;
+  allergens: Allergen[];
+  dislikes: string | null;
 };
 
 export type RecipeSummary = {

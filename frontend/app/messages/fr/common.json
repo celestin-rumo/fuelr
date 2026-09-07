@@ -764,7 +764,8 @@
     },
     "filters": {
       "toggle": "Filtrer",
-      "remove": "Retirer le filtre {name}"
+      "remove": "Retirer le filtre {name}",
+      "compatible": "Compatible avec mes préférences"
     },
     "print": {
       "button": "Imprimer",
@@ -1219,5 +1220,46 @@
       "action": "Recalculer la cible"
     },
     "nothingSaid": "Un chiffre et sa date. Fuelr n'en tire aucune conclusion."
+  },
+  "preferences": {
+    "title": "Ce que je ne mange pas",
+    "hint": "Dit une fois, et retenu par les écrans qui proposent des plats.",
+    "saved": "Préférences enregistrées.",
+    "failed": "Ça n'a pas été enregistré. Réessayez.",
+    "submit": "Enregistrer",
+    "diet": {
+      "label": "Régime",
+      "options": {
+        "NONE": "Tout",
+        "PESCATARIAN": "Pescétarien",
+        "VEGETARIAN": "Végétarien",
+        "VEGAN": "Végétalien"
+      }
+    },
+    "allergens": {
+      "label": "Allergies",
+      "hint": "Les quatorze de la déclaration européenne. Un plat proposé qui en nomme une dans ses ingrédients est écarté par le code, quoi qu'en dise le modèle.",
+      "names": {
+        "GLUTEN": "Gluten",
+        "CRUSTACEANS": "Crustacés",
+        "EGGS": "Œufs",
+        "FISH": "Poisson",
+        "PEANUTS": "Arachides",
+        "SOY": "Soja",
+        "MILK": "Lait",
+        "NUTS": "Fruits à coque",
+        "CELERY": "Céleri",
+        "MUSTARD": "Moutarde",
+        "SESAME": "Sésame",
+        "SULPHITES": "Sulfites",
+        "LUPIN": "Lupin",
+        "MOLLUSCS": "Mollusques"
+      }
+    },
+    "dislikes": {
+      "label": "Je n'aime pas",
+      "hint": "En clair, 200 caractères. Ça part au modèle entre guillemets — comme une remarque, jamais comme une consigne — et rien d'autre ne l'applique. Une allergie va dans les cases au-dessus."
+    },
+    "filter": "Compatible avec mes préférences"
   }
 }

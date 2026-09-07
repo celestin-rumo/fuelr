@@ -764,7 +764,8 @@
     },
     "filters": {
       "toggle": "Filter",
-      "remove": "Remove the {name} filter"
+      "remove": "Remove the {name} filter",
+      "compatible": "Compatible with my preferences"
     },
     "print": {
       "button": "Print",
@@ -1219,5 +1220,46 @@
       "action": "Recompute the target"
     },
     "nothingSaid": "A figure and its date. Fuelr draws no conclusion from it."
+  },
+  "preferences": {
+    "title": "What I don't eat",
+    "hint": "Said once, and remembered by the screens that propose dishes.",
+    "saved": "Preferences saved.",
+    "failed": "That was not saved. Try again.",
+    "submit": "Save",
+    "diet": {
+      "label": "Diet",
+      "options": {
+        "NONE": "Everything",
+        "PESCATARIAN": "Pescatarian",
+        "VEGETARIAN": "Vegetarian",
+        "VEGAN": "Vegan"
+      }
+    },
+    "allergens": {
+      "label": "Allergies",
+      "hint": "The fourteen of the European declaration. A proposed dish naming one in its ingredients is dropped by the code, whatever the model says.",
+      "names": {
+        "GLUTEN": "Gluten",
+        "CRUSTACEANS": "Crustaceans",
+        "EGGS": "Eggs",
+        "FISH": "Fish",
+        "PEANUTS": "Peanuts",
+        "SOY": "Soy",
+        "MILK": "Milk",
+        "NUTS": "Tree nuts",
+        "CELERY": "Celery",
+        "MUSTARD": "Mustard",
+        "SESAME": "Sesame",
+        "SULPHITES": "Sulphites",
+        "LUPIN": "Lupin",
+        "MOLLUSCS": "Molluscs"
+      }
+    },
+    "dislikes": {
+      "label": "I don't like",
+      "hint": "In plain words, 200 characters. It reaches the model in quotation marks — as a remark, never an instruction — and nothing else applies it. An allergy goes in the boxes above."
+    },
+    "filter": "Compatible with my preferences"
   }
 }

@@ -45,6 +45,7 @@ export function RecipeGrid({
   selectedSeasons,
   selectedCuisines,
   selectedOrigins,
+  onlyCompatible,
   today,
 }: {
   recipes: RecipeSummary[];
@@ -53,6 +54,7 @@ export function RecipeGrid({
   selectedSeasons: Season[];
   selectedCuisines: Cuisine[];
   selectedOrigins: RecipeOrigin[];
+  onlyCompatible: boolean;
   /** Resolved on the server: "in season" must not depend on the browser. */
   today: string;
 }) {
@@ -131,6 +133,7 @@ export function RecipeGrid({
         selectedSeasons={selectedSeasons}
         selectedCuisines={selectedCuisines}
         selectedOrigins={selectedOrigins}
+        onlyCompatible={onlyCompatible}
         today={today}
       />
 

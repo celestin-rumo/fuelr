@@ -438,7 +438,7 @@
       {
         "tone": "mint",
         "title": "The AI features are processed abroad",
-        "text": "The AI features — reading a badly marked-up recipe page, estimating a photographed plate, transcribing a page from a book — rely on Anthropic, in the United States. What you hand to those features, the photo or the page's content, therefore leaves Switzerland for the length of the analysis. They are optional and part of a paid plan: as long as you do not use them, nothing is sent to Anthropic."
+        "text": "The AI features — reading a badly marked-up recipe page, estimating a photographed plate, transcribing a page from a book — rely on Anthropic, in the United States. What you hand to those features, the photo or the page's content, therefore leaves Switzerland for the length of the analysis. They are optional and part of a paid plan: as long as you do not use them, nothing is sent to Anthropic. Since the planner started inventing its dishes, what you said you do not eat — diet, allergies, and the free line — travels with each request to Anthropic so the proposal can respect it; the code then checks the ingredients that come back itself."
       },
       {
         "title": "The two other ways out",

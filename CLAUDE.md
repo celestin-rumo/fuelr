@@ -740,6 +740,21 @@ an application most easily starts to judge, and this one draws a figure and
 its date and stops. Free, because it is the person's own number; what is paid
 for is measuring a week against a target, and that is elsewhere.
 
+**An allergy is told to the model and checked by the code.** `dietary_preferences`
+holds a diet and up to fourteen allergens — both closed lists, for the reason
+the seasons are: "without peanuts" has to be computable — and one free line.
+`Constraints` carries them to every ask (`suggest`, `suggestFor`,
+`suggestBatch`) so the answer is likely to comply, and then reads the
+ingredient lines that come back against the same word lists and drops a dish
+that names one, whatever the model was told; the library's `?compatible=true`
+runs the same check on the recipes' own lines. An allergy filtered by the
+model alone is not filtered — it is the one place in this application where
+being wrong makes somebody ill, and `PreferencesTest` proves it with a stand-in
+that ignores the instruction on purpose. The free line is the refusal note's
+rule again: quoted as something a person said, never obeyed by anything. The
+card says which box protects you, because "no peanuts" typed in the free line
+would not.
+
 **Deleting an account would have deleted somebody else's week.** This is the
 trap the schema sets, and it is a chain: `households.owner_user_id` cascades
 from `users`, `planned_meals.household_id` cascades from `households`. Erasing

@@ -764,7 +764,8 @@
     },
     "filters": {
       "toggle": "Filtern",
-      "remove": "Filter {name} entfernen"
+      "remove": "Filter {name} entfernen",
+      "compatible": "Passend zu meinen Einstellungen"
     },
     "print": {
       "button": "Drucken",
@@ -1219,5 +1220,46 @@
       "action": "Ziel neu berechnen"
     },
     "nothingSaid": "Eine Zahl und ihr Datum. Fuelr zieht daraus keinen Schluss."
+  },
+  "preferences": {
+    "title": "Was ich nicht esse",
+    "hint": "Einmal gesagt, und von den Bildschirmen gemerkt, die Gerichte vorschlagen.",
+    "saved": "Einstellungen gespeichert.",
+    "failed": "Das wurde nicht gespeichert. Bitte erneut versuchen.",
+    "submit": "Speichern",
+    "diet": {
+      "label": "Ernährung",
+      "options": {
+        "NONE": "Alles",
+        "PESCATARIAN": "Pescetarisch",
+        "VEGETARIAN": "Vegetarisch",
+        "VEGAN": "Vegan"
+      }
+    },
+    "allergens": {
+      "label": "Allergien",
+      "hint": "Die vierzehn der europäischen Deklaration. Ein vorgeschlagenes Gericht, das eine davon in seinen Zutaten nennt, wird vom Code verworfen — was auch immer das Modell sagt.",
+      "names": {
+        "GLUTEN": "Gluten",
+        "CRUSTACEANS": "Krebstiere",
+        "EGGS": "Eier",
+        "FISH": "Fisch",
+        "PEANUTS": "Erdnüsse",
+        "SOY": "Soja",
+        "MILK": "Milch",
+        "NUTS": "Schalenfrüchte",
+        "CELERY": "Sellerie",
+        "MUSTARD": "Senf",
+        "SESAME": "Sesam",
+        "SULPHITES": "Sulfite",
+        "LUPIN": "Lupinen",
+        "MOLLUSCS": "Weichtiere"
+      }
+    },
+    "dislikes": {
+      "label": "Ich mag nicht",
+      "hint": "In Klartext, 200 Zeichen. Es geht in Anführungszeichen an das Modell — als Bemerkung, nie als Anweisung — und nichts anderes wendet es an. Eine Allergie gehört in die Kästchen oben."
+    },
+    "filter": "Passend zu meinen Einstellungen"
   }
 }
