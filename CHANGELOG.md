@@ -6,6 +6,69 @@ this file collects them newest first.
 
 ---
 
+# v3.5.0 — 2026-09-07
+
+One sheet of paper.
+
+Fuelr already printed a recipe for the worktop, a shopping list for the bag,
+and — since last week — a work plan for a batch-cooking afternoon. All three
+are read by the person who cooks. This one is not: the week goes on the fridge
+door, where it is read by everyone in the house, most of whom have no account
+and are not going to open an app to find out what is for dinner.
+
+That single difference decided everything on the sheet.
+
+## Seven days across, four meals down
+
+The shape the planner takes on a wide screen, on A4 landscape — seven columns
+do not fit in portrait, and the rule is declared on this page and nowhere else,
+since a recipe and a shopping list are read in the hand.
+
+Every box is drawn, empty ones included. A missing row would read as "we never
+eat lunch"; an empty box reads as an empty evening, which is what it is. Each
+meal carries its title and how many it is for.
+
+## What is not on it is the design
+
+**No photograph.** It says nothing to somebody walking past the fridge, and it
+costs a page of ink.
+
+**No nutrition totals.** They address one person, and this sheet is read by the
+whole family.
+
+**No colour carrying meaning.** A fridge is read in black and white from about
+a metre away — a photocopier, a grandparent's eyes, a kitchen at dusk. The only
+emphasis left is weight and size, which is enough.
+
+## Always one sheet, and what happens when it is not
+
+A week on two pages is not a planning, it is two halves of one. So a cell
+prints four meals and then counts the rest — *+ 2 autres*. A sheet that quietly
+drops a dinner is a lie; a cell with a known ceiling is what turns "one page"
+from a hope into a promise.
+
+And it is measured rather than argued about. The test fills **all 28 slots** and
+reads the rendered height: 165 mm against the 190 mm a landscape A4 gives. It
+is read at the preview's width, where the columns are narrower and titles wrap
+more than they will on paper, so the number is the pessimistic one.
+
+## Paper does not synchronise
+
+The dates run across the top, and the sheet says at the bottom that a meal moved
+since printing is not on it. Somebody will find this in three weeks and take it
+for the current plan, and the sheet should not encourage them.
+
+## What is left
+
+Unchanged from v3.4.0. **No payment provider is chosen**, so subscribing,
+cancelling and the admin panel's billing section all wait on the same decision,
+and everything paid for remains open to everybody. **The backups still do not
+leave the machine.** And **photos are the missing half of offline**: cooking and
+the shopping list work without a network, a photo taken without one is not
+queued.
+
+---
+
 # v3.4.0 — 2026-09-07
 
 One epic, six stories, and one question: *what do I cook this week?* Fuelr
