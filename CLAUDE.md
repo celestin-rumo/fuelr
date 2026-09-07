@@ -727,6 +727,19 @@ it was not them. The six figures of the profile are previewed through
 `POST /api/nutrition/target` before `PUT /api/profile` writes them: a target is
 shown, never sprung. Neither password field is ever pre-filled.
 
+**A weigh-in proposes a target; it never applies one.** `weight_entries` is
+the history — one figure a day, weighing twice replaces — and
+`profiles.weight_kg` stays what it was: the snapshot the journal's target is
+computed from, moved only by a press on the account page or on the offer the
+weight panel makes once the latest figure has drifted a kilo from it.
+Recording a weight touches nothing else, so a target cannot change under
+somebody without their having said so. And nothing is said about the curve:
+one series, one accent, a day without a weigh-in left as a gap rather than
+drawn as zero, no streak and no verdict — a curve of weight is the field where
+an application most easily starts to judge, and this one draws a figure and
+its date and stops. Free, because it is the person's own number; what is paid
+for is measuring a week against a target, and that is elsewhere.
+
 **Deleting an account would have deleted somebody else's week.** This is the
 trap the schema sets, and it is a chain: `households.owner_user_id` cascades
 from `users`, `planned_meals.household_id` cascades from `households`. Erasing

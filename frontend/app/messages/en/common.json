@@ -1196,5 +1196,28 @@
     "expired": "This link no longer works — it was already used, it expired, or the address was taken in the meantime. Ask again from your account.",
     "noToken": "This link is incomplete. Open the one in the email.",
     "toAccount": "Go to my account"
+  },
+  "weight": {
+    "title": "Weight",
+    "latest": "{kg} kg on {date}",
+    "kg": "{kg} kg",
+    "empty": "No weigh-in yet. One a week is enough to see a direction.",
+    "curve": "{count} weigh-ins, between {low} and {high} kg",
+    "form": {
+      "date": "Date",
+      "kg": "Weight (kg)",
+      "submit": "Log the weight",
+      "range": "Between 30 and 300 kg.",
+      "failed": "That was not logged. Try again."
+    },
+    "remove": "Remove the weigh-in of {date}",
+    "removeShort": "Remove",
+    "removed": "Weigh-in removed.",
+    "undo": "Undo",
+    "recompute": {
+      "body": "Your latest weigh-in ({latest} kg) has drifted from the weight your target is computed from ({profile} kg). Recompute the target with this weight?",
+      "action": "Recompute the target"
+    },
+    "nothingSaid": "A figure and its date. Fuelr draws no conclusion from it."
   }
 }

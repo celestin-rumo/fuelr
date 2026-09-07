@@ -1196,5 +1196,28 @@
     "expired": "Ce lien n'est plus valable — il a déjà servi, il a expiré, ou l'adresse a été prise entre-temps. Refaites la demande depuis votre compte.",
     "noToken": "Ce lien est incomplet. Ouvrez celui du mail.",
     "toAccount": "Aller à mon compte"
+  },
+  "weight": {
+    "title": "Poids",
+    "latest": "{kg} kg le {date}",
+    "kg": "{kg} kg",
+    "empty": "Aucune pesée pour l'instant. Une par semaine suffit pour voir une direction.",
+    "curve": "{count} pesées, entre {low} et {high} kg",
+    "form": {
+      "date": "Date",
+      "kg": "Poids (kg)",
+      "submit": "Noter le poids",
+      "range": "Entre 30 et 300 kg.",
+      "failed": "Ça n'a pas été noté. Réessayez."
+    },
+    "remove": "Retirer la pesée du {date}",
+    "removeShort": "Retirer",
+    "removed": "Pesée retirée.",
+    "undo": "Annuler",
+    "recompute": {
+      "body": "Votre dernière pesée ({latest} kg) s'éloigne du poids dont la cible est calculée ({profile} kg). Recalculer la cible avec ce poids ?",
+      "action": "Recalculer la cible"
+    },
+    "nothingSaid": "Un chiffre et sa date. Fuelr n'en tire aucune conclusion."
   }
 }

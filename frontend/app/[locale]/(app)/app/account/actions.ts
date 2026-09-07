@@ -1,7 +1,7 @@
 "use server";
 
 import { apiFetch } from "@app/lib/api";
-import type { ProfileInput, ProfileResponse } from "@app/lib/api";
+import type { ProfileInput, ProfileResponse, WeightEntry } from "@app/lib/api";
 
 /**
  * Every action here answers `{ ok }` or a named refusal rather than throwing:
@@ -70,4 +70,20 @@ export async function previewTargets(input: ProfileInput) {
   });
   if (!response.ok) return null;
   return (await response.json()) as ProfileResponse["targets"];
+}
+
+/** One figure a day: weighing twice replaces rather than appends. */
+export async function recordWeight(input: { weighedOn: string; weightKg: number }) {
+  const response = await apiFetch("/api/weight", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) return { ok: false as const };
+  return { ok: true as const, entry: (await response.json()) as WeightEntry };
+}
+
+/** No confirmation: a weigh-in is frequent and exactly recreatable, so undo. */
+export async function removeWeight(id: number) {
+  const response = await apiFetch(`/api/weight/${id}`, { method: "DELETE" });
+  return { ok: response.ok };
 }
