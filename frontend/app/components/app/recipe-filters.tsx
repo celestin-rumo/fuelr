@@ -107,6 +107,9 @@ export function RecipeFilters({
   // forgotten one.
   const active =
     selectedTags.length + selectedSeasons.length + selectedCuisines.length;
+  // Always shut to begin with, even arriving from a filtered link: the chips
+  // above already say what is on, and opening the panel as well would put the
+  // same state on screen twice while costing everybody the tab stops.
   const [open, setOpen] = useState(false);
 
   return (
@@ -122,7 +125,22 @@ export function RecipeFilters({
         />
       </div>
 
-      <div className="sm:hidden">
+      {/*
+       * Folded at every width, not only on a phone.
+       *
+       * Twenty-three chips — six tags, five seasons, twelve cuisines — stood
+       * between somebody opening the app and seeing a recipe, and every one of
+       * them is a tab stop for anybody who does not use a mouse. The library
+       * is what people came for; the filters are how they narrow it once they
+       * are here.
+       *
+       * The rule that makes hiding them allowed is that a hidden filter still
+       * has to say it is on — so what is active stays out here, as chips that
+       * can be removed one by one. That is stronger than the count it replaces:
+       * you can see *which* filter is on, and undo it without opening
+       * anything.
+       */}
+      <div className="flex flex-wrap items-center gap-2">
         <Chip
           active={active > 0}
           count={active > 0 ? active : undefined}
@@ -133,11 +151,50 @@ export function RecipeFilters({
         >
           {t("filters.toggle")}
         </Chip>
+
+        {/* Only while the panel is shut: open, the panel itself says what is
+            on, and two copies of the same state is two places to tab through. */}
+        {!open &&
+          selectedTags.map((tag) => (
+            <Chip
+              key={`on-${tag}`}
+              active
+              onRemove={() => toggleTag(tag)}
+              removeLabel={t("filters.remove", { name: t(`tags.${tag}`) })}
+              onClick={() => setOpen(true)}
+            >
+              {t(`tags.${tag}`)}
+            </Chip>
+          ))}
+        {!open &&
+          selectedSeasons.map((season) => (
+            <Chip
+              key={`on-${season}`}
+              active
+              onRemove={() => toggleSeason(season)}
+              removeLabel={t("filters.remove", { name: t(`seasons.${season}`) })}
+              onClick={() => setOpen(true)}
+            >
+              {t(`seasons.${season}`)}
+            </Chip>
+          ))}
+        {!open &&
+          selectedCuisines.map((cuisine) => (
+            <Chip
+              key={`on-${cuisine}`}
+              active
+              onRemove={() => toggleCuisine(cuisine)}
+              removeLabel={t("filters.remove", { name: t(`cuisines.${cuisine}`) })}
+              onClick={() => setOpen(true)}
+            >
+              {t(`cuisines.${cuisine}`)}
+            </Chip>
+          ))}
       </div>
 
       <div
         id="recipe-filters"
-        className={cn("flex-col gap-4 sm:flex", open ? "flex" : "hidden")}
+        className={cn("flex-col gap-4", open ? "flex" : "hidden")}
       >
       <div className="flex flex-wrap gap-2">
         {TAGS.map((tag) => (

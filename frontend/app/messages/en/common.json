@@ -608,7 +608,8 @@
       "WINTER": "Winter"
     },
     "filters": {
-      "toggle": "Filter"
+      "toggle": "Filter",
+      "remove": "Remove the {name} filter"
     },
     "print": {
       "button": "Print",
