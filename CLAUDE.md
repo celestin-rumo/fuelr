@@ -551,67 +551,45 @@ three chances for the pricing page to disagree with what a checkout charges.
 session (the pricing page is read by people who have no account), and each
 locale formats them for its own reader.
 
-**Filling a week is a proposal, and correcting it is the point.**
-`POST /api/plan/suggest` answers with dishes laid on days and writes nothing —
-`WeekSuggestionService` searches the cook's own recipes first, where an
-intention is a tag and a cuisine is a column, so the common case costs nothing
-at all. A model is asked only for the slots the library could not fill, only
-for an account entitled to it, and only while there is budget; every one of
-those refusals ends the same way, with fewer proposals rather than an error.
+**Filling a week invents dishes; it never proposes what is already there.**
+That is a product decision, and it is the opposite of the screen next door:
+`MenuSuggestionService` answers "what do I cook with this bag" and searches the
+cook's own recipes first, because they know they like them. Filling a week is
+the other question — somebody wants dishes they have not had, and handing back
+the four recipes they wrote last month is not an answer to it. So
+`POST /api/plan/suggest` and `POST /api/plan/suggest/batch` ask a model for
+everything, write nothing, and lay the answers on days.
 
-The request is per *slot*, not per day: `keep` carries what is already decided
-— the meals on the plan and the proposals somebody chose to keep — so a second
-round replaces exactly what was turned down. Keeping Tuesday's dinner must not
-give up on Tuesday's lunch. What was refused travels back as `exclude` **and**
-`excludeTitles`, because an idea has no id and a dish that reappears after
-being turned down is the fastest way to lose somebody.
+Two consequences, both deliberate. **Every fill is billed**, so `AiBudget` is
+what bounds these screens rather than the library. And **there is no second
+source**: when a model cannot answer — no entitlement, nothing wired, a spent
+month, a call that failed — the answer carries `declined` with one of `PLAN`,
+`BUDGET`, `UNAVAILABLE`, `FAILED`, and the screen says which. A screen that
+refuses without saying which teaches somebody to stop pressing the button. It
+is the distinction `/api/recipes/import/sources` already makes.
 
-Refusals come from a closed list, and only one of them does anything: "trop
-long" adds `quick` to the next ask, and the chip lighting up says so. The other
-three are honest exclusions — acting on "pas envie" would be inventing a rule
-nobody asked for. Beside them is one free-text `note`, which reaches a model
-and nothing else: it is quoted into the prompt as something somebody said,
-never as an instruction, with its own quotes flattened and 200 characters as
-the cap. It is the import's SSRF lesson again, in the third costume.
+**What a model invents is a recipe with a provenance, not a tag.** Accepting a
+proposal calls `POST /api/recipes/from-idea`, which writes a DRAFT with
+`origin = AI` in one call — one rather than a create followed by an update,
+because the two-step dance leaves a titleless recipe behind whenever the second
+half fails, and the provenance has to be set by the same hand that creates the
+row. `Recipe.Origin` is `TYPED`, `IMPORTED` or `AI`; the importer sets the
+second, nothing else sets any of them, and the editor never sends the field. A
+cook can correct an AI recipe from top to bottom and it stays an AI recipe: that
+is a fact about where it came from, not about what it says now. It could not be
+one of the six tags — those describe the dish and are ticked by hand, and the
+day somebody can tick "created by AI" on a recipe they typed it stops meaning
+anything. The library shows it as a badge and offers it as a filter, for the
+same reason: a fact the code wrote is one worth looking for.
 
-The loop is bounded at four rounds. A conversation that cannot end is not one,
-so what is offered instead is the honest exit: keep what suits you and fill the
-rest by hand.
-
-**Sharing an ingredient is not sharing work.** Two dishes that both use onion
-do not get prepared together for that reason, and a set built by counting every
-ingredient in common produces absurd groupings that look rigorous — four dishes
-"sharing" salt, pepper and olive oil. `SharedBase` is the whole rule and it is
-about quantity rather than names: the unit has to be one you weigh or count
-(`g`, `ml`, `pcs` — a tablespoon of anything is a seasoning by definition), and
-the amount has to be a real one, which is what keeps saffron out. A line with no
-unit counts for nothing, as everywhere else. Keys come from
-`ShoppingService.key`, because a base counted under one key and bought under
-another is a plan that disagrees with the list it was built from.
-
-**Two ends of the word "preparation", and they must not be one screen.**
-`BatchSuggestionService` *chooses* a week so the work can be shared:
-`POST /api/plan/suggest/batch` grows sets from a seed, and a group where no base
-is used by more than half its members is dropped rather than offered — three
-curries with nothing in common are not a batch. `PrepService` reads a week
-somebody already filled and organises it: `GET /api/plan/prep` groups by shared
-base, gives the total actually to cook, orders dishes longest-first, and leaves
-out of each dish whatever the bases already made. Both are arithmetic over lines
-already stored, so the common case costs nothing.
-
-A model is asked only when the library cannot form a single set — and what it
-returns goes through the same arithmetic, so a set always says what it shares
-because somebody counted. Asking for a common base and being told there is one
-are two different things, and only the second is checkable: a set that turns
-out to share nothing is dropped rather than dressed up.
-
-**Nothing anywhere says how long anything keeps.** No published figure sits
-behind a shelf life, and an invented one is a health risk rather than an
-approximation. The work plan says out loud that it does not know and leaves the
-decision with the person who can smell the fridge. It is also not cooking mode:
-that follows one recipe, one step at a time, with dirty hands, while this is a
-sheet read before starting — and printed, because two hours of cooking happen
-with wet hands and a phone that has gone dark.
+The correction loop is unchanged. The request is per *slot*, not per day:
+`keep` carries what is already decided so a second round replaces exactly what
+was turned down, and what was refused travels back by title, because an idea
+has no id. Refusals come from a closed list and only "trop long" does anything
+— it adds `quick` to the next ask, and the chip lighting up says so. The
+free-text `note` reaches a model and nothing else, quoted as something somebody
+said, never as an instruction, quotes flattened, 200 characters. Four rounds is
+the ceiling.
 
 **The shopping list is stored, not derived.** A ticked box is a fact about
 somebody standing in a shop, so it has to survive the plan changing under it.

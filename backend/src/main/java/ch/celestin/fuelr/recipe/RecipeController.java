@@ -120,6 +120,39 @@ public class RecipeController {
     }
 
     /**
+     * Writes a dish a model proposed into the library, as a draft.
+     *
+     * One call rather than a create followed by an update: the two-step dance
+     * leaves a titleless recipe behind whenever the second half fails, and the
+     * provenance has to be set by the same hand that creates the row — an
+     * editor that could send `origin` is an editor somebody can lie with.
+     */
+    @PostMapping("/from-idea")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeView createFromIdea(
+            @AuthenticationPrincipal Jwt principal,
+            @Valid @RequestBody IdeaRequest body) {
+        return toView(recipes.createFromIdea(
+                userId(principal), body.title(), body.minutes(),
+                body.ingredients() == null ? java.util.List.of()
+                        : body.ingredients().stream()
+                                .map(line -> new RecipeService.IdeaLine(
+                                        line.name(), line.quantity(), line.unit()))
+                                .toList(),
+                body.steps()));
+    }
+
+    public record IdeaRequest(
+            @jakarta.validation.constraints.NotBlank String title,
+            Integer minutes,
+            java.util.List<IdeaLineRequest> ingredients,
+            java.util.List<String> steps) {
+    }
+
+    public record IdeaLineRequest(String name, double quantity, String unit) {
+    }
+
+    /**
      * Imports from a link, and always lands in the editor as a draft.
      *
      * The two failure modes are told apart on purpose: a page we could not
@@ -224,7 +257,8 @@ public class RecipeController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) java.util.Set<String> tags,
             @RequestParam(required = false) java.util.Set<String> seasons,
-            @RequestParam(required = false) java.util.Set<String> cuisines) {
+            @RequestParam(required = false) java.util.Set<String> cuisines,
+            @RequestParam(required = false) java.util.Set<String> origins) {
         try {
             java.util.Set<String> wanted = seasons == null ? null
                     : seasons.stream().map(Season::parse).map(Enum::name)
@@ -236,10 +270,25 @@ public class RecipeController {
                     : cuisines.stream().map(Cuisine::parseOrNull)
                             .filter(java.util.Objects::nonNull).map(Enum::name)
                             .collect(java.util.stream.Collectors.toSet());
-            return recipes.search(userId(principal), q, tags, wanted, fromThere).stream()
-                    .map(this::toSummary).toList();
+            // Same rule as the cuisines: an origin nobody recognises is
+            // dropped rather than refused, so a stale bookmark shows a
+            // library rather than a 400.
+            java.util.Set<String> written = origins == null ? null
+                    : origins.stream().map(RecipeController::originOrNull)
+                            .filter(java.util.Objects::nonNull)
+                            .collect(java.util.stream.Collectors.toSet());
+            return recipes.search(userId(principal), q, tags, wanted, fromThere, written)
+                    .stream().map(this::toSummary).toList();
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private static String originOrNull(String value) {
+        try {
+            return Recipe.Origin.valueOf(value.trim().toUpperCase(java.util.Locale.ROOT)).name();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
         }
     }
 
@@ -267,7 +316,7 @@ public class RecipeController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "not_a_favorite");
         }
-        return list(principal, null, null, null, null);
+        return list(principal, null, null, null, null, null);
     }
 
     public record MoveRequest(int direction) {
@@ -323,7 +372,8 @@ public class RecipeController {
                 breakdown == null ? null : breakdown.perServing().fatG(),
                 breakdown != null && breakdown.containsEstimates(),
                 recipe.getSeasons(),
-                recipe.getCuisine());
+                recipe.getCuisine(),
+                recipe.getOrigin().name());
     }
 
     @GetMapping("/{id}")
@@ -416,6 +466,7 @@ public class RecipeController {
                 recipe.getSeasons(),
                 recipe.getCuisine(),
                 recipe.getSourceUrl(),
+                recipe.getOrigin().name(),
                 recipe.getTotalMinutes(),
                 recipe.getUnverified() == null || recipe.getUnverified().isBlank()
                         ? java.util.Set.of()

@@ -10,6 +10,8 @@ import { SEASONS, seasonOf } from "@app/lib/seasons";
 import type { Season } from "@app/lib/seasons";
 import { CUISINES } from "@app/lib/cuisines";
 import type { Cuisine } from "@app/lib/cuisines";
+import { ORIGINS } from "@app/lib/origins";
+import type { RecipeOrigin } from "@app/lib/origins";
 
 /** The tags the editor offers; the filter bar mirrors them exactly. */
 const TAGS = [
@@ -28,12 +30,15 @@ export function RecipeFilters({
   selectedTags,
   selectedSeasons,
   selectedCuisines,
+  selectedOrigins,
   today,
 }: {
   term: string;
   selectedTags: string[];
   selectedSeasons: Season[];
   selectedCuisines: Cuisine[];
+  /** Where the recipes came from — a fact the code wrote, never a tag. */
+  selectedOrigins: RecipeOrigin[];
   /** Resolved on the server, so "in season" means the same on both sides. */
   today: string;
 }) {
@@ -50,12 +55,14 @@ export function RecipeFilters({
     nextTags: string[],
     nextSeasons: Season[],
     nextCuisines: Cuisine[] = selectedCuisines,
+    nextOrigins: RecipeOrigin[] = selectedOrigins,
   ) {
     const params = new URLSearchParams();
     if (nextTerm.trim()) params.set("q", nextTerm.trim());
     if (nextTags.length) params.set("tags", nextTags.join(","));
     if (nextSeasons.length) params.set("seasons", nextSeasons.join(","));
     if (nextCuisines.length) params.set("cuisines", nextCuisines.join(","));
+    if (nextOrigins.length) params.set("origins", nextOrigins.join(","));
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
@@ -90,6 +97,14 @@ export function RecipeFilters({
     push(value, selectedTags, selectedSeasons, next);
   }
 
+  // Alternatives too: a recipe has exactly one origin.
+  function toggleOrigin(origin: RecipeOrigin) {
+    const next = selectedOrigins.includes(origin)
+      ? selectedOrigins.filter((x) => x !== origin)
+      : [...selectedOrigins, origin];
+    push(value, selectedTags, selectedSeasons, selectedCuisines, next);
+  }
+
   function toggleSeason(season: Season) {
     const next = selectedSeasons.includes(season)
       ? selectedSeasons.filter((x) => x !== season)
@@ -106,7 +121,10 @@ export function RecipeFilters({
   // the count on the button is what keeps a hidden filter from being a
   // forgotten one.
   const active =
-    selectedTags.length + selectedSeasons.length + selectedCuisines.length;
+    selectedTags.length +
+    selectedSeasons.length +
+    selectedCuisines.length +
+    selectedOrigins.length;
   // Always shut to begin with, even arriving from a filtered link: the chips
   // above already say what is on, and opening the panel as well would put the
   // same state on screen twice while costing everybody the tab stops.
@@ -190,6 +208,18 @@ export function RecipeFilters({
               {t(`cuisines.${cuisine}`)}
             </Chip>
           ))}
+        {!open &&
+          selectedOrigins.map((origin) => (
+            <Chip
+              key={`on-${origin}`}
+              active
+              onRemove={() => toggleOrigin(origin)}
+              removeLabel={t("filters.remove", { name: t(`origins.${origin}`) })}
+              onClick={() => setOpen(true)}
+            >
+              {t(`origins.${origin}`)}
+            </Chip>
+          ))}
       </div>
 
       <div
@@ -239,11 +269,25 @@ export function RecipeFilters({
             {t(`cuisines.${cuisine}`)}
           </Chip>
         ))}
+      </div>
+
+      {/* Where a recipe came from. Written by the code and never by the
+          editor, which is exactly why it is worth being able to look for. */}
+      <div className="flex flex-wrap gap-2" data-testid="origin-filters">
+        {ORIGINS.map((origin) => (
+          <Chip
+            key={origin}
+            active={selectedOrigins.includes(origin)}
+            onClick={() => toggleOrigin(origin)}
+          >
+            {t(`origins.${origin}`)}
+          </Chip>
+        ))}
         {(active > 0 || value !== "") && (
           <Chip
             onClick={() => {
               setValue("");
-              push("", [], [], []);
+              push("", [], [], [], []);
             }}
           >
             {tApp("search.clear")}

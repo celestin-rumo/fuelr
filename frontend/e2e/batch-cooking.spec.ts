@@ -60,11 +60,13 @@ test.beforeEach(async ({ request, context }) => {
   await signIn(request, context);
 });
 
-test("a set is proposed with what it shares, and lands on chosen days", async ({
+test("asking for a batch names its refusal rather than proposing your own recipes", async ({
   request,
   page,
 }) => {
-  // Four, because the dialog asks for four by default.
+  // Four recipes that would have made a perfect set. None is proposed: a
+  // batch is a request for dishes nobody has had, and no model is reachable
+  // from this suite.
   const lentils = [{ name: "Lentilles corail", quantity: 300, unit: "g" }];
   await seed(request, "Dahl", lentils);
   await seed(request, "Soupe de lentilles", lentils);
@@ -73,66 +75,14 @@ test("a set is proposed with what it shares, and lands on chosen days", async ({
 
   await openWeek(page);
   await page.getByTestId("suggest-batch").click();
-
   const dialog = page.getByTestId("batch-dialog");
   await dialog.getByRole("button", { name: "Chercher un ensemble" }).click();
 
-  // The set says what makes it one — counted, not asserted.
-  const card = dialog.getByTestId("batch-set-0");
-  await expect(card).toBeVisible();
-  await expect(card).toContainText(/4 plats sur 4 sont bâtis sur Lentilles corail/);
-  await expect(card).toContainText(/1200 g pour 4 plats/);
-  // The library answered, so nothing says a model was asked.
-  await expect(dialog.getByText(/vient d'un modèle/)).toHaveCount(0);
-
-  // Choosing a set writes nothing: the days are still a question.
-  await dialog.getByTestId("choose-set-0").click();
-  await expect(dialog.getByTestId("batch-placements")).toBeVisible();
-  await expect(page.getByTestId("week-grid").getByText("Dahl")).toHaveCount(0);
-
-  await dialog.getByTestId("place-batch").click();
-  await expect(dialog.getByTestId("to-prep")).toBeVisible();
-  await dialog.getByRole("button", { name: "Rester sur le planning" }).click();
-
-  const week = await (
-    await request.get(`${BACKEND}/api/plan?week=${MONDAY}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-  ).json();
-  expect(week.meals).toHaveLength(4);
-});
-
-test("dishes that share only an onion are not called a batch", async ({
-  request,
-  page,
-}) => {
-  await seed(request, "Plat A", [
-    { name: "Oignon", quantity: 1, unit: "pcs" },
-    { name: "Poulet", quantity: 300, unit: "g" },
-  ]);
-  await seed(request, "Plat B", [
-    { name: "Oignon", quantity: 1, unit: "pcs" },
-    { name: "Cabillaud", quantity: 300, unit: "g" },
-  ]);
-  await seed(request, "Plat C", [
-    { name: "Oignon", quantity: 1, unit: "pcs" },
-    { name: "Tofu", quantity: 300, unit: "g" },
-  ]);
-  // A fourth, so the refusal is about the onion rather than about the count.
-  await seed(request, "Plat D", [
-    { name: "Oignon", quantity: 1, unit: "pcs" },
-    { name: "Pois chiches", quantity: 300, unit: "g" },
-  ]);
-
-  await openWeek(page);
-  await page.getByTestId("suggest-batch").click();
-  const dialog = page.getByTestId("batch-dialog");
-  await dialog.getByRole("button", { name: "Chercher un ensemble" }).click();
-
-  // Peeling three onions on Sunday saves nobody anything, and the screen says
-  // so without calling a varied library an error.
-  await expect(dialog.getByText(/pas une erreur/)).toBeVisible();
+  const declined = dialog.getByTestId("declined");
+  await expect(declined).toBeVisible();
+  await expect(declined).toContainText(/pas encore branchée|écarté|Réessayez/);
   await expect(dialog.getByTestId("batch-sets")).toHaveCount(0);
+  await expect(page.getByTestId("week-grid").getByText("Dahl")).toHaveCount(0);
 });
 
 test("the week already planned is read as one afternoon's work", async ({

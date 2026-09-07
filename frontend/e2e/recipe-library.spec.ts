@@ -381,3 +381,36 @@ test("the library is a handful of tab stops from the top of the page", async ({
   }
   expect(reached, "the first recipe is not reachable in 30 presses").toBe(true);
 });
+
+test("a dish a model invented says so in the library, and can be looked for", async ({
+  request,
+  page,
+}) => {
+  await seed(request, "Risotto", "Riz");
+  // Written the way an accepted proposal writes it: one call, provenance set
+  // by the same hand that creates the row.
+  const invented = await request.post(`${BACKEND}/api/recipes/from-idea`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: {
+      title: "Dahl de lentilles",
+      minutes: 25,
+      ingredients: [{ name: "Lentilles", quantity: 300, unit: "g" }],
+      steps: ["Cuire 20 min."],
+    },
+  });
+  const { id } = await invented.json();
+
+  await page.goto("/fr/app");
+  // The badge is on the invented one and on nothing else: a recipe somebody
+  // typed does not need a label saying so.
+  await expect(page.getByTestId(`origin-${id}`)).toHaveText("Créée par IA");
+  await expect(page.getByTestId(/^origin-\d+$/)).toHaveCount(1);
+
+  // And it is a filter, because provenance is a fact worth looking for —
+  // written by the code, never by the editor.
+  await openFilters(page);
+  await page.getByTestId("origin-filters").getByRole("button", { name: "Créée par IA" }).click();
+  await expect(page).toHaveURL(/origins=AI/);
+  await expect(page.getByText("Dahl de lentilles")).toBeVisible();
+  await expect(page.getByText("Risotto", { exact: true })).toHaveCount(0);
+});

@@ -22,6 +22,7 @@ function recipeWith(steps: string[]): Recipe {
     unverified: [],
   seasons: [],
   cuisine: null,
+  origin: "TYPED",
   };
 }
 

@@ -55,4 +55,23 @@ public enum Cuisine {
             return null;
         }
     }
+
+    /**
+     * The ones this application recognises, in the order they were asked for.
+     *
+     * Anything outside the domain is dropped rather than refused: a stale
+     * bookmark naming a cuisine that no longer exists should narrow a screen,
+     * not answer 400.
+     */
+    public static java.util.Set<String> knownNames(java.util.Set<String> asked) {
+        if (asked == null) {
+            return java.util.Set.of();
+        }
+        return asked.stream()
+                .map(Cuisine::parseOrNull)
+                .filter(java.util.Objects::nonNull)
+                .map(Enum::name)
+                .collect(java.util.stream.Collectors.toCollection(
+                        java.util.LinkedHashSet::new));
+    }
 }

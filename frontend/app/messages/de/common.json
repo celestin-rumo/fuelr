@@ -193,12 +193,6 @@
       "refuse": "Dieses nicht",
       "undoRefuse": "Doch behalten",
       "whyNot": "Warum dieses nicht?",
-      "because": {
-        "MATCHED_CUISINE": "Ihr Rezept",
-        "MATCHED_INTENT": "Ihr Rezept",
-        "LIBRARY": "Ihr Rezept",
-        "IDEA": "Idee zum Schreiben"
-      },
       "reasons": {
         "notTonight": "Keine Lust",
         "tooLong": "Zu lange",
@@ -207,7 +201,7 @@
       },
       "asking": {
         "title": "Woche füllen",
-        "body": "Sagen Sie die Richtung — zuerst sehen wir in Ihren eigenen Rezepten nach.",
+        "body": "Sagen Sie die Richtung. Die Vorschläge sind neu — nie aus Ihren Rezepten — und jede Anfrage zählt gegen das KI-Budget des Monats.",
         "intents": "Lust auf",
         "intentsHint": "Mehrere zählen zusammen: vegetarisch und schnell heisst beides.",
         "cuisines": "Küchen",
@@ -218,8 +212,7 @@
       },
       "reviewing": {
         "title": "Die vorgeschlagene Woche",
-        "body": "{count, plural, =0 {Noch nichts vorzuschlagen.} one {Ein Gericht vorgeschlagen.} other {# Gerichte vorgeschlagen.}} Im Plan steht noch nichts.",
-        "assisted": "Ihre Rezepte haben nicht gereicht: Die Ideen stammen von einem Modell.",
+        "body": "{count, plural, =0 {Noch nichts vorzuschlagen.} one {Ein neues Gericht vorgeschlagen.} other {# neue Gerichte vorgeschlagen.}} Im Plan steht noch nichts; was Sie annehmen, wird ein Rezept «von KI erstellt», zum Korrigieren.",
         "unfilled": "{count, plural, one {Eine Mahlzeit ohne Vorschlag.} other {# Mahlzeiten ohne Vorschlag.}}",
         "note": "Noch etwas dazu?",
         "noteHint": "Zum Beispiel „weniger Pasta“. Freiwillig.",
@@ -234,6 +227,13 @@
         "shopping": "Die Einkaufsliste ist bereits aktuell. Sie können weiterhin herausnehmen, was Sie schon haben.",
         "toShopping": "Einkaufsliste ansehen",
         "stay": "Im Plan bleiben"
+      },
+      "newDish": "Neues Gericht",
+      "declined": {
+        "PLAN": "Die Woche füllen gehört zu einem bezahlten Plan. Nichts wurde vorgeschlagen.",
+        "BUDGET": "Das KI-Budget dieses Monats ist aufgebraucht — nichts wurde vorgeschlagen. Am 1. öffnet es sich wieder; bis dahin wird die Woche von Hand gefüllt.",
+        "UNAVAILABLE": "Diese Funktion ist hier noch nicht angeschlossen. Nichts wurde vorgeschlagen.",
+        "FAILED": "Es kam kein Vorschlag zurück. Versuchen Sie es erneut oder füllen Sie die Woche von Hand."
       }
     },
     "batch": {
@@ -243,12 +243,11 @@
       "working": "Wir suchen, was sich zusammen vorbereiten lässt…",
       "failed": "Der Vorschlag kam nicht zurück. Bitte erneut versuchen.",
       "minutes": "{count} Min.",
-      "tagged": "Batch Cooking",
-      "idea": "Idee zum Schreiben",
+      "idea": "Neues Gericht",
       "base": "{name} — {quantity} {unit} für {count, plural, one {1 Gericht} other {# Gerichte}}",
       "asking": {
         "title": "Auf einmal kochen",
-        "body": "Wir suchen Gerichte auf einer gemeinsamen Basis, damit Rüsten und Garen nur einmal anfallen.",
+        "body": "Wir bitten um neue Gerichte auf einer gemeinsamen Basis, damit Rüsten und Garen nur einmal anfallen. Was die Gruppe teilt, wird gezählt, nie behauptet.",
         "size": "Wie viele Gerichte",
         "fewer": "Ein Gericht weniger",
         "more": "Ein Gericht mehr",
@@ -258,11 +257,9 @@
       },
       "choosing": {
         "title": "Was sich zusammen vorbereiten lässt",
-        "body": "{count, plural, one {Eine Gruppe gefunden.} other {# Gruppen gefunden.}} Im Plan steht noch nichts.",
-        "assisted": "Ihre Rezepte ergaben keine Gruppe: Diese stammt von einem Modell.",
+        "body": "{count, plural, one {Eine Gruppe gefunden.} other {# Gruppen gefunden.}} Im Plan steht noch nichts; was Sie annehmen, wird ein Rezept «von KI erstellt», zum Korrigieren.",
         "shared": "{count} von {total} Gerichten bauen auf {base} auf.",
         "choose": "Diese Gruppe nehmen",
-        "none": "Nichts in Ihren Rezepten lässt sich wirklich zusammen vorbereiten. Das ist eine vielseitige Sammlung, kein Fehler — zwei Gerichte mit einer Zwiebel sind kein Batch.",
         "back": "Anfrage ändern"
       },
       "placing": {
@@ -277,6 +274,12 @@
         "next": "Der Arbeitsplan liest die ganze Woche und sagt, was einmal für mehrere Gerichte vorbereitet wird.",
         "toPrep": "Arbeitsplan ansehen",
         "stay": "Im Plan bleiben"
+      },
+      "declined": {
+        "PLAN": "Auf einmal kochen gehört zu einem bezahlten Plan. Nichts wurde vorgeschlagen.",
+        "BUDGET": "Das KI-Budget dieses Monats ist aufgebraucht — nichts wurde vorgeschlagen. Am 1. öffnet es sich wieder.",
+        "UNAVAILABLE": "Diese Funktion ist hier noch nicht angeschlossen. Nichts wurde vorgeschlagen.",
+        "FAILED": "Die vorgeschlagenen Gerichte teilten nichts, was man einmal vorbereitet — die Gruppe wurde verworfen statt beschönigt. Versuchen Sie es erneut oder ändern Sie die Anfrage."
       }
     },
     "prep": {
@@ -789,6 +792,11 @@
       "none": "Keine",
       "hint": "Die meisten Gerichte gehören zu keiner Küche — das ist normal, kein Versäumnis.",
       "filterLabel": "Küchen"
+    },
+    "origins": {
+      "TYPED": "Von Hand geschrieben",
+      "IMPORTED": "Importiert",
+      "AI": "Von KI erstellt"
     }
   },
   "cook": {

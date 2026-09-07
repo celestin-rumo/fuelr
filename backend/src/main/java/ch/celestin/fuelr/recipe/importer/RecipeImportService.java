@@ -166,6 +166,9 @@ public class RecipeImportService {
 
         Recipe recipe = new Recipe(userId);
         recipe.setSourceUrl(url);
+        // Read from somewhere, whether that was a page at a URL or a
+        // photograph: either way nobody in this household typed it.
+        recipe.setOrigin(Recipe.Origin.IMPORTED);
         recipe.setTitle(parsed.getTitle());
         recipe.setDescription(parsed.getDescription());
         recipe.setTotalMinutes(parsed.getTotalMinutes());

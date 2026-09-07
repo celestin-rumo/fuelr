@@ -158,8 +158,9 @@ test("filling the week holds up on a phone", async ({ request, page }) => {
   await expect(page.getByTestId("suggest-dialog")).toBeVisible();
   await holdsUp(page);
 
+  // No model is reachable here, so what comes back is the refusal, named.
   await page.getByRole("button", { name: "Proposer une semaine" }).click();
-  await expect(page.getByTestId("proposals")).toBeVisible();
+  await expect(page.getByTestId("declined")).toBeVisible();
   await holdsUp(page);
 });
 

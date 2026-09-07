@@ -3,6 +3,7 @@ package ch.celestin.fuelr.plan;
 import ch.celestin.fuelr.ai.AiBudget;
 import ch.celestin.fuelr.menu.MenuDtos;
 import ch.celestin.fuelr.menu.MenuIntelligence;
+import ch.celestin.fuelr.recipe.Cuisine;
 import ch.celestin.fuelr.subscription.Entitlements;
 import ch.celestin.fuelr.subscription.Feature;
 import org.slf4j.Logger;
@@ -16,23 +17,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Fill my week, in this direction.
+ * Fill my week with dishes nobody has written yet.
  *
- * The library answers first and for free — an intention is a tag and a cuisine
- * is a column, so what somebody already wrote is a query rather than a guess.
- * A model is asked only for the slots left over, only for an account entitled
- * to it, and only while there is budget: three separate reasons to decline,
- * and every one of them ends the same way, with fewer proposals rather than an
- * error. A screen that offered to sell a plan in the middle of answering a
- * question would be reading the room badly.
+ * **This one invents; it never proposes something already in the library.**
+ * That is a product decision and the opposite of what the screen next door
+ * does: `MenuSuggestionService` answers "what do I cook with this bag" and
+ * searches the cook's own recipes first, because they know they like them.
+ * Filling a week is the other question — somebody wants dishes they have not
+ * had, and handing back the four recipes they wrote last month is not an
+ * answer to it.
  *
- * Nothing here writes to the plan. What comes back is a proposal, accepted meal
- * by meal or all at once — which is what makes correcting it possible at all.
+ * Two consequences, and both are deliberate. Every fill costs money, so the
+ * budget is what bounds this rather than the library. And when a model cannot
+ * answer — no entitlement, nothing wired, a spent month, a call that failed —
+ * there is no second source: the screen is told **which** of those it is and
+ * says so, instead of quietly handing back fewer proposals it never had.
+ *
+ * Nothing here writes to the plan. What comes back is a proposal, accepted
+ * meal by meal, and accepting one writes a draft marked as a model's work.
  */
 @RestController
 @RequestMapping("/api/plan/suggest")
@@ -43,12 +49,23 @@ public class WeekSuggestionController {
     /**
      * A ceiling on one request, whatever is asked for.
      *
-     * Seven days times four slots is twenty-eight dishes, and a model asked
-     * for twenty-eight is a bill nobody intended. The planner asks for dinners
-     * by default; anything larger is somebody exploring, and exploring has a
-     * price.
+     * Seven days times four slots is twenty-eight dishes, and every one of them
+     * is now billed. The planner asks for dinners by default; anything larger
+     * is somebody exploring, and exploring has a price.
      */
     private static final int MOST_SLOTS = 14;
+
+    /**
+     * Why nothing came back, when nothing came back.
+     *
+     * Named apart because they are different conversations: {@code PLAN} is
+     * answered by subscribing, {@code BUDGET} by waiting for the month to
+     * turn, {@code UNAVAILABLE} only by us. The same distinction
+     * `/api/recipes/import/sources` already makes, and for the same reason — a
+     * screen that refuses without saying which of these it is teaches somebody
+     * to stop pressing the button.
+     */
+    public enum Declined { NONE, PLAN, BUDGET, UNAVAILABLE, FAILED }
 
     public record Request(
             String week,
@@ -62,22 +79,15 @@ public class WeekSuggestionController {
              * giving up on Tuesday lunch.
              */
             List<Taken> keep,
-            /** Recipes not to propose again — refused, or already placed. */
-            Set<Long> exclude,
             /**
              * Titles already seen, kept or refused.
              *
-             * An idea has no id, so it can only be excluded by its name — and
-             * a proposal that comes back after a refusal is the fastest way to
-             * lose somebody.
+             * Everything here is an idea and an idea has no id, so a name is
+             * the only way to say "not that one again" — and a dish that comes
+             * back after a refusal is the fastest way to lose somebody.
              */
             Set<String> excludeTitles,
-            /**
-             * What somebody typed when refusing — "moins de pâtes", "quelque
-             * chose de plus léger". Optional, and it only reaches the model:
-             * the library matches on tags and a cuisine, and inventing a search
-             * over free text would be guessing at what somebody meant.
-             */
+            /** What somebody typed when refusing. Optional; it reaches a model. */
             String note) {
     }
 
@@ -94,34 +104,26 @@ public class WeekSuggestionController {
     public record ProposalView(
             String date,
             String slot,
-            /** Null for an idea: it is not a recipe yet, and may never be. */
-            Long recipeId,
             String title,
             Integer minutes,
-            String cuisine,
-            Set<String> tags,
-            boolean hasPhoto,
-            String because,
-            /** Present only for an idea, so accepting can make a draft of it. */
+            /** Everything it takes to become a draft, without a second bill. */
             Idea idea) {
     }
 
     public record SuggestionView(
             List<ProposalView> proposals,
+            /** Slots asked about that came back empty. Not an error. */
             int unfilled,
-            /** True when a model was asked; the screen says so, as elsewhere. */
-            boolean assisted) {
+            /** NONE while proposals came back; otherwise why they did not. */
+            String declined) {
     }
 
-    private final WeekSuggestionService suggestions;
     private final Entitlements entitlements;
     private final AiBudget budget;
     private final List<MenuIntelligence> readers;
 
-    public WeekSuggestionController(WeekSuggestionService suggestions,
-                                    Entitlements entitlements, AiBudget budget,
+    public WeekSuggestionController(Entitlements entitlements, AiBudget budget,
                                     List<MenuIntelligence> readers) {
-        this.suggestions = suggestions;
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
@@ -131,7 +133,6 @@ public class WeekSuggestionController {
     public SuggestionView suggest(@AuthenticationPrincipal Jwt principal,
                                   @RequestBody Request request) {
         Long userId = Long.valueOf(principal.getSubject());
-
         LocalDate monday = PlanService.weekStart(LocalDate.parse(request.week()));
 
         List<MealSlot> slots = request.slots() == null || request.slots().isEmpty()
@@ -144,104 +145,74 @@ public class WeekSuggestionController {
                         .collect(java.util.stream.Collectors.toSet());
 
         // Every slot of the week that is still open, in order.
-        List<WeekSuggestionService.Slot> open = new ArrayList<>();
+        List<Slot> open = new ArrayList<>();
         for (int day = 0; day < 7 && open.size() < MOST_SLOTS; day++) {
             LocalDate date = monday.plusDays(day);
             for (MealSlot slot : slots) {
                 if (!taken.contains(date + slot.name()) && open.size() < MOST_SLOTS) {
-                    open.add(new WeekSuggestionService.Slot(date, slot));
+                    open.add(new Slot(date, slot));
                 }
             }
         }
-
-        WeekSuggestionService.Wanted wanted = new WeekSuggestionService.Wanted(
-                request.intents(),
-                WeekSuggestionService.knownCuisines(request.cuisines()),
-                open, request.exclude(),
-                request.excludeTitles() == null ? Set.of() : request.excludeTitles());
-
-        WeekSuggestionService.Suggestion own = suggestions.fromLibrary(userId, wanted);
-        List<ProposalView> proposals = new ArrayList<>(own.proposals().stream()
-                .map(WeekSuggestionController::view).toList());
-
-        boolean assisted = false;
-        if (own.unfilled() > 0) {
-            List<ProposalView> invented =
-                    fromModel(userId, wanted, own, proposals, request.note());
-            assisted = !invented.isEmpty();
-            proposals.addAll(invented);
+        // A week with nothing left to fill is answered, not refused: there is
+        // no reason to spend a request finding that out.
+        if (open.isEmpty()) {
+            return new SuggestionView(List.of(), 0, Declined.NONE.name());
         }
 
-        return new SuggestionView(proposals, open.size() - proposals.size(), assisted);
-    }
-
-    /**
-     * Ideas for the slots the library could not fill.
-     *
-     * Declined quietly for every reason there is — no entitlement, nothing
-     * wired, no budget, an answer that came back empty. What the library found
-     * still stands: half a week of the cook's own recipes is a better answer
-     * than an error.
-     */
-    private List<ProposalView> fromModel(Long userId, WeekSuggestionService.Wanted wanted,
-                                         WeekSuggestionService.Suggestion own,
-                                         List<ProposalView> already, String note) {
         MenuIntelligence reader = readers.stream()
                 .filter(MenuIntelligence::available)
                 .findFirst()
                 .orElse(readers.get(readers.size() - 1));
 
-        if (!entitlements.has(userId, Feature.AI_MENU) || !reader.available()) {
-            return List.of();
+        if (!entitlements.has(userId, Feature.AI_MENU)) {
+            return nothing(open.size(), Declined.PLAN);
+        }
+        if (!reader.available()) {
+            return nothing(open.size(), Declined.UNAVAILABLE);
         }
         try {
             budget.require(userId);
         } catch (AiBudget.ExhaustedException e) {
-            return List.of();
+            return nothing(open.size(), Declined.BUDGET);
         }
 
         try {
             MenuIntelligence.Ideas ideas = reader.suggestFor(
-                    wanted.intents() == null ? Set.of() : wanted.intents(),
-                    wanted.cuisines(),
-                    own.unfilled(),
-                    already.stream().map(ProposalView::title).toList(),
-                    note);
+                    request.intents() == null ? Set.of() : request.intents(),
+                    Cuisine.knownNames(request.cuisines()),
+                    open.size(),
+                    request.excludeTitles() == null
+                            ? List.of() : List.copyOf(request.excludeTitles()),
+                    request.note());
             budget.record(userId, "WEEK_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
-            // Laid onto the slots the library left empty, in order.
             List<ProposalView> placed = new ArrayList<>();
-            Set<String> filled = new LinkedHashSet<>();
-            already.forEach(one -> filled.add(one.date() + one.slot()));
-
-            int at = 0;
-            for (WeekSuggestionService.Slot slot : wanted.slots()) {
-                if (filled.contains(slot.date() + slot.slot().name())) {
-                    continue;
-                }
-                if (at >= ideas.suggestions().size()) {
-                    return placed;
-                }
-                MenuDtos.Suggestion idea = ideas.suggestions().get(at++);
+            for (int at = 0; at < open.size() && at < ideas.suggestions().size(); at++) {
+                MenuDtos.Suggestion idea = ideas.suggestions().get(at);
+                Slot slot = open.get(at);
                 placed.add(new ProposalView(
-                        slot.date().toString(), slot.slot().name(), null, idea.title(),
-                        idea.minutes(), null, Set.of(), false, "IDEA",
+                        slot.date().toString(), slot.slot().name(),
+                        idea.title(), idea.minutes(),
                         new Idea(idea.title(), idea.minutes(),
                                 idea.ingredients(), idea.steps())));
             }
-            return placed;
+            // Fewer dishes than slots is an answer rather than a failure; it
+            // is only a refusal when there were none at all.
+            return new SuggestionView(placed, open.size() - placed.size(),
+                    (placed.isEmpty() ? Declined.FAILED : Declined.NONE).name());
         } catch (RuntimeException e) {
             log.warn("No week ideas came back: {}", e.toString());
-            return List.of();
+            return nothing(open.size(), Declined.FAILED);
         }
     }
 
-    private static ProposalView view(WeekSuggestionService.Proposal proposal) {
-        return new ProposalView(
-                proposal.date().toString(), proposal.slot().name(),
-                proposal.recipeId(), proposal.title(), proposal.minutes(),
-                proposal.cuisine(), proposal.tags(), proposal.hasPhoto(),
-                proposal.because(), null);
+    private SuggestionView nothing(int slots, Declined why) {
+        return new SuggestionView(List.of(), slots, why.name());
+    }
+
+    /** One place on the week that still wants a dish. */
+    record Slot(LocalDate date, MealSlot slot) {
     }
 }
