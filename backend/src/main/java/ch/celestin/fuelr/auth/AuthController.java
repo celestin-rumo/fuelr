@@ -38,6 +38,7 @@ public class AuthController {
     private final SessionService sessions;
     private final PasswordResetService passwordReset;
     private final EmailVerificationService emailVerification;
+    private final ch.celestin.fuelr.account.AccountService accounts;
     private final boolean secureCookie;
 
     public AuthController(
@@ -47,9 +48,11 @@ public class AuthController {
             SessionService sessions,
             PasswordResetService passwordReset,
             EmailVerificationService emailVerification,
+            ch.celestin.fuelr.account.AccountService accounts,
             @Value("${app.jwt.secure-cookie}") boolean secureCookie) {
         this.passwordReset = passwordReset;
         this.emailVerification = emailVerification;
+        this.accounts = accounts;
         this.auth = auth;
         this.jwt = jwt;
         this.users = users;
@@ -127,6 +130,19 @@ public class AuthController {
     }
 
     /** Sends the confirmation again, for the banner's "resend" action. */
+    /**
+     * The click on a change-of-address link. Public like the other two token
+     * flows: the link is the proof, and there may be no session on the device
+     * the mail was opened on.
+     */
+    @PostMapping("/verify-email-change")
+    public ResponseEntity<Void> confirmEmailChange(
+            @Valid @RequestBody AuthDtos.ConfirmEmailChangeRequest body) {
+        return accounts.confirmEmailChange(body.token())
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.GONE).build();
+    }
+
     @PostMapping("/verify-email/resend")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendVerification(
@@ -200,6 +216,7 @@ public class AuthController {
     private static UserResponse toResponse(User user) {
         return new UserResponse(
                 user.getId(), user.getEmail(), user.getName(), user.getRole(),
-                user.isEmailVerified());
+                user.isEmailVerified(),
+                user.getLocale());
     }
 }

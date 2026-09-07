@@ -112,7 +112,8 @@
       "shopping": "Einkauf",
       "journal": "Tagebuch",
       "idea": "Eine Idee?",
-      "costs": "Kosten der KI-Lesungen"
+      "costs": "Kosten der KI-Lesungen",
+      "account": "Mein Konto"
     }
   },
   "plan": {
@@ -1135,5 +1136,65 @@
       "failed": "Die Suche ist fehlgeschlagen. Versuch es erneut.",
       "empty": "Schreib mindestens eine Zutat."
     }
+  },
+  "account": {
+    "label": "Konto",
+    "title": "Mein Konto",
+    "intro": "Was Fuelr über Sie weiss, und was Sie daran ändern können.",
+    "failed": "Das wurde nicht gespeichert. Bitte erneut versuchen.",
+    "profile": {
+      "title": "Sie",
+      "name": "Vorname",
+      "saved": "Gespeichert.",
+      "language": "Sprache",
+      "languageHint": "Sie folgt Ihrem Konto, nicht nur diesem Browser.",
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "de": "Deutsch"
+      }
+    },
+    "email": {
+      "title": "E-Mail-Adresse",
+      "hint": "Damit melden Sie sich an. Nichts ändert sich, bevor die neue Adresse ihren Link angeklickt hat.",
+      "current": "Aktuell:",
+      "new": "Neue Adresse",
+      "password": "Ihr Passwort",
+      "submit": "Bestätigungslink senden",
+      "wrongPassword": "Das ist nicht Ihr Passwort.",
+      "sent": "Ein Link ist unterwegs an {email}. Bis er angeklickt ist, bleibt die alte Adresse Ihre — sie wurde ebenfalls informiert."
+    },
+    "password": {
+      "title": "Passwort",
+      "hint": "Eine Änderung meldet Ihre anderen Geräte ab.",
+      "current": "Aktuelles Passwort",
+      "next": "Neues Passwort",
+      "submit": "Passwort ändern",
+      "wrong": "Das ist nicht Ihr aktuelles Passwort.",
+      "tooShort": "Mindestens 8 Zeichen.",
+      "changed": "Passwort geändert. Ihre anderen Geräte sind abgemeldet."
+    },
+    "figures": {
+      "title": "Ihre Zahlen",
+      "hint": "Daraus wird das Ziel des Tagebuchs berechnet. Vor «Speichern» wird nichts gespeichert.",
+      "none": "Noch kein Profil. Sechs Zahlen, und das Tagebuch hat ein Ziel.",
+      "targets": {
+        "kcal": "kcal / Tag",
+        "proteinG": "Eiweiss",
+        "carbsG": "Kohlenhydrate",
+        "fatG": "Fett"
+      },
+      "formula": "Eine Formel aus Alter, Grösse, Gewicht und Aktivität. Ein Richtwert, keine Vorschrift.",
+      "submit": "Speichern",
+      "saved": "Zahlen gespeichert. Das Ziel gilt ab heute."
+    }
+  },
+  "verifyEmailChange": {
+    "title": "Neue Adresse",
+    "working": "Einen Moment…",
+    "done": "Erledigt: Diese Adresse gehört jetzt zu Ihrem Konto und ist bestätigt.",
+    "expired": "Dieser Link gilt nicht mehr — er wurde schon benutzt, ist abgelaufen, oder die Adresse wurde inzwischen vergeben. Stellen Sie die Anfrage in Ihrem Konto neu.",
+    "noToken": "Dieser Link ist unvollständig. Öffnen Sie den aus der E-Mail.",
+    "toAccount": "Zu meinem Konto"
   }
 }

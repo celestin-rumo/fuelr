@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/register", "/api/auth/login",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
-                        "/api/auth/verify-email",
+                        "/api/auth/verify-email", "/api/auth/verify-email-change",
                         // A payment provider calls this one, and has no
                         // session to call it with. It is public by necessity
                         // and refuses anything it cannot verify — see

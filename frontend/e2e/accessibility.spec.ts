@@ -127,6 +127,7 @@ test.describe("signed in", () => {
     for (const path of [
       "/fr/app/planning",
       "/fr/app/planning/preparation",
+      "/fr/app/compte",
       "/fr/app/courses",
       "/fr/app/journal",
     ]) {

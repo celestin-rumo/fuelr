@@ -327,7 +327,7 @@ function ChoiceCard({
   );
 }
 
-function Choices<T extends string>({
+export function Choices<T extends string>({
   legend,
   options,
   value,

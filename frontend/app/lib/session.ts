@@ -9,6 +9,8 @@ export type Session = {
   name: string | null;
   role: string;
   emailVerified: boolean;
+  /** The language the account chose, or null while it is the browser's guess. */
+  locale: string | null;
 };
 
 /**

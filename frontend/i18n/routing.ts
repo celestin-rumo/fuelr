@@ -55,6 +55,11 @@ export const routing = defineRouting({
       en: "/verify-email",
       de: "/email-bestaetigen",
     },
+    "/verify-email-change": {
+      fr: "/changement-email",
+      en: "/change-email",
+      de: "/e-mail-aendern",
+    },
     "/forgot-password": {
       fr: "/mot-de-passe-oublie",
       en: "/forgot-password",
@@ -105,6 +110,11 @@ export const routing = defineRouting({
     },
     // Invitation links point here, so these slugs are duplicated in the
     // backend's EmailLinks. Changing one means changing the other.
+    "/app/account": {
+      fr: "/app/compte",
+      en: "/app/account",
+      de: "/app/konto",
+    },
     "/app/household": {
       fr: "/app/foyer",
       en: "/app/household",

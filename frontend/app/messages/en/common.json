@@ -112,7 +112,8 @@
       "shopping": "Shopping",
       "journal": "Diary",
       "idea": "An idea?",
-      "costs": "AI reading costs"
+      "costs": "AI reading costs",
+      "account": "My account"
     }
   },
   "plan": {
@@ -1135,5 +1136,65 @@
       "failed": "The search failed. Try again.",
       "empty": "Write at least one ingredient."
     }
+  },
+  "account": {
+    "label": "Account",
+    "title": "My account",
+    "intro": "What Fuelr knows about you, and what you can change.",
+    "failed": "That was not saved. Try again.",
+    "profile": {
+      "title": "You",
+      "name": "First name",
+      "saved": "Saved.",
+      "language": "Language",
+      "languageHint": "It follows your account, not only this browser.",
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "de": "Deutsch"
+      }
+    },
+    "email": {
+      "title": "Email address",
+      "hint": "It is what you sign in with. Nothing changes until the new address has clicked its link.",
+      "current": "Current:",
+      "new": "New address",
+      "password": "Your password",
+      "submit": "Send the confirmation link",
+      "wrongPassword": "That is not your password.",
+      "sent": "A link is on its way to {email}. Until it is clicked, the old address stays yours — it has been told too."
+    },
+    "password": {
+      "title": "Password",
+      "hint": "Changing it signs out your other devices.",
+      "current": "Current password",
+      "next": "New password",
+      "submit": "Change the password",
+      "wrong": "That is not your current password.",
+      "tooShort": "At least 8 characters.",
+      "changed": "Password changed. Your other devices are signed out."
+    },
+    "figures": {
+      "title": "Your figures",
+      "hint": "What the journal's target is computed from. Nothing is saved before “Save”.",
+      "none": "No profile yet. Six figures, and the journal will have a target.",
+      "targets": {
+        "kcal": "kcal / day",
+        "proteinG": "Protein",
+        "carbsG": "Carbs",
+        "fatG": "Fat"
+      },
+      "formula": "A formula on age, height, weight and activity. A reference, not a prescription.",
+      "submit": "Save",
+      "saved": "Figures saved. The target applies from today."
+    }
+  },
+  "verifyEmailChange": {
+    "title": "New address",
+    "working": "One moment…",
+    "done": "Done: this address is now your account's, and it is verified.",
+    "expired": "This link no longer works — it was already used, it expired, or the address was taken in the meantime. Ask again from your account.",
+    "noToken": "This link is incomplete. Open the one in the email.",
+    "toAccount": "Go to my account"
   }
 }
