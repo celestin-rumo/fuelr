@@ -578,6 +578,15 @@ export type DietaryPreferences = {
   dislikes: string | null;
 };
 
+/** Where the account is signed in — the browser family and the platform, in words. */
+export type DeviceSession = {
+  id: string;
+  device: string | null;
+  openedAt: string;
+  lastSeenAt: string;
+  current: boolean;
+};
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

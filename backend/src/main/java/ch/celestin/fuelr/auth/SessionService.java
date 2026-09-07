@@ -51,6 +51,19 @@ public class SessionService {
         return sessions.deleteOtherSessions(userId, keep);
     }
 
+    public java.util.List<Session> listFor(Long userId) {
+        return sessions.findByUserIdOrderByLastUsedAtDesc(userId);
+    }
+
+    /** One of the account's own sessions, or nothing: somebody else's is not there to close. */
+    @Transactional
+    public boolean closeOwn(Long userId, UUID id) {
+        return sessions.findByIdAndUserId(id, userId).map(found -> {
+            sessions.delete(found);
+            return true;
+        }).orElse(false);
+    }
+
     @Transactional
     public int closeAll(Long userId) {
         return sessions.deleteAllForUser(userId);

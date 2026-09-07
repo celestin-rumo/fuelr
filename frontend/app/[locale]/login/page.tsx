@@ -21,7 +21,8 @@ export default async function LoginPage({
     redirect(getPathname({ href: "/app", locale }));
   }
 
-  const { next, email } = await searchParams;
+  const { next, email, reason } = await searchParams;
+  const closedElsewhere = reason === "closed";
   const destination = typeof next === "string" ? next : null;
   // Filled in when someone arrives from the sign-up form after finding out the
   // address is already registered; retyping it there would be busywork.
@@ -40,6 +41,15 @@ export default async function LoginPage({
           </p>
 
           <div className="mt-8">
+            {closedElsewhere && (
+              <p
+                role="status"
+                data-testid="login-closed"
+                className="mb-4 rounded-sm border border-line bg-bg-raised-2 p-3 text-[13px] leading-[1.5] font-semibold text-text-dim"
+              >
+                {t("closedElsewhere")}
+              </p>
+            )}
             <LoginForm next={destination} email={knownEmail} />
           </div>
 

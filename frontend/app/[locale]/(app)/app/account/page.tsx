@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { apiFetch } from "@app/lib/api";
-import type { DietaryPreferences, ProfileResponse, WeightView } from "@app/lib/api";
+import type { DeviceSession, DietaryPreferences, ProfileResponse, WeightView } from "@app/lib/api";
+import { DevicesPanel } from "@app/components/app/devices-panel";
 import { PreferencesPanel } from "@app/components/app/preferences-panel";
 import { todayIso } from "@app/lib/week";
 import { WeightPanel } from "@app/components/app/weight-panel";
@@ -22,11 +23,13 @@ export default async function AccountPage() {
   const t = await getTranslations("account");
   const session = await getSession();
   const today = todayIso();
-  const [response, weightResponse, preferencesResponse] = await Promise.all([
+  const [response, weightResponse, preferencesResponse, sessionsResponse] = await Promise.all([
     apiFetch("/api/profile"),
     apiFetch(`/api/weight?to=${today}`),
     apiFetch("/api/preferences"),
+    apiFetch("/api/auth/sessions"),
   ]);
+  const sessions: DeviceSession[] = sessionsResponse.ok ? await sessionsResponse.json() : [];
   const preferences: DietaryPreferences | null = preferencesResponse.ok
     ? await preferencesResponse.json()
     : null;
@@ -54,6 +57,8 @@ export default async function AccountPage() {
       )}
 
       {preferences && <PreferencesPanel preferences={preferences} />}
+
+      {sessions.length > 0 && <DevicesPanel sessions={sessions} />}
     </Container>
   );
 }

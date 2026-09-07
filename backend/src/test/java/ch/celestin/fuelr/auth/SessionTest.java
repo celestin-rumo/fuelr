@@ -102,6 +102,88 @@ class SessionTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /** A second device: another login for the same account, from that agent. */
+    private String signInAs(String email, String userAgent) throws Exception {
+        String response = mvc.perform(post("/api/auth/login")
+                        .header("User-Agent", userAgent)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s","password":"motdepasse123"}""".formatted(email)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return json.readTree(response).get("token").asText();
+    }
+
+    @Test
+    void theDevicesAreListedInWordsAndThisOneIsMarked() throws Exception {
+        String email = "devices-" + System.nanoTime() + "@fuelr.app";
+        signIn(email);
+        String laptop = signInAs(email, "Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0 Safari/537.36");
+        String phone = signInAs(email, "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Safari/604.1");
+
+        String listed = mvc.perform(get("/api/auth/sessions").header("Authorization", "Bearer " + laptop))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        var devices = json.readTree(listed);
+        assertThat(devices.size()).isGreaterThanOrEqualTo(2);
+        // Said in words a person recognises, and never the raw agent string.
+        assertThat(listed).contains("Chrome · Linux").contains("Safari · iOS");
+        assertThat(listed).doesNotContain("Mozilla/5.0");
+        // The one asking is marked as such.
+        long current = 0;
+        for (var device : devices) {
+            if (device.get("current").asBoolean()) current++;
+        }
+        assertThat(current).isEqualTo(1);
+    }
+
+    @Test
+    void oneDeviceCanBeClosedByNameAndThisOneCannot() throws Exception {
+        String email = "close-" + System.nanoTime() + "@fuelr.app";
+        signIn(email);
+        String laptop = signInAs(email, "Chrome/120.0 (X11; Linux)");
+        String phone = signInAs(email, "Safari/604.1 (iPhone)");
+
+        String listed = mvc.perform(get("/api/auth/sessions").header("Authorization", "Bearer " + laptop))
+                .andReturn().getResponse().getContentAsString();
+        String phoneId = null;
+        String laptopId = null;
+        for (var device : json.readTree(listed)) {
+            if (device.get("current").asBoolean()) laptopId = device.get("id").asText();
+            else if (device.get("device").asText().startsWith("Safari")) phoneId = device.get("id").asText();
+        }
+        assertThat(phoneId).isNotNull();
+
+        mvc.perform(delete("/api/auth/sessions/" + phoneId).header("Authorization", "Bearer " + laptop))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + phone))
+                .andExpect(status().isUnauthorized());
+
+        // This one closes through logout, never here.
+        mvc.perform(delete("/api/auth/sessions/" + laptopId).header("Authorization", "Bearer " + laptop))
+                .andExpect(status().isConflict());
+        mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + laptop))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void somebodyElsesDeviceIsNotThereToClose() throws Exception {
+        String email = "mine-" + System.nanoTime() + "@fuelr.app";
+        signIn(email);
+        String mine = signInAs(email, "Chrome/120.0 (X11; Linux)");
+        String otherEmail = "autre-%d@fuelr.app".formatted(System.nanoTime());
+        signIn(otherEmail);
+        String theirs = signInAs(otherEmail, "Safari/604.1 (iPhone)");
+        String listed = mvc.perform(get("/api/auth/sessions").header("Authorization", "Bearer " + theirs))
+                .andReturn().getResponse().getContentAsString();
+        String theirId = json.readTree(listed).get(0).get("id").asText();
+
+        mvc.perform(delete("/api/auth/sessions/" + theirId).header("Authorization", "Bearer " + mine))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + theirs))
+                .andExpect(status().isOk());
+    }
+
     @Test
     void logoutNeedsAValidSessionOfItsOwn() throws Exception {
         mvc.perform(post("/api/auth/logout")).andExpect(status().isUnauthorized());

@@ -135,3 +135,46 @@ test("an address moves only when the new one clicks, and the old one is told", a
   expect(after.email).toBe(next);
   expect(after.emailVerified).toBe(true);
 });
+
+test("the devices are listed in words, and one closed from here is out", async ({
+  request,
+  context,
+  page,
+}) => {
+  const { email } = await register(request, context);
+  const phone = await request.post(`${BACKEND}/api/auth/login`, {
+    headers: { "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Safari/604.1" },
+    data: { email, password: "motdepasse123" },
+  });
+  const phoneToken = (await phone.json()).token as string;
+
+  await page.goto("/fr/app/compte");
+  const panel = page.getByTestId("devices-panel");
+  await expect(panel).toContainText("Safari · iOS");
+  await expect(panel).toContainText("Cet appareil");
+  await expect(panel).not.toContainText("Mozilla/5.0");
+
+  await panel.getByRole("button", { name: /Fermer la session sur Safari/ }).click();
+  await expect(panel).not.toContainText("Safari · iOS");
+
+  const gone = await request.get(`${BACKEND}/api/auth/me`, {
+    headers: { Authorization: `Bearer ${phoneToken}` },
+  });
+  expect(gone.status()).toBe(401);
+});
+
+test("a session closed elsewhere lands on a login page that says so", async ({
+  request,
+  context,
+  page,
+}) => {
+  const { token } = await register(request, context);
+  // Closed from "another device": the API, with the same account's token.
+  await request.post(`${BACKEND}/api/auth/logout`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  await page.goto("/fr/app/compte");
+  await expect(page).toHaveURL(/\/fr\/connexion\?reason=closed/);
+  await expect(page.getByTestId("login-closed")).toContainText(/fermée depuis un autre appareil/);
+});
