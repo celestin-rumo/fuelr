@@ -376,7 +376,7 @@ class AdminPanelTest {
         String body = mvc.perform(get("/api/admin/usage")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.counts.length()").value(12))
+                .andExpect(jsonPath("$.counts.length()").value(13))
                 .andReturn().getResponse().getContentAsString();
 
         // Not one address, not one identifier: this section is totals, and the
