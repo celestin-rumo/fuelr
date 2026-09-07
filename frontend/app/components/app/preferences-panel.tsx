@@ -75,6 +75,7 @@ export function PreferencesPanel({ preferences }: { preferences: DietaryPreferen
           <p className="text-[13px] font-semibold text-text-dim">{t("diet.label")}</p>
           <Segmented
             label={t("diet.label")}
+            className="max-sm:w-full max-sm:flex-col"
             value={diet}
             onChange={(next) => {
               setDiet(next);
