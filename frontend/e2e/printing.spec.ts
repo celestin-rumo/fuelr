@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { APIRequestContext, BrowserContext, Page } from "@playwright/test";
+import { weekDays } from "../app/lib/week";
 
 const BACKEND = process.env.E2E_BACKEND_URL ?? "http://localhost:8090";
 
@@ -137,6 +138,83 @@ test("the shopping list prints with a box to tick and the week on it", async ({
   // order is the walk, and it does not change medium.
   await expect(sheet).toContainText("Fruits & légumes");
   await expect(sheet).toContainText("Crémerie");
+});
+
+test("the week prints as one landscape sheet for the fridge", async ({
+  request,
+  page,
+}) => {
+  const id = await recipe(request);
+  // Two meals on the same evening and one on another, so the grid is not
+  // trivially empty and the cells are actually exercised.
+  for (const [date, slot] of [
+    [MONDAY, "DINNER"],
+    [MONDAY, "LUNCH"],
+    [WEDNESDAY, "DINNER"],
+  ] as const) {
+    await request.post(`${BACKEND}/api/plan`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { date, slot, recipeId: id, servings: 4 },
+    });
+  }
+
+  await page.goto(`/fr/app/planning?week=${MONDAY}`);
+  await page.getByTestId("print-week").click();
+  await expect(page).toHaveURL(/\/fr\/app\/planning\/imprimer/);
+
+  const sheet = page.getByTestId("print-sheet");
+  await expect(sheet).toContainText("Le planning de la semaine");
+  // Read from a metre away, and the thing that says the sheet is a moment.
+  await expect(sheet).toContainText("Du 2 mars au 8 mars");
+  await expect(sheet).toContainText(/un repas déplacé depuis n'y figure pas/);
+
+  // Seven days across, four meals down — every box, empty ones included.
+  await expect(page.getByTestId("print-week-grid")).toBeVisible();
+  await expect(page.getByTestId(`print-cell-${MONDAY}-DINNER`))
+    .toContainText("Soupe de courge");
+  await expect(page.getByTestId(`print-cell-${MONDAY}-BREAKFAST`)).toBeVisible();
+  await expect(page.getByTestId("print-cell-2026-03-08-SNACK")).toBeVisible();
+
+  // Nothing that addresses one person, and nothing that costs a page of ink.
+  await expect(sheet.locator("img")).toHaveCount(0);
+  await expect(sheet).not.toContainText("kcal");
+
+  await onPaper(page);
+  await expect(page.getByRole("navigation", { name: /principale/i })).toBeHidden();
+
+  // Landscape is declared on this page and nowhere else: the recipe and the
+  // list are read in the hand and belong in portrait.
+  const declared = await page.evaluate(() =>
+    [...document.querySelectorAll("style")]
+      .map((one) => one.textContent ?? "")
+      .join("\n"),
+  );
+  expect(declared).toContain("A4 landscape");
+
+  await page.emulateMedia({ media: "screen" });
+
+  // One sheet, always — and the claim is worth nothing on a week with three
+  // meals on it, so the check is run on a full one.
+  for (const date of weekDays(MONDAY)) {
+    for (const slot of ["BREAKFAST", "LUNCH", "DINNER", "SNACK"]) {
+      await request.post(`${BACKEND}/api/plan`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { date, slot, recipeId: id, servings: 4 },
+      });
+    }
+  }
+
+  await page.goto(`/fr/app/planning/imprimer?week=${MONDAY}`);
+  await expect(page.getByTestId("print-week-grid")).toBeVisible();
+
+  // Measured on the rendered box rather than argued about. The preview is
+  // 820px wide where landscape A4 gives 277mm, so its columns are narrower and
+  // its titles wrap more — the height read here is the pessimistic one, and
+  // fitting at this width means fitting on the paper.
+  const box = await page.getByTestId("print-sheet").boundingBox();
+  expect(box).not.toBeNull();
+  const millimetres = (box!.height / 96) * 25.4;
+  expect(millimetres).toBeLessThanOrEqual(190);
 });
 
 test("the work plan prints as a sheet, boxes and all", async ({ request, page }) => {

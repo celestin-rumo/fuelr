@@ -902,6 +902,25 @@ the sheet's" hides nothing at all. And a print stylesheet is invisible until
 somebody prints: `e2e/printing.spec.ts` emulates the medium, which is the only
 thing standing between it and a silent rot at the next redesign.
 
+**The week goes on the fridge, and that changes what is on it.** It is the one
+sheet read by several people at once, most of whom have no account, from about
+a metre away. So no photograph — it says nothing to somebody walking past and
+costs a page of ink — and no nutrition totals, which address one person and
+would be read by the whole family. `@page { size: A4 landscape }` cannot be
+scoped by selector, so it is scoped by route: the rule is a `<style>` in
+`week-print.tsx` and exists in the document only when the week sheet is what
+the document is. The recipe and the list are read in the hand and stay
+portrait.
+
+**A sheet that fits "always" has to say what it does when it does not.** A cell
+prints four meals and then counts the rest — "+ 2 autres" — because a sheet
+that silently drops a dinner is a lie, and a bounded cell is what turns one
+page from a hope into a promise. It is measured rather than argued about: the
+spec fills all 28 slots and reads the rendered height, which comes back at
+165mm against the 190mm a landscape A4 gives. And paper does not synchronise,
+so the sheet says so at the bottom — somebody will find it in three weeks and
+take it for the current plan.
+
 **Responsive is an acceptance criterion, not a polish pass.** Every screen has
 to hold up from a narrow phone to a wide desktop before a story is done — no
 horizontal body scroll, no control pushed off-screen, no label truncated into

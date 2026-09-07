@@ -145,13 +145,24 @@ export function WeekPlanner({
             {/* Reading the week as one afternoon's work. Only offered once
                 there is a week to read: an empty plan has no session in it. */}
             {plan.meals.length > 0 && (
-              <Link
-                href={{ pathname: "/app/plan/prep", query: { week: plan.weekStart } }}
-                data-testid="to-prep-session"
-                className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
-              >
-                {t("prep.action")}
-              </Link>
+              <>
+                <Link
+                  href={{ pathname: "/app/plan/prep", query: { week: plan.weekStart } }}
+                  data-testid="to-prep-session"
+                  className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
+                >
+                  {t("prep.action")}
+                </Link>
+                {/* The one sheet in this application read by several people at
+                    once, most of whom have no account. */}
+                <Link
+                  href={{ pathname: "/app/plan/print", query: { week: plan.weekStart } }}
+                  data-testid="print-week"
+                  className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
+                >
+                  {t("printWeek.button")}
+                </Link>
+              </>
             )}
           </>
         }
