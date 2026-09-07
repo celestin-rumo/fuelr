@@ -1273,5 +1273,73 @@
     "close": "Fermer",
     "closeOne": "Fermer la session sur {device}",
     "closeOthers": "{count, plural, one {Fermer l'autre appareil} other {Fermer les # autres appareils}}"
+  },
+  "data": {
+    "title": "Mes données",
+    "hint": "Tout emporter, ou partir.",
+    "export": {
+      "title": "Exporter toutes mes données",
+      "body": "Recettes et photos, planning, courses, journal, profil, pesées, préférences — en une archive. Elle est préparée en arrière-plan et un lien arrive par email ; il fonctionne une fois, pendant 24 heures, puis l'archive est effacée de nos disques.",
+      "submit": "Préparer l'archive",
+      "asked": "C'est en route. Le lien arrive à {email}."
+    },
+    "delete": {
+      "title": "Supprimer mon compte",
+      "body": "Tout ce qui est à vous est supprimé, tout de suite et sans aller-retour. Ce qui appartient à d'autres membres d'un foyer reste à eux.",
+      "open": "Supprimer mon compte…",
+      "dialogTitle": "Supprimer ce compte",
+      "cancel": "Annuler",
+      "confirm": "Supprimer définitivement",
+      "password": "Votre mot de passe, pour confirmer",
+      "wrongPassword": "Ce n'est pas votre mot de passe.",
+      "failed": "Ça n'a pas abouti. Réessayez.",
+      "recipes": "{count, plural, =0 {Aucune recette} one {Votre recette} other {Vos # recettes}}",
+      "photos": "{count, plural, =0 {aucune photo} one {une photo} other {# photos}}",
+      "handover": "Votre foyer passe à {email} — rien de ce qui est aux autres n'est supprimé.",
+      "journal": "Votre journal, vos pesées, vos préférences, vos appareils",
+      "exportFirst": "Vous pouvez d'abord tout emporter :",
+      "exportLink": "préparer l'archive."
+    }
+  },
+  "exportPage": {
+    "title": "Votre archive Fuelr",
+    "body": "Elle se télécharge une seule fois. Après ça, le lien ne marche plus et l'archive est effacée.",
+    "download": "Télécharger l'archive",
+    "noToken": "Ce lien est incomplet. Ouvrez celui du mail."
+  },
+  "recommend": {
+    "title": "Recommander Fuelr",
+    "hint": "Un lien à partager, et un mot prêt. Rien de plus — aucun plan n'est payant, donc rien à promettre.",
+    "messageLabel": "Le message",
+    "message": "Je planifie mes semaines avec Fuelr — mes recettes, mon planning, ma liste de courses. Essaie : {link}",
+    "share": "Partager",
+    "shared": "Partagé.",
+    "copied": "Copié.",
+    "count": "{count, plural, =0 {Personne n'est encore venu par ce lien.} one {Une personne est venue par ce lien.} other {# personnes sont venues par ce lien.}}",
+    "honest": "On compte, on ne dit pas qui. Le jour où un plan devient payant, ce lien permettra de dire merci — pas avant."
+  },
+  "reminder": {
+    "title": "Un rappel hebdomadaire",
+    "hint": "Le seul email que Fuelr envoie sans y être obligé. Désactivé tant que vous ne le demandez pas.",
+    "switch": "Me rappeler de planifier ma semaine",
+    "day": "Quel jour",
+    "hour": "À quelle heure",
+    "days": {
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mer",
+      "4": "Jeu",
+      "5": "Ven",
+      "6": "Sam",
+      "7": "Dim"
+    },
+    "transactional": "Son contenu est décidé au moment de l'envoi : « ta semaine est vide » ou « ta liste est prête ». Chaque rappel porte un lien pour l'arrêter en un clic. Les emails de vérification et de mot de passe ne se désactivent pas — ce ne sont pas des préférences."
+  },
+  "unsubscribe": {
+    "title": "Rappel arrêté",
+    "working": "Un instant…",
+    "done": "C'est fait : vous ne recevrez plus le rappel hebdomadaire. Il se réactive depuis votre compte, si un jour vous le voulez.",
+    "expired": "Ce lien n'est plus valable. Le rappel se règle depuis votre compte.",
+    "noToken": "Ce lien est incomplet. Ouvrez celui du mail."
   }
 }

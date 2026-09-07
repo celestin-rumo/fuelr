@@ -1273,5 +1273,73 @@
     "close": "Close",
     "closeOne": "Close the session on {device}",
     "closeOthers": "{count, plural, one {Close the other device} other {Close the # other devices}}"
+  },
+  "data": {
+    "title": "My data",
+    "hint": "Take everything, or leave.",
+    "export": {
+      "title": "Export all my data",
+      "body": "Recipes and photos, plan, shopping, journal, profile, weigh-ins, preferences — in one archive. It is built in the background and a link arrives by email; it works once, for 24 hours, and then the archive is erased from our disks.",
+      "submit": "Prepare the archive",
+      "asked": "On its way. The link arrives at {email}."
+    },
+    "delete": {
+      "title": "Delete my account",
+      "body": "Everything that is yours is deleted, at once and with nobody in the loop. What belongs to other members of a household stays theirs.",
+      "open": "Delete my account…",
+      "dialogTitle": "Delete this account",
+      "cancel": "Cancel",
+      "confirm": "Delete for good",
+      "password": "Your password, to confirm",
+      "wrongPassword": "That is not your password.",
+      "failed": "That did not go through. Try again.",
+      "recipes": "{count, plural, =0 {No recipes} one {Your recipe} other {Your # recipes}}",
+      "photos": "{count, plural, =0 {no photos} one {one photo} other {# photos}}",
+      "handover": "Your household passes to {email} — nothing that is theirs is deleted.",
+      "journal": "Your journal, weigh-ins, preferences and devices",
+      "exportFirst": "You can take everything first:",
+      "exportLink": "prepare the archive."
+    }
+  },
+  "exportPage": {
+    "title": "Your Fuelr archive",
+    "body": "It downloads once. After that the link stops working and the archive is erased.",
+    "download": "Download the archive",
+    "noToken": "This link is incomplete. Open the one in the email."
+  },
+  "recommend": {
+    "title": "Recommend Fuelr",
+    "hint": "A link to share and a message ready to send. Nothing more — no plan is paid for, so there is nothing to promise.",
+    "messageLabel": "The message",
+    "message": "I plan my weeks with Fuelr — my recipes, my plan, my shopping list. Try it: {link}",
+    "share": "Share",
+    "shared": "Shared.",
+    "copied": "Copied.",
+    "count": "{count, plural, =0 {Nobody has come by this link yet.} one {One person came by this link.} other {# people came by this link.}}",
+    "honest": "We count, we do not say who. The day a plan becomes paid, this link will let us say thank you — not before."
+  },
+  "reminder": {
+    "title": "A weekly reminder",
+    "hint": "The only email Fuelr sends without having to. Off until you ask for it.",
+    "switch": "Remind me to plan my week",
+    "day": "Which day",
+    "hour": "At what time",
+    "days": {
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat",
+      "7": "Sun"
+    },
+    "transactional": "What it says is decided when it is sent: “your week is empty” or “your list is ready”. Every reminder carries a one-click link to stop it. Verification and password emails cannot be turned off — they are not preferences."
+  },
+  "unsubscribe": {
+    "title": "Reminder stopped",
+    "working": "One moment…",
+    "done": "Done: you will not receive the weekly reminder any more. It can be turned back on from your account, should you want it one day.",
+    "expired": "This link no longer works. The reminder is set from your account.",
+    "noToken": "This link is incomplete. Open the one in the email."
   }
 }

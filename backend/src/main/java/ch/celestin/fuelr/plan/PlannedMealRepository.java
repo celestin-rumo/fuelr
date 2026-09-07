@@ -22,4 +22,6 @@ public interface PlannedMealRepository extends JpaRepository<PlannedMeal, Long> 
      * open a dish somebody else put on Thursday — and nothing more than that.
      */
     boolean existsByHouseholdIdAndRecipeId(Long householdId, Long recipeId);
+
+    java.util.List<PlannedMeal> findByCreatedByOrderByDateAsc(Long createdBy);
 }

@@ -21,11 +21,24 @@ public class AuthService {
     }
 
     public User register(String email, String name, String rawPassword) {
+        return register(email, name, rawPassword, null);
+    }
+
+    /**
+     * `via` is a referral code from a shared link. Kept on the account and
+     * read by nothing yet; a code nobody has is ignored rather than refused,
+     * because a stale link must never stop somebody from registering.
+     */
+    public User register(String email, String name, String rawPassword, String via) {
         String normalised = normalise(email);
         if (users.findByEmail(normalised).isPresent()) {
             throw new EmailAlreadyUsedException();
         }
-        return users.save(new User(normalised, name, passwordEncoder.encode(rawPassword), "USER"));
+        User user = new User(normalised, name, passwordEncoder.encode(rawPassword), "USER");
+        if (via != null && !via.isBlank()) {
+            users.findByReferralCode(via.trim()).ifPresent(referrer -> user.setReferredBy(referrer.getId()));
+        }
+        return users.save(user);
     }
 
     /** Free attempts before a delay starts. */

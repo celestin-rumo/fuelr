@@ -1273,5 +1273,73 @@
     "close": "Schliessen",
     "closeOne": "Sitzung auf {device} schliessen",
     "closeOthers": "{count, plural, one {Das andere Gerät schliessen} other {Die # anderen Geräte schliessen}}"
+  },
+  "data": {
+    "title": "Meine Daten",
+    "hint": "Alles mitnehmen, oder gehen.",
+    "export": {
+      "title": "Alle meine Daten exportieren",
+      "body": "Rezepte und Fotos, Plan, Einkäufe, Tagebuch, Profil, Wägungen, Einstellungen — in einem Archiv. Es wird im Hintergrund erstellt, und ein Link kommt per E-Mail; er funktioniert einmal, 24 Stunden lang, dann wird das Archiv von unseren Platten gelöscht.",
+      "submit": "Archiv erstellen",
+      "asked": "Unterwegs. Der Link kommt an {email}."
+    },
+    "delete": {
+      "title": "Mein Konto löschen",
+      "body": "Alles, was Ihnen gehört, wird sofort gelöscht, ohne Rückfrage bei irgendwem. Was anderen Mitgliedern eines Haushalts gehört, bleibt bei ihnen.",
+      "open": "Mein Konto löschen…",
+      "dialogTitle": "Dieses Konto löschen",
+      "cancel": "Abbrechen",
+      "confirm": "Endgültig löschen",
+      "password": "Ihr Passwort, zur Bestätigung",
+      "wrongPassword": "Das ist nicht Ihr Passwort.",
+      "failed": "Das hat nicht geklappt. Bitte erneut versuchen.",
+      "recipes": "{count, plural, =0 {Keine Rezepte} one {Ihr Rezept} other {Ihre # Rezepte}}",
+      "photos": "{count, plural, =0 {keine Fotos} one {ein Foto} other {# Fotos}}",
+      "handover": "Ihr Haushalt geht an {email} über — nichts, was anderen gehört, wird gelöscht.",
+      "journal": "Ihr Tagebuch, Ihre Wägungen, Einstellungen und Geräte",
+      "exportFirst": "Sie können zuerst alles mitnehmen:",
+      "exportLink": "Archiv erstellen."
+    }
+  },
+  "exportPage": {
+    "title": "Ihr Fuelr-Archiv",
+    "body": "Es wird einmal heruntergeladen. Danach funktioniert der Link nicht mehr und das Archiv wird gelöscht.",
+    "download": "Archiv herunterladen",
+    "noToken": "Dieser Link ist unvollständig. Öffnen Sie den aus der E-Mail."
+  },
+  "recommend": {
+    "title": "Fuelr empfehlen",
+    "hint": "Ein Link zum Teilen und ein fertiger Text. Mehr nicht — kein Plan ist bezahlt, also gibt es nichts zu versprechen.",
+    "messageLabel": "Die Nachricht",
+    "message": "Ich plane meine Wochen mit Fuelr — meine Rezepte, mein Plan, meine Einkaufsliste. Probier es: {link}",
+    "share": "Teilen",
+    "shared": "Geteilt.",
+    "copied": "Kopiert.",
+    "count": "{count, plural, =0 {Noch niemand ist über diesen Link gekommen.} one {Eine Person ist über diesen Link gekommen.} other {# Personen sind über diesen Link gekommen.}}",
+    "honest": "Wir zählen, wir sagen nicht wer. An dem Tag, an dem ein Plan kostenpflichtig wird, lässt uns dieser Link Danke sagen — nicht vorher."
+  },
+  "reminder": {
+    "title": "Eine wöchentliche Erinnerung",
+    "hint": "Die einzige E-Mail, die Fuelr schickt, ohne zu müssen. Aus, bis Sie sie wollen.",
+    "switch": "Mich ans Planen meiner Woche erinnern",
+    "day": "Welcher Tag",
+    "hour": "Um welche Zeit",
+    "days": {
+      "1": "Mo",
+      "2": "Di",
+      "3": "Mi",
+      "4": "Do",
+      "5": "Fr",
+      "6": "Sa",
+      "7": "So"
+    },
+    "transactional": "Was sie sagt, wird beim Versand entschieden: «deine Woche ist leer» oder «deine Liste ist bereit». Jede Erinnerung trägt einen Link, um sie mit einem Klick zu stoppen. Bestätigungs- und Passwort-E-Mails lassen sich nicht abschalten — das sind keine Einstellungen."
+  },
+  "unsubscribe": {
+    "title": "Erinnerung gestoppt",
+    "working": "Einen Moment…",
+    "done": "Erledigt: Sie erhalten die wöchentliche Erinnerung nicht mehr. Sie lässt sich in Ihrem Konto wieder einschalten, falls Sie sie eines Tages wollen.",
+    "expired": "Dieser Link gilt nicht mehr. Die Erinnerung wird in Ihrem Konto eingestellt.",
+    "noToken": "Dieser Link ist unvollständig. Öffnen Sie den aus der E-Mail."
   }
 }

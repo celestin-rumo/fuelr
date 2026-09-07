@@ -9,4 +9,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     boolean existsByRole(String role);
+
+    java.util.Optional<User> findByReferralCode(String code);
+
+    java.util.Optional<User> findByReminderToken(String token);
+
+    long countByReferredBy(Long userId);
+
+    java.util.List<User> findByReminderDayAndReminderHour(Short day, Short hour);
 }

@@ -465,7 +465,8 @@ public class RecipeController {
         return Long.valueOf(principal.getSubject());
     }
 
-    private static RecipeView toView(Recipe recipe) {
+    /** Public: the full export writes recipes in exactly this shape. */
+    public static RecipeView toView(Recipe recipe) {
         return new RecipeView(
                 recipe.getId(),
                 recipe.getTitle(),

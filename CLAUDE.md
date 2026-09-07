@@ -767,6 +767,40 @@ no longer opens anything sends the app layout to `/login?reason=closed`, and
 the login page says the session was closed elsewhere or ran out rather than
 looking like a first visit.
 
+**The archive is built in the background and fetched once.** `POST
+/api/account/export` answers 202 and `DataExportService.build` runs `@Async`:
+a library with photos is not built inside a click. A mail carries a link to
+`/{locale}/export?token=`, a page with one button — a page rather than a
+direct download, because a browser that prefetches links would spend the one
+download on a hover — and `GET /api/account/export/{token}` streams the zip
+and removes it in `finally`; a second fetch is 410, and `sweep` removes at the
+hour what nobody took within the day. What is inside is what is *mine*: the
+meals I put on the plan (`planned_meals.created_by`), the lists of the
+household I own, never a shared plan I am only a member of — and the README
+says what is deliberately not there. **Deleting is the same class the
+operator's panel calls**, `AccountDeletion`, with the password re-entered; a
+second way to delete an account is the one that leaves photos behind. The
+dialog says what it will do from what the server reports.
+
+**Recommending is a link and a count, not a programme.** `users.referral_code`
+is minted the first time the link is looked at; a visitor arriving with
+`?via=` gets a thirty-day `fuelr_via` cookie from `proxy.ts`, and the register
+route folds it into the one request that can keep it as `users.referred_by`
+(`ON DELETE SET NULL`). Nothing reads it yet: no plan is paid for, so there is
+nothing to thank anybody with, and promising it would be the pricing page in
+reverse. The account sees how many came, never who, and `/admin` counts it
+like everything else. No pixel, no third party — the privacy page names the
+one cookie.
+
+**The weekly reminder is the only email that is not transactional, and it is
+off by default** — or it is spam. `WeeklyReminderJob` runs on the hour in
+Zurich time for the accounts that chose that day and hour, and decides what
+to say at the moment of sending: an empty coming week, or a list that is
+ready; when there is nothing worth saying, nothing is sent. Every reminder
+carries a one-click stop (`POST /api/auth/reminder/unsubscribe`, public by
+token), and the card says the verification and password mails cannot be
+turned off, because those are not preferences.
+
 **Deleting an account would have deleted somebody else's week.** This is the
 trap the schema sets, and it is a chain: `households.owner_user_id` cascades
 from `users`, `planned_meals.household_id` cascades from `households`. Erasing

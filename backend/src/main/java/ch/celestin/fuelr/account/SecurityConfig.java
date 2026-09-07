@@ -42,10 +42,12 @@ public class SecurityConfig {
                 // What the plans cost is the same answer for everybody, and
                 // the pricing page is read by people with no account at all.
                 .requestMatchers(HttpMethod.GET, "/api/plans").permitAll()
+                // The archive arrives by a link in a mail and may be opened with no session.
+                .requestMatchers(HttpMethod.GET, "/api/account/export/*").permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/register", "/api/auth/login",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
-                        "/api/auth/verify-email", "/api/auth/verify-email-change",
+                        "/api/auth/verify-email", "/api/auth/verify-email-change", "/api/auth/reminder/unsubscribe",
                         // A payment provider calls this one, and has no
                         // session to call it with. It is public by necessity
                         // and refuses anything it cannot verify — see

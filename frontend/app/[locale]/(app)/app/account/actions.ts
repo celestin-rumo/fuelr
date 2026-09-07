@@ -1,7 +1,7 @@
 "use server";
 
 import { apiFetch } from "@app/lib/api";
-import type { DietaryPreferences, ProfileInput, ProfileResponse, WeightEntry } from "@app/lib/api";
+import type { DietaryPreferences, ProfileInput, ProfileResponse, Reminder, WeightEntry } from "@app/lib/api";
 
 /**
  * Every action here answers `{ ok }` or a named refusal rather than throwing:
@@ -107,4 +107,45 @@ export async function closeSession(id: string) {
 export async function closeOtherSessions() {
   const response = await apiFetch("/api/auth/sessions", { method: "DELETE" });
   return { ok: response.ok };
+}
+
+/** Asks for the archive. It is built in the background and a mail brings the link. */
+export async function requestExport(locale: string) {
+  const response = await apiFetch("/api/account/export", {
+    method: "POST",
+    body: JSON.stringify({ locale }),
+  });
+  return { ok: response.ok };
+}
+
+export type DeletionPreview = {
+  recipes: number;
+  photos: number;
+  householdHandedOver: boolean;
+  newOwnerEmail: string | null;
+};
+
+/** What deleting would do, from what the server reports. */
+export async function previewDeletion(): Promise<DeletionPreview | null> {
+  const response = await apiFetch("/api/account/deletion");
+  return response.ok ? response.json() : null;
+}
+
+export async function deleteAccount(password: string): Promise<PasswordResult> {
+  const response = await apiFetch("/api/account", {
+    method: "DELETE",
+    body: JSON.stringify({ password }),
+  });
+  if (response.ok) return { ok: true };
+  return { ok: false, reason: response.status === 400 ? "wrong" : "failed" };
+}
+
+/** Off with `day: null`; the hour defaults to 18 on the server. */
+export async function setReminder(input: { day: number | null; hour: number | null }) {
+  const response = await apiFetch("/api/account/reminder", {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) return { ok: false as const };
+  return { ok: true as const, reminder: (await response.json()) as Reminder };
 }

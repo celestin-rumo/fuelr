@@ -20,4 +20,6 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Long
             """, nativeQuery = true)
     void createIfAbsent(@Param("householdId") Long householdId,
                         @Param("weekStart") LocalDate weekStart);
+
+    java.util.List<ShoppingList> findByHouseholdIdOrderByWeekStartAsc(Long householdId);
 }

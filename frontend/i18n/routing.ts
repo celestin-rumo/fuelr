@@ -55,6 +55,18 @@ export const routing = defineRouting({
       en: "/verify-email",
       de: "/email-bestaetigen",
     },
+    // Spelled the same in every locale on purpose: the reminder mail builds
+    // this link on the backend, which does not carry the routing table.
+    "/unsubscribe": {
+      fr: "/unsubscribe",
+      en: "/unsubscribe",
+      de: "/unsubscribe",
+    },
+    "/export": {
+      fr: "/export",
+      en: "/export",
+      de: "/export",
+    },
     "/verify-email-change": {
       fr: "/changement-email",
       en: "/change-email",

@@ -131,6 +131,62 @@ public class User {
         this.locale = locale;
     }
 
+    @Column(name = "referral_code", length = 12, unique = true)
+    private String referralCode;
+
+    @Column(name = "referred_by")
+    private Long referredBy;
+
+    /** ISO day 1–7, or null while the reminder is off — which is the default. */
+    @Column(name = "reminder_day")
+    private Short reminderDay;
+
+    @Column(name = "reminder_hour")
+    private Short reminderHour;
+
+    @Column(name = "reminder_token", length = 64, unique = true)
+    private String reminderToken;
+
+    public String getReferralCode() {
+        return referralCode;
+    }
+
+    /** Minted once, the first time the link is looked at, and never changed. */
+    public String ensureReferralCode(String minted) {
+        if (referralCode == null) {
+            referralCode = minted;
+        }
+        return referralCode;
+    }
+
+    public Long getReferredBy() {
+        return referredBy;
+    }
+
+    public void setReferredBy(Long referredBy) {
+        this.referredBy = referredBy;
+    }
+
+    public Short getReminderDay() {
+        return reminderDay;
+    }
+
+    public Short getReminderHour() {
+        return reminderHour;
+    }
+
+    public String getReminderToken() {
+        return reminderToken;
+    }
+
+    public void setReminder(Short day, Short hour, String tokenIfNone) {
+        this.reminderDay = day;
+        this.reminderHour = day == null ? null : hour;
+        if (day != null && reminderToken == null) {
+            reminderToken = tokenIfNone;
+        }
+    }
+
     public void rename(String name) {
         this.name = name;
     }

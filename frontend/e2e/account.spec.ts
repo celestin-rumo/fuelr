@@ -58,7 +58,7 @@ test("the language follows the account, and the page follows the language", asyn
 
   await page.getByRole("button", { name: "Deutsch" }).click();
   await expect(page).toHaveURL(/\/de\/app\/konto/);
-  await expect(page.getByRole("heading", { name: "Mein Konto" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Mein Konto" })).toBeVisible();
 
   const me = await request.get(`${BACKEND}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -177,4 +177,117 @@ test("a session closed elsewhere lands on a login page that says so", async ({
   await page.goto("/fr/app/compte");
   await expect(page).toHaveURL(/\/fr\/connexion\?reason=closed/);
   await expect(page.getByTestId("login-closed")).toContainText(/fermée depuis un autre appareil/);
+});
+
+test("everything I have leaves in one archive, once", async ({ request, context, page }) => {
+  const { email, token } = await register(request, context);
+  const created = await request.post(`${BACKEND}/api/recipes`, { headers: { Authorization: `Bearer ${token}` } });
+  const { id } = await created.json();
+  await request.put(`${BACKEND}/api/recipes/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { title: "Risotto", servings: 4, ingredients: [{ name: "Riz", quantity: 200, unit: "g" }], steps: ["Cuire."] },
+  });
+
+  await page.goto("/fr/app/compte");
+  await page.getByTestId("export-submit").click();
+  await expect(page.getByTestId("export-asked")).toContainText(email);
+
+  const mail = await lastMailTo(request, email, /export.*prêt/i);
+  const link = mail.match(/https?:\/\/\S+\/export\?token=\S+/)?.[0];
+  expect(link, "the mail carries the link").toBeTruthy();
+
+  await context.clearCookies();
+  await page.goto(new URL(link!).pathname + new URL(link!).search);
+  const href = await page.getByTestId("export-download").getAttribute("href");
+  const zip = await request.get(`http://localhost:3000${href}`);
+  expect(zip.status()).toBe(200);
+  expect(zip.headers()["content-type"]).toContain("application/zip");
+  // Once.
+  const again = await request.get(`http://localhost:3000${href}`);
+  expect(again.status()).toBe(410);
+});
+
+test("deleting my account needs my password, says what goes, and then I am gone", async ({
+  request,
+  context,
+  page,
+}) => {
+  const { email, token } = await register(request, context);
+
+  await page.goto("/fr/app/compte");
+  await page.getByTestId("delete-open").click();
+  const dialog = page.getByTestId("delete-dialog");
+  await expect(dialog).toContainText(/Aucune recette|recette/);
+
+  await dialog.getByTestId("delete-password").fill("pasdutout");
+  await dialog.getByTestId("delete-confirm").click();
+  await expect(dialog).toContainText("Ce n'est pas votre mot de passe.");
+
+  await dialog.getByTestId("delete-password").fill("motdepasse123");
+  await dialog.getByTestId("delete-confirm").click();
+  await expect(page).toHaveURL(/\/fr\/?$/);
+
+  const me = await request.get(`${BACKEND}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+  expect(me.status()).toBe(401);
+  const text = await lastMailTo(request, email, /supprimé/i);
+  expect(text).toContain("supprimés");
+});
+
+test("a shared link is remembered for thirty days and counted, never named", async ({
+  request,
+  context,
+  page,
+}) => {
+  const { token } = await register(request, context);
+  await page.goto("/fr/app/compte");
+  const link = await page.getByTestId("referral-link").innerText();
+  const code = new URL(link.trim()).searchParams.get("via");
+  expect(code).toBeTruthy();
+  await expect(page.getByTestId("referral-count")).toContainText("Personne n'est encore venu");
+
+  // Somebody follows the link and registers a week later.
+  await context.clearCookies();
+  await page.goto(`/?via=${code}`);
+  await expect(page).toHaveURL(/\/fr/);
+  const cookies = await context.cookies();
+  expect(cookies.find((c) => c.name === "fuelr_via")?.value).toBe(code);
+
+  await page.goto("/fr/inscription");
+  await page.getByLabel("Prénom").fill("Camille");
+  await page.getByLabel("Email").fill(freshEmail("venue"));
+  await page.getByLabel("Mot de passe").fill("motdepasse123");
+  await page.getByRole("button", { name: /Créer mon compte|Continuer/ }).click();
+  await expect(page).toHaveURL(/\/fr\/(app|demarrer|start)/);
+
+  const referral = await request.get(`${BACKEND}/api/account/referral`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const body = await referral.json();
+  expect(body.referred).toBe(1);
+  expect(JSON.stringify(body)).not.toContain("venue");
+});
+
+test("the weekly reminder is off, turns on, and stops from the mail", async ({
+  request,
+  context,
+  page,
+}) => {
+  const { token } = await register(request, context);
+  await page.goto("/fr/app/compte");
+  const panel = page.getByTestId("reminder-panel");
+  await expect(panel.getByTestId("reminder-switch")).not.toBeChecked();
+
+  // The input is visually hidden behind its styled track, so the label is
+  // what a person clicks and what the test clicks too.
+  await panel.locator("label").filter({ hasText: "Me rappeler" }).click();
+  await expect(panel.getByTestId("reminder-switch")).toBeChecked();
+  await expect(panel.getByText("Quel jour")).toBeVisible();
+  // The screen shows the choice at once; the server has it a moment later.
+  await expect
+    .poll(async () =>
+      (await (await request.get(`${BACKEND}/api/account/reminder`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })).json()).day,
+    )
+    .toBe(7);
 });

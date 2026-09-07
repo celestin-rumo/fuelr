@@ -449,11 +449,11 @@
       },
       {
         "title": "Ce qui reste sur ton appareil",
-        "text": "Le mode cuisine et la liste de courses hors ligne gardent une copie sur la machine que tu utilises, pour qu'une cuisine sans réseau ne soit pas une impasse ; cette copie est effacée à la déconnexion. Un seul cookie est posé, celui qui te garde connecté, et il n'y en a aucun de mesure ni de publicité."
+        "text": "Le mode cuisine et la liste de courses hors ligne gardent une copie sur la machine que tu utilises, pour qu'une cuisine sans réseau ne soit pas une impasse ; cette copie est effacée à la déconnexion. Un seul cookie est posé, celui qui te garde connecté, et il n'y en a aucun de mesure ni de publicité. Un lien de recommandation pose un cookie `fuelr_via` de trente jours, lu par la seule page d'inscription pour retenir qui t'a recommandé ; il ne sert à rien d'autre et il n'y a ni pixel ni tiers derrière."
       },
       {
         "title": "Tes recettes restent les tiennes",
-        "text": "L'export de toutes tes recettes est disponible depuis la bibliothèque, à tout moment et sans condition — y compris après une résiliation, qui ne supprime rien. Pour faire effacer ton compte et ce qu'il contient, écris-nous : c'est traité à la main aujourd'hui, et c'est traité.",
+        "text": "Tout ce que Fuelr sait de toi s'exporte depuis ton compte en une archive — recettes, photos, planning, courses, journal, profil — préparée en arrière-plan et envoyée par un lien qui fonctionne une fois. L'export des recettes seules reste disponible depuis la bibliothèque, à tout moment et sans condition, y compris après une résiliation, qui ne supprime rien. Et tu supprimes ton compte toi-même, depuis la même page, avec ton mot de passe : tout ce qui est à toi part tout de suite, ce qui appartient aux autres membres de ton foyer reste à eux.",
         "link": "/contact",
         "linkLabel": "Nous écrire"
       }

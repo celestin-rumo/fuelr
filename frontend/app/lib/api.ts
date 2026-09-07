@@ -587,6 +587,12 @@ export type DeviceSession = {
   current: boolean;
 };
 
+/** A link to share, and how many came by it — never who. */
+export type Referral = { code: string; link: string; referred: number };
+
+/** ISO day 1–7 and an hour, or day null while the reminder is off. */
+export type Reminder = { day: number | null; hour: number | null };
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

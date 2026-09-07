@@ -449,11 +449,11 @@
       },
       {
         "title": "What stays on your device",
-        "text": "Cooking mode and the offline shopping list keep a copy on the machine you are using, so that a kitchen with no network is not a dead end; that copy is wiped when you sign out. One cookie is set, the one that keeps you signed in, and there is none for analytics or advertising."
+        "text": "Cooking mode and the offline shopping list keep a copy on the machine you are using, so that a kitchen with no network is not a dead end; that copy is wiped when you sign out. One cookie is set, the one that keeps you signed in, and there is none for analytics or advertising. A recommendation link sets a thirty-day `fuelr_via` cookie, read only by the registration page to remember who recommended you; it serves nothing else, and there is no pixel and no third party behind it."
       },
       {
         "title": "Your recipes stay yours",
-        "text": "Exporting all of your recipes is available from the library, at any time and with no conditions — including after cancelling, which deletes nothing. To have your account and its contents erased, write to us: it is handled by hand today, and it is handled.",
+        "text": "Everything Fuelr knows about you exports from your account as one archive — recipes, photos, plan, shopping, journal, profile — built in the background and sent as a link that works once. Exporting the recipes alone stays available from the library, at any time and with no conditions, including after cancelling, which deletes nothing. And you delete your account yourself, from the same page, with your password: everything that is yours goes at once, what belongs to other members of your household stays theirs.",
         "link": "/contact",
         "linkLabel": "Write to us"
       }
