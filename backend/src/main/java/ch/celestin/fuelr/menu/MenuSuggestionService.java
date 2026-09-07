@@ -55,11 +55,14 @@ public class MenuSuggestionService {
     private final RecipeService recipes;
     private final Entitlements entitlements;
     private final AiBudget budget;
+    private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
     private final List<MenuIntelligence> readers;
 
     public MenuSuggestionService(
             RecipeService recipes, Entitlements entitlements,
-            AiBudget budget, List<MenuIntelligence> readers) {
+            AiBudget budget, List<MenuIntelligence> readers,
+            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+        this.preferences = preferences;
         this.recipes = recipes;
         this.entitlements = entitlements;
         this.budget = budget;
@@ -184,13 +187,20 @@ public class MenuSuggestionService {
         }
 
         try {
+            ch.celestin.fuelr.preferences.Constraints constraints =
+                    ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
             MenuIntelligence.Ideas ideas = intelligence.suggest(
                     have,
                     WANTED - already.size(),
-                    already.stream().map(MenuDtos.Suggestion::title).toList());
+                    already.stream().map(MenuDtos.Suggestion::title).toList(),
+                    constraints);
             budget.record(userId, "MENU_SUGGESTIONS", intelligence.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
-            return ideas.suggestions();
+            // Told to the model, checked by the code.
+            return ideas.suggestions().stream()
+                    .filter(idea -> constraints.allows(
+                            idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList()))
+                    .toList();
         } catch (RuntimeException e) {
             log.warn("No ideas came back: {}", e.toString());
             return List.of();

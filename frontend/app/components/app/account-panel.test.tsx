@@ -122,7 +122,9 @@ it("previews the target before writing the figures, and only then offers to save
   await waitFor(() => expect(previewTargets).toHaveBeenCalled());
   expect(await screen.findByText("2100")).toBeInTheDocument();
   expect(saveProfile).not.toHaveBeenCalled();
-  expect(screen.getByTestId("figures-submit")).toBeEnabled();
+  // The button is out while the preview transition runs; once it has
+  // settled, saving is offered — and not before.
+  await waitFor(() => expect(screen.getByTestId("figures-submit")).toBeEnabled());
 });
 
 it("treats a missing profile as a state, not an error", () => {

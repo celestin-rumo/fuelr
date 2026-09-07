@@ -121,12 +121,15 @@ public class WeekSuggestionController {
     private final Entitlements entitlements;
     private final AiBudget budget;
     private final List<MenuIntelligence> readers;
+    private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
 
     public WeekSuggestionController(Entitlements entitlements, AiBudget budget,
-                                    List<MenuIntelligence> readers) {
+                                    List<MenuIntelligence> readers,
+                                    ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
+        this.preferences = preferences;
     }
 
     @PostMapping
@@ -177,6 +180,8 @@ public class WeekSuggestionController {
             return nothing(open.size(), Declined.BUDGET);
         }
 
+        ch.celestin.fuelr.preferences.Constraints constraints =
+                ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
         try {
             MenuIntelligence.Ideas ideas = reader.suggestFor(
                     request.intents() == null ? Set.of() : request.intents(),
@@ -184,13 +189,21 @@ public class WeekSuggestionController {
                     open.size(),
                     request.excludeTitles() == null
                             ? List.of() : List.copyOf(request.excludeTitles()),
-                    request.note());
+                    request.note(), constraints);
             budget.record(userId, "WEEK_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
+            // Asked of the model, and checked by the code: a dish that names an
+            // allergen in its own ingredient lines is dropped here, whatever
+            // the model was told. An allergy filtered by the model alone is
+            // not filtered.
+            List<MenuDtos.Suggestion> safe = ideas.suggestions().stream()
+                    .filter(idea -> constraints.allows(
+                            idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList()))
+                    .toList();
             List<ProposalView> placed = new ArrayList<>();
-            for (int at = 0; at < open.size() && at < ideas.suggestions().size(); at++) {
-                MenuDtos.Suggestion idea = ideas.suggestions().get(at);
+            for (int at = 0; at < open.size() && at < safe.size(); at++) {
+                MenuDtos.Suggestion idea = safe.get(at);
                 Slot slot = open.get(at);
                 placed.add(new ProposalView(
                         slot.date().toString(), slot.slot().name(),

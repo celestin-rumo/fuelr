@@ -1,7 +1,7 @@
 "use server";
 
 import { apiFetch } from "@app/lib/api";
-import type { ProfileInput, ProfileResponse, WeightEntry } from "@app/lib/api";
+import type { DietaryPreferences, ProfileInput, ProfileResponse, WeightEntry } from "@app/lib/api";
 
 /**
  * Every action here answers `{ ok }` or a named refusal rather than throwing:
@@ -86,4 +86,14 @@ export async function recordWeight(input: { weighedOn: string; weightKg: number 
 export async function removeWeight(id: number) {
   const response = await apiFetch(`/api/weight/${id}`, { method: "DELETE" });
   return { ok: response.ok };
+}
+
+/** Replaced whole: there is only ever one set of preferences per account. */
+export async function savePreferences(input: DietaryPreferences) {
+  const response = await apiFetch("/api/preferences", {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) return { ok: false as const };
+  return { ok: true as const, saved: (await response.json()) as DietaryPreferences };
 }

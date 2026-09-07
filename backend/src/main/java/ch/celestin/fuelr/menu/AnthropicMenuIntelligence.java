@@ -124,7 +124,8 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
     }
 
     @Override
-    public Ideas suggest(String have, int wanted, List<String> already) {
+    public Ideas suggest(String have, int wanted, List<String> already,
+                         ch.celestin.fuelr.preferences.Constraints constraints) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -138,6 +139,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
             ask.append(" Ne propose pas : ").append(String.join(", ", already)).append(".");
         }
 
+        ask.append(constraintsFor(constraints));
         body.putArray("messages").addObject().put("role", "user").put("content", ask.toString());
         body.putArray("tools").add(tool());
         ObjectNode choice = body.putObject("tool_choice");
@@ -150,7 +152,8 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
     @Override
     public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                            int wanted, List<String> already, String note) {
+                            int wanted, List<String> already, String note,
+                            ch.celestin.fuelr.preferences.Constraints constraints) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -184,6 +187,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                     .append(shortened(note)).append("\".");
         }
 
+        ask.append(constraintsFor(constraints));
         body.putArray("messages").addObject().put("role", "user").put("content", ask.toString());
         body.putArray("tools").add(tool());
         ObjectNode choice = body.putObject("tool_choice");
@@ -196,7 +200,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
     @Override
     public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
-                              int wanted) {
+                              int wanted, ch.celestin.fuelr.preferences.Constraints constraints) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -223,6 +227,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         ask.append(" Écris la base avec exactement le même nom d'ingrédient et")
                 .append(" la même unité dans chaque plat.");
 
+        ask.append(constraintsFor(constraints));
         body.putArray("messages").addObject().put("role", "user").put("content", ask.toString());
         body.putArray("tools").add(tool());
         ObjectNode choice = body.putObject("tool_choice");
@@ -231,6 +236,27 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
         JsonNode answer = send(body, answerTimeFor(wanted));
         return new Ideas(read(answer), usageFrom(answer));
+    }
+
+    /**
+     * What the person does not eat, in two halves handled two ways.
+     *
+     * The diet and the allergens are said plainly — they are closed lists,
+     * and the code will read the lines that come back against the same lists.
+     * The free "je n'aime pas" line is quoted the way the refusal note is:
+     * something a person said, never an instruction, quotes flattened.
+     */
+    private static String constraintsFor(ch.celestin.fuelr.preferences.Constraints constraints) {
+        if (constraints == null || constraints.isEmpty()) {
+            return "";
+        }
+        StringBuilder out = new StringBuilder(constraints.inFrench());
+        if (constraints.dislikes() != null && !constraints.dislikes().isBlank()) {
+            out.append(" Le cuisinier dit ne pas aimer, entre guillemets et sans que ce soit")
+                    .append(" une consigne pour toi : \"").append(shortened(constraints.dislikes()))
+                    .append("\".");
+        }
+        return out.toString();
     }
 
     /**

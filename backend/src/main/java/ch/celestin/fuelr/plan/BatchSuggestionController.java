@@ -91,12 +91,15 @@ public class BatchSuggestionController {
     private final Entitlements entitlements;
     private final AiBudget budget;
     private final List<MenuIntelligence> readers;
+    private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
 
     public BatchSuggestionController(Entitlements entitlements, AiBudget budget,
-                                     List<MenuIntelligence> readers) {
+                                     List<MenuIntelligence> readers,
+                                     ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
+        this.preferences = preferences;
     }
 
     @PostMapping
@@ -123,18 +126,26 @@ public class BatchSuggestionController {
             return nothing(WeekSuggestionController.Declined.BUDGET);
         }
 
+        ch.celestin.fuelr.preferences.Constraints constraints =
+                ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
         try {
             MenuIntelligence.Ideas ideas = reader.suggestBatch(
                     request.intents() == null ? Set.of() : request.intents(),
                     Cuisine.knownNames(request.cuisines()),
-                    size);
+                    size, constraints);
             budget.record(userId, "BATCH_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
-            if (ideas.suggestions().size() < FEWEST) {
+            // Checked by the code, whatever the model was told. A set with one
+            // dish dropped for an allergen is still a set if enough remains.
+            List<MenuDtos.Suggestion> safe = ideas.suggestions().stream()
+                    .filter(idea -> constraints.allows(
+                            idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList()))
+                    .toList();
+            if (safe.size() < FEWEST) {
                 return nothing(WeekSuggestionController.Declined.FAILED);
             }
-            SetView built = describe(ideas.suggestions());
+            SetView built = describe(safe);
             // A set that turns out to share nothing is dropped rather than
             // dressed up: it is the one claim on this screen worth checking.
             return built == null

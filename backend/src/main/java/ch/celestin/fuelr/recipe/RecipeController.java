@@ -40,6 +40,7 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipes;
+    private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
     private final NutritionService nutrition;
     private final MediaStorage media;
     private final RecipeImportService recipeImport;
@@ -50,7 +51,9 @@ public class RecipeController {
     public RecipeController(
             RecipeService recipes, NutritionService nutrition, MediaStorage media,
             RecipeImportService recipeImport, RecipeImportSources importSources,
-            Entitlements entitlements, RecipeAudience audience) {
+            Entitlements entitlements, RecipeAudience audience,
+            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+        this.preferences = preferences;
         this.recipes = recipes;
         this.nutrition = nutrition;
         this.media = media;
@@ -258,7 +261,9 @@ public class RecipeController {
             @RequestParam(required = false) java.util.Set<String> tags,
             @RequestParam(required = false) java.util.Set<String> seasons,
             @RequestParam(required = false) java.util.Set<String> cuisines,
-            @RequestParam(required = false) java.util.Set<String> origins) {
+            @RequestParam(required = false) java.util.Set<String> origins,
+            /** Only what the caller's own preferences allow. */
+            @RequestParam(required = false, defaultValue = "false") boolean compatible) {
         try {
             java.util.Set<String> wanted = seasons == null ? null
                     : seasons.stream().map(Season::parse).map(Enum::name)
@@ -277,8 +282,21 @@ public class RecipeController {
                     : origins.stream().map(RecipeController::originOrNull)
                             .filter(java.util.Objects::nonNull)
                             .collect(java.util.stream.Collectors.toSet());
-            return recipes.search(userId(principal), q, tags, wanted, fromThere, written)
-                    .stream().map(this::toSummary).toList();
+            java.util.List<Recipe> found = recipes.search(userId(principal), q, tags, wanted,
+                    fromThere, written);
+            if (compatible) {
+                // The same check the planner runs on a model's answer, run on
+                // the library: a recipe naming an allergen in its own lines is
+                // out, whatever its tags say.
+                ch.celestin.fuelr.preferences.Constraints constraints =
+                        ch.celestin.fuelr.preferences.Constraints.of(
+                                preferences.findById(userId(principal)).orElse(null));
+                found = found.stream()
+                        .filter(recipe -> constraints.allows(recipe.getIngredients().stream()
+                                .map(RecipeIngredient::getName).toList()))
+                        .toList();
+            }
+            return found.stream().map(this::toSummary).toList();
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -316,7 +334,7 @@ public class RecipeController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "not_a_favorite");
         }
-        return list(principal, null, null, null, null, null);
+        return list(principal, null, null, null, null, null, false);
     }
 
     public record MoveRequest(int direction) {

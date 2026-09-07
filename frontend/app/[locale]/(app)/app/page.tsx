@@ -25,7 +25,8 @@ export default async function AppHomePage({
 
   // The query lives in the URL so a filtered library can be bookmarked and
   // shared, and so the back button undoes a filter.
-  const { q, tags, seasons, cuisines, origins } = await searchParams;
+  const { q, tags, seasons, cuisines, origins, compatible } = await searchParams;
+  const onlyCompatible = compatible === "1";
   const term = typeof q === "string" ? q : "";
   const selected = typeof tags === "string" ? tags.split(",").filter(Boolean) : [];
   const inSeason =
@@ -41,6 +42,7 @@ export default async function AppHomePage({
   for (const season of inSeason) params.append("seasons", season);
   for (const cuisine of fromThere) params.append("cuisines", cuisine);
   for (const origin of writtenBy) params.append("origins", origin);
+  if (onlyCompatible) params.set("compatible", "true");
   const query = params.toString();
 
   const response = await apiFetch(`/api/recipes${query ? `?${query}` : ""}`);
@@ -53,7 +55,8 @@ export default async function AppHomePage({
     selected.length > 0 ||
     inSeason.length > 0 ||
     fromThere.length > 0 ||
-    writtenBy.length > 0;
+    writtenBy.length > 0 ||
+    onlyCompatible;
 
   return (
     <Container className="flex flex-col gap-8 py-14">
@@ -88,6 +91,7 @@ export default async function AppHomePage({
           selectedSeasons={inSeason}
           selectedCuisines={fromThere}
           selectedOrigins={writtenBy}
+          onlyCompatible={onlyCompatible}
           today={todayIso()}
         />
       )}

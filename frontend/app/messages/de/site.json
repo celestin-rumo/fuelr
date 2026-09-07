@@ -438,7 +438,7 @@
       {
         "tone": "mint",
         "title": "Die KI-Funktionen werden im Ausland verarbeitet",
-        "text": "Die KI-Funktionen — eine schlecht ausgezeichnete Rezeptseite lesen, einen fotografierten Teller schätzen, eine Buchseite abtippen — stützen sich auf Anthropic in den Vereinigten Staaten. Was du diesen Funktionen übergibst, das Foto oder der Inhalt der Seite, verlässt die Schweiz also für die Dauer der Analyse. Sie sind freiwillig und Teil eines kostenpflichtigen Plans: Solange du sie nicht nutzt, wird nichts an Anthropic übermittelt."
+        "text": "Die KI-Funktionen — eine schlecht ausgezeichnete Rezeptseite lesen, einen fotografierten Teller schätzen, eine Buchseite abtippen — stützen sich auf Anthropic in den Vereinigten Staaten. Was du diesen Funktionen übergibst, das Foto oder der Inhalt der Seite, verlässt die Schweiz also für die Dauer der Analyse. Sie sind freiwillig und Teil eines kostenpflichtigen Plans: Solange du sie nicht nutzt, wird nichts an Anthropic übermittelt. Seit der Planer seine Gerichte erfindet, geht mit jeder Anfrage an Anthropic mit, was du nicht isst — Ernährung, Allergien und die freie Zeile —, damit der Vorschlag es berücksichtigt; der Code prüft die zurückkommenden Zutaten danach selbst."
       },
       {
         "title": "Die zwei anderen Ausgänge",

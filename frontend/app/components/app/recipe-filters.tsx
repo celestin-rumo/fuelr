@@ -31,6 +31,7 @@ export function RecipeFilters({
   selectedSeasons,
   selectedCuisines,
   selectedOrigins,
+  onlyCompatible,
   today,
 }: {
   term: string;
@@ -39,6 +40,8 @@ export function RecipeFilters({
   selectedCuisines: Cuisine[];
   /** Where the recipes came from — a fact the code wrote, never a tag. */
   selectedOrigins: RecipeOrigin[];
+  /** Only what the account's own preferences allow. */
+  onlyCompatible: boolean;
   /** Resolved on the server, so "in season" means the same on both sides. */
   today: string;
 }) {
@@ -56,6 +59,7 @@ export function RecipeFilters({
     nextSeasons: Season[],
     nextCuisines: Cuisine[] = selectedCuisines,
     nextOrigins: RecipeOrigin[] = selectedOrigins,
+    nextCompatible: boolean = onlyCompatible,
   ) {
     const params = new URLSearchParams();
     if (nextTerm.trim()) params.set("q", nextTerm.trim());
@@ -63,6 +67,7 @@ export function RecipeFilters({
     if (nextSeasons.length) params.set("seasons", nextSeasons.join(","));
     if (nextCuisines.length) params.set("cuisines", nextCuisines.join(","));
     if (nextOrigins.length) params.set("origins", nextOrigins.join(","));
+    if (nextCompatible) params.set("compatible", "1");
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
@@ -124,7 +129,8 @@ export function RecipeFilters({
     selectedTags.length +
     selectedSeasons.length +
     selectedCuisines.length +
-    selectedOrigins.length;
+    selectedOrigins.length +
+    (onlyCompatible ? 1 : 0);
   // Always shut to begin with, even arriving from a filtered link: the chips
   // above already say what is on, and opening the panel as well would put the
   // same state on screen twice while costing everybody the tab stops.
@@ -274,6 +280,17 @@ export function RecipeFilters({
       {/* Where a recipe came from. Written by the code and never by the
           editor, which is exactly why it is worth being able to look for. */}
       <div className="flex flex-wrap gap-2" data-testid="origin-filters">
+        {/* The account's own diet and allergens, applied to the library the
+            way the planner applies them to a model's answer: on the lines. */}
+        <Chip
+          active={onlyCompatible}
+          data-testid="compatible-filter"
+          onClick={() =>
+            push(value, selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, !onlyCompatible)
+          }
+        >
+          {t("filters.compatible")}
+        </Chip>
         {ORIGINS.map((origin) => (
           <Chip
             key={origin}
@@ -287,7 +304,7 @@ export function RecipeFilters({
           <Chip
             onClick={() => {
               setValue("");
-              push("", [], [], [], []);
+              push("", [], [], [], [], false);
             }}
           >
             {tApp("search.clear")}
