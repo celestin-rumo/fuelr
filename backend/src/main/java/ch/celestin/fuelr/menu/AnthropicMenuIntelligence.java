@@ -118,6 +118,80 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         return new Ideas(read(answer), usageFrom(answer));
     }
 
+    @Override
+    public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                            int wanted, List<String> already) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("model", model);
+        body.put("max_tokens", 2500);
+        body.put("system", SYSTEM);
+
+        // Written in the app's own vocabulary rather than passed through: the
+        // closed domains exist so that what comes back can be matched, and a
+        // request phrased in whatever somebody typed would defeat that at the
+        // first step.
+        StringBuilder ask = new StringBuilder("Propose ").append(wanted).append(" plats");
+        if (!cuisines.isEmpty()) {
+            ask.append(" de cuisine ").append(String.join(" ou ", cuisines.stream()
+                    .map(AnthropicMenuIntelligence::inFrench).toList()));
+        }
+        if (!intents.isEmpty()) {
+            ask.append(", qui soient ").append(String.join(" et ", intents.stream()
+                    .map(AnthropicMenuIntelligence::intentInFrench).toList()));
+        }
+        ask.append(".");
+        if (!already.isEmpty()) {
+            ask.append(" Ne propose pas : ").append(String.join(", ", already)).append(".");
+        }
+
+        body.putArray("messages").addObject().put("role", "user").put("content", ask.toString());
+        body.putArray("tools").add(tool());
+        ObjectNode choice = body.putObject("tool_choice");
+        choice.put("type", "tool");
+        choice.put("name", TOOL);
+
+        JsonNode answer = send(body);
+        return new Ideas(read(answer), usageFrom(answer));
+    }
+
+    /** The domain's own names, said in the language the prompt is written in. */
+    private static String inFrench(String cuisine) {
+        return switch (cuisine) {
+            case "ITALIAN" -> "italienne";
+            case "FRENCH" -> "française";
+            case "SWISS" -> "suisse";
+            case "SPANISH" -> "espagnole";
+            case "GREEK" -> "grecque";
+            case "LEBANESE" -> "libanaise";
+            case "MOROCCAN" -> "marocaine";
+            case "INDIAN" -> "indienne";
+            case "THAI" -> "thaïe";
+            case "CHINESE" -> "chinoise";
+            case "JAPANESE" -> "japonaise";
+            case "MEXICAN" -> "mexicaine";
+            default -> cuisine.toLowerCase(java.util.Locale.ROOT);
+        };
+    }
+
+    /**
+     * An intention said as what it means, not as what it is called.
+     *
+     * "protein" is a tag; what somebody wants is a dish rich in protein. And
+     * the wording stays deliberately factual — an intention is not a diet, and
+     * nothing here is asked to be good for anybody.
+     */
+    private static String intentInFrench(String intent) {
+        return switch (intent) {
+            case "vegetarian" -> "végétariens";
+            case "quick" -> "prêts en moins de 30 minutes";
+            case "batch" -> "qui se conservent et se réchauffent";
+            case "protein" -> "riches en protéines";
+            case "glutenFree" -> "sans gluten";
+            case "cheap" -> "à ingrédients bon marché";
+            default -> intent;
+        };
+    }
+
     private ObjectNode tool() {
         ObjectNode tool = JSON.createObjectNode();
         tool.put("name", TOOL);

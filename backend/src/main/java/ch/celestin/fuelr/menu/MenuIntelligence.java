@@ -33,4 +33,20 @@ public interface MenuIntelligence {
      * @param already titles the library already proposed, not to be repeated
      */
     Ideas suggest(String have, int wanted, List<String> already);
+
+    /**
+     * The same job entered from the other end: not from what is in the bag,
+     * but from what somebody wants.
+     *
+     * A second method rather than passing "light, Italian" as the bag — the
+     * prompt behind `suggest` reads its argument as a list of ingredients, and
+     * handing it an intention there would ask for a dish made of adjectives.
+     *
+     * @param intents  closed-domain tags: vegetarian, quick, protein…
+     * @param cuisines closed-domain cuisines; several mean either
+     * @param wanted   how many dishes the library could not supply
+     * @param already  titles already proposed, not to be repeated
+     */
+    Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                     int wanted, List<String> already);
 }
