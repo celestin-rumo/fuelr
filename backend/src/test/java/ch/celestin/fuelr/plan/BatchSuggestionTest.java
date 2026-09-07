@@ -32,12 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Dishes chosen so the work can be shared.
+ * Dishes invented so the work can be shared.
  *
- * What is asserted here is mostly what is *refused*. Sharing an ingredient is
- * not sharing work: four dishes that all contain one onion are not a batch, and
- * a set that says so would look rigorous while wasting somebody's afternoon.
- * So the tests are about salt, saffron and onions as much as about lentils.
+ * Like the week fill, nothing here comes out of the library: somebody asking
+ * for a batch wants dishes they have not had. What is asserted is mostly what
+ * is *refused* — sharing an ingredient is not sharing work, so a set a model
+ * claims but does not deliver comes back as no set at all, and the tests are
+ * about salt as much as about lentils.
  */
 @SpringBootTest(properties = {
         "app.ai.api-key=test-key",
@@ -174,180 +175,94 @@ class BatchSuggestionTest {
                  "usage":{"input_tokens":800,"output_tokens":300}}""";
     }
 
-    // --- the library, which costs nothing ------------------------------------
+    /** Three dishes sharing one onion each — an ingredient, not a base. */
+    private static String onionIdeas() {
+        return """
+                {"type":"message","content":[{"type":"tool_use","id":"t1",
+                  "name":"proposer_des_plats","input":{"plats":[
+                    {"titre":"Plat A","minutes":30,"manque":[],
+                     "ingredients":[{"nom":"Oignon","quantite":1,"unite":"pcs","aVerifier":false}],
+                     "etapes":["Cuire."]},
+                    {"titre":"Plat B","minutes":25,"manque":[],
+                     "ingredients":[{"nom":"Oignon","quantite":1,"unite":"pcs","aVerifier":false}],
+                     "etapes":["Cuire."]},
+                    {"titre":"Plat C","minutes":20,"manque":[],
+                     "ingredients":[{"nom":"Oignon","quantite":1,"unite":"pcs","aVerifier":false}],
+                     "etapes":["Cuire."]}]}}],
+                 "usage":{"input_tokens":800,"output_tokens":300}}""";
+    }
+
+    // --- it invents, and the sharing is counted rather than claimed ---------
 
     @Test
     void aSetSaysWhatItIsASetBecauseOf() throws Exception {
+        // Three recipes that would have made a perfect set. None is proposed:
+        // asking for a batch is asking for something new.
         recipe("Dahl", """
                 {"name":"Lentilles corail","quantity":300,"unit":"g"}""");
         recipe("Soupe de lentilles", """
                 {"name":"Lentilles corail","quantity":250,"unit":"g"}""");
-        recipe("Salade de lentilles", """
-                {"name":"Lentilles corail","quantity":200,"unit":"g"}""");
 
         ask("""
                 {"size":3}""")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.assisted").value(false))
+                .andExpect(jsonPath("$.declined").value("NONE"))
                 .andExpect(jsonPath("$.sets[0].members.length()").value(3))
-                // Counted, not asserted: 300 + 250 + 200 across three dishes.
-                .andExpect(jsonPath("$.sets[0].bases[0].name").value("Lentilles corail"))
+                .andExpect(jsonPath("$.sets[0].members[0].title").value("Dahl"))
+                // Whole, so accepting one writes a draft without a second bill.
+                .andExpect(jsonPath("$.sets[0].members[0].idea.steps.length()").value(1))
+                // Counted from the lines the model wrote: 300 × 3 across three
+                // dishes, not something it said about itself.
+                .andExpect(jsonPath("$.sets[0].bases[0].name").value("Lentilles"))
                 .andExpect(jsonPath("$.sets[0].bases[0].dishes").value(3))
-                .andExpect(jsonPath("$.sets[0].bases[0].quantity").value(750.0))
+                .andExpect(jsonPath("$.sets[0].bases[0].quantity").value(900.0))
                 .andExpect(jsonPath("$.sets[0].sharedBy").value(3));
 
-        assertThat(budget.spentMicros(userId)).isZero();
-        assertThat(CALLS.get()).isZero();
-    }
-
-    @Test
-    void anOnionInEveryDishIsNotABase() throws Exception {
-        // One onion each, and nothing else in common. Peeling four onions on
-        // Sunday saves nobody anything, so this is not a batch.
-        recipe("Plat A", """
-                {"name":"Oignon","quantity":1,"unit":"pcs"},
-                {"name":"Poulet","quantity":300,"unit":"g"}""");
-        recipe("Plat B", """
-                {"name":"Oignon","quantity":1,"unit":"pcs"},
-                {"name":"Cabillaud","quantity":300,"unit":"g"}""");
-        recipe("Plat C", """
-                {"name":"Oignon","quantity":1,"unit":"pcs"},
-                {"name":"Tofu","quantity":300,"unit":"g"}""");
-
-        // No model reachable for this account's request either — an empty list
-        // is the honest answer, and it is not an error.
-        ANSWER.set(unsharingIdeas());
-        ask("""
-                {"size":3}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sets.length()").value(0))
-                .andExpect(jsonPath("$.assisted").value(false));
-    }
-
-    @Test
-    void aPinchOfSaffronIsACoincidenceRatherThanAPreparation() throws Exception {
-        recipe("Plat A", """
-                {"name":"Safran","quantity":1,"unit":"c.à.c"},
-                {"name":"Poulet","quantity":300,"unit":"g"}""");
-        recipe("Plat B", """
-                {"name":"Safran","quantity":1,"unit":"c.à.c"},
-                {"name":"Cabillaud","quantity":300,"unit":"g"}""");
-        recipe("Plat C", """
-                {"name":"Safran","quantity":1,"unit":"c.à.c"},
-                {"name":"Tofu","quantity":300,"unit":"g"}""");
-
-        ANSWER.set(unsharingIdeas());
-        ask("""
-                {"size":3}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sets.length()").value(0));
-    }
-
-    @Test
-    void whatSomebodyAlreadyTaggedBatchComesFirst() throws Exception {
-        // All three share the base; only one carries the tag. Somebody saying
-        // "this one batches" is better information than anything computed.
-        recipe("Sans étiquette", """
-                {"name":"Riz","quantity":300,"unit":"g"}""");
-        recipe("Étiqueté", """
-                {"name":"Riz","quantity":300,"unit":"g"}""", "batch");
-        recipe("Sans étiquette non plus", """
-                {"name":"Riz","quantity":300,"unit":"g"}""");
-
-        ask("""
-                {"size":3}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sets[0].members[0].title").value("Étiqueté"))
-                .andExpect(jsonPath("$.sets[0].members[0].taggedBatch").value(true));
-    }
-
-    @Test
-    void aDraftIsNeverPartOfASet() throws Exception {
-        recipe("Dahl", """
-                {"name":"Lentilles","quantity":300,"unit":"g"}""");
-        recipe("Soupe", """
-                {"name":"Lentilles","quantity":300,"unit":"g"}""");
-        // A third recipe nobody finished writing.
-        mvc.perform(post("/api/recipes").header("Authorization", "Bearer " + token))
-                .andExpect(status().isCreated());
-
-        ANSWER.set(unsharingIdeas());
-        ask("""
-                {"size":3}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sets.length()").value(0));
-    }
-
-    // --- the model, only when the library cannot answer at all ---------------
-
-    @Test
-    void aModelIsAskedOnlyWhenNothingInTheLibraryBatches() throws Exception {
-        // Two dishes with nothing in common, so no set can be built from them.
-        recipe("Plat A", """
-                {"name":"Poulet","quantity":300,"unit":"g"}""");
-        recipe("Plat B", """
-                {"name":"Cabillaud","quantity":300,"unit":"g"}""");
-        recipe("Plat C", """
-                {"name":"Tofu","quantity":300,"unit":"g"}""");
-
-        ask("""
-                {"size":3}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.assisted").value(true))
-                .andExpect(jsonPath("$.sets.length()").value(1))
-                // An idea is not a recipe, and carries what it takes to become
-                // a draft without a second bill.
-                .andExpect(jsonPath("$.sets[0].members[0].recipeId").doesNotExist())
-                .andExpect(jsonPath("$.sets[0].members[0].idea.steps.length()").value(1))
-                // And the sharing was counted from the lines it wrote.
-                .andExpect(jsonPath("$.sets[0].bases[0].name").value("Lentilles"))
-                .andExpect(jsonPath("$.sets[0].bases[0].dishes").value(3));
-
+        assertThat(CALLS.get()).isOne();
         assertThat(budget.spentMicros(userId)).isPositive();
         assertThat(ASKED.get()).contains("une seule session");
     }
 
     @Test
     void aSetAModelClaimsButDoesNotShareIsDropped() throws Exception {
-        recipe("Plat A", """
-                {"name":"Poulet","quantity":300,"unit":"g"}""");
-        recipe("Plat B", """
-                {"name":"Cabillaud","quantity":300,"unit":"g"}""");
-        recipe("Plat C", """
-                {"name":"Tofu","quantity":300,"unit":"g"}""");
-
         // Three dishes sharing a teaspoon of salt. Asking for a common base and
-        // being told there is one are two different things.
+        // being told there is one are two different things, and only the second
+        // is checkable.
         ANSWER.set(unsharingIdeas());
         ask("""
                 {"size":3}""")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sets.length()").value(0))
-                .andExpect(jsonPath("$.assisted").value(false));
+                .andExpect(jsonPath("$.declined").value("FAILED"));
     }
 
     @Test
-    void anExhaustedBudgetGivesNothingRatherThanAnError() throws Exception {
-        recipe("Plat A", """
-                {"name":"Poulet","quantity":300,"unit":"g"}""");
-        recipe("Plat B", """
-                {"name":"Cabillaud","quantity":300,"unit":"g"}""");
+    void anOnionInEveryDishIsNotABase() throws Exception {
+        // One onion each, in quantity 1, and nothing else in common. Peeling
+        // three onions on Sunday saves nobody anything.
+        ANSWER.set(onionIdeas());
+        ask("""
+                {"size":3}""")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sets.length()").value(0));
+    }
+
+    // --- a refusal has a name, because there is no second source ------------
+
+    @Test
+    void anExhaustedBudgetSaysSoRatherThanReturningNothingQuietly() throws Exception {
         budget.record(userId, "TEST", "test", 1_000_000L, 1_000_000L);
 
         ask("""
                 {"size":2}""")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sets.length()").value(0))
-                .andExpect(jsonPath("$.assisted").value(false));
+                // The wait has a date, and the screen can say which one it is.
+                .andExpect(jsonPath("$.declined").value("BUDGET"));
     }
 
     @Test
     void nothingIsWrittenToThePlan() throws Exception {
-        recipe("Dahl", """
-                {"name":"Lentilles","quantity":300,"unit":"g"}""");
-        recipe("Soupe", """
-                {"name":"Lentilles","quantity":300,"unit":"g"}""");
-
         ask("""
                 {"size":2}""").andExpect(status().isOk());
 

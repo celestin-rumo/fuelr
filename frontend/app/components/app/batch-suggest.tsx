@@ -13,7 +13,7 @@ import { cn } from "@ui/cn";
 import { CUISINES } from "@app/lib/cuisines";
 import { formatDay, weekDays } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
-import type { BatchMember, BatchSet, WeekProposal } from "@app/lib/api";
+import type { BatchMember, BatchSet, Declined } from "@app/lib/api";
 import { acceptProposal, suggestBatch } from "@app/[locale]/(app)/app/plan/actions";
 
 const INTENTS = ["vegetarian", "protein", "quick", "cheap"] as const;
@@ -51,7 +51,8 @@ export function BatchSuggest({
   const [cuisines, setCuisines] = useState<string[]>([]);
 
   const [sets, setSets] = useState<BatchSet[]>([]);
-  const [assisted, setAssisted] = useState(false);
+  const [declined, setDeclined] = useState<Declined>("NONE");
+  const [refused, setRefused] = useState<string[]>([]);
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [added, setAdded] = useState(0);
 
@@ -64,7 +65,8 @@ export function BatchSuggest({
     setSets([]);
     setPlacements([]);
     setAdded(0);
-    setAssisted(false);
+    setDeclined("NONE");
+    setRefused([]);
     setFailed(false);
   }
 
@@ -75,13 +77,20 @@ export function BatchSuggest({
   function ask() {
     setFailed(false);
     startTransition(async () => {
-      const result = await suggestBatch({ size, intents, cuisines, exclude: [] });
+      const result = await suggestBatch({
+        size,
+        intents,
+        cuisines,
+        // What has already been turned down, by name: every dish here is one
+        // nobody has written yet, and an idea has no id.
+        excludeTitles: refused,
+      });
       if (!result.ok) {
         setFailed(true);
         return;
       }
       setSets(result.sets.sets);
-      setAssisted(result.sets.assisted);
+      setDeclined(result.sets.declined);
       setStage("choosing");
     });
   }
@@ -105,19 +114,12 @@ export function BatchSuggest({
     startTransition(async () => {
       let written = 0;
       for (const one of placements) {
-        const proposal: WeekProposal = {
+        const result = await acceptProposal({
           date: one.date,
           slot: "DINNER" as Slot,
-          recipeId: one.member.recipeId,
           title: one.member.title,
-          minutes: one.member.minutes,
-          cuisine: one.member.cuisine,
-          tags: one.member.tags,
-          hasPhoto: one.member.hasPhoto,
-          because: one.member.recipeId == null ? "IDEA" : "LIBRARY",
           idea: one.member.idea,
-        };
-        const result = await acceptProposal(proposal);
+        });
         if (result.ok) written += 1;
       }
       setAdded(written);
@@ -213,8 +215,12 @@ export function BatchSuggest({
                   right one: it means the library is varied, not broken. */}
               {sets.length === 0 ? (
                 <>
-                  <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
-                    {t("choosing.none")}
+                  <p
+                    role="status"
+                    data-testid="declined"
+                    className="text-[15px] leading-[1.5] font-medium text-text-dim"
+                  >
+                    {t(`declined.${declined === "NONE" ? "FAILED" : declined}`)}
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="secondary" onClick={() => setStage("asking")}>
@@ -227,11 +233,6 @@ export function BatchSuggest({
                   <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
                     {t("choosing.body", { count: sets.length })}
                   </p>
-                  {assisted && (
-                    <p className="text-[13px] font-semibold text-mint-ink">
-                      {t("choosing.assisted")}
-                    </p>
-                  )}
 
                   <ul className="flex flex-col gap-3" data-testid="batch-sets">
                     {sets.map((set, at) => (
@@ -399,8 +400,7 @@ function SetCard({
             <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
               {member.title}
             </span>
-            {member.taggedBatch && <Badge tone="accent">{t("tagged")}</Badge>}
-            {member.recipeId == null && <Badge tone="mint">{t("idea")}</Badge>}
+            <Badge tone="mint">{t("idea")}</Badge>
             {member.minutes != null && (
               <span className="tnum font-mono text-[11px] text-gray">
                 {t("minutes", { count: member.minutes })}

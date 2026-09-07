@@ -63,6 +63,8 @@ public final class RecipeDtos {
             Set<String> seasons,
             String cuisine,
             String sourceUrl,
+            /** TYPED, IMPORTED or AI. The editor shows it; it never sends it. */
+            String origin,
             Integer totalMinutes,
             /** Field names the import had to guess at: "servings", "steps", "title". */
             Set<String> unverified) {
@@ -85,7 +87,9 @@ public final class RecipeDtos {
             Double carbsPerServing, Double fatPerServing,
             boolean estimated,
             Set<String> seasons,
-            String cuisine) {
+            String cuisine,
+            /** TYPED, IMPORTED or AI — written by the code, never by the editor. */
+            String origin) {
     }
 
     /** What blocks publishing, so the editor can point at the right tab. */

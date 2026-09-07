@@ -108,6 +108,7 @@ const RECIPES: RecipeSummary[] = [
     estimated: false,
     seasons: [],
     cuisine: null,
+    origin: "TYPED",
   },
   {
     id: 8,
@@ -126,6 +127,7 @@ const RECIPES: RecipeSummary[] = [
     estimated: false,
     seasons: [],
     cuisine: null,
+    origin: "TYPED",
   },
 ];
 

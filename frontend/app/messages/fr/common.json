@@ -193,12 +193,6 @@
       "refuse": "Pas celui-là",
       "undoRefuse": "Le garder finalement",
       "whyNot": "Pourquoi pas celui-là ?",
-      "because": {
-        "MATCHED_CUISINE": "Votre recette",
-        "MATCHED_INTENT": "Votre recette",
-        "LIBRARY": "Votre recette",
-        "IDEA": "Idée à écrire"
-      },
       "reasons": {
         "notTonight": "Pas envie",
         "tooLong": "Trop long",
@@ -207,7 +201,7 @@
       },
       "asking": {
         "title": "Remplir la semaine",
-        "body": "Dites dans quelle direction, et on regarde d'abord dans vos recettes.",
+        "body": "Dites dans quelle direction. Les plats proposés sont nouveaux — jamais pris dans vos recettes — et chaque appel est décompté du budget IA du mois.",
         "intents": "Envie",
         "intentsHint": "Plusieurs envies se cumulent : végétarien et rapide veut dire les deux.",
         "cuisines": "Cuisines",
@@ -218,8 +212,7 @@
       },
       "reviewing": {
         "title": "La semaine proposée",
-        "body": "{count, plural, =0 {Rien à proposer pour l'instant.} one {Un plat proposé.} other {# plats proposés.}} Rien n'est encore au planning.",
-        "assisted": "Vos recettes n'ont pas suffi : les idées viennent d'un modèle.",
+        "body": "{count, plural, =0 {Rien à proposer pour l'instant.} one {Un nouveau plat proposé.} other {# nouveaux plats proposés.}} Rien n'est encore au planning ; ce qui est accepté devient une recette « créée par IA », à corriger.",
         "unfilled": "{count, plural, one {Un repas sans proposition.} other {# repas sans proposition.}}",
         "note": "Autre chose à préciser ?",
         "noteHint": "Par exemple « moins de pâtes ». Facultatif.",
@@ -234,6 +227,13 @@
         "shopping": "La liste de courses est déjà à jour. Vous pouvez encore en retirer ce que vous avez déjà.",
         "toShopping": "Voir la liste de courses",
         "stay": "Rester sur le planning"
+      },
+      "newDish": "Nouveau plat",
+      "declined": {
+        "PLAN": "Remplir la semaine fait partie d'un plan payant. Rien n'a été proposé.",
+        "BUDGET": "Le budget IA du mois est épuisé — rien n'a été proposé. Il se rouvre le 1er ; d'ici là, la semaine se remplit à la main.",
+        "UNAVAILABLE": "Cette fonction n'est pas encore branchée ici. Rien n'a été proposé.",
+        "FAILED": "Aucune proposition n'est revenue. Réessayez, ou remplissez la semaine à la main."
       }
     },
     "batch": {
@@ -243,12 +243,11 @@
       "working": "On cherche ce qui se prépare ensemble…",
       "failed": "La proposition n'a pas abouti. Réessayez.",
       "minutes": "{count} min",
-      "tagged": "Batch cooking",
-      "idea": "Idée à écrire",
+      "idea": "Nouveau plat",
       "base": "{name} — {quantity} {unit} pour {count, plural, one {1 plat} other {# plats}}",
       "asking": {
         "title": "Cuisiner en une fois",
-        "body": "On cherche des plats bâtis sur une base commune, pour que l'épluchage et la cuisson se fassent une seule fois.",
+        "body": "On demande des plats nouveaux, bâtis sur une base commune, pour que l'épluchage et la cuisson se fassent une seule fois. Ce que l'ensemble partage est compté, jamais affirmé.",
         "size": "Combien de plats",
         "fewer": "Un plat de moins",
         "more": "Un plat de plus",
@@ -258,11 +257,9 @@
       },
       "choosing": {
         "title": "Ce qui se prépare ensemble",
-        "body": "{count, plural, one {Un ensemble trouvé.} other {# ensembles trouvés.}} Rien n'est encore au planning.",
-        "assisted": "Vos recettes ne formaient pas d'ensemble : celui-ci vient d'un modèle.",
+        "body": "{count, plural, one {Un ensemble trouvé.} other {# ensembles trouvés.}} Rien n'est encore au planning ; ce qui est accepté devient une recette « créée par IA », à corriger.",
         "shared": "{count} plats sur {total} sont bâtis sur {base}.",
         "choose": "Prendre cet ensemble",
-        "none": "Rien dans vos recettes ne se prépare vraiment ensemble. C'est une bibliothèque variée, pas une erreur — deux plats qui partagent un oignon ne font pas un batch.",
         "back": "Changer la demande"
       },
       "placing": {
@@ -277,6 +274,12 @@
         "next": "Le plan de travail lit la semaine entière et dit ce qui se prépare une fois pour plusieurs plats.",
         "toPrep": "Voir le plan de travail",
         "stay": "Rester sur le planning"
+      },
+      "declined": {
+        "PLAN": "Cuisiner en une fois fait partie d'un plan payant. Rien n'a été proposé.",
+        "BUDGET": "Le budget IA du mois est épuisé — rien n'a été proposé. Il se rouvre le 1er.",
+        "UNAVAILABLE": "Cette fonction n'est pas encore branchée ici. Rien n'a été proposé.",
+        "FAILED": "Les plats proposés ne partageaient rien qu'on prépare une seule fois, alors l'ensemble a été écarté plutôt que maquillé. Réessayez, ou changez la demande."
       }
     },
     "prep": {
@@ -789,6 +792,11 @@
       "none": "Aucune",
       "hint": "La plupart des plats ne sont d'aucune cuisine — c'est normal, pas un oubli.",
       "filterLabel": "Cuisines"
+    },
+    "origins": {
+      "TYPED": "Écrite à la main",
+      "IMPORTED": "Importée",
+      "AI": "Créée par IA"
     }
   },
   "cook": {

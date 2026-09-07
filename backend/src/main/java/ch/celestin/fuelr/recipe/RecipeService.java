@@ -31,6 +31,45 @@ public class RecipeService {
     }
 
     /**
+     * A dish a model invented, written into the library as a draft.
+     *
+     * The same shape every import produces, for the same reason: nothing a
+     * model proposed is written as a finished recipe, and every quantity it
+     * guessed arrives flagged. What is different is the provenance — it is
+     * written here, once, and the editor never sends it back.
+     *
+     * A cook can then correct everything about it and it stays an AI recipe:
+     * that is a fact about where it came from, not about what it says now.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    public Recipe createFromIdea(Long userId, String title, Integer minutes,
+                                 List<IdeaLine> ingredients, List<String> steps) {
+        Recipe recipe = new Recipe(userId);
+        recipe.setOrigin(Recipe.Origin.AI);
+        recipe.setTitle(title == null || title.isBlank() ? null : title.trim());
+        recipe.setTotalMinutes(minutes);
+
+        for (IdeaLine line : ingredients == null ? List.<IdeaLine>of() : ingredients) {
+            RecipeIngredient row = new RecipeIngredient(
+                    line.name(),
+                    java.math.BigDecimal.valueOf(line.quantity()),
+                    line.unit());
+            // Everything a model wrote is a guess until somebody has looked at
+            // it, which is exactly what an import already says about its own.
+            row.setNeedsReview(true);
+            recipe.getIngredients().add(row);
+        }
+        for (String step : steps == null ? List.<String>of() : steps) {
+            recipe.getSteps().add(new RecipeStep(step));
+        }
+        return recipes.save(recipe);
+    }
+
+    /** One ingredient line as a model wrote it. */
+    public record IdeaLine(String name, double quantity, String unit) {
+    }
+
+    /**
      * Pinned first in the order the author chose, then everything else by most
      * recently touched. The rank only applies among favourites — an unpinned
      * recipe has none and keeps the date ordering.
@@ -72,6 +111,21 @@ public class RecipeService {
     public List<Recipe> search(Long userId, String term, java.util.Set<String> tags,
                                java.util.Set<String> seasons,
                                java.util.Set<String> cuisines) {
+        return search(userId, term, tags, seasons, cuisines, null);
+    }
+
+    /**
+     * The same, narrowed by where the recipes came from.
+     *
+     * Alternatives like the seasons: asking for two origins asks for either.
+     * It is a filter rather than a tag on purpose — provenance is a fact the
+     * code writes, and one somebody should be able to look for without being
+     * able to claim.
+     */
+    public List<Recipe> search(Long userId, String term, java.util.Set<String> tags,
+                               java.util.Set<String> seasons,
+                               java.util.Set<String> cuisines,
+                               java.util.Set<String> origins) {
         String normalised = term == null || term.isBlank() ? null
                 : "%" + term.trim().toLowerCase() + "%";
         java.util.Set<String> wanted = tags == null ? java.util.Set.of() : tags;
@@ -93,6 +147,11 @@ public class RecipeService {
             found = found.stream()
                     .filter(recipe -> recipe.getCuisine() != null
                             && fromThere.contains(recipe.getCuisine()))
+                    .toList();
+        }
+        if (origins != null && !origins.isEmpty()) {
+            found = found.stream()
+                    .filter(recipe -> origins.contains(recipe.getOrigin().name()))
                     .toList();
         }
         // The query cannot express the library ordering, so it is applied

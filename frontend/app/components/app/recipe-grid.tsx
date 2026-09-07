@@ -8,6 +8,7 @@ import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
 import type { Season } from "@app/lib/seasons";
 import type { Cuisine } from "@app/lib/cuisines";
+import type { RecipeOrigin } from "@app/lib/origins";
 import {
   deleteRecipe,
   duplicateRecipe,
@@ -43,6 +44,7 @@ export function RecipeGrid({
   selectedTags,
   selectedSeasons,
   selectedCuisines,
+  selectedOrigins,
   today,
 }: {
   recipes: RecipeSummary[];
@@ -50,10 +52,12 @@ export function RecipeGrid({
   selectedTags: string[];
   selectedSeasons: Season[];
   selectedCuisines: Cuisine[];
+  selectedOrigins: RecipeOrigin[];
   /** Resolved on the server: "in season" must not depend on the browser. */
   today: string;
 }) {
   const t = useTranslations("app");
+  const tRecipe = useTranslations("recipe");
   const [confirming, setConfirming] = useState<RecipeSummary | null>(null);
   const [planning, setPlanning] = useState<RecipeSummary | null>(null);
   const [planned, setPlanned] = useState<string | null>(null);
@@ -126,6 +130,7 @@ export function RecipeGrid({
         selectedTags={selectedTags}
         selectedSeasons={selectedSeasons}
         selectedCuisines={selectedCuisines}
+        selectedOrigins={selectedOrigins}
         today={today}
       />
 
@@ -312,6 +317,13 @@ export function RecipeGrid({
                   )}
                   {recipe.status === "DRAFT" && (
                     <Badge tone="neutral">{t("draft")}</Badge>
+                  )}
+                  {/* A dish a model invented says so, wherever it goes. A
+                      recipe somebody typed does not need a label for it. */}
+                  {recipe.origin === "AI" && (
+                    <Badge tone="mint" data-testid={`origin-${recipe.id}`}>
+                      {tRecipe("origins.AI")}
+                    </Badge>
                   )}
                 </p>
               </ListRow>

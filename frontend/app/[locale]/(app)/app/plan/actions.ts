@@ -3,8 +3,8 @@
 import { apiFetch } from "@app/lib/api";
 import type {
   BatchSets,
+  RecipeIdea,
   WeekPlan,
-  WeekProposal,
   WeekSuggestion,
 } from "@app/lib/api";
 import type { Slot } from "@app/lib/week";
@@ -105,7 +105,6 @@ export async function suggestWeek(input: {
   cuisines: string[];
   slots: Slot[];
   keep: { date: string; slot: Slot }[];
-  exclude: number[];
   excludeTitles: string[];
   /** What somebody typed when refusing. Optional, and it only reaches a model. */
   note?: string;
@@ -121,54 +120,46 @@ export async function suggestWeek(input: {
 /**
  * Writes an accepted proposal onto the week.
  *
- * A recipe is planned as it stands. An idea has to become something first, and
- * it becomes exactly what an import produces: a DRAFT, with every guessed
- * quantity flagged. Nothing a model proposed is written into the library as a
- * finished recipe, here or anywhere else.
+ * The dish does not exist yet — this screen never proposes something already
+ * in the library — so it is written first, as a DRAFT marked as a model's
+ * work, with every guessed quantity flagged. One call rather than a create
+ * followed by an update: the two-step dance leaves a titleless recipe behind
+ * whenever the second half fails, and the provenance has to be set by the
+ * same hand that creates the row.
  */
-export async function acceptProposal(proposal: WeekProposal) {
-  let recipeId = proposal.recipeId;
+export async function acceptProposal(proposal: {
+  date: string;
+  slot: Slot;
+  title: string;
+  idea: RecipeIdea | null;
+}) {
+  if (!proposal.idea) return { ok: false };
 
-  if (recipeId == null) {
-    if (!proposal.idea) return { ok: false };
-    const created = await apiFetch("/api/recipes", { method: "POST" });
-    if (!created.ok) return { ok: false };
-    const { id } = (await created.json()) as { id: number };
-    const saved = await apiFetch(`/api/recipes/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        title: proposal.idea.title,
-        servings: 4,
-        totalMinutes: proposal.idea.minutes,
-        ingredients: proposal.idea.ingredients,
-        steps: proposal.idea.steps,
-      }),
-    });
-    if (!saved.ok) return { ok: false };
-    recipeId = id;
-  }
+  const created = await apiFetch("/api/recipes/from-idea", {
+    method: "POST",
+    body: JSON.stringify({
+      title: proposal.idea.title,
+      minutes: proposal.idea.minutes,
+      ingredients: proposal.idea.ingredients,
+      steps: proposal.idea.steps,
+    }),
+  });
+  if (!created.ok) return { ok: false };
+  const { id } = (await created.json()) as { id: number };
 
   const planned = await apiFetch("/api/plan", {
     method: "POST",
-    body: JSON.stringify({ date: proposal.date, slot: proposal.slot, recipeId }),
+    body: JSON.stringify({ date: proposal.date, slot: proposal.slot, recipeId: id }),
   });
   return { ok: planned.ok };
 }
 
-/**
- * Asks for dishes that batch together.
- *
- * A different question from `suggestWeek`, and the contrast is the point: that
- * one fills a week in a direction, this one chooses one so that cooking it in
- * a single session is possible at all. Whether two recipes share a base is
- * arithmetic over lines already stored, so the common case costs nothing —
- * and a set always says what it shares because somebody counted.
- */
 export async function suggestBatch(input: {
   size: number;
   intents: string[];
   cuisines: string[];
-  exclude: number[];
+  /** Titles already seen or refused; an idea has no id. */
+  excludeTitles: string[];
 }): Promise<{ ok: true; sets: BatchSets } | { ok: false }> {
   const response = await apiFetch("/api/plan/suggest/batch", {
     method: "POST",

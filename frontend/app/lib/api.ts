@@ -3,6 +3,7 @@ import { TOKEN_COOKIE } from "./session";
 import type { Slot } from "./week";
 import type { Season } from "./seasons";
 import type { Cuisine } from "./cuisines";
+import type { RecipeOrigin } from "./origins";
 
 function backendUrl() {
   return process.env.BACKEND_INTERNAL_URL ?? "http://backend:8080";
@@ -53,6 +54,8 @@ export type Recipe = {
   seasons: Season[];
   /** At most one, and usually null: most dishes are from nowhere. */
   cuisine: Cuisine | null;
+  /** Where it came from. Written by the code; the editor never sends it. */
+  origin: RecipeOrigin;
 };
 
 /**
@@ -438,37 +441,44 @@ export type Suggestions = {
   assisted: boolean;
 };
 
+/** Everything it takes to write a dish into the library without asking twice. */
+export type RecipeIdea = {
+  title: string;
+  minutes: number | null;
+  ingredients: { name: string; quantity: number; unit: string; needsReview: boolean }[];
+  steps: string[];
+};
+
 /**
  * One dish proposed for one meal of the week.
  *
- * `recipeId` is null for an idea, which is not a recipe and may never become
- * one: accepting it writes a draft first. `because` is why it was chosen, and
- * it travels because a suggestion nobody can account for is one nobody trusts.
+ * Always invented — this screen never proposes something already in the
+ * library, because somebody filling a week is asking for dishes they have not
+ * had. Accepting one writes a draft marked as a model's work.
  */
 export type WeekProposal = {
   date: string;
   slot: Slot;
-  recipeId: number | null;
   title: string;
   minutes: number | null;
-  cuisine: string | null;
-  tags: string[];
-  hasPhoto: boolean;
-  because: "MATCHED_CUISINE" | "MATCHED_INTENT" | "LIBRARY" | "IDEA";
-  idea: {
-    title: string;
-    minutes: number | null;
-    ingredients: { name: string; quantity: number; unit: string; needsReview: boolean }[];
-    steps: string[];
-  } | null;
+  idea: RecipeIdea | null;
 };
+
+/**
+ * Why nothing came back, when nothing came back.
+ *
+ * Named apart because they are different conversations: PLAN is answered by
+ * subscribing, BUDGET by waiting for the month to turn, UNAVAILABLE only by
+ * us. A screen that refuses without saying which one teaches somebody to stop
+ * pressing the button.
+ */
+export type Declined = "NONE" | "PLAN" | "BUDGET" | "UNAVAILABLE" | "FAILED";
 
 export type WeekSuggestion = {
   proposals: WeekProposal[];
-  /** Slots asked about that nothing could be found for. Not an error. */
+  /** Slots asked about that came back empty. Not an error. */
   unfilled: number;
-  /** True when a model was asked; the screen says so, as everywhere else. */
-  assisted: boolean;
+  declined: Declined;
 };
 
 /**
@@ -486,16 +496,9 @@ export type BatchBase = {
 };
 
 export type BatchMember = {
-  /** Null for an idea: it is not a recipe yet, and may never be. */
-  recipeId: number | null;
   title: string;
   minutes: number | null;
-  cuisine: string | null;
-  tags: string[];
-  hasPhoto: boolean;
-  /** Somebody had already said this one suits batch cooking. */
-  taggedBatch: boolean;
-  idea: WeekProposal["idea"];
+  idea: RecipeIdea | null;
 };
 
 export type BatchSet = {
@@ -507,7 +510,7 @@ export type BatchSet = {
 
 export type BatchSets = {
   sets: BatchSet[];
-  assisted: boolean;
+  declined: Declined;
 };
 
 /** One ingredient prepared once for several of the week's dishes. */
@@ -557,6 +560,8 @@ export type RecipeSummary = {
   seasons: Season[];
   /** At most one, and usually null: most dishes are from nowhere. */
   cuisine: Cuisine | null;
+  /** Where it came from. Written by the code; the editor never sends it. */
+  origin: RecipeOrigin;
 };
 
 // --- the operator's panel -------------------------------------------------

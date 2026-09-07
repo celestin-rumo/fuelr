@@ -5,6 +5,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,6 +36,17 @@ import java.util.Set;
 public class Recipe {
 
     public enum Status { DRAFT, PUBLISHED }
+
+    /**
+     * How a recipe came to exist: somebody typed it, an import read it from a
+     * page, or a model invented it when the week was filled.
+     *
+     * Closed, and set by the code that creates the recipe. A cook can correct
+     * everything about an AI recipe — its title, its quantities, its steps —
+     * and it stays an AI recipe, because that is a fact about where it came
+     * from rather than about what it says now.
+     */
+    public enum Origin { TYPED, IMPORTED, AI }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,6 +84,18 @@ public class Recipe {
     /** Where an imported recipe came from, so it can be credited and rechecked. */
     @Column(name = "source_url", length = 2048)
     private String sourceUrl;
+
+    /**
+     * Where this recipe came from.
+     *
+     * Provenance rather than a tag: the tags describe the dish and are ticked
+     * by hand, so a marker saying "a model wrote this" cannot be one of them —
+     * the day somebody can tick it themselves it stops meaning anything. It is
+     * written by the code that creates the recipe and never by the editor.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Origin origin = Origin.TYPED;
 
     /**
      * A duration the source stated. Null means nobody said, and the total goes
@@ -199,6 +224,14 @@ public class Recipe {
 
     public Integer getFavoriteRank() {
         return favoriteRank;
+    }
+
+    public Origin getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(Origin origin) {
+        this.origin = origin;
     }
 
     public String getSourceUrl() {

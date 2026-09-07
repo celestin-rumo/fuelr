@@ -30,17 +30,15 @@ const MONDAY = "2026-03-02";
 const TUESDAY = "2026-03-03";
 
 function proposal(overrides: Partial<WeekProposal> = {}): WeekProposal {
+  const title = overrides.title ?? "Risotto";
   return {
     date: MONDAY,
     slot: "DINNER",
-    recipeId: 7,
-    title: "Risotto",
+    title,
     minutes: 35,
-    cuisine: "ITALIAN",
-    tags: ["vegetarian"],
-    hasPhoto: false,
-    because: "MATCHED_CUISINE",
-    idea: null,
+    // Every dish here is one nobody has written yet, so every one of them
+    // carries what it takes to become a draft.
+    idea: { title, minutes: 35, ingredients: [], steps: ["Cuire."] },
     ...overrides,
   };
 }
@@ -48,7 +46,7 @@ function proposal(overrides: Partial<WeekProposal> = {}): WeekProposal {
 function answer(proposals: WeekProposal[], rest: Partial<WeekSuggestion> = {}) {
   return {
     ok: true as const,
-    suggestion: { proposals, unfilled: 0, assisted: false, ...rest },
+    suggestion: { proposals, unfilled: 0, declined: "NONE" as const, ...rest },
   };
 }
 
@@ -96,20 +94,20 @@ it("asks in the direction that was chosen, and writes nothing by asking", async 
 it("keeps what was kept and never proposes a refusal again", async () => {
   const user = await askFor([
     proposal(),
-    proposal({ date: TUESDAY, title: "Minestrone", recipeId: 9 }),
+    proposal({ date: TUESDAY, title: "Minestrone" }),
   ]);
 
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
   await user.click(screen.getByRole("button", { name: "Pas envie" }));
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Pâtes au pesto", recipeId: 12 })]));
+  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Pâtes au pesto" })]));
   await user.click(screen.getByTestId("reask"));
 
   await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(2));
   const second = suggestWeek.mock.calls[1][0];
   // Tuesday was kept, so it is not asked about a second time…
   expect(second.keep).toContainEqual({ date: TUESDAY, slot: "DINNER" });
-  // …and neither dish can come back: an idea has no id, so titles carry it.
+  // …and neither dish can come back: a name is the only handle there is.
   expect(second.excludeTitles).toEqual(
     expect.arrayContaining(["Risotto", "Minestrone"]),
   );
@@ -126,7 +124,7 @@ it("acts on the one refusal it can act on", async () => {
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
   await user.click(screen.getByRole("button", { name: "Trop long" }));
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade", recipeId: 3 })]));
+  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
   await user.click(screen.getByTestId("reask"));
 
   // "Trop long" is the only reason that names something the library can search
@@ -144,7 +142,7 @@ it("sends what was typed, and only when something was refused", async () => {
   await user.click(screen.getByRole("button", { name: "Trop souvent" }));
   await user.type(screen.getByLabelText("Autre chose à préciser ?"), "moins de pâtes");
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade", recipeId: 3 })]));
+  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
   await user.click(screen.getByTestId("reask"));
 
   await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(2));
@@ -154,7 +152,7 @@ it("sends what was typed, and only when something was refused", async () => {
 it("adds only what was kept, then offers the shopping list", async () => {
   const user = await askFor([
     proposal(),
-    proposal({ date: TUESDAY, title: "Minestrone", recipeId: 9 }),
+    proposal({ date: TUESDAY, title: "Minestrone" }),
   ]);
 
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
@@ -168,18 +166,21 @@ it("adds only what was kept, then offers the shopping list", async () => {
   expect(await screen.findByTestId("to-shopping")).toBeInTheDocument();
 });
 
-it("says out loud when the answer did not come from the library", async () => {
-  await askFor([proposal({ because: "IDEA", recipeId: null, title: "Poke bowl" })], {
-    assisted: true,
-    unfilled: 2,
-  });
+it("never dresses an invented dish as a recipe somebody wrote", async () => {
+  await askFor([proposal({ title: "Poke bowl" })], { unfilled: 2 });
 
-  expect(screen.getByText(/les idées viennent d'un modèle/)).toBeInTheDocument();
-  // An idea is never dressed as a recipe somebody wrote.
   const row = screen.getByTestId(`proposal-${MONDAY}-DINNER`);
-  expect(within(row).getByText("Idée à écrire")).toBeInTheDocument();
-  // Slots nothing was found for are an answer, not a failure.
+  expect(within(row).getByText("Nouveau plat")).toBeInTheDocument();
+  // Slots nothing came back for are an answer, not a failure.
   expect(screen.getByText(/2 repas sans proposition/)).toBeInTheDocument();
+});
+
+it("names the refusal instead of quietly returning less", async () => {
+  // There is no library to fall back on any more, so a screen that declined
+  // without saying which refusal it is would teach somebody to stop pressing.
+  await askFor([], { declined: "BUDGET", unfilled: 7 });
+
+  expect(screen.getByTestId("declined")).toHaveTextContent(/budget/i);
 });
 
 it("stops asking again after a few rounds", async () => {
@@ -189,7 +190,7 @@ it("stops asking again after a few rounds", async () => {
     await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
     await user.click(screen.getByRole("button", { name: "Pas envie" }));
     suggestWeek.mockResolvedValueOnce(
-      answer([proposal({ title: `Plat ${round}`, recipeId: 100 + round })]),
+      answer([proposal({ title: `Plat ${round}` + round })]),
     );
     await user.click(screen.getByTestId("reask"));
     await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(round + 2));

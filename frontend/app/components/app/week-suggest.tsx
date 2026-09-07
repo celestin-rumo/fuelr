@@ -14,7 +14,7 @@ import { cn } from "@ui/cn";
 import { CUISINES } from "@app/lib/cuisines";
 import { SLOTS, formatDay } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
-import type { WeekProposal } from "@app/lib/api";
+import type { Declined, WeekProposal } from "@app/lib/api";
 import { acceptProposal, suggestWeek } from "@app/[locale]/(app)/app/plan/actions";
 
 /**
@@ -75,7 +75,7 @@ export function WeekSuggest({
 
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [round, setRound] = useState(0);
-  const [assisted, setAssisted] = useState(false);
+  const [declined, setDeclined] = useState<Declined>("NONE");
   const [unfilled, setUnfilled] = useState(0);
   const [added, setAdded] = useState(0);
 
@@ -89,7 +89,7 @@ export function WeekSuggest({
     setRound(0);
     setAdded(0);
     setUnfilled(0);
-    setAssisted(false);
+    setDeclined("NONE");
     setFailed(false);
     setNote("");
   }
@@ -104,7 +104,8 @@ export function WeekSuggest({
    * Everything already decided travels as `keep` — the meals on the plan, and
    * the proposals somebody chose to keep from the last round — so what comes
    * back replaces exactly what was turned down and nothing else. What was
-   * refused travels too, by title as well as by id, because an idea has no id.
+   * refused travels by name, because every dish here is one nobody has
+   * written yet and an idea has no id.
    */
   function ask(keeping: Decision[], refusing: Decision[]) {
     // A refusal the app can act on, rather than one it only records. "Trop
@@ -134,9 +135,6 @@ export function WeekSuggest({
             slot: one.proposal.slot,
           })),
         ],
-        exclude: [...keeping, ...refusing]
-          .map((one) => one.proposal.recipeId)
-          .filter((id): id is number => id != null),
         excludeTitles: [...keeping, ...refusing].map((one) => one.proposal.title),
         note: note.trim(),
       });
@@ -149,7 +147,7 @@ export function WeekSuggest({
         ...keeping,
         ...result.suggestion.proposals.map((proposal) => ({ proposal, refused: null })),
       ]);
-      setAssisted(result.suggestion.assisted);
+      setDeclined(result.suggestion.declined);
       setUnfilled(result.suggestion.unfilled);
       setRound((current) => current + 1);
       setStage("reviewing");
@@ -255,10 +253,15 @@ export function WeekSuggest({
                 {t("reviewing.body", { count: kept.length })}
               </p>
 
-              {/* Said out loud, as everywhere else a model was asked. */}
-              {assisted && (
-                <p className="text-[13px] font-semibold text-mint-ink">
-                  {t("reviewing.assisted")}
+              {/* There is no second source, so a refusal is named rather
+                  than turned into fewer proposals nobody can account for. */}
+              {declined !== "NONE" && (
+                <p
+                  role="status"
+                  data-testid="declined"
+                  className="text-[13px] font-semibold text-coral-ink"
+                >
+                  {t(`declined.${declined}`)}
                 </p>
               )}
 
@@ -469,11 +472,9 @@ function ProposalRow({
         >
           {proposal.title}
         </span>
-        {/* An idea is not a recipe, and the screen never lets that blur: it
-            becomes a draft to correct, never a finished recipe. */}
-        <Badge tone={proposal.because === "IDEA" ? "mint" : "neutral"}>
-          {t(`because.${proposal.because}`)}
-        </Badge>
+        {/* Never blurred: this is a dish nobody has written, and accepting
+            it writes a draft to correct rather than a finished recipe. */}
+        <Badge tone="mint">{t("newDish")}</Badge>
       </div>
 
       {refused ? (

@@ -54,10 +54,13 @@ test.beforeEach(async ({ request, context }) => {
   await signIn(request, context);
 });
 
-test("a week is filled from the cook's own recipes, corrected, then planned", async ({
+test("filling the week never proposes what is already in the library", async ({
   request,
   page,
 }) => {
+  // Three recipes that match the ask exactly. Under the old rule they would
+  // have been proposed for free; under this one the model is the only source,
+  // and no model is reachable from this suite.
   await seed(request, "Risotto aux champignons", "Riz");
   await seed(request, "Minestrone", "Haricots");
   await seed(request, "Pâtes au pesto", "Pâtes");
@@ -69,37 +72,18 @@ test("a week is filled from the cook's own recipes, corrected, then planned", as
   await dialog.getByRole("button", { name: "Italienne" }).click();
   await dialog.getByRole("button", { name: "Proposer une semaine" }).click();
 
-  // The library answered, so nothing says a model was asked.
-  await expect(dialog.getByTestId("proposals")).toBeVisible();
-  await expect(dialog.getByText(/viennent d'un modèle/)).toHaveCount(0);
+  // A refusal has a name. Which name depends on the environment — no key
+  // here, a key that cannot be billed in CI — and both are honest answers.
+  const declined = dialog.getByTestId("declined");
+  await expect(declined).toBeVisible();
+  await expect(declined).toContainText(/pas encore branchée|Aucune proposition/);
 
-  const rows = dialog.getByTestId("proposals").locator("li");
-  await expect(rows).toHaveCount(3);
-  const refused = await rows.first().getByTestId("proposal-title").innerText();
-
-  // Nothing is on the plan while it is being looked at.
-  await expect(page.getByTestId("week-grid").getByText(refused)).toHaveCount(0);
-
-  // Turn the first one down, say why, and ask again for that slot only.
-  await rows.first().getByRole("button", { name: "Pas celui-là" }).click();
-  await rows.first().getByRole("button", { name: "Pas envie" }).click();
-  await dialog.getByTestId("reask").click();
-
-  // What came back is not what was refused.
-  await expect(dialog.getByTestId("proposals")).toBeVisible();
-  await expect(dialog.getByTestId("proposals").getByText(refused, { exact: true }))
-    .toHaveCount(0);
-
-  await dialog.getByTestId("accept-week").click();
-
-  // Now it is on the plan, and the way to the shopping list is one press.
-  await expect(dialog.getByTestId("to-shopping")).toBeVisible();
-  await dialog.getByRole("button", { name: "Rester sur le planning" }).click();
-
+  // None of the three recipes was proposed, and nothing was written.
+  await expect(dialog.getByTestId("proposals").locator("li")).toHaveCount(0);
   const planned = await request.get(`${BACKEND}/api/plan?week=${MONDAY}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  expect((await planned.json()).meals.length).toBeGreaterThan(0);
+  expect((await planned.json()).meals).toHaveLength(0);
 });
 
 test("a meal somebody already has everything for buys nothing", async ({

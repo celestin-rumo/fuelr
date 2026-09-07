@@ -193,12 +193,6 @@
       "refuse": "Not this one",
       "undoRefuse": "Keep it after all",
       "whyNot": "Why not this one?",
-      "because": {
-        "MATCHED_CUISINE": "Your recipe",
-        "MATCHED_INTENT": "Your recipe",
-        "LIBRARY": "Your recipe",
-        "IDEA": "Idea to write"
-      },
       "reasons": {
         "notTonight": "Not in the mood",
         "tooLong": "Too long",
@@ -207,7 +201,7 @@
       },
       "asking": {
         "title": "Fill the week",
-        "body": "Say which direction, and we look through your own recipes first.",
+        "body": "Say which direction. The dishes proposed are new — never taken from your recipes — and every ask counts against the month's AI budget.",
         "intents": "In the mood for",
         "intentsHint": "Several add up: vegetarian and quick means both.",
         "cuisines": "Cuisines",
@@ -218,8 +212,7 @@
       },
       "reviewing": {
         "title": "The week suggested",
-        "body": "{count, plural, =0 {Nothing to suggest yet.} one {One dish suggested.} other {# dishes suggested.}} Nothing is on the plan yet.",
-        "assisted": "Your recipes were not enough: the ideas come from a model.",
+        "body": "{count, plural, =0 {Nothing to propose yet.} one {One new dish proposed.} other {# new dishes proposed.}} Nothing is on the plan yet; what you accept becomes a recipe marked “created by AI”, to correct.",
         "unfilled": "{count, plural, one {One meal with no suggestion.} other {# meals with no suggestion.}}",
         "note": "Anything else to say?",
         "noteHint": "“Less pasta”, for instance. Optional.",
@@ -234,6 +227,13 @@
         "shopping": "The shopping list is already up to date. You can still take out what you already have.",
         "toShopping": "See the shopping list",
         "stay": "Stay on the plan"
+      },
+      "newDish": "New dish",
+      "declined": {
+        "PLAN": "Filling the week is part of a paid plan. Nothing was proposed.",
+        "BUDGET": "This month's AI budget is spent — nothing was proposed. It reopens on the 1st; until then the week is filled by hand.",
+        "UNAVAILABLE": "This feature is not wired up here yet. Nothing was proposed.",
+        "FAILED": "No proposal came back. Try again, or fill the week by hand."
       }
     },
     "batch": {
@@ -243,12 +243,11 @@
       "working": "Looking for dishes that prepare together…",
       "failed": "The suggestion did not come back. Try again.",
       "minutes": "{count} min",
-      "tagged": "Batch cooking",
-      "idea": "Idea to write",
+      "idea": "New dish",
       "base": "{name} — {quantity} {unit} for {count, plural, one {1 dish} other {# dishes}}",
       "asking": {
         "title": "Cook it in one go",
-        "body": "We look for dishes built on a common base, so the peeling and the cooking happen once.",
+        "body": "We ask for new dishes built on a common base, so the peeling and the cooking happen once. What the set shares is counted, never claimed.",
         "size": "How many dishes",
         "fewer": "One dish fewer",
         "more": "One dish more",
@@ -258,11 +257,9 @@
       },
       "choosing": {
         "title": "What prepares together",
-        "body": "{count, plural, one {One set found.} other {# sets found.}} Nothing is on the plan yet.",
-        "assisted": "Your recipes did not form a set: this one comes from a model.",
+        "body": "{count, plural, one {One set found.} other {# sets found.}} Nothing is on the plan yet; what you accept becomes a recipe marked “created by AI”, to correct.",
         "shared": "{count} of {total} dishes are built on {base}.",
         "choose": "Take this set",
-        "none": "Nothing in your recipes really prepares together. That is a varied library, not an error — two dishes sharing an onion are not a batch.",
         "back": "Change the request"
       },
       "placing": {
@@ -277,6 +274,12 @@
         "next": "The work plan reads the whole week and says what is prepared once for several dishes.",
         "toPrep": "See the work plan",
         "stay": "Stay on the plan"
+      },
+      "declined": {
+        "PLAN": "Cooking in one go is part of a paid plan. Nothing was proposed.",
+        "BUDGET": "This month's AI budget is spent — nothing was proposed. It reopens on the 1st.",
+        "UNAVAILABLE": "This feature is not wired up here yet. Nothing was proposed.",
+        "FAILED": "The dishes proposed shared nothing that is prepared once, so the set was dropped rather than dressed up. Try again, or change the request."
       }
     },
     "prep": {
@@ -789,6 +792,11 @@
       "none": "None",
       "hint": "Most dishes are of no cuisine — that is normal, not an omission.",
       "filterLabel": "Cuisines"
+    },
+    "origins": {
+      "TYPED": "Typed by hand",
+      "IMPORTED": "Imported",
+      "AI": "Created by AI"
     }
   },
   "cook": {

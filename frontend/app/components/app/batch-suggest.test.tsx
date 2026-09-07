@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, it, vi } from "vitest";
 import { renderWithIntl } from "@app/test/render";
-import type { BatchMember, BatchSet, WeekProposal } from "@app/lib/api";
+import type { BatchMember, BatchSet, Declined } from "@app/lib/api";
 import { BatchSuggest } from "./batch-suggest";
 
 const refresh = vi.fn();
@@ -18,25 +18,24 @@ vi.mock("@/i18n/navigation", () => ({
 
 const suggestBatch = vi.fn();
 const acceptProposal =
-  vi.fn<(proposal: WeekProposal) => Promise<{ ok: boolean }>>(async () => ({ ok: true }));
+  vi.fn<(proposal: { title: string; date: string }) => Promise<{ ok: boolean }>>(
+    async () => ({ ok: true }),
+  );
 
 vi.mock("@app/[locale]/(app)/app/plan/actions", () => ({
   suggestBatch: (...args: unknown[]) => suggestBatch(...(args as [])),
-  acceptProposal: (...args: unknown[]) => acceptProposal(...(args as [WeekProposal])),
+  acceptProposal: (...args: unknown[]) =>
+    acceptProposal(...(args as [{ title: string; date: string }])),
 }));
 
 const MONDAY = "2026-03-02";
 
 function member(title: string, overrides: Partial<BatchMember> = {}): BatchMember {
   return {
-    recipeId: 7,
     title,
     minutes: 30,
-    cuisine: null,
-    tags: [],
-    hasPhoto: false,
-    taggedBatch: false,
-    idea: null,
+    // Every dish here is one nobody has written yet.
+    idea: { title, minutes: 30, ingredients: [], steps: ["Cuire."] },
     ...overrides,
   };
 }
@@ -50,9 +49,9 @@ function set(overrides: Partial<BatchSet> = {}): BatchSet {
   };
 }
 
-async function askFor(sets: BatchSet[], assisted = false) {
+async function askFor(sets: BatchSet[], declined: Declined = "NONE") {
   const user = userEvent.setup({ delay: null });
-  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets, assisted } });
+  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets, declined } });
   renderWithIntl(<BatchSuggest weekStart={MONDAY} planned={[]} />);
   await user.click(screen.getByTestId("suggest-batch"));
   await user.click(screen.getByRole("button", { name: "Chercher un ensemble" }));
@@ -66,7 +65,7 @@ beforeEach(() => {
 
 it("asks for a set of the size that was chosen", async () => {
   const user = userEvent.setup({ delay: null });
-  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets: [set()], assisted: false } });
+  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets: [set()], declined: "NONE" } });
   renderWithIntl(<BatchSuggest weekStart={MONDAY} planned={[]} />);
 
   await user.click(screen.getByTestId("suggest-batch"));
@@ -93,31 +92,26 @@ it("says what a set is a set because of", async () => {
     .toBeInTheDocument();
 });
 
-it("says nothing batches together, without calling it a failure", async () => {
-  await askFor([]);
+it("names the refusal instead of quietly returning nothing", async () => {
+  // There is no library to fall back on, so a screen that declined without
+  // saying which refusal it is would teach somebody to stop pressing.
+  await askFor([], "BUDGET");
 
-  expect(await screen.findByText(/C'est une bibliothèque variée, pas une erreur/))
-    .toBeInTheDocument();
+  expect(await screen.findByTestId("declined")).toHaveTextContent(/budget/i);
   expect(screen.queryByTestId("batch-sets")).not.toBeInTheDocument();
 });
 
-it("marks what somebody had already tagged, and what is only an idea", async () => {
-  await askFor([
-    set({
-      members: [
-        member("Déjà étiqueté", { taggedBatch: true }),
-        member("Une idée", {
-          recipeId: null,
-          idea: { title: "Une idée", minutes: 20, ingredients: [], steps: ["Cuire."] },
-        }),
-      ],
-      sharedBy: 2,
-    }),
-  ]);
+it("says a set that shared nothing after all was dropped", async () => {
+  await askFor([], "FAILED");
+
+  expect(await screen.findByTestId("declined")).toHaveTextContent(/rien/i);
+});
+
+it("never dresses an invented dish as a recipe somebody wrote", async () => {
+  await askFor([set()]);
 
   const card = await screen.findByTestId("batch-set-0");
-  expect(within(card).getByText("Batch cooking")).toBeInTheDocument();
-  expect(within(card).getByText("Idée à écrire")).toBeInTheDocument();
+  expect(within(card).getAllByText("Nouveau plat")).toHaveLength(3);
 });
 
 it("pre-answers which evening, and writes only once asked", async () => {
@@ -144,7 +138,7 @@ it("skips the evenings that already hold a meal", async () => {
   const user = userEvent.setup({ delay: null });
   suggestBatch.mockResolvedValueOnce({
     ok: true,
-    sets: { sets: [set({ members: [member("Dahl"), member("Soupe")], sharedBy: 2 })], assisted: false },
+    sets: { sets: [set({ members: [member("Dahl"), member("Soupe")], sharedBy: 2 })], declined: "NONE" },
   });
   renderWithIntl(
     <BatchSuggest weekStart={MONDAY} planned={[`${MONDAY}:DINNER`, "2026-03-03:DINNER"]} />,
@@ -160,8 +154,3 @@ it("skips the evenings that already hold a meal", async () => {
   expect(acceptProposal.mock.calls[1][0]).toMatchObject({ date: "2026-03-05" });
 });
 
-it("says out loud when the set did not come from the library", async () => {
-  await askFor([set()], true);
-
-  expect(await screen.findByText(/celui-ci vient d'un modèle/)).toBeInTheDocument();
-});
