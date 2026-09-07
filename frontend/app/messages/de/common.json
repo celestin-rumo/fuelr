@@ -619,6 +619,24 @@
       "toCheck": "zu prüfen",
       "unverified": "Der Import konnte nicht lesen: {fields}. Bitte prüfen.",
       "source": "Importiert von {url}"
+    },
+    "cuisines": {
+      "ITALIAN": "Italienisch",
+      "FRENCH": "Französisch",
+      "SWISS": "Schweizerisch",
+      "SPANISH": "Spanisch",
+      "GREEK": "Griechisch",
+      "LEBANESE": "Libanesisch",
+      "MOROCCAN": "Marokkanisch",
+      "INDIAN": "Indisch",
+      "THAI": "Thailändisch",
+      "CHINESE": "Chinesisch",
+      "JAPANESE": "Japanisch",
+      "MEXICAN": "Mexikanisch",
+      "label": "Küche",
+      "none": "Keine",
+      "hint": "Die meisten Gerichte gehören zu keiner Küche — das ist normal, kein Versäumnis.",
+      "filterLabel": "Küchen"
     }
   },
   "cook": {

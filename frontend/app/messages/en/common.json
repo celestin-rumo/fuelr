@@ -619,6 +619,24 @@
       "toCheck": "to check",
       "unverified": "The import could not read: {fields}. Worth checking.",
       "source": "Imported from {url}"
+    },
+    "cuisines": {
+      "ITALIAN": "Italian",
+      "FRENCH": "French",
+      "SWISS": "Swiss",
+      "SPANISH": "Spanish",
+      "GREEK": "Greek",
+      "LEBANESE": "Lebanese",
+      "MOROCCAN": "Moroccan",
+      "INDIAN": "Indian",
+      "THAI": "Thai",
+      "CHINESE": "Chinese",
+      "JAPANESE": "Japanese",
+      "MEXICAN": "Mexican",
+      "label": "Cuisine",
+      "none": "None",
+      "hint": "Most dishes are of no cuisine — that is normal, not an omission.",
+      "filterLabel": "Cuisines"
     }
   },
   "cook": {

@@ -21,6 +21,7 @@ function recipeWith(steps: string[]): Recipe {
     totalMinutes: null,
     unverified: [],
   seasons: [],
+  cuisine: null,
   };
 }
 

@@ -7,6 +7,7 @@ import { Badge } from "@ui/badge";
 import { cn } from "@ui/cn";
 import type { RecipeSummary } from "@app/lib/api";
 import type { Season } from "@app/lib/seasons";
+import type { Cuisine } from "@app/lib/cuisines";
 import {
   deleteRecipe,
   duplicateRecipe,
@@ -41,12 +42,14 @@ export function RecipeGrid({
   term,
   selectedTags,
   selectedSeasons,
+  selectedCuisines,
   today,
 }: {
   recipes: RecipeSummary[];
   term: string;
   selectedTags: string[];
   selectedSeasons: Season[];
+  selectedCuisines: Cuisine[];
   /** Resolved on the server: "in season" must not depend on the browser. */
   today: string;
 }) {
@@ -122,6 +125,7 @@ export function RecipeGrid({
         term={term}
         selectedTags={selectedTags}
         selectedSeasons={selectedSeasons}
+        selectedCuisines={selectedCuisines}
         today={today}
       />
 

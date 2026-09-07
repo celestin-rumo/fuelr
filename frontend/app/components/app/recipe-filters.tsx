@@ -8,6 +8,8 @@ import { cn } from "@ui/cn";
 import { Input } from "@ui/input";
 import { SEASONS, seasonOf } from "@app/lib/seasons";
 import type { Season } from "@app/lib/seasons";
+import { CUISINES } from "@app/lib/cuisines";
+import type { Cuisine } from "@app/lib/cuisines";
 
 /** The tags the editor offers; the filter bar mirrors them exactly. */
 const TAGS = [
@@ -25,11 +27,13 @@ export function RecipeFilters({
   term,
   selectedTags,
   selectedSeasons,
+  selectedCuisines,
   today,
 }: {
   term: string;
   selectedTags: string[];
   selectedSeasons: Season[];
+  selectedCuisines: Cuisine[];
   /** Resolved on the server, so "in season" means the same on both sides. */
   today: string;
 }) {
@@ -41,11 +45,17 @@ export function RecipeFilters({
   const [value, setValue] = useState(term);
   const firstRender = useRef(true);
 
-  function push(nextTerm: string, nextTags: string[], nextSeasons: Season[]) {
+  function push(
+    nextTerm: string,
+    nextTags: string[],
+    nextSeasons: Season[],
+    nextCuisines: Cuisine[] = selectedCuisines,
+  ) {
     const params = new URLSearchParams();
     if (nextTerm.trim()) params.set("q", nextTerm.trim());
     if (nextTags.length) params.set("tags", nextTags.join(","));
     if (nextSeasons.length) params.set("seasons", nextSeasons.join(","));
+    if (nextCuisines.length) params.set("cuisines", nextCuisines.join(","));
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
@@ -71,6 +81,15 @@ export function RecipeFilters({
     push(value, next, selectedSeasons);
   }
 
+  // Several means *either*, like the seasons — a recipe carries at most one
+  // cuisine, so asking for two can only be a choice between them.
+  function toggleCuisine(cuisine: Cuisine) {
+    const next = selectedCuisines.includes(cuisine)
+      ? selectedCuisines.filter((x) => x !== cuisine)
+      : [...selectedCuisines, cuisine];
+    push(value, selectedTags, selectedSeasons, next);
+  }
+
   function toggleSeason(season: Season) {
     const next = selectedSeasons.includes(season)
       ? selectedSeasons.filter((x) => x !== season)
@@ -86,7 +105,8 @@ export function RecipeFilters({
   // single recipe. They fold on a phone and are open at every other width;
   // the count on the button is what keeps a hidden filter from being a
   // forgotten one.
-  const active = selectedTags.length + selectedSeasons.length;
+  const active =
+    selectedTags.length + selectedSeasons.length + selectedCuisines.length;
   const [open, setOpen] = useState(false);
 
   return (
@@ -150,11 +170,23 @@ export function RecipeFilters({
             {t(`seasons.${season}`)}
           </Chip>
         ))}
-        {(selectedTags.length > 0 || selectedSeasons.length > 0 || value !== "") && (
+      </div>
+
+      <div className="flex flex-wrap gap-2" data-testid="cuisine-filters">
+        {CUISINES.map((cuisine) => (
+          <Chip
+            key={cuisine}
+            active={selectedCuisines.includes(cuisine)}
+            onClick={() => toggleCuisine(cuisine)}
+          >
+            {t(`cuisines.${cuisine}`)}
+          </Chip>
+        ))}
+        {(active > 0 || value !== "") && (
           <Chip
             onClick={() => {
               setValue("");
-              push("", [], []);
+              push("", [], [], []);
             }}
           >
             {tApp("search.clear")}

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { TOKEN_COOKIE } from "./session";
 import type { Slot } from "./week";
 import type { Season } from "./seasons";
+import type { Cuisine } from "./cuisines";
 
 function backendUrl() {
   return process.env.BACKEND_INTERNAL_URL ?? "http://backend:8080";
@@ -50,6 +51,8 @@ export type Recipe = {
   unverified: string[];
   /** Zero, one or several. Most recipes are of no season. */
   seasons: Season[];
+  /** At most one, and usually null: most dishes are from nowhere. */
+  cuisine: Cuisine | null;
 };
 
 /**
@@ -446,6 +449,8 @@ export type RecipeSummary = {
   fatPerServing: number | null;
   estimated: boolean;
   seasons: Season[];
+  /** At most one, and usually null: most dishes are from nowhere. */
+  cuisine: Cuisine | null;
 };
 
 // --- the operator's panel -------------------------------------------------
