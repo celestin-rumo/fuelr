@@ -182,6 +182,12 @@ test("cooking the week in one go holds up on a phone", async ({ request, page })
   await holdsUp(page);
 });
 
+test("the account page holds up", async ({ page }) => {
+  await page.goto("/fr/app/compte");
+  await expect(page.getByTestId("account-panel")).toBeVisible();
+  await holdsUp(page);
+});
+
 test("a dialog can be read to its bottom on a short screen", async ({
   request,
   page,

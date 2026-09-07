@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 public class SessionTokenValidator implements OAuth2TokenValidator<Jwt> {
 
-    static final String CLAIM = "sid";
+    public static final String CLAIM = "sid";
 
     private static final OAuth2Error REVOKED =
             new OAuth2Error("invalid_token", "The session is closed.", null);

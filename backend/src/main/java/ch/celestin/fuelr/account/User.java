@@ -115,6 +115,36 @@ public class User {
         this.emailVerifiedAt = Instant.now();
     }
 
+    /**
+     * The language the account reads in. Null until chosen: the browser's
+     * guess is fine for a visitor, and this is what makes it stop being a
+     * guess once somebody has said.
+     */
+    @Column(length = 5)
+    private String locale;
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public void rename(String name) {
+        this.name = name;
+    }
+
+    /**
+     * The address becomes the login only here, and only after the link sent
+     * to it was clicked — which is also what proves it, so the new address
+     * arrives verified.
+     */
+    public void changeEmail(String email) {
+        this.email = email;
+        this.emailVerifiedAt = java.time.Instant.now();
+    }
+
     public void changePassword(String encodedPassword) {
         this.passwordHash = encodedPassword;
     }

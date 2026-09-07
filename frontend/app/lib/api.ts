@@ -542,6 +542,20 @@ export type PrepSession = {
   dishes: PrepDish[];
 };
 
+/** The profile express, as stored: the six figures the target is computed from. */
+export type ProfileInput = {
+  age: number;
+  sex: "FEMALE" | "MALE";
+  heightCm: number;
+  weightKg: number;
+  activity: "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE" | "VERY_ACTIVE";
+  goal: "LOSE" | "MAINTAIN" | "GAIN";
+};
+
+export type ProfileTargets = { kcal: number; proteinG: number; carbsG: number; fatG: number };
+
+export type ProfileResponse = { profile: ProfileInput; targets: ProfileTargets };
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

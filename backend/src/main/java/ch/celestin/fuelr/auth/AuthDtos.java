@@ -33,7 +33,12 @@ public final class AuthDtos {
     }
 
     public record UserResponse(
-            Long id, String email, String name, String role, boolean emailVerified) {
+            Long id, String email, String name, String role, boolean emailVerified,
+            /** The language the account chose, or null while it is the browser's guess. */
+            String locale) {
+    }
+
+    public record ConfirmEmailChangeRequest(@NotBlank String token) {
     }
 
     public record VerifyEmailRequest(@NotBlank String token) {

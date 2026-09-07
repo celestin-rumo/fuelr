@@ -101,9 +101,18 @@ export function AppHeader({
           </Link>
         )}
 
-        <span className="hidden text-[13px] font-semibold text-text-dim sm:inline">
-          {name ?? email}
-        </span>
+        {/* The name was a label; now it is the door to the account page.
+            Below `sm` the text goes and an icon stays, with the name on it —
+            a control whose label is hidden has none. */}
+        <Link
+          href="/app/account"
+          data-testid="account-link"
+          aria-label={t("nav.account")}
+          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-2 text-[13px] font-semibold text-text-dim transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:px-3"
+        >
+          <Icon name="people" />
+          <span className="hidden sm:inline">{name ?? email}</span>
+        </Link>
         <ThemeToggle />
         <LogoutButton />
         <span className="sr-only">{t("signedIn")}</span>

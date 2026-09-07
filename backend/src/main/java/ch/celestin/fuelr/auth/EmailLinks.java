@@ -37,6 +37,26 @@ public final class EmailLinks {
     private EmailLinks() {
     }
 
+    private static final Map<String, String> EMAIL_CHANGE = Map.of(
+            "fr", "/changement-email",
+            "en", "/change-email",
+            "de", "/e-mail-aendern");
+
+    private static final Map<String, String> FORGOT = Map.of(
+            "fr", "/mot-de-passe-oublie",
+            "en", "/forgot-password",
+            "de", "/passwort-vergessen");
+
+    /** The page that starts a reset — no token, since the point is to ask for one. */
+    public static String forgotPassword(String siteUrl, String locale) {
+        String slug = FORGOT.getOrDefault(locale, FORGOT.get(FALLBACK_LOCALE));
+        return siteUrl + "/" + (FORGOT.containsKey(locale) ? locale : FALLBACK_LOCALE) + slug;
+    }
+
+    public static String emailChange(String siteUrl, String locale, String token) {
+        return build(siteUrl, EMAIL_CHANGE, locale, token);
+    }
+
     public static String householdInvitation(String siteUrl, String locale, String token) {
         return build(siteUrl, HOUSEHOLD, locale, token);
     }

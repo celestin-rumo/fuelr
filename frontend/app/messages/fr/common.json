@@ -112,7 +112,8 @@
       "shopping": "Courses",
       "journal": "Journal",
       "idea": "Une idée ?",
-      "costs": "Coûts des lectures IA"
+      "costs": "Coûts des lectures IA",
+      "account": "Mon compte"
     }
   },
   "plan": {
@@ -1135,5 +1136,65 @@
       "failed": "La recherche a échoué. Réessaie.",
       "empty": "Écris au moins un ingrédient."
     }
+  },
+  "account": {
+    "label": "Compte",
+    "title": "Mon compte",
+    "intro": "Ce que Fuelr sait de vous, et ce que vous pouvez y changer.",
+    "failed": "Ça n'a pas été enregistré. Réessayez.",
+    "profile": {
+      "title": "Vous",
+      "name": "Prénom",
+      "saved": "Enregistré.",
+      "language": "Langue",
+      "languageHint": "Elle suit votre compte, pas seulement ce navigateur.",
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "de": "Deutsch"
+      }
+    },
+    "email": {
+      "title": "Adresse email",
+      "hint": "C'est votre identifiant de connexion. Rien ne change avant que la nouvelle adresse ait cliqué sur son lien.",
+      "current": "Actuelle :",
+      "new": "Nouvelle adresse",
+      "password": "Votre mot de passe",
+      "submit": "Envoyer le lien de confirmation",
+      "wrongPassword": "Ce n'est pas votre mot de passe.",
+      "sent": "Un lien est parti vers {email}. Tant qu'il n'est pas cliqué, l'ancienne adresse reste la vôtre — elle a été prévenue aussi."
+    },
+    "password": {
+      "title": "Mot de passe",
+      "hint": "Le changer déconnecte vos autres appareils.",
+      "current": "Mot de passe actuel",
+      "next": "Nouveau mot de passe",
+      "submit": "Changer le mot de passe",
+      "wrong": "Ce n'est pas votre mot de passe actuel.",
+      "tooShort": "Au moins 8 caractères.",
+      "changed": "Mot de passe changé. Vos autres appareils sont déconnectés."
+    },
+    "figures": {
+      "title": "Vos chiffres",
+      "hint": "Ce dont la cible du journal est calculée. Rien n'est enregistré avant « Enregistrer ».",
+      "none": "Aucun profil pour l'instant. Six chiffres, et le journal aura une cible.",
+      "targets": {
+        "kcal": "kcal / jour",
+        "proteinG": "Protéines",
+        "carbsG": "Glucides",
+        "fatG": "Lipides"
+      },
+      "formula": "Une formule sur l'âge, la taille, le poids et l'activité. C'est un repère, pas une prescription.",
+      "submit": "Enregistrer",
+      "saved": "Chiffres enregistrés. La cible s'applique à partir d'aujourd'hui."
+    }
+  },
+  "verifyEmailChange": {
+    "title": "Nouvelle adresse",
+    "working": "Un instant…",
+    "done": "C'est fait : cette adresse est maintenant celle de votre compte, et elle est vérifiée.",
+    "expired": "Ce lien n'est plus valable — il a déjà servi, il a expiré, ou l'adresse a été prise entre-temps. Refaites la demande depuis votre compte.",
+    "noToken": "Ce lien est incomplet. Ouvrez celui du mail.",
+    "toAccount": "Aller à mon compte"
   }
 }

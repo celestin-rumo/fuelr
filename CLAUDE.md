@@ -710,6 +710,23 @@ nobody should be able to ask. The layout does the same for the pages, so the
 two cannot disagree. Internal like `/design-system`: English copy, not
 translated.
 
+**The account page is four forms, and two of them are not edits.** `/app/account`
+saves a name on blur and a language on click — the language follows the
+account (`users.locale`) and the page follows the language, which is the only
+honest confirmation there is. The other two are handled as what they are. **The
+email is the login**: `POST /api/account/email` needs the password, mails a
+link to the *new* address and a notice to the *old* one, and nothing moves
+until the link is clicked (`POST /api/auth/verify-email-change`, public like
+the other token flows) — the new address arrives verified because the click
+was the proof. Whether the address is taken is never confessed: 202 either
+way, and what differs is in the mail, as at registration. **A password change
+that leaves the other sessions open has changed nothing** for whoever holds
+the previous one, so `PUT /api/account/password` closes them and keeps the
+caller's, and a mail says so with the forgot-password link for the case where
+it was not them. The six figures of the profile are previewed through
+`POST /api/nutrition/target` before `PUT /api/profile` writes them: a target is
+shown, never sprung. Neither password field is ever pre-filled.
+
 **Deleting an account would have deleted somebody else's week.** This is the
 trap the schema sets, and it is a chain: `households.owner_user_id` cascades
 from `users`, `planned_meals.household_id` cascades from `households`. Erasing
