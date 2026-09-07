@@ -1196,5 +1196,28 @@
     "expired": "Dieser Link gilt nicht mehr — er wurde schon benutzt, ist abgelaufen, oder die Adresse wurde inzwischen vergeben. Stellen Sie die Anfrage in Ihrem Konto neu.",
     "noToken": "Dieser Link ist unvollständig. Öffnen Sie den aus der E-Mail.",
     "toAccount": "Zu meinem Konto"
+  },
+  "weight": {
+    "title": "Gewicht",
+    "latest": "{kg} kg am {date}",
+    "kg": "{kg} kg",
+    "empty": "Noch keine Wägung. Eine pro Woche reicht, um eine Richtung zu sehen.",
+    "curve": "{count} Wägungen, zwischen {low} und {high} kg",
+    "form": {
+      "date": "Datum",
+      "kg": "Gewicht (kg)",
+      "submit": "Gewicht eintragen",
+      "range": "Zwischen 30 und 300 kg.",
+      "failed": "Das wurde nicht eingetragen. Bitte erneut versuchen."
+    },
+    "remove": "Wägung vom {date} entfernen",
+    "removeShort": "Entfernen",
+    "removed": "Wägung entfernt.",
+    "undo": "Rückgängig",
+    "recompute": {
+      "body": "Ihre letzte Wägung ({latest} kg) weicht vom Gewicht ab, aus dem das Ziel berechnet wird ({profile} kg). Ziel mit diesem Gewicht neu berechnen?",
+      "action": "Ziel neu berechnen"
+    },
+    "nothingSaid": "Eine Zahl und ihr Datum. Fuelr zieht daraus keinen Schluss."
   }
 }

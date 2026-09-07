@@ -556,6 +556,17 @@ export type ProfileTargets = { kcal: number; proteinG: number; carbsG: number; f
 
 export type ProfileResponse = { profile: ProfileInput; targets: ProfileTargets };
 
+/** One weigh-in: a figure and the day it was true. */
+export type WeightEntry = { id: number; weighedOn: string; weightKg: number };
+
+export type WeightView = {
+  entries: WeightEntry[];
+  /** The most recent weigh-in of all, not only of the period shown. */
+  latest: WeightEntry | null;
+  /** What the journal's target is computed from today. Null without a profile. */
+  profileWeightKg: number | null;
+};
+
 export type RecipeSummary = {
   id: number;
   title: string | null;

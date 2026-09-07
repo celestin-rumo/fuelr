@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { apiFetch } from "@app/lib/api";
-import type { ProfileResponse } from "@app/lib/api";
+import type { ProfileResponse, WeightView } from "@app/lib/api";
+import { todayIso } from "@app/lib/week";
+import { WeightPanel } from "@app/components/app/weight-panel";
 import { getSession } from "@app/lib/session";
 import { Container } from "@app/components/site/section";
 import { AccountPanel } from "@app/components/app/account-panel";
@@ -18,8 +20,13 @@ export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const t = await getTranslations("account");
   const session = await getSession();
-  const response = await apiFetch("/api/profile");
+  const today = todayIso();
+  const [response, weightResponse] = await Promise.all([
+    apiFetch("/api/profile"),
+    apiFetch(`/api/weight?to=${today}`),
+  ]);
   const profile: ProfileResponse | null = response.ok ? await response.json() : null;
+  const weight: WeightView | null = weightResponse.ok ? await weightResponse.json() : null;
 
   return (
     <Container className="flex max-w-3xl flex-col gap-8 py-14">
@@ -36,6 +43,10 @@ export default async function AccountPage() {
       </div>
 
       {session && <AccountPanel session={session} profile={profile} />}
+
+      {weight && (
+        <WeightPanel weight={weight} profile={profile?.profile ?? null} today={today} compact />
+      )}
     </Container>
   );
 }
