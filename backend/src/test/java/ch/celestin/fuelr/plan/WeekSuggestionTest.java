@@ -330,6 +330,46 @@ class WeekSuggestionTest {
     }
 
     @Test
+    void theAnswerGetsRoomInProportionToWhatIsAsked() throws Exception {
+        // Seven dinners. At a flat 2 500 tokens the seventh was cut
+        // mid-sentence in production, the tool block never closed, and the
+        // screen said "aucune proposition n'est revenue".
+        ask("""
+                {"week":"%s","slots":["DINNER"]}""".formatted(WEEK))
+                .andExpect(status().isOk());
+        int forSeven = json.readTree(ASKED.get()).path("max_tokens").asInt();
+
+        ask("""
+                {"week":"%s","slots":["DINNER"],
+                 "keep":[{"date":"2026-03-03","slot":"DINNER"},
+                         {"date":"2026-03-04","slot":"DINNER"},
+                         {"date":"2026-03-05","slot":"DINNER"},
+                         {"date":"2026-03-06","slot":"DINNER"},
+                         {"date":"2026-03-07","slot":"DINNER"},
+                         {"date":"2026-03-08","slot":"DINNER"}]}""".formatted(WEEK))
+                .andExpect(status().isOk());
+        int forOne = json.readTree(ASKED.get()).path("max_tokens").asInt();
+
+        assertThat(forSeven).isGreaterThan(forOne);
+        assertThat(forSeven).isGreaterThanOrEqualTo(7 * 900);
+    }
+
+    @Test
+    void anAnswerCutShortIsARefusalWithAName() throws Exception {
+        // What the provider returns when it ran out of room: a stop reason,
+        // and no closed tool block to read.
+        ANSWER.set("""
+                {"type":"message","stop_reason":"max_tokens",
+                 "content":[{"type":"text","text":"{\"plats\":[{\"titre\":\"Dahl"}],
+                 "usage":{"input_tokens":800,"output_tokens":2500}}""");
+        ask("""
+                {"week":"%s","slots":["DINNER"]}""".formatted(WEEK))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.proposals.length()").value(0))
+                .andExpect(jsonPath("$.declined").value("FAILED"));
+    }
+
+    @Test
     void suggestingNeedsASession() throws Exception {
         mvc.perform(post("/api/plan/suggest")
                         .contentType(MediaType.APPLICATION_JSON)
