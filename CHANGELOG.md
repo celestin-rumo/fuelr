@@ -6,6 +6,34 @@ this file collects them newest first.
 
 ---
 
+# v3.6.1 — 2026-09-07
+
+A fix for the first evening of v3.6.0.
+
+## The week said nothing came back
+
+*Remplir la semaine* answered **aucune proposition n'est revenue**. Seven
+dinners had been asked of a model at a flat ceiling of 2 500 tokens; each dish
+is a title, a handful of ingredient lines and a few steps, and the seventh was
+cut mid-sentence. The tool block never closed, the reader found nothing, and
+the screen reported the only refusal it had.
+
+The library had hidden this for a week. Under v3.4.0 it filled most of the
+slots itself and asked a model for one or two dishes at a time; v3.6.0 asks
+for all of them at once, which is exactly when 2 500 stops being enough.
+
+The answer now gets room in proportion to what was asked — per dish, floored
+and capped — and so does the time to write it, for the week fill, the batch
+sets and the bag screen alike. And a cut-off answer is logged by name: from
+the screen, a truncated answer and a refusal look the same, and only one of
+them is our fault.
+
+## What is left
+
+Unchanged from v3.6.0.
+
+---
+
 # v3.6.0 — 2026-09-07
 
 A correction, not a feature — and the kind worth writing down, because it
