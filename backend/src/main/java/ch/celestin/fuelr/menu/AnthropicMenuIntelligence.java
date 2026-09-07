@@ -40,7 +40,37 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
+    /** To connect. Answering is bounded separately, by how much was asked. */
     private static final Duration TIMEOUT = Duration.ofSeconds(45);
+
+    /**
+     * How much room an answer gets, per dish asked for.
+     *
+     * A dish is a title, a handful of ingredient lines and a few steps —
+     * around 600 tokens when written in full, and the tool schema demands it
+     * in full. The bag screen asks for three; the week fill asks for up to
+     * fourteen, and at a flat 2 500 the seventh dinner was cut mid-sentence,
+     * the tool block never closed, and the whole answer read as "no ideas".
+     * Nothing said so, because a truncated answer looks exactly like an empty
+     * one unless `stop_reason` is read.
+     */
+    private static final int TOKENS_PER_DISH = 900;
+    private static final int TOKENS_FLOOR = 2_500;
+    private static final int TOKENS_CEILING = 16_000;
+
+    /** Writing takes time in proportion to what is written. */
+    private static final Duration ANSWER_FLOOR = Duration.ofSeconds(45);
+    private static final Duration ANSWER_PER_DISH = Duration.ofSeconds(12);
+    private static final Duration ANSWER_CEILING = Duration.ofSeconds(240);
+
+    private static int tokensFor(int wanted) {
+        return Math.min(TOKENS_CEILING, Math.max(TOKENS_FLOOR, wanted * TOKENS_PER_DISH));
+    }
+
+    private static Duration answerTimeFor(int wanted) {
+        Duration scaled = ANSWER_FLOOR.plus(ANSWER_PER_DISH.multipliedBy(Math.max(0, wanted - 3)));
+        return scaled.compareTo(ANSWER_CEILING) > 0 ? ANSWER_CEILING : scaled;
+    }
 
     private static final String TOOL = "proposer_des_plats";
 
@@ -97,7 +127,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
     public Ideas suggest(String have, int wanted, List<String> already) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
-        body.put("max_tokens", 2500);
+        body.put("max_tokens", tokensFor(wanted));
         body.put("system", SYSTEM);
 
         StringBuilder ask = new StringBuilder("J'ai : ").append(have).append(".\n");
@@ -114,7 +144,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body);
+        JsonNode answer = send(body, answerTimeFor(wanted));
         return new Ideas(read(answer), usageFrom(answer));
     }
 
@@ -123,7 +153,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                             int wanted, List<String> already, String note) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
-        body.put("max_tokens", 2500);
+        body.put("max_tokens", tokensFor(wanted));
         body.put("system", SYSTEM);
 
         // Written in the app's own vocabulary rather than passed through: the
@@ -160,7 +190,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body);
+        JsonNode answer = send(body, answerTimeFor(wanted));
         return new Ideas(read(answer), usageFrom(answer));
     }
 
@@ -169,7 +199,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                               int wanted) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
-        body.put("max_tokens", 2500);
+        body.put("max_tokens", tokensFor(wanted));
         body.put("system", SYSTEM);
 
         // Asked as a set rather than as a list. What it answers is still only
@@ -199,7 +229,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body);
+        JsonNode answer = send(body, answerTimeFor(wanted));
         return new Ideas(read(answer), usageFrom(answer));
     }
 
@@ -373,9 +403,9 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                 usage.path("output_tokens").asLong(0));
     }
 
-    private JsonNode send(ObjectNode body) {
+    private JsonNode send(ObjectNode body, Duration answerTime) {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(baseUrl + "/v1/messages"))
-                .timeout(TIMEOUT)
+                .timeout(answerTime)
                 .header("content-type", "application/json")
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", "2023-06-01");
@@ -390,7 +420,15 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                 log.warn("No ideas: {} {}", response.statusCode(), response.body());
                 throw new IllegalStateException("provider_" + response.statusCode());
             }
-            return JSON.readTree(response.body());
+            JsonNode answer = JSON.readTree(response.body());
+            // A cut-off answer has no closed tool block and reads as "no
+            // ideas". Said by name here, because from the screen the two are
+            // indistinguishable and only one of them is our fault.
+            if ("max_tokens".equals(answer.path("stop_reason").asText())) {
+                log.warn("Answer cut at max_tokens={} — asked for too much in one go",
+                        body.path("max_tokens").asInt());
+            }
+            return answer;
         } catch (IOException e) {
             throw new IllegalStateException("unreachable");
         } catch (InterruptedException e) {

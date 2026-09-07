@@ -582,6 +582,16 @@ day somebody can tick "created by AI" on a recipe they typed it stops meaning
 anything. The library shows it as a badge and offers it as a filter, for the
 same reason: a fact the code wrote is one worth looking for.
 
+**An answer cut short looks exactly like an empty one.** The first evening in
+production, "Remplir la semaine" said *aucune proposition n'est revenue*: seven
+dinners were asked of a model at a flat `max_tokens` of 2 500, the seventh was
+cut mid-sentence, the tool block never closed, and `read()` found nothing. The
+library had hidden this for a week by asking for one or two dishes at a time.
+`AnthropicMenuIntelligence` now sizes the answer to the ask — `tokensFor` and
+`answerTimeFor`, per dish, floored and capped — and logs `stop_reason:
+max_tokens` by name, because from the screen a truncated answer and a refusal
+are indistinguishable and only one of them is our fault.
+
 The correction loop is unchanged. The request is per *slot*, not per day:
 `keep` carries what is already decided so a second round replaces exactly what
 was turned down, and what was refused travels back by title, because an idea
