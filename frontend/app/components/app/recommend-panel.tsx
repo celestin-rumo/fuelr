@@ -47,7 +47,7 @@ export function RecommendPanel({ referral }: { referral: Referral }) {
         {t("title")}
       </SectionHead>
       <Card as="panel" className="flex flex-col gap-4">
-        <p className="tnum font-mono text-[13px] text-text-dim" data-testid="referral-link">
+        <p className="tnum font-mono text-[13px] break-all text-text-dim" data-testid="referral-link">
           {referral.link}
         </p>
         <Input

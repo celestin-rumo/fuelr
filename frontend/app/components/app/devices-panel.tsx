@@ -68,6 +68,7 @@ export function DevicesPanel({ sessions }: { sessions: DeviceSession[] }) {
           {sessions.map((session) => (
             <ListRow
               key={session.id}
+              as="li"
               data-testid={`device-${session.id}`}
               selected={session.current}
               trailing={

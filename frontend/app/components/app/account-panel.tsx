@@ -337,6 +337,7 @@ export function AccountPanel({
 
           <Choices
             legend={tOnboarding("goal.title")}
+            stacked
             options={GOALS.map((goal) => ({
               value: goal,
               label: tOnboarding(`goal.options.${goal}.title`),

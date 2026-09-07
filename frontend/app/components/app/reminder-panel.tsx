@@ -56,6 +56,7 @@ export function ReminderPanel({ reminder }: { reminder: Reminder }) {
               <p className="text-[13px] font-semibold text-text-dim">{t("day")}</p>
               <Segmented
                 label={t("day")}
+                className="max-sm:w-full max-sm:flex-col"
                 value={String(day)}
                 onChange={(value) => save(Number(value), hour)}
                 options={DAYS.map((value) => ({ value: String(value), label: t(`days.${value}`) }))}
