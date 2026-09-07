@@ -580,7 +580,8 @@
       "forgotLink": "Forgotten password?",
       "noAccount": "No account yet?",
       "createAccount": "Create an account"
-    }
+    },
+    "closedElsewhere": "This session was closed from another device, or ran out. Sign in again."
   },
   "recipe": {
     "untitled": "Untitled",
@@ -1261,5 +1262,16 @@
       "hint": "In plain words, 200 characters. It reaches the model in quotation marks — as a remark, never an instruction — and nothing else applies it. An allergy goes in the boxes above."
     },
     "filter": "Compatible with my preferences"
+  },
+  "devices": {
+    "title": "My devices",
+    "hint": "Where this account is signed in. Close what you do not recognise.",
+    "thisDevice": "This device",
+    "unknown": "Unknown device",
+    "seen": "Seen {when}",
+    "opened": "opened {when}",
+    "close": "Close",
+    "closeOne": "Close the session on {device}",
+    "closeOthers": "{count, plural, one {Close the other device} other {Close the # other devices}}"
   }
 }

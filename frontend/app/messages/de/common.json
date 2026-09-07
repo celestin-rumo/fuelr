@@ -580,7 +580,8 @@
       "forgotLink": "Passwort vergessen?",
       "noAccount": "Noch kein Konto?",
       "createAccount": "Konto erstellen"
-    }
+    },
+    "closedElsewhere": "Diese Sitzung wurde von einem anderen Gerät geschlossen oder ist abgelaufen. Melden Sie sich erneut an."
   },
   "recipe": {
     "untitled": "Ohne Titel",
@@ -1261,5 +1262,16 @@
       "hint": "In Klartext, 200 Zeichen. Es geht in Anführungszeichen an das Modell — als Bemerkung, nie als Anweisung — und nichts anderes wendet es an. Eine Allergie gehört in die Kästchen oben."
     },
     "filter": "Passend zu meinen Einstellungen"
+  },
+  "devices": {
+    "title": "Meine Geräte",
+    "hint": "Wo dieses Konto angemeldet ist. Schliessen Sie, was Sie nicht erkennen.",
+    "thisDevice": "Dieses Gerät",
+    "unknown": "Unbekanntes Gerät",
+    "seen": "Gesehen am {when}",
+    "opened": "geöffnet am {when}",
+    "close": "Schliessen",
+    "closeOne": "Sitzung auf {device} schliessen",
+    "closeOthers": "{count, plural, one {Das andere Gerät schliessen} other {Die # anderen Geräte schliessen}}"
   }
 }

@@ -1,7 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getPathname } from "@/i18n/navigation";
-import { getSession } from "@app/lib/session";
+import { getSession, TOKEN_COOKIE } from "@app/lib/session";
 import { AppHeader } from "@app/components/app/app-header";
 import { VerifyEmailBanner } from "@app/components/app/verify-email-banner";
 import { CookingResumeBanner } from "@app/components/app/cooking-resume-banner";
@@ -28,7 +29,10 @@ export default async function AppLayout({
   if (!session) {
     // Next's own redirect is typed `never`, so the session is narrowed below;
     // getPathname still resolves the locale's own login slug.
-    redirect(getPathname({ href: "/login", locale }));
+    // A cookie that no longer opens anything was closed elsewhere or ran out;
+    // the login page can say so instead of looking like a fresh visit.
+    const hadCookie = (await cookies()).has(TOKEN_COOKIE);
+    redirect(getPathname({ href: "/login", locale }) + (hadCookie ? "?reason=closed" : ""));
   }
 
   return (

@@ -755,6 +755,18 @@ rule again: quoted as something a person said, never obeyed by anything. The
 card says which box protects you, because "no peanuts" typed in the free line
 would not.
 
+**A device is named in words, and this one never closes from the list.**
+`GET /api/auth/sessions` says where the account is signed in as "Chrome ·
+Linux" and a last-seen time — `DeviceLabel` reduces the agent string to the
+browser family and the platform, and nothing more is stored for it, because
+the point is recognising your own phone, not fingerprinting it. The session
+making the request is marked `current` and `DELETE /api/auth/sessions/{id}`
+answers 409 for it: that one closes through `logout`, so the button that
+removes a session can never remove the one it is pressed from. A cookie that
+no longer opens anything sends the app layout to `/login?reason=closed`, and
+the login page says the session was closed elsewhere or ran out rather than
+looking like a first visit.
+
 **Deleting an account would have deleted somebody else's week.** This is the
 trap the schema sets, and it is a chain: `households.owner_user_id` cascades
 from `users`, `planned_meals.household_id` cascades from `households`. Erasing

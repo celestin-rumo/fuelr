@@ -1,5 +1,7 @@
 package ch.celestin.fuelr.auth;
 
+import java.util.List;
+
 import ch.celestin.fuelr.account.User;
 import ch.celestin.fuelr.account.UserRepository;
 import ch.celestin.fuelr.auth.AuthDtos.ForgotPasswordRequest;
@@ -158,6 +160,50 @@ public class AuthController {
         sessions.close(java.util.UUID.fromString(
                 principal.getClaimAsString(SessionTokenValidator.CLAIM)));
         return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, expiredCookie()).build();
+    }
+
+    public record SessionView(String id, String device, java.time.Instant openedAt,
+                              java.time.Instant lastSeenAt, boolean current) {
+    }
+
+    /**
+     * Where this account is signed in. Coarse on purpose: the browser family
+     * and the platform, said in words — never an address, never the raw
+     * agent string. The point is recognising your own devices.
+     */
+    @GetMapping("/sessions")
+    public List<SessionView> listSessions(@AuthenticationPrincipal Jwt principal) {
+        Long userId = Long.valueOf(principal.getSubject());
+        java.util.UUID current = java.util.UUID.fromString(
+                principal.getClaimAsString(SessionTokenValidator.CLAIM));
+        return sessions.listFor(userId).stream()
+                .map(one -> new SessionView(one.getId().toString(),
+                        DeviceLabel.describe(one.getDeviceLabel()),
+                        one.getCreatedAt(), one.getLastUsedAt(), one.getId().equals(current)))
+                .toList();
+    }
+
+    /**
+     * Closes one device that is not this one. This one closes through
+     * `logout`, so that "the session I am using" is never a thing this
+     * endpoint can take away by accident.
+     */
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<Void> closeSession(@AuthenticationPrincipal Jwt principal,
+                                             @org.springframework.web.bind.annotation.PathVariable String id) {
+        Long userId = Long.valueOf(principal.getSubject());
+        java.util.UUID target;
+        try {
+            target = java.util.UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+        if (target.toString().equals(principal.getClaimAsString(SessionTokenValidator.CLAIM))) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        return sessions.closeOwn(userId, target)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
     /** Closes every other device, keeping the one making the request. */

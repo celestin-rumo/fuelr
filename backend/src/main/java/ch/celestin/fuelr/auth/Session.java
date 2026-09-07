@@ -49,6 +49,14 @@ public class Session {
         return userId;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getLastUsedAt() {
+        return lastUsedAt;
+    }
+
     public Instant getExpiresAt() {
         return expiresAt;
     }

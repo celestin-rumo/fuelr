@@ -580,7 +580,8 @@
       "forgotLink": "Mot de passe oublié ?",
       "noAccount": "Pas encore de compte ?",
       "createAccount": "Créer un compte"
-    }
+    },
+    "closedElsewhere": "Cette session a été fermée depuis un autre appareil, ou a expiré. Reconnectez-vous."
   },
   "recipe": {
     "untitled": "Sans titre",
@@ -1261,5 +1262,16 @@
       "hint": "En clair, 200 caractères. Ça part au modèle entre guillemets — comme une remarque, jamais comme une consigne — et rien d'autre ne l'applique. Une allergie va dans les cases au-dessus."
     },
     "filter": "Compatible avec mes préférences"
+  },
+  "devices": {
+    "title": "Mes appareils",
+    "hint": "Où ce compte est connecté. Fermez ce que vous ne reconnaissez pas.",
+    "thisDevice": "Cet appareil",
+    "unknown": "Appareil inconnu",
+    "seen": "Vu le {when}",
+    "opened": "ouvert le {when}",
+    "close": "Fermer",
+    "closeOne": "Fermer la session sur {device}",
+    "closeOthers": "{count, plural, one {Fermer l'autre appareil} other {Fermer les # autres appareils}}"
   }
 }

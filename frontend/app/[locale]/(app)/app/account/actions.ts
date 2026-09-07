@@ -97,3 +97,14 @@ export async function savePreferences(input: DietaryPreferences) {
   if (!response.ok) return { ok: false as const };
   return { ok: true as const, saved: (await response.json()) as DietaryPreferences };
 }
+
+/** Closes one device that is not this one; this one closes through sign-out. */
+export async function closeSession(id: string) {
+  const response = await apiFetch(`/api/auth/sessions/${id}`, { method: "DELETE" });
+  return { ok: response.ok };
+}
+
+export async function closeOtherSessions() {
+  const response = await apiFetch("/api/auth/sessions", { method: "DELETE" });
+  return { ok: response.ok };
+}
