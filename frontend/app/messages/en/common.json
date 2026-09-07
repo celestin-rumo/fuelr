@@ -235,6 +235,86 @@
         "toShopping": "See the shopping list",
         "stay": "Stay on the plan"
       }
+    },
+    "batch": {
+      "action": "Cook it in one go",
+      "close": "Close",
+      "cancel": "Cancel",
+      "working": "Looking for dishes that prepare together…",
+      "failed": "The suggestion did not come back. Try again.",
+      "minutes": "{count} min",
+      "tagged": "Batch cooking",
+      "idea": "Idea to write",
+      "base": "{name} — {quantity} {unit} for {count, plural, one {1 dish} other {# dishes}}",
+      "asking": {
+        "title": "Cook it in one go",
+        "body": "We look for dishes built on a common base, so the peeling and the cooking happen once.",
+        "size": "How many dishes",
+        "fewer": "One dish fewer",
+        "more": "One dish more",
+        "intents": "In the mood for",
+        "cuisines": "Cuisines",
+        "submit": "Find a set"
+      },
+      "choosing": {
+        "title": "What prepares together",
+        "body": "{count, plural, one {One set found.} other {# sets found.}} Nothing is on the plan yet.",
+        "assisted": "Your recipes did not form a set: this one comes from a model.",
+        "shared": "{count} of {total} dishes are built on {base}.",
+        "choose": "Take this set",
+        "none": "Nothing in your recipes really prepares together. That is a varied library, not an error — two dishes sharing an onion are not a batch.",
+        "back": "Change the request"
+      },
+      "placing": {
+        "title": "On which days",
+        "body": "The week's free dinners, in order. Change whatever does not suit.",
+        "submit": "Add {count, plural, one {the dish} other {the # dishes}} to the plan",
+        "back": "Back to the sets"
+      },
+      "done": {
+        "title": "It is on the plan",
+        "body": "{count, plural, =0 {Nothing was added.} one {One dish added to the week.} other {# dishes added to the week.}}",
+        "next": "The work plan reads the whole week and says what is prepared once for several dishes.",
+        "toPrep": "See the work plan",
+        "stay": "Stay on the plan"
+      }
+    },
+    "prep": {
+      "action": "Work plan",
+      "label": "Preparation",
+      "title": "Cook the week in one session",
+      "intro": "What is prepared once for several meals, then each dish, longest first.",
+      "backToPlan": "Back to the plan",
+      "print": {
+        "title": "Work plan",
+        "week": "Week of {date}",
+        "empty": "Nothing is on this week.",
+        "button": "Print"
+      },
+      "keeping": "Fuelr does not know how long anything keeps, and does not invent it. Judging what lasts until which day is yours.",
+      "bases": {
+        "title": "Shared bases",
+        "hint": "Prepared once, for the whole week.",
+        "quantity": "{quantity} {unit}",
+        "forDishes": "For: {dishes}",
+        "none": "No shared base this week. The dishes on the plan share nothing that is prepared once — that is a varied week, not a problem."
+      },
+      "dishes": {
+        "title": "Then each dish",
+        "hint": "The longest starts; what cools waits.",
+        "meta": "{day} · {slot} · {minutes} min · {servings} people",
+        "line": "{quantity} {unit} {name}",
+        "allShared": "Everything is already made in the shared bases."
+      },
+      "empty": {
+        "title": "Nothing to prepare this week",
+        "body": "The work plan reads what is on the days. Fill the week, and it will have something to organise.",
+        "action": "Go to the plan"
+      },
+      "unavailable": {
+        "title": "Work plan unavailable",
+        "body": "The week could not be read. Try again in a moment."
+      }
     }
   },
   "household": {

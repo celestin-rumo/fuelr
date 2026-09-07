@@ -164,6 +164,45 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         return new Ideas(read(answer), usageFrom(answer));
     }
 
+    @Override
+    public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                              int wanted) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("model", model);
+        body.put("max_tokens", 2500);
+        body.put("system", SYSTEM);
+
+        // Asked as a set rather than as a list. What it answers is still only
+        // dishes with their ingredients: what the set shares is counted from
+        // those lines afterwards, never read off a claim the model makes.
+        StringBuilder ask = new StringBuilder("Propose ").append(wanted)
+                .append(" plats à cuisiner en une seule session, construits sur")
+                .append(" une base commune — les mêmes légumes rôtis, la même")
+                .append(" sauce, le même féculent — préparée une fois pour tous.");
+        if (!cuisines.isEmpty()) {
+            ask.append(" De cuisine ").append(String.join(" ou ", cuisines.stream()
+                    .map(AnthropicMenuIntelligence::inFrench).toList())).append(".");
+        }
+        if (!intents.isEmpty()) {
+            ask.append(" Qui soient ").append(String.join(" et ", intents.stream()
+                    .map(AnthropicMenuIntelligence::intentInFrench).toList())).append(".");
+        }
+        // The base has to be the same *line*, not the same idea of a line: the
+        // sharing is counted on names and units, so "carottes, 400 g" in three
+        // recipes is a base and "des carottes" in three recipes is nothing.
+        ask.append(" Écris la base avec exactement le même nom d'ingrédient et")
+                .append(" la même unité dans chaque plat.");
+
+        body.putArray("messages").addObject().put("role", "user").put("content", ask.toString());
+        body.putArray("tools").add(tool());
+        ObjectNode choice = body.putObject("tool_choice");
+        choice.put("type", "tool");
+        choice.put("name", TOOL);
+
+        JsonNode answer = send(body);
+        return new Ideas(read(answer), usageFrom(answer));
+    }
+
     /**
      * A note, made safe to quote and short enough to be one.
      *

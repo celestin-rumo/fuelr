@@ -38,6 +38,12 @@ public class NoMenuIntelligence implements MenuIntelligence {
         return nothing();
     }
 
+    @Override
+    public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                              int wanted) {
+        return nothing();
+    }
+
     private Ideas nothing() {
         return new Ideas(
                 List.of(),

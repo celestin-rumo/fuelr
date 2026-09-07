@@ -124,7 +124,12 @@ test.describe("signed in", () => {
     page,
   }) => {
     await seed(request, "Curry de lentilles corail");
-    for (const path of ["/fr/app/planning", "/fr/app/courses", "/fr/app/journal"]) {
+    for (const path of [
+      "/fr/app/planning",
+      "/fr/app/planning/preparation",
+      "/fr/app/courses",
+      "/fr/app/journal",
+    ]) {
       await page.goto(path);
       await clean(page, path);
     }

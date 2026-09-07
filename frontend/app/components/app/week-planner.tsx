@@ -16,6 +16,7 @@ import { kcal } from "@app/lib/nutrition-format";
 import type { Slot } from "@app/lib/week";
 import { SectionHead } from "@ui/section-head";
 import { WeekSuggest } from "@app/components/app/week-suggest";
+import { BatchSuggest } from "@app/components/app/batch-suggest";
 import { Icon } from "@ui/icons";
 import {
   copyWeek,
@@ -132,10 +133,27 @@ export function WeekPlanner({
         onHousehold={changeHousehold}
         onDuplicate={() => duplicate(false)}
         suggest={
-          <WeekSuggest
-            weekStart={plan.weekStart}
-            planned={plan.meals.map((meal) => `${meal.date}:${meal.slot}`)}
-          />
+          <>
+            <WeekSuggest
+              weekStart={plan.weekStart}
+              planned={plan.meals.map((meal) => `${meal.date}:${meal.slot}`)}
+            />
+            <BatchSuggest
+              weekStart={plan.weekStart}
+              planned={plan.meals.map((meal) => `${meal.date}:${meal.slot}`)}
+            />
+            {/* Reading the week as one afternoon's work. Only offered once
+                there is a week to read: an empty plan has no session in it. */}
+            {plan.meals.length > 0 && (
+              <Link
+                href={{ pathname: "/app/plan/prep", query: { week: plan.weekStart } }}
+                data-testid="to-prep-session"
+                className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
+              >
+                {t("prep.action")}
+              </Link>
+            )}
+          </>
         }
       />
 

@@ -139,6 +139,32 @@ test("the shopping list prints with a box to tick and the week on it", async ({
   await expect(sheet).toContainText("Crémerie");
 });
 
+test("the work plan prints as a sheet, boxes and all", async ({ request, page }) => {
+  const id = await recipe(request);
+  for (const date of [MONDAY, WEDNESDAY]) {
+    await request.post(`${BACKEND}/api/plan`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { date, slot: "DINNER", recipeId: id, servings: 4 },
+    });
+  }
+
+  await page.goto(`/fr/app/planning/preparation?week=${MONDAY}`);
+  await page.getByTestId("print-prep").click();
+  await expect(page).toHaveURL(/\/fr\/app\/planning\/preparation\/imprimer/);
+
+  const sheet = page.getByTestId("print-sheet");
+  await expect(sheet).toContainText("Plan de travail");
+  await expect(sheet).toContainText("Semaine du 2 mars");
+  // The same dish twice: what is prepared once says so, with the total.
+  await expect(sheet).toContainText("Bases communes");
+  // And the one health claim this application refuses to make.
+  await expect(sheet).toContainText(/ne connaît pas les durées de conservation/);
+
+  // Two hours of cooking are done with a sheet, so the app around it goes.
+  await onPaper(page);
+  await expect(page.getByRole("navigation", { name: /principale/i })).toBeHidden();
+});
+
 test("the sheet is nowhere in the screens it came from", async ({
   request,
   page,

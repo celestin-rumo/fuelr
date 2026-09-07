@@ -83,6 +83,16 @@ export const routing = defineRouting({
       en: "/app/ideas",
       de: "/app/ideen",
     },
+    "/app/plan/prep": {
+      fr: "/app/planning/preparation",
+      en: "/app/plan/prep",
+      de: "/app/wochenplan/vorbereitung",
+    },
+    "/app/plan/prep/print": {
+      fr: "/app/planning/preparation/imprimer",
+      en: "/app/plan/prep/print",
+      de: "/app/wochenplan/vorbereitung/drucken",
+    },
     "/app/shopping": {
       fr: "/app/courses",
       en: "/app/shopping",

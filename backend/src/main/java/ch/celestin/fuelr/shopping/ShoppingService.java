@@ -61,8 +61,15 @@ public class ShoppingService {
         this.nutrition = nutrition;
     }
 
-    /** Lowercased and squeezed, so two spellings of one thing meet. */
-    static String matchName(String name) {
+    /**
+     * Lowercased and squeezed, so two spellings of one thing meet.
+     *
+     * Public and static because it is the only definition, and the batch
+     * stories in `plan` ask the same question — "is this the same ingredient?"
+     * — of the same lines. Static, so nothing has to inject this service and
+     * put the two packages in a circle.
+     */
+    public static String matchName(String name) {
         return name.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
     }
 
@@ -239,7 +246,7 @@ public class ShoppingService {
      * on the other — and the cupboard silently stopped covering anything,
      * while both keys printed identically.
      */
-    static String key(String matchName, String unit) {
+    public static String key(String matchName, String unit) {
         return matchName + "|" + unit;
     }
 

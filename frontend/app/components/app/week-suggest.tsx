@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Button } from "@ui/button";
+import { Button, buttonClasses } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Chip } from "@ui/chip";
 import { Dialog } from "@ui/dialog";
@@ -352,11 +352,16 @@ export function WeekSuggest({
                 {t("done.shopping")}
               </p>
               <div className="flex flex-wrap gap-3">
+                {/* A link that looks like a control: a Button inside a Link
+                    would be two interactive elements where the markup
+                    promises one. */}
                 <Link
                   href={{ pathname: "/app/shopping", query: { week: weekStart } }}
+                  data-testid="to-shopping"
+                  className={buttonClasses()}
                   onClick={() => setOpen(false)}
                 >
-                  <Button data-testid="to-shopping">{t("done.toShopping")}</Button>
+                  {t("done.toShopping")}
                 </Link>
                 <Button variant="secondary" onClick={() => setOpen(false)}>
                   {t("done.stay")}
