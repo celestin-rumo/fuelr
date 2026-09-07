@@ -449,11 +449,11 @@
       },
       {
         "title": "Was auf deinem Gerät bleibt",
-        "text": "Kochmodus und Offline-Einkaufsliste behalten eine Kopie auf dem Gerät, das du benutzt, damit eine Küche ohne Netz keine Sackgasse ist; diese Kopie wird beim Abmelden gelöscht. Gesetzt wird ein einziges Cookie, das dich angemeldet hält — keines für Messung oder Werbung."
+        "text": "Kochmodus und Offline-Einkaufsliste behalten eine Kopie auf dem Gerät, das du benutzt, damit eine Küche ohne Netz keine Sackgasse ist; diese Kopie wird beim Abmelden gelöscht. Gesetzt wird ein einziges Cookie, das dich angemeldet hält — keines für Messung oder Werbung. Ein Empfehlungslink setzt ein dreissigtägiges Cookie `fuelr_via`, das nur die Registrierungsseite liest, um sich zu merken, wer dich empfohlen hat; es dient nichts anderem, und dahinter stehen weder Pixel noch Dritte."
       },
       {
         "title": "Deine Rezepte bleiben deine",
-        "text": "Der Export aller deiner Rezepte ist jederzeit und bedingungslos aus der Bibliothek verfügbar — auch nach einer Kündigung, die nichts löscht. Um dein Konto und seinen Inhalt löschen zu lassen, schreib uns: Das wird heute von Hand erledigt, und es wird erledigt.",
+        "text": "Alles, was Fuelr über dich weiss, exportierst du aus deinem Konto als ein Archiv — Rezepte, Fotos, Plan, Einkäufe, Tagebuch, Profil —, im Hintergrund erstellt und als Link verschickt, der einmal funktioniert. Der Export der Rezepte allein bleibt jederzeit und bedingungslos aus der Bibliothek verfügbar, auch nach einer Kündigung, die nichts löscht. Und du löschst dein Konto selbst, auf derselben Seite, mit deinem Passwort: Alles, was dir gehört, geht sofort; was anderen Mitgliedern deines Haushalts gehört, bleibt bei ihnen.",
         "link": "/contact",
         "linkLabel": "Schreib uns"
       }

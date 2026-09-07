@@ -49,9 +49,142 @@ public class AccountController {
     }
 
     private final AccountService accounts;
+    private final DataExportService exports;
+    private final ch.celestin.fuelr.admin.AccountDeletion deletion;
+    private final UserRepository users;
+    private final ch.celestin.fuelr.auth.SessionService sessions;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final ch.celestin.fuelr.mail.MailService mail;
+    private final String siteUrl;
 
-    public AccountController(AccountService accounts) {
+    public AccountController(AccountService accounts, DataExportService exports,
+                             ch.celestin.fuelr.admin.AccountDeletion deletion, UserRepository users,
+                             ch.celestin.fuelr.auth.SessionService sessions,
+                             org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
+                             ch.celestin.fuelr.mail.MailService mail,
+                             @org.springframework.beans.factory.annotation.Value("${app.site-url}") String siteUrl) {
+        this.siteUrl = siteUrl;
         this.accounts = accounts;
+        this.exports = exports;
+        this.deletion = deletion;
+        this.users = users;
+        this.sessions = sessions;
+        this.passwordEncoder = passwordEncoder;
+        this.mail = mail;
+    }
+
+    public record LocaleRequest(String locale) {
+    }
+
+    public record ReferralView(String code, String link, long referred) {
+    }
+
+    /**
+     * A link to share, and a count — never a list. No plan is paid for, so
+     * there is nothing to thank anybody with, and this endpoint promises
+     * nothing: it says how many came, which is the one thing worth knowing.
+     */
+    @org.springframework.web.bind.annotation.GetMapping("/referral")
+    public ReferralView referral(@AuthenticationPrincipal Jwt principal) {
+        AccountService.Referral referral = accounts.referral(userId(principal));
+        return new ReferralView(referral.code(), siteUrl + "/?via=" + referral.code(), referral.referred());
+    }
+
+    public record ReminderRequest(Short day, Short hour) {
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/reminder")
+    public AccountService.Reminder reminder(@AuthenticationPrincipal Jwt principal) {
+        return accounts.reminder(userId(principal));
+    }
+
+    /** Off by default, and off again with `day: null`. */
+    @PutMapping("/reminder")
+    public AccountService.Reminder setReminder(@AuthenticationPrincipal Jwt principal,
+                                               @RequestBody ReminderRequest body) {
+        return accounts.setReminder(userId(principal), body.day(), body.hour());
+    }
+
+    /** Asks for the archive. 202: it is being built, and a mail will say when. */
+    @PostMapping("/export")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void requestExport(@AuthenticationPrincipal Jwt principal,
+                              @RequestBody(required = false) LocaleRequest body) {
+        Long userId = userId(principal);
+        String token = exports.request(userId);
+        exports.build(userId, token, body == null || body.locale() == null ? "fr" : body.locale());
+    }
+
+    /**
+     * The one download. Public by token, like the other links that arrive by
+     * mail: the person may open it on a device with no session. The file is
+     * removed once streamed — a link is a link once.
+     */
+    @org.springframework.web.bind.annotation.GetMapping("/export/{token}")
+    public void download(@org.springframework.web.bind.annotation.PathVariable String token,
+                         jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        java.nio.file.Path file = exports.take(token).orElse(null);
+        if (file == null || !java.nio.file.Files.exists(file)) {
+            response.setStatus(HttpStatus.GONE.value());
+            return;
+        }
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=\"fuelr-export.zip\"");
+        try {
+            DataExportService.copy(file, response.getOutputStream());
+        } finally {
+            exports.discard(file);
+        }
+    }
+
+    public record DeletionPreview(int recipes, int photos, boolean householdHandedOver,
+                                  String newOwnerEmail) {
+    }
+
+    public record DeleteRequest(@NotBlank String password) {
+    }
+
+    /** What deleting would do, from what the server reports — not a generic sentence. */
+    @org.springframework.web.bind.annotation.GetMapping("/deletion")
+    public DeletionPreview previewDeletion(@AuthenticationPrincipal Jwt principal) {
+        User user = users.findById(userId(principal))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        var removed = deletion.preview(user);
+        return new DeletionPreview(removed.recipes(), removed.photos(),
+                removed.householdHandedOver(), removed.newOwnerEmail());
+    }
+
+    /**
+     * The same class the operator's panel calls, and no second way to delete
+     * an account: the second way is the one that leaves photos behind. The
+     * password re-entered, because an open tab must not be enough.
+     */
+    @org.springframework.web.bind.annotation.DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(@AuthenticationPrincipal Jwt principal,
+                              @Valid @RequestBody DeleteRequest body,
+                              jakarta.servlet.http.HttpServletResponse response) {
+        Long userId = userId(principal);
+        User user = users.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        if (!passwordEncoder.matches(body.password(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "wrong_password");
+        }
+        String email = user.getEmail();
+        exports.cancelFor(userId);
+        sessions.closeAll(userId);
+        deletion.delete(user);
+        // The last thing the account sends.
+        mail.send(email, "Ton compte Fuelr a été supprimé", """
+                Bonjour,
+
+                Ton compte Fuelr et ce qu'il contenait ont été supprimés, comme demandé.
+                Il n'y a rien à faire de plus. Merci d'avoir cuisiné avec nous.
+                """);
+        response.setHeader(org.springframework.http.HttpHeaders.SET_COOKIE,
+                org.springframework.http.ResponseCookie.from(
+                        ch.celestin.fuelr.auth.CookieOrHeaderTokenResolver.COOKIE_NAME, "")
+                        .httpOnly(true).path("/").maxAge(0).build().toString());
     }
 
     @PutMapping

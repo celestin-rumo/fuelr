@@ -16,7 +16,9 @@ public final class AuthDtos {
             @NotBlank String name,
             @NotBlank @Size(min = 8, message = "Le mot de passe fait au moins 8 caractères.")
             String password,
-            String locale) {
+            String locale,
+            /** A referral code from a link somebody shared. Optional, and never refused. */
+            String via) {
     }
 
     public record LoginRequest(

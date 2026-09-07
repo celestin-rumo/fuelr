@@ -167,6 +167,53 @@ public class AccountService {
         return true;
     }
 
+    public record Referral(String code, long referred) {
+    }
+
+    /** The account's code, minted on first sight, and how many came by it — never who. */
+    @Transactional
+    public Referral referral(Long userId) {
+        User user = users.findById(userId).orElseThrow(UnknownUserException::new);
+        String code = user.ensureReferralCode(shortCode());
+        users.save(user);
+        return new Referral(code, users.countByReferredBy(userId));
+    }
+
+    public record Reminder(Short day, Short hour) {
+    }
+
+    @Transactional
+    public Reminder setReminder(Long userId, Short day, Short hour) {
+        User user = users.findById(userId).orElseThrow(UnknownUserException::new);
+        Short cleanDay = day == null || day < 1 || day > 7 ? null : day;
+        Short cleanHour = hour == null || hour < 0 || hour > 23 ? 18 : hour;
+        user.setReminder(cleanDay, cleanHour, OneTimeToken.mint());
+        users.save(user);
+        return new Reminder(user.getReminderDay(), user.getReminderHour());
+    }
+
+    public Reminder reminder(Long userId) {
+        User user = users.findById(userId).orElseThrow(UnknownUserException::new);
+        return new Reminder(user.getReminderDay(), user.getReminderHour());
+    }
+
+    /** The one-click stop from the mail. Idempotent, like the other token flows. */
+    @Transactional
+    public boolean unsubscribeReminder(String token) {
+        Optional<User> user = users.findByReminderToken(token);
+        if (user.isEmpty()) {
+            return false;
+        }
+        user.get().setReminder(null, null, null);
+        users.save(user.get());
+        return true;
+    }
+
+    /** Twelve characters of the token alphabet: short enough for a link, wide enough not to guess. */
+    private static String shortCode() {
+        return OneTimeToken.mint().replaceAll("[^A-Za-z0-9]", "").substring(0, 12);
+    }
+
     private static String knownLocale(String locale) {
         String cleaned = locale.trim().toLowerCase(Locale.ROOT);
         return switch (cleaned) {

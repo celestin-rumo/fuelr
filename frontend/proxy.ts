@@ -13,7 +13,28 @@ const PROTECTED = new RegExp(`^/(${routing.locales.join("|")})/app(/|$)`);
 /** The login slug per locale, as declared in i18n/routing.ts. */
 const LOGIN_PATH = routing.pathnames["/login"];
 
+/**
+ * A recommendation link lands on the public site with `?via=<code>`. The
+ * code is kept in a cookie for thirty days so the registration, whenever it
+ * happens, can carry it — and that cookie is the whole of what this feature
+ * stores on the visitor's side: no pixel, no third party, nothing read by
+ * anyone but the register route.
+ */
+const VIA_COOKIE = "fuelr_via";
+
 export default function proxy(request: NextRequest) {
+  const via = request.nextUrl.searchParams.get("via");
+  if (via && /^[A-Za-z0-9]{4,24}$/.test(via)) {
+    const response = intlMiddleware(request);
+    response.cookies.set(VIA_COOKIE, via, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    return response;
+  }
+
   const { pathname, search } = request.nextUrl;
   const match = PROTECTED.exec(pathname);
 

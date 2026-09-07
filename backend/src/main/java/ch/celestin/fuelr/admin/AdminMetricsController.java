@@ -156,6 +156,9 @@ public class AdminMetricsController {
                 counted("Recipes with a photograph", "recipes", "user_id", "created_at",
                         "photo_path is not null"),
                 counted("Planned meals", "planned_meals", "created_by", "created_at", null),
+                // Came by a shared link: a number, never a list of who.
+                counted("Accounts that came by a recommendation", "users", "referred_by",
+                        "created_at", "referred_by is not null"),
                 counted("Shopping lists", "shopping_lists", "household_id", "generated_at", null),
                 counted("Meals logged from a recipe", "meal_log", "user_id", "created_at",
                         "source = 'RECIPE'"),

@@ -17,4 +17,6 @@ public interface MealLogRepository extends JpaRepository<MealLogEntry, Long> {
 
     /** The oldest thing in the log, so the screen knows how far back to offer. */
     Optional<MealLogEntry> findFirstByUserIdOrderByDateAsc(Long userId);
+
+    java.util.List<MealLogEntry> findByUserIdOrderByDateAsc(Long userId);
 }

@@ -1,7 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { apiFetch } from "@app/lib/api";
-import type { DeviceSession, DietaryPreferences, ProfileResponse, WeightView } from "@app/lib/api";
+import type { DeviceSession, DietaryPreferences, ProfileResponse, Referral, Reminder, WeightView } from "@app/lib/api";
+import { RecommendPanel } from "@app/components/app/recommend-panel";
+import { ReminderPanel } from "@app/components/app/reminder-panel";
 import { DevicesPanel } from "@app/components/app/devices-panel";
+import { DataPanel } from "@app/components/app/data-panel";
 import { PreferencesPanel } from "@app/components/app/preferences-panel";
 import { todayIso } from "@app/lib/week";
 import { WeightPanel } from "@app/components/app/weight-panel";
@@ -23,12 +26,17 @@ export default async function AccountPage() {
   const t = await getTranslations("account");
   const session = await getSession();
   const today = todayIso();
-  const [response, weightResponse, preferencesResponse, sessionsResponse] = await Promise.all([
-    apiFetch("/api/profile"),
-    apiFetch(`/api/weight?to=${today}`),
-    apiFetch("/api/preferences"),
-    apiFetch("/api/auth/sessions"),
-  ]);
+  const [response, weightResponse, preferencesResponse, sessionsResponse, referralResponse, reminderResponse] =
+    await Promise.all([
+      apiFetch("/api/profile"),
+      apiFetch(`/api/weight?to=${today}`),
+      apiFetch("/api/preferences"),
+      apiFetch("/api/auth/sessions"),
+      apiFetch("/api/account/referral"),
+      apiFetch("/api/account/reminder"),
+    ]);
+  const referral: Referral | null = referralResponse.ok ? await referralResponse.json() : null;
+  const reminder: Reminder | null = reminderResponse.ok ? await reminderResponse.json() : null;
   const sessions: DeviceSession[] = sessionsResponse.ok ? await sessionsResponse.json() : [];
   const preferences: DietaryPreferences | null = preferencesResponse.ok
     ? await preferencesResponse.json()
@@ -59,6 +67,12 @@ export default async function AccountPage() {
       {preferences && <PreferencesPanel preferences={preferences} />}
 
       {sessions.length > 0 && <DevicesPanel sessions={sessions} />}
+
+      {reminder && <ReminderPanel reminder={reminder} />}
+
+      {referral && <RecommendPanel referral={referral} />}
+
+      {session && <DataPanel email={session.email} />}
     </Container>
   );
 }

@@ -13,7 +13,11 @@ function backendUrl() {
  * sent to the login screen. Login and password reset stay silent about it.
  */
 export async function POST(request: Request) {
-  const body = await request.text();
+  // The recommendation cookie, if a shared link brought this person here,
+  // rides along on the one request that can keep it. Nothing else reads it.
+  const via = (await cookies()).get("fuelr_via")?.value;
+  const parsed = JSON.parse(await request.text()) as Record<string, unknown>;
+  const body = JSON.stringify(via ? { ...parsed, via } : parsed);
 
   const response = await fetch(`${backendUrl()}/api/auth/register`, {
     method: "POST",

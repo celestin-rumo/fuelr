@@ -68,7 +68,7 @@ public class AuthController {
             @RequestHeader(value = "User-Agent", required = false) String userAgent) {
         User user;
         try {
-            user = auth.register(body.email(), body.name(), body.password());
+            user = auth.register(body.email(), body.name(), body.password(), body.via());
         } catch (AuthService.EmailAlreadyUsedException e) {
             // Registration is the one place the app may say the address is
             // taken: the person is in front of the form and needs to be sent
@@ -141,6 +141,14 @@ public class AuthController {
     public ResponseEntity<Void> confirmEmailChange(
             @Valid @RequestBody AuthDtos.ConfirmEmailChangeRequest body) {
         return accounts.confirmEmailChange(body.token())
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.GONE).build();
+    }
+
+    /** Stops the weekly reminder from the mail itself: no session, the link is the proof. */
+    @PostMapping("/reminder/unsubscribe")
+    public ResponseEntity<Void> unsubscribe(@Valid @RequestBody AuthDtos.ConfirmEmailChangeRequest body) {
+        return accounts.unsubscribeReminder(body.token())
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.status(HttpStatus.GONE).build();
     }
