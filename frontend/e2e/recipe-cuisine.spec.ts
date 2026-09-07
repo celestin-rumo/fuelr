@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import type { APIRequestContext, BrowserContext } from "@playwright/test";
+import type { APIRequestContext, BrowserContext , Page } from "@playwright/test";
 
 /**
  * A cuisine is a closed domain, and that is the point.
@@ -45,6 +45,21 @@ async function seed(request: APIRequestContext, title: string, cuisine: string |
 test.beforeEach(async ({ request, context }) => {
   await signIn(request, context);
 });
+
+
+/**
+ * The filter panel is shut until somebody asks for it, at every width.
+ *
+ * Twenty-three chips is a wall in front of the library and a tab stop each;
+ * what is on stays visible outside the panel as removable chips, which is what
+ * makes hiding the rest allowed.
+ */
+async function openFilters(page: Page) {
+  const toggle = page.getByTestId("toggle-filters");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+}
 
 test("a recipe carries at most one cuisine, and choosing it again clears it", async ({
   request,
@@ -93,12 +108,14 @@ test("the library filters on it, and several means either", async ({
   const titles = page.getByTestId("recipe-grid").locator("li h3");
   await expect(titles).toHaveCount(3);
 
+  await openFilters(page);
   await page.getByTestId("cuisine-filters").getByRole("button", { name: "Italienne" }).click();
   await expect(titles).toHaveCount(1);
   await expect(titles.first()).toContainText("Risotto");
 
   // Two cuisines ask for either — a recipe carries at most one, so asking for
   // both could only ever be empty.
+  await openFilters(page);
   await page.getByTestId("cuisine-filters").getByRole("button", { name: "Japonaise" }).click();
   await expect(titles).toHaveCount(2);
 
@@ -106,8 +123,10 @@ test("the library filters on it, and several means either", async ({
   // Deselected one at a time, with the result awaited in between: each click
   // reads the props of the render it happened on, and two in a row race the
   // navigation the first one starts.
+  await openFilters(page);
   await page.getByTestId("cuisine-filters").getByRole("button", { name: "Italienne" }).click();
   await expect(titles).toHaveCount(1);
+  await openFilters(page);
   await page.getByTestId("cuisine-filters").getByRole("button", { name: "Japonaise" }).click();
   await expect(titles).toHaveCount(3);
 });

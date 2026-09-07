@@ -64,6 +64,21 @@ async function rowMenu(page: Page, title: string) {
   return page.getByRole("menu", { name: `Autres actions pour ${title}` });
 }
 
+
+/**
+ * The filter panel is shut until somebody asks for it, at every width.
+ *
+ * Twenty-three chips is a wall in front of the library and a tab stop each;
+ * what is on stays visible outside the panel as removable chips, which is what
+ * makes hiding the rest allowed.
+ */
+async function openFilters(page: Page) {
+  const toggle = page.getByTestId("toggle-filters");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+}
+
 test("searching narrows the grid on the title", async ({ request, page }) => {
   await seed(request, "Curry de lentilles", "Lentilles");
   await seed(request, "Saumon grillé", "Saumon");
@@ -93,6 +108,7 @@ test("tags stack instead of widening the results", async ({ request, page }) => 
   await seed(request, "Un seul", "Riz", ["vegetarian"]);
   await page.goto("/fr/app");
 
+  await openFilters(page);
   await page.getByRole("button", { name: "Végétarien" }).click();
   await expect(page.getByRole("heading", { name: "Un seul" })).toBeVisible();
 
@@ -313,4 +329,55 @@ test("the whole library downloads as a readable file", async ({ request, page })
   expect(exported[0].title).toBe("Curry");
   expect(exported[0].ingredients[0].name).toBe("Lentilles");
   expect(exported[0].steps[0]).toBe("Cuire 10 min.");
+});
+
+test("the filters fold at every width, and what is on stays visible", async ({
+  request,
+  page,
+}) => {
+  await seed(request, "Curry", "Lentilles");
+  // A wide screen: this used to be where all twenty-three chips lived.
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/fr/app");
+
+  await expect(page.getByTestId("toggle-filters")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Végétarien" })).toBeHidden();
+  await expect(page.getByTestId("cuisine-filters")).toBeHidden();
+
+  await openFilters(page);
+  await page.getByRole("button", { name: "Végétarien" }).click();
+  await page.getByTestId("toggle-filters").click();
+
+  // Hiding a filter is only allowed while it still says it is on — and this
+  // says *which*, not just how many, and undoes it without opening anything.
+  const on = page.getByRole("button", { name: "Végétarien", exact: true });
+  await expect(on).toBeVisible();
+  await page.getByRole("button", { name: "Retirer le filtre Végétarien" }).click();
+
+  await expect(page.getByRole("button", { name: "Végétarien", exact: true })).toHaveCount(0);
+  await expect(page.getByTestId("recipe-grid").locator("li")).toHaveCount(1);
+});
+
+test("the library is a handful of tab stops from the top of the page", async ({
+  request,
+  page,
+}) => {
+  // The reason the panel folds at all: twenty-three chips were twenty-three
+  // stops between the top of the page and the first recipe, for anybody who
+  // does not use a mouse.
+  await seed(request, "Curry de lentilles corail", "Lentilles");
+  await page.goto("/fr/app");
+
+  const link = page.getByRole("link", {
+    name: "Curry de lentilles corail",
+    exact: true,
+  });
+  let presses = 0;
+  let reached = false;
+  while (presses < 30 && !reached) {
+    await page.keyboard.press("Tab");
+    presses += 1;
+    reached = await link.evaluate((node) => node === document.activeElement);
+  }
+  expect(reached, "the first recipe is not reachable in 30 presses").toBe(true);
 });
