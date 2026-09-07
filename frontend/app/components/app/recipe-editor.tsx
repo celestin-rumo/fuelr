@@ -26,7 +26,7 @@ import { NutritionDetailPanel } from "./nutrition-detail";
 import { RecipePhoto } from "./recipe-photo";
 import { Icon } from "@ui/icons";
 
-const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c"] as const;
+const UNITS = ["g", "ml", "pcs", "c.à.s", "c.à.c", "sachet"] as const;
 const LEVELS = ["easy", "medium", "hard"] as const;
 const TAGS = [
   "vegetarian",

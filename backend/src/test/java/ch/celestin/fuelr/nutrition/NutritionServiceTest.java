@@ -111,6 +111,9 @@ class NutritionServiceTest {
         assertThat(NutritionService.factorFor("pcs", 2)).isEqualTo(2.4);
         assertThat(NutritionService.factorFor("c.à.s", 2)).isEqualTo(0.3);
         assertThat(NutritionService.factorFor("c.à.c", 3)).isCloseTo(0.15, org.assertj.core.data.Offset.offset(1e-9));
+        // A packet of baking powder is about 10 g, the same order of guess as
+        // the spoon; it counts rather than throwing.
+        assertThat(NutritionService.factorFor("sachet", 2)).isCloseTo(0.2, org.assertj.core.data.Offset.offset(1e-9));
     }
 
     @Test

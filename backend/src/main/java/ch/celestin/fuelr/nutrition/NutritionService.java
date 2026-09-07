@@ -47,7 +47,9 @@ public class NutritionService {
     /**
      * Grams and millilitres are read against the per-100 reference. The other
      * units are conversions to that same scale: one piece counts as 120 g, a
-     * tablespoon as 15 g, a teaspoon as 5 g.
+     * tablespoon as 15 g, a teaspoon as 5 g, a sachet as 10 g — what a packet
+     * of baking powder, vanilla sugar or dried yeast actually holds, and the
+     * same order of guess as the piece and the spoon.
      *
      * No unit at all counts as nothing, and that is not a hole. Every import
      * in this app produces such lines on purpose — "sel, poivre", "une poignée
@@ -64,6 +66,7 @@ public class NutritionService {
             case "pcs" -> quantity * 1.2d;
             case "c.à.s" -> quantity * 0.15d;
             case "c.à.c" -> quantity * 0.05d;
+            case "sachet" -> quantity * 0.10d;
             default -> throw new IllegalArgumentException("Unité inconnue : " + unit);
         };
     }

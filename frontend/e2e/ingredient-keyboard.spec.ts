@@ -72,8 +72,8 @@ test("ten ingredients can be entered without touching the mouse", async ({ page 
   }
 });
 
-test("the five units are offered and each is kept", async ({ page }) => {
-  const units = ["g", "ml", "pcs", "c.à.s", "c.à.c"];
+test("the six units are offered and each is kept", async ({ page }) => {
+  const units = ["g", "ml", "pcs", "c.à.s", "c.à.c", "sachet"];
 
   const options = await page.getByLabel("Unité").locator("option").allTextContents();
   expect(options).toEqual(units);

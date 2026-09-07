@@ -23,6 +23,7 @@ final class IngredientLineParser {
     private static final String PIECE = "pcs";
     private static final String TABLESPOON = "c.à.s";
     private static final String TEASPOON = "c.à.c";
+    private static final String SACHET = "sachet";
 
     /** Written forms seen on French and Swiss recipe sites, and their factor. */
     private static final Map<String, Unit> UNITS = Map.ofEntries(
@@ -49,7 +50,12 @@ final class IngredientLineParser {
             Map.entry("càs", new Unit(TABLESPOON, 1)),
             Map.entry("cuillère à soupe", new Unit(TABLESPOON, 1)),
             Map.entry("cuillères à soupe", new Unit(TABLESPOON, 1)),
-            Map.entry("cuillere à soupe", new Unit(TABLESPOON, 1)));
+            Map.entry("cuillere à soupe", new Unit(TABLESPOON, 1)),
+            // "1 sachet de levure" is a unit of its own, not one piece of
+            // levure: the packet is what the shop sells and what the shelf
+            // holds, so it is what the list has to count.
+            Map.entry("sachet", new Unit(SACHET, 1)),
+            Map.entry("sachets", new Unit(SACHET, 1)));
 
     private record Unit(String name, double toBase) {
     }
@@ -107,8 +113,8 @@ final class IngredientLineParser {
         }
 
         if (unit == null) {
-            // "2 œufs", "1 sachet de levure": a count of something. Correct as
-            // far as it goes, and honest about the unit being assumed.
+            // "2 œufs", "3 carottes": a count of something. Correct as far as
+            // it goes, and honest about the unit being assumed.
             return new ParsedIngredient(name, amount, PIECE, true);
         }
         return new ParsedIngredient(name, round(amount * unit.toBase()), unit.name(), false);
