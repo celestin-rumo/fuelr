@@ -315,6 +315,15 @@
         "title": "Arbeitsplan nicht verfügbar",
         "body": "Die Woche konnte nicht gelesen werden. Bitte gleich erneut versuchen."
       }
+    },
+    "printWeek": {
+      "button": "Woche drucken",
+      "title": "Der Wochenplan",
+      "week": "Vom {from} bis {to}",
+      "servings": "{count} P.",
+      "more": "{count, plural, one {+ 1 weitere} other {+ # weitere}}",
+      "empty": "Für diese Woche ist nichts geplant.",
+      "moment": "In einem Moment gedruckt: Eine seither verschobene Mahlzeit steht nicht auf diesem Blatt."
     }
   },
   "household": {

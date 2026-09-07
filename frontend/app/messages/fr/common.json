@@ -315,6 +315,15 @@
         "title": "Plan de travail indisponible",
         "body": "La semaine n'a pas pu être lue. Réessayez dans un instant."
       }
+    },
+    "printWeek": {
+      "button": "Imprimer la semaine",
+      "title": "Le planning de la semaine",
+      "week": "Du {from} au {to}",
+      "servings": "{count} p.",
+      "more": "{count, plural, one {+ 1 autre} other {+ # autres}}",
+      "empty": "Rien n'est prévu cette semaine.",
+      "moment": "Feuille imprimée à un instant donné : un repas déplacé depuis n'y figure pas."
     }
   },
   "household": {
