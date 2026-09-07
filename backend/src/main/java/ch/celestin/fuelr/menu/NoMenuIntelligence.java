@@ -29,6 +29,18 @@ public class NoMenuIntelligence implements MenuIntelligence {
 
     @Override
     public Ideas suggest(String have, int wanted, List<String> already) {
-        return new Ideas(List.of(), new ch.celestin.fuelr.recipe.importer.RecipeIntelligence.Usage(0, 0));
+        return nothing();
+    }
+
+    @Override
+    public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                            int wanted, List<String> already) {
+        return nothing();
+    }
+
+    private Ideas nothing() {
+        return new Ideas(
+                List.of(),
+                new ch.celestin.fuelr.recipe.importer.RecipeIntelligence.Usage(0, 0));
     }
 }
