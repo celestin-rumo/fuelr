@@ -242,9 +242,10 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
         var unit = lineProps.putObject("unit");
         unit.put("type", "string");
         unit.put("description",
-                "L'unité, parmi : g, ml, pcs (pièces), c.à.s, c.à.c. "
+                "L'unité, parmi : g, ml, pcs (pièces), c.à.s, c.à.c, sachet. "
                         + "Vide si la ligne n'en donne pas.");
-        unit.putArray("enum").add("g").add("ml").add("pcs").add("c.à.s").add("c.à.c").add("");
+        unit.putArray("enum").add("g").add("ml").add("pcs").add("c.à.s").add("c.à.c")
+                .add("sachet").add("");
         lineProps.putObject("needsReview").put("type", "boolean")
                 .put("description", "Vrai si la quantité ou l'unité est incertaine.");
         line.putArray("required").add("name").add("needsReview");
@@ -422,7 +423,8 @@ public class AnthropicRecipeIntelligence implements RecipeIntelligence {
     private static String known(String written) {
         String cleaned = written.trim().toLowerCase();
         return switch (cleaned) {
-            case "g", "ml", "pcs", "c.à.s", "c.à.c" -> cleaned;
+            case "g", "ml", "pcs", "c.à.s", "c.à.c", "sachet" -> cleaned;
+            case "sachets" -> "sachet";
             // The spellings a model reaches for, mapped rather than dropped.
             case "gr", "gramme", "grammes" -> "g";
             case "cl" -> "ml";

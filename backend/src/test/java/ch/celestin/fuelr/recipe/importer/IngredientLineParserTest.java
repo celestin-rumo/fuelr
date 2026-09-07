@@ -21,6 +21,21 @@ class IngredientLineParserTest {
     }
 
     @Test
+    void readsASachetAsAUnitOfItsOwn() {
+        // A packet is what the shop sells and what the shelf holds, so it is
+        // what the list has to count — not one piece of levure.
+        var parsed = IngredientLineParser.parse("1 sachet de levure chimique");
+
+        assertThat(parsed.name()).isEqualTo("levure chimique");
+        assertThat(parsed.quantity()).isEqualTo(1);
+        assertThat(parsed.unit()).isEqualTo("sachet");
+        assertThat(parsed.needsReview()).isFalse();
+
+        assertThat(IngredientLineParser.parse("2 sachets de sucre vanillé").unit())
+                .isEqualTo("sachet");
+    }
+
+    @Test
     void convertsToTheUnitsTheApplicationWeighsIn() {
         assertThat(IngredientLineParser.parse("2.5 dl d'eau").quantity()).isEqualTo(250);
         assertThat(IngredientLineParser.parse("2.5 dl d'eau").unit()).isEqualTo("ml");

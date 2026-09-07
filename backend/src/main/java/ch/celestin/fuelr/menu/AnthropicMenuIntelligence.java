@@ -87,7 +87,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
             - Utilise le plus possible de ce que la personne a. Ce qui manque \
               doit rester court : trois ingrédients courants au maximum.
             - Les quantités sont pour 4 personnes, dans les unités g, ml, pcs, \
-              c.à.s, c.à.c, et rien d'autre. Laisse l'unité vide si la ligne \
+              c.à.s, c.à.c, sachet, et rien d'autre. Laisse l'unité vide si la ligne \
               n'en a pas — « sel, poivre ».
             - Une quantité dont tu n'es pas sûr prend needsReview = true.
             - Des étapes courtes, dans l'ordre.
@@ -315,7 +315,8 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         lineProps.putObject("quantite").put("type", "number");
         ObjectNode unit = lineProps.putObject("unite");
         unit.put("type", "string");
-        unit.putArray("enum").add("g").add("ml").add("pcs").add("c.à.s").add("c.à.c").add("");
+        unit.putArray("enum").add("g").add("ml").add("pcs").add("c.à.s").add("c.à.c")
+                .add("sachet").add("");
         lineProps.putObject("aVerifier").put("type", "boolean");
         line.putArray("required").add("nom");
 
@@ -394,7 +395,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
     /** The app's five, and nothing else — a schema is a request, not a promise. */
     private static final List<String> KNOWN_UNITS =
-            List.of("g", "ml", "pcs", "c.à.s", "c.à.c");
+            List.of("g", "ml", "pcs", "c.à.s", "c.à.c", "sachet");
 
     private RecipeIntelligence.Usage usageFrom(JsonNode answer) {
         JsonNode usage = answer.path("usage");

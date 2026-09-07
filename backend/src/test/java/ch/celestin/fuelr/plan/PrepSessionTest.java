@@ -199,6 +199,23 @@ class PrepSessionTest {
     }
 
     @Test
+    void aSachetInEveryDishIsNotSharedWork() throws Exception {
+        // A packet of baking powder in both cakes is bought twice and opened
+        // twice; nothing about it is prepared once. Same rule as the onion.
+        plan(MONDAY, recipe("Gâteau A", 30, """
+                {"name":"Levure","quantity":1,"unit":"sachet"},
+                {"name":"Farine","quantity":300,"unit":"g"}"""));
+        plan(TUESDAY, recipe("Gâteau B", 25, """
+                {"name":"Levure","quantity":1,"unit":"sachet"},
+                {"name":"Semoule","quantity":300,"unit":"g"}"""));
+
+        session()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bases.length()").value(0))
+                .andExpect(jsonPath("$.dishes.length()").value(2));
+    }
+
+    @Test
     void theSessionNeedsASession() throws Exception {
         mvc.perform(get("/api/plan/prep")).andExpect(status().isUnauthorized());
     }

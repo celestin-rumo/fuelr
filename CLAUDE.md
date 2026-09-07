@@ -302,7 +302,7 @@ image addresses to its own; nothing in it reaches the network.
 where this app knows `pcs`, and from then on `GET /api/recipes` answered 400
 for that account: the library reported itself empty, permanently, with every
 recipe still in the database. Two things were wrong and both are fixed. The
-reader now speaks the app's five units — `g`, `ml`, `pcs`, `c.à.s`, `c.à.c` —
+reader now speaks the app's six units — `g`, `ml`, `pcs`, `c.à.s`, `c.à.c`, `sachet` —
 and checks what comes back against them, because a schema is a request and not
 a promise. And `NutritionService.computeForDisplay` is what a *display* calls:
 it answers "no figures" where `compute` throws, so a library, a week or a card
