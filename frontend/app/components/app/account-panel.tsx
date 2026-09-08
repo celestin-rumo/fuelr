@@ -10,7 +10,7 @@ import { Input } from "@ui/input";
 import { Segmented } from "@ui/segmented";
 import { SectionHead } from "@ui/section-head";
 import { PasswordStrength } from "./password-strength";
-import { Choices } from "@app/components/site/onboarding";
+import { ChoiceCard, Choices } from "@app/components/site/onboarding";
 import type { Session } from "@app/lib/session";
 import type { ProfileInput, ProfileResponse, ProfileTargets } from "@app/lib/api";
 import {
@@ -40,12 +40,12 @@ type Notice = { tone: "success" | "error"; text: string } | null;
  * Two things are never pre-filled: the passwords. A password field that
  * arrives full is a password somebody can read off the screen.
  */
-export type AccountSection = "identity" | "email" | "password" | "figures";
+export type AccountSection = "identity" | "email" | "password" | "goals" | "body";
 
 export function AccountPanel({
   session,
   profile,
-  sections = ["identity", "email", "password", "figures"],
+  sections = ["identity", "email", "password", "goals", "body"],
 }: {
   session: Session;
   profile: ProfileResponse | null;
@@ -146,7 +146,7 @@ export function AccountPanel({
 
   function complete(input: Partial<ProfileInput>): input is ProfileInput {
     return (
-      input.age != null && input.sex != null && input.heightCm != null &&
+      input.birthDate != null && input.sex != null && input.heightCm != null &&
       input.weightKg != null && input.activity != null && input.goal != null
     );
   }
@@ -339,12 +339,12 @@ export function AccountPanel({
       </section>
       )}
 
-      {/* --- the six figures ------------------------------------------------------ */}
-      {show("figures") && (
-      <section className="flex flex-col gap-4">
+      {/* --- what changes: activity and goal ----------------------------------- */}
+      {show("goals") && (
+      <section className="flex flex-col gap-4" data-testid="goals-section">
         {headed && (
-          <SectionHead as="h2" hint={t("figures.hint")}>
-            {t("figures.title")}
+          <SectionHead as="h2" hint={t("goals.hint")}>
+            {t("goals.title")}
           </SectionHead>
         )}
         <Card as="panel" className="flex flex-col gap-5">
@@ -354,65 +354,42 @@ export function AccountPanel({
             </p>
           )}
 
-          <Choices
-            legend={tOnboarding("goal.title")}
-            stacked
-            options={GOALS.map((goal) => ({
-              value: goal,
-              label: tOnboarding(`goal.options.${goal}.title`),
-            }))}
-            value={figures.goal}
-            onChange={(goal) => edit({ goal })}
-          />
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label={tOnboarding("body.age")}
-              type="number"
-              inputMode="numeric"
-              value={figures.age ?? ""}
-              data-testid="figure-age"
-              onChange={(event) => edit({ age: number(event.target.value) })}
-            />
-            <Input
-              label={tOnboarding("body.height")}
-              type="number"
-              inputMode="numeric"
-              value={figures.heightCm ?? ""}
-              data-testid="figure-height"
-              onChange={(event) => edit({ heightCm: number(event.target.value) })}
-            />
-            <Input
-              label={tOnboarding("habits.weight")}
-              type="number"
-              inputMode="decimal"
-              step="0.1"
-              value={figures.weightKg ?? ""}
-              data-testid="figure-weight"
-              onChange={(event) => edit({ weightKg: number(event.target.value) })}
-            />
+          {/* Three small cards, like the onboarding: one block of three stacked
+              rows read as one big thing when nothing was chosen yet. */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[13px] font-semibold text-text-dim">{tOnboarding("goal.title")}</p>
+            <div className="grid gap-3 sm:grid-cols-3" data-testid="goal-cards">
+              {GOALS.map((goal) => (
+                <ChoiceCard
+                  key={goal}
+                  selected={figures.goal === goal}
+                  title={tOnboarding(`goal.options.${goal}.title`)}
+                  description={tOnboarding(`goal.options.${goal}.description`)}
+                  onClick={() => edit({ goal })}
+                />
+              ))}
+            </div>
           </div>
 
-          <Choices
-            legend={tOnboarding("body.sex")}
-            options={SEXES.map((sex) => ({ value: sex, label: tOnboarding(`body.sexes.${sex}`) }))}
-            value={figures.sex}
-            onChange={(sex) => edit({ sex })}
-          />
+          <div className="flex flex-col gap-2">
+            <p className="text-[13px] font-semibold text-text-dim">{tOnboarding("habits.activity")}</p>
+            <Segmented
+              label={tOnboarding("habits.activity")}
+              className="max-sm:w-full max-sm:flex-col"
+              value={figures.activity}
+              onChange={(activity) => edit({ activity })}
+              options={ACTIVITIES.map((activity) => ({
+                value: activity,
+                label: t(`goals.activityShort.${activity}`),
+              }))}
+            />
+            {figures.activity && (
+              <p className="text-[13px] font-medium text-gray">
+                {tOnboarding(`habits.activities.${figures.activity}`)}
+              </p>
+            )}
+          </div>
 
-          <Choices
-            legend={tOnboarding("habits.activity")}
-            stacked
-            options={ACTIVITIES.map((activity) => ({
-              value: activity,
-              label: tOnboarding(`habits.activities.${activity}`),
-            }))}
-            value={figures.activity}
-            onChange={(activity) => edit({ activity })}
-          />
-
-          {/* Shown before it is written, and said for what it is: a formula
-              on the six figures, never something to be reached. */}
           {preview && (
             <dl
               data-testid="target-preview"
@@ -439,6 +416,54 @@ export function AccountPanel({
               loading={pending}
               disabled={!dirty || !complete(figures)}
               data-testid="figures-submit"
+            >
+              {t("figures.submit")}
+            </Button>
+          </div>
+        </Card>
+      </section>
+      )}
+
+      {/* --- what hardly changes: birth date, height, sex ---------------------- */}
+      {show("body") && (
+      <section className="flex flex-col gap-4" data-testid="body-section">
+        {headed && (
+          <SectionHead as="h2" hint={t("body.hint")}>
+            {t("body.title")}
+          </SectionHead>
+        )}
+        <Card as="panel" className="flex flex-col gap-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label={t("body.birthDate")}
+              type="date"
+              max={new Date().toISOString().slice(0, 10)}
+              value={figures.birthDate ?? ""}
+              data-testid="figure-birth"
+              onChange={(event) => edit({ birthDate: event.target.value || undefined })}
+            />
+            <Input
+              label={tOnboarding("body.height")}
+              type="number"
+              inputMode="numeric"
+              value={figures.heightCm ?? ""}
+              data-testid="figure-height"
+              onChange={(event) => edit({ heightCm: number(event.target.value) })}
+            />
+          </div>
+          <Choices
+            legend={tOnboarding("body.sex")}
+            options={SEXES.map((sex) => ({ value: sex, label: tOnboarding(`body.sexes.${sex}`) }))}
+            value={figures.sex}
+            onChange={(sex) => edit({ sex })}
+          />
+          <div>
+            <Button
+              variant="secondary"
+              onClick={submitProfile}
+              loading={pending}
+              disabled={!dirty || !complete(figures)}
+              data-testid="body-submit"
             >
               {t("figures.submit")}
             </Button>

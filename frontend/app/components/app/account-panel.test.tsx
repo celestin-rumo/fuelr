@@ -37,7 +37,7 @@ const session: Session = {
 };
 
 const profile: ProfileResponse = {
-  profile: { age: 34, sex: "FEMALE", heightCm: 168, weightKg: 62, activity: "MODERATE", goal: "MAINTAIN" },
+  profile: { birthDate: "1992-01-02", sex: "FEMALE", heightCm: 168, weightKg: 62, activity: "MODERATE", goal: "MAINTAIN" },
   targets: { kcal: 2000, proteinG: 110, carbsG: 230, fatG: 65 },
 };
 
@@ -115,9 +115,8 @@ it("previews the target before writing the figures, and only then offers to save
   expect(screen.getByTestId("figures-submit")).toBeDisabled();
   expect(screen.getByTestId("target-preview")).toHaveTextContent("2000");
 
-  const weight = screen.getByTestId("figure-weight");
-  await user.clear(weight);
-  await user.type(weight, "60");
+  // A goal is three small cards, not one block; picking one previews.
+  await user.click(screen.getByRole("button", { name: /Perdre du poids/ }));
 
   await waitFor(() => expect(previewTargets).toHaveBeenCalled());
   expect(await screen.findByText("2100")).toBeInTheDocument();
@@ -132,4 +131,11 @@ it("treats a missing profile as a state, not an error", () => {
 
   expect(screen.getByText(/Aucun profil pour l'instant/)).toBeInTheDocument();
   expect(screen.queryByTestId("target-preview")).not.toBeInTheDocument();
+});
+
+it("never asks for the weight here: that question has one place", () => {
+  renderWithIntl(<AccountPanel session={session} profile={profile} />);
+  expect(screen.queryByTestId("figure-weight")).not.toBeInTheDocument();
+  // Birth date, not age: true forever.
+  expect(screen.getByTestId("figure-birth")).toHaveValue("1992-01-02");
 });

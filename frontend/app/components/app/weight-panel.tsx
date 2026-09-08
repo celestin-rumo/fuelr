@@ -8,18 +8,8 @@ import { Button } from "@ui/button";
 import { Card, CardTitle } from "@ui/card";
 import { Input } from "@ui/input";
 import { formatDay } from "@app/lib/week";
-import type { ProfileInput, WeightEntry, WeightView } from "@app/lib/api";
-import {
-  recordWeight,
-  removeWeight,
-  saveProfile,
-} from "@app/[locale]/(app)/app/account/actions";
-
-/**
- * Below this, a new weigh-in is not worth a new target: the formula moves by
- * about 10 kcal per kilo, and re-asking somebody every 300 g is nagging.
- */
-const WORTH_RECOMPUTING_KG = 1;
+import type { WeightEntry, WeightView } from "@app/lib/api";
+import { recordWeight, removeWeight } from "@app/[locale]/(app)/app/account/actions";
 
 /**
  * Weigh-ins: a figure and its date, and nothing said about either.
@@ -29,20 +19,15 @@ const WORTH_RECOMPUTING_KG = 1;
  * left blank rather than drawn as zero — and stops there. No streak, no
  * verdict, no congratulation; the same rule as the journal's findings.
  *
- * **A weigh-in proposes a new target; it never applies one.** The target is
- * computed from the profile's weight, which is a snapshot somebody confirmed.
- * When the latest weigh-in has drifted from it, the panel offers the
- * recalculation with what it would change, and only a press writes it.
+ * **This is the one place to say what you weigh.** The profile's weight, and
+ * so the journal's target, follow the latest weigh-in; nothing else asks.
  */
 export function WeightPanel({
   weight,
-  profile,
   today,
   compact = false,
 }: {
   weight: WeightView;
-  /** The six figures, when there are any: what a recalculation would rewrite. */
-  profile: ProfileInput | null;
   /** Resolved on the server: the browser's idea of "today" may be a day off. */
   today: string;
   /** The journal shows the curve and the form; the account page only the form. */
@@ -97,21 +82,6 @@ export function WeightPanel({
     });
   }
 
-  /** Writes the latest weigh-in into the profile — and only on this press. */
-  function recompute() {
-    if (!profile || !weight.latest) return;
-    const next = { ...profile, weightKg: weight.latest.weightKg };
-    startTransition(async () => {
-      const result = await saveProfile(next);
-      if (result.ok) router.refresh();
-    });
-  }
-
-  const drift =
-    weight.latest && weight.profileWeightKg != null
-      ? weight.latest.weightKg - weight.profileWeightKg
-      : 0;
-  const offerRecompute = profile != null && Math.abs(drift) >= WORTH_RECOMPUTING_KG;
 
   return (
     <Card as="panel" data-testid="weight-panel" className="flex flex-col gap-5">
@@ -179,23 +149,6 @@ export function WeightPanel({
         </Button>
       </form>
 
-      {/* Offered, with what it changes. Never applied on its own. */}
-      {offerRecompute && (
-        <div
-          data-testid="weight-recompute"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-bg-raised-2 p-4"
-        >
-          <p className="text-[13px] leading-[1.5] font-semibold text-text-dim">
-            {t("recompute.body", {
-              latest: weight.latest!.weightKg,
-              profile: weight.profileWeightKg!,
-            })}
-          </p>
-          <Button size="sm" variant="secondary" loading={pending} onClick={recompute}>
-            {t("recompute.action")}
-          </Button>
-        </div>
-      )}
 
       {!compact && weight.entries.length > 0 && (
         <ul className="flex flex-col divide-y divide-line" data-testid="weight-entries">

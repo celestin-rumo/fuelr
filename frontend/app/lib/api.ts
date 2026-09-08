@@ -545,7 +545,8 @@ export type PrepSession = {
 
 /** The profile express, as stored: the six figures the target is computed from. */
 export type ProfileInput = {
-  age: number;
+  /** ISO date; the age is arithmetic on it, done on the server. */
+  birthDate: string;
   sex: "FEMALE" | "MALE";
   heightCm: number;
   weightKg: number;

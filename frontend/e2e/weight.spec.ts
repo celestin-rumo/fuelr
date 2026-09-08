@@ -14,7 +14,7 @@ async function signIn(request: APIRequestContext, context: BrowserContext) {
   await context.addCookies([{ name: "fuelr_token", value: token, url: "http://localhost:3000" }]);
   await request.put(`${BACKEND}/api/profile`, {
     headers: { Authorization: `Bearer ${token}` },
-    data: { age: 34, sex: "FEMALE", heightCm: 168, weightKg: 62, activity: "MODERATE", goal: "MAINTAIN" },
+    data: { birthDate: "1992-01-02", sex: "FEMALE", heightCm: 168, weightKg: 62, activity: "MODERATE", goal: "MAINTAIN" },
   });
 }
 
@@ -36,28 +36,21 @@ test("a weigh-in is a figure and a date, drawn and never judged", async ({ page 
   await expect(panel).not.toContainText(/bravo|série/i);
 });
 
-test("a weigh-in proposes a new target and never applies one", async ({ request, page }) => {
+test("a weigh-in is the profile's weight, and so the target's", async ({ request, page }) => {
   await page.goto("/fr/app/journal");
   const panel = page.getByTestId("weight-panel");
-
-  // Four kilos away from what the target is computed from.
   await panel.getByTestId("weight-kg").fill("58");
   await panel.getByTestId("weight-submit").click();
-  await expect(panel.getByTestId("weight-recompute")).toBeVisible();
+  await expect(panel.getByTestId("weight-latest")).toContainText("58");
 
-  // Nothing moved on its own.
-  let profile = await (await request.get(`${BACKEND}/api/profile`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })).json();
-  expect(profile.profile.weightKg).toBe(62);
-
-  await panel.getByTestId("weight-recompute").getByRole("button").click();
-  await expect(panel.getByTestId("weight-recompute")).toHaveCount(0);
-
-  profile = await (await request.get(`${BACKEND}/api/profile`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })).json();
-  expect(profile.profile.weightKg).toBe(58);
+  // One place to say what you weigh.
+  await expect
+    .poll(async () =>
+      (await (await request.get(`${BACKEND}/api/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })).json()).profile.weightKg,
+    )
+    .toBe(58);
 });
 
 test("removing a weigh-in asks nothing and can be undone", async ({ page }) => {

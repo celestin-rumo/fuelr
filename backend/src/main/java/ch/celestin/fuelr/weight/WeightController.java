@@ -35,10 +35,11 @@ import java.util.List;
  * own number — what is paid for is measuring a week against a target, and
  * that is elsewhere.
  *
- * **Recording a weight never touches the profile.** `profiles.weight_kg` is
- * what the journal's target is computed from, and it moves only when
- * somebody says so on the account page. The answer here carries both, so a
- * screen can *offer* the recalculation rather than spring it.
+ * **A weigh-in is the profile's weight.** There is one place to say what you
+ * weigh, and it is here; `profiles.weight_kg` follows the latest weigh-in, so
+ * the journal's target is computed on a weight somebody actually has rather
+ * than the one typed the day they signed up. Only the latest: writing last
+ * month's weigh-in in does not roll the profile back.
  */
 @RestController
 @RequestMapping("/api/weight")
@@ -102,7 +103,19 @@ public class WeightController {
                     return existing;
                 })
                 .orElseGet(() -> new WeightEntry(userId, body.weighedOn(), kg));
-        return view(entries.save(entry));
+        WeightEntry saved = entries.save(entry);
+        boolean latest = entries.findFirstByUserIdOrderByWeighedOnDesc(userId)
+                .map(top -> top.getId().equals(saved.getId())).orElse(true);
+        if (latest) {
+            profiles.findByUserId(userId).ifPresent(profile -> {
+                var input = profile.toInput();
+                profile.apply(new ch.celestin.fuelr.profile.ProfileDtos.ProfileInput(
+                        input.birthDate(), input.sex(), input.heightCm(), kg.doubleValue(),
+                        input.activity(), input.goal()));
+                profiles.save(profile);
+            });
+        }
+        return view(saved);
     }
 
     /**

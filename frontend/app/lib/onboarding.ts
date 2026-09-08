@@ -14,7 +14,8 @@ export type Goal = "LOSE" | "MAINTAIN" | "GAIN";
 
 export type Draft = {
   goal?: Goal;
-  age?: number;
+  /** ISO date. True forever, where an age was true for a year. */
+  birthDate?: string;
   sex?: Sex;
   heightCm?: number;
   weightKg?: number;
@@ -34,7 +35,7 @@ export type Targets = {
 export function isComplete(draft: Draft): draft is Profile {
   return (
     draft.goal !== undefined &&
-    draft.age !== undefined &&
+    draft.birthDate !== undefined &&
     draft.sex !== undefined &&
     draft.heightCm !== undefined &&
     draft.weightKg !== undefined &&

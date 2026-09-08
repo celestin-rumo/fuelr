@@ -78,7 +78,7 @@ test("changing the password signs the other device out and tells the address", a
   });
   const phoneToken = (await phone.json()).token as string;
 
-  await page.goto("/fr/app/compte/securite");
+  await page.goto("/fr/app/compte/profil");
   await page.getByTestId("disclosure-password").locator("summary").click();
   await page.getByTestId("password-current").fill("motdepasse123");
   await page.getByTestId("password-next").fill("nouveaumotdepasse");

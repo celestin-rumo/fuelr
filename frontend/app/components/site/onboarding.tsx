@@ -77,7 +77,7 @@ function OnboardingFlow() {
   }, [step, draft]);
 
   const bodyReady =
-    draft.age !== undefined && draft.sex !== undefined && draft.heightCm !== undefined;
+    draft.birthDate !== undefined && draft.sex !== undefined && draft.heightCm !== undefined;
   const habitsReady = draft.weightKg !== undefined && draft.activity !== undefined;
 
   return (
@@ -119,14 +119,14 @@ function OnboardingFlow() {
       {step === "body" && (
         <Question title={t("body.title")} hint={t("body.hint")}>
           <div className="flex flex-col gap-5">
+            {/* A date picker, not a number: an age is wrong a year later and
+                nobody comes back to fix it. */}
             <Input
               label={t("body.age")}
-              type="number"
-              inputMode="numeric"
-              value={draft.age ?? ""}
-              onChange={(e) =>
-                update({ age: numberOrUndefined(e.target.value) })
-              }
+              type="date"
+              max={new Date().toISOString().slice(0, 10)}
+              value={draft.birthDate ?? ""}
+              onChange={(e) => update({ birthDate: e.target.value || undefined })}
             />
 
             <Choices
@@ -296,7 +296,7 @@ function Question({
   );
 }
 
-function ChoiceCard({
+export function ChoiceCard({
   title,
   description,
   selected,

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { apiFetch } from "@app/lib/api";
-import type { LogWeek, Subscription, ProfileResponse, WeightView } from "@app/lib/api";
+import type { LogWeek, Subscription, WeightView } from "@app/lib/api";
 import { isIsoDate, mondayOf, todayIso } from "@app/lib/week";
 import { EmptyState } from "@ui/empty-state";
 import { Container } from "@app/components/site/section";
@@ -19,12 +19,11 @@ export default async function JournalPage({
   const today = todayIso();
   const requested = isIsoDate(week) ? week : today;
 
-  const [weekResponse, subscriptionResponse, weightResponse, profileResponse] = await Promise.all([
+  const [weekResponse, subscriptionResponse, weightResponse] = await Promise.all([
     apiFetch(`/api/log?week=${requested}`),
     apiFetch("/api/subscription"),
     // Eight weeks of weigh-ins, ending today: long enough to see a direction.
     apiFetch(`/api/weight?to=${today}`),
-    apiFetch("/api/profile"),
   ]);
 
   const logged: LogWeek | null = weekResponse.ok ? await weekResponse.json() : null;
@@ -32,7 +31,6 @@ export default async function JournalPage({
     ? await subscriptionResponse.json()
     : null;
   const weight: WeightView | null = weightResponse.ok ? await weightResponse.json() : null;
-  const profile: ProfileResponse | null = profileResponse.ok ? await profileResponse.json() : null;
 
   if (!logged) {
     return (
@@ -69,7 +67,7 @@ export default async function JournalPage({
       />
 
       {/* Below the week, not inside it: a weight is a level, not a meal. */}
-      {weight && <WeightPanel weight={weight} profile={profile?.profile ?? null} today={today} />}
+      {weight && <WeightPanel weight={weight} today={today} />}
     </Container>
   );
 }
