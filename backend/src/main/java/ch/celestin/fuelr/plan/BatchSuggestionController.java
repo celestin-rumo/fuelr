@@ -1,6 +1,7 @@
 package ch.celestin.fuelr.plan;
 
 import ch.celestin.fuelr.ai.AiBudget;
+import ch.celestin.fuelr.menu.IdeaStreams;
 import ch.celestin.fuelr.menu.MenuDtos;
 import ch.celestin.fuelr.menu.MenuIntelligence;
 import ch.celestin.fuelr.recipe.Cuisine;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -92,20 +94,33 @@ public class BatchSuggestionController {
     private final AiBudget budget;
     private final List<MenuIntelligence> readers;
     private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
+    private final IdeaStreams streams;
 
     public BatchSuggestionController(Entitlements entitlements, AiBudget budget,
                                      List<MenuIntelligence> readers,
-                                     ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+                                     ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
+                                     IdeaStreams streams) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
         this.preferences = preferences;
+        this.streams = streams;
     }
 
     @PostMapping
     public SetsView suggest(@AuthenticationPrincipal Jwt principal,
                             @RequestBody Request request) {
+        return answer(Long.valueOf(principal.getSubject()), request, MenuIntelligence.Progress.NONE);
+    }
+
+    /** The same answer, told dish by dish — see the week's `live`. */
+    @PostMapping("/live")
+    public SseEmitter live(@AuthenticationPrincipal Jwt principal, @RequestBody Request request) {
         Long userId = Long.valueOf(principal.getSubject());
+        return streams.run(progress -> answer(userId, request, progress));
+    }
+
+    SetsView answer(Long userId, Request request, MenuIntelligence.Progress progress) {
         int size = Math.min(MOST, Math.max(FEWEST,
                 request.size() == null ? 4 : request.size()));
 
@@ -132,7 +147,7 @@ public class BatchSuggestionController {
             MenuIntelligence.Ideas ideas = reader.suggestBatch(
                     request.intents() == null ? Set.of() : request.intents(),
                     Cuisine.knownNames(request.cuisines()),
-                    size, constraints);
+                    size, constraints, progress);
             budget.record(userId, "BATCH_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 

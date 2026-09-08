@@ -188,7 +188,7 @@
       "action": "Fill the week",
       "close": "Close",
       "cancel": "Cancel",
-      "working": "Looking through your recipes…",
+      "working": "Writing the week's dishes…",
       "failed": "The suggestion did not come back. Try again.",
       "minutes": "{count} min",
       "refuse": "Not this one",
@@ -241,7 +241,7 @@
       "action": "Cook it in one go",
       "close": "Close",
       "cancel": "Cancel",
-      "working": "Looking for dishes that prepare together…",
+      "working": "Writing dishes that are made together…",
       "failed": "The suggestion did not come back. Try again.",
       "minutes": "{count} min",
       "idea": "New dish",
@@ -1137,7 +1137,8 @@
     "errors": {
       "failed": "The search failed. Try again.",
       "empty": "Write at least one ingredient."
-    }
+    },
+    "working": "Looking for what to make with that…"
   },
   "account": {
     "label": "Account",
@@ -1204,7 +1205,7 @@
       "cards": {
         "profile": {
           "title": "Profile",
-          "description": "Name, address, language, activity and goal, weight, password."
+          "description": "You, your activity and goal, the address, the language, the password."
         },
         "household": {
           "title": "Household",
@@ -1257,7 +1258,17 @@
     "body": {
       "title": "Height, birth date and sex",
       "hint": "What hardly changes any more.",
-      "birthDate": "Date of birth"
+      "birthDate": "Date of birth",
+      "weight": "Weight (kg)",
+      "weightHint": "Recorded as today's weigh-in; the history is in the journal."
+    },
+    "you": {
+      "title": "You",
+      "hint": "First name, date of birth, height, weight, sex."
+    },
+    "language": {
+      "title": "Language",
+      "hint": "The app's and the emails'. Rarely changes."
     }
   },
   "verifyEmailChange": {
@@ -1410,5 +1421,10 @@
     "done": "Done: you will not receive the weekly reminder any more. It can be turned back on from your account, should you want it one day.",
     "expired": "This link no longer works. The reminder is set from your account.",
     "noToken": "This link is incomplete. Open the one in the email."
+  },
+  "working": {
+    "progress": "Progress",
+    "dish": "Dish {done} of {of}",
+    "starting": "First dish under way…"
   }
 }

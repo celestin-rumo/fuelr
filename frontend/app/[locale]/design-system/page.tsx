@@ -21,6 +21,8 @@ import { Menu } from "@ui/menu";
 import { Pagination } from "@ui/pagination";
 import { SectionHead } from "@ui/section-head";
 import { Disclosure } from "@ui/disclosure";
+import { FOOD_NAMES, FoodIcon } from "@ui/food-icons";
+import { WorkingOn } from "@app/components/app/working-on";
 import {
   ListRow,
   ListRowActions,
@@ -739,6 +741,27 @@ export default function DesignSystemPage() {
                 A native details element: no script, keyboard reachable, state announced.
               </p>
             </Disclosure>
+            <WorkingOn
+              label="Working on — the wait while a model writes dishes"
+              words="poulet, carottes"
+              progress={{ done: 6, of: 14, title: "Dahl de lentilles" }}
+            />
+            <Card as="panel">
+              <CardTitle>Food icons</CardTitle>
+              <CardBody>
+                <p className="mb-3">
+                  Same grid and stroke as the icons; drawn for the wait above and nothing else.
+                </p>
+                <ul className="flex flex-wrap gap-3 text-mint-ink">
+                  {FOOD_NAMES.map((name) => (
+                    <li key={name} className="flex flex-col items-center gap-1">
+                      <FoodIcon name={name} size={28} />
+                      <span className="font-mono text-[11px] text-gray">{name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
             <Card as="panel">
               <CardTitle>Panel</CardTitle>
               <CardBody>

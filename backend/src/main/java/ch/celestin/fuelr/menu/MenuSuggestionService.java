@@ -78,13 +78,19 @@ public class MenuSuggestionService {
     }
 
     public MenuDtos.SuggestionsView suggest(Long userId, String have) {
+        return suggest(userId, have, MenuIntelligence.Progress.NONE);
+    }
+
+    /** The same, counted along while a model writes what the library lacked. */
+    public MenuDtos.SuggestionsView suggest(Long userId, String have,
+                                            MenuIntelligence.Progress progress) {
         Set<String> wanted = words(have);
 
         List<MenuDtos.Suggestion> found = new ArrayList<>(fromLibrary(userId, wanted));
         boolean assisted = false;
 
         if (found.size() < ENOUGH_FROM_LIBRARY) {
-            List<MenuDtos.Suggestion> ideas = fromModel(userId, have, found);
+            List<MenuDtos.Suggestion> ideas = fromModel(userId, have, found, progress);
             assisted = !ideas.isEmpty();
             found.addAll(ideas);
         }
@@ -175,7 +181,8 @@ public class MenuSuggestionService {
      * middle of answering a question would be reading the room badly.
      */
     private List<MenuDtos.Suggestion> fromModel(
-            Long userId, String have, List<MenuDtos.Suggestion> already) {
+            Long userId, String have, List<MenuDtos.Suggestion> already,
+            MenuIntelligence.Progress progress) {
         MenuIntelligence intelligence = reader();
         if (!entitlements.has(userId, Feature.AI_MENU) || !intelligence.available()) {
             return List.of();
@@ -193,7 +200,7 @@ public class MenuSuggestionService {
                     have,
                     WANTED - already.size(),
                     already.stream().map(MenuDtos.Suggestion::title).toList(),
-                    constraints);
+                    constraints, progress);
             budget.record(userId, "MENU_SUGGESTIONS", intelligence.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
             // Told to the model, checked by the code.

@@ -18,7 +18,10 @@ import {
   ListRowTitle,
 } from "@ui/list-row";
 import type { Suggestion, Suggestions } from "@app/lib/api";
+import { askLive } from "@app/lib/ideas-stream";
+import type { Progress } from "@app/lib/ideas-stream";
 import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/actions";
+import { WorkingOn } from "./working-on";
 
 /**
  * What to cook, from what is in the bag.
@@ -38,6 +41,7 @@ export function MenuSuggestions({ week }: { week: string }) {
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
   const [pending, startTransition] = useTransition();
 
   async function ask(event: React.FormEvent) {
@@ -48,18 +52,20 @@ export function MenuSuggestions({ week }: { week: string }) {
     }
     setError(null);
     setAdded(null);
+    setAnswer(null);
+    setProgress(null);
     setSearching(true);
-    const response = await fetch("/api/menu/suggestions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ have: have.trim() }),
-    });
+    const result = await askLive<Suggestions>(
+      "/api/menu/suggestions",
+      { have: have.trim() },
+      setProgress,
+    );
     setSearching(false);
-    if (!response.ok) {
+    if (!result.ok) {
       setError(t("errors.failed"));
       return;
     }
-    setAnswer((await response.json()) as Suggestions);
+    setAnswer(result.result);
   }
 
   /** An idea becomes a draft to correct — never a recipe in the library. */
@@ -109,6 +115,17 @@ export function MenuSuggestions({ week }: { week: string }) {
           </Button>
         </form>
       </Card>
+
+      {/* What was typed is what turns: the chicken and the carrot, while
+          the library is searched and a model writes the rest. */}
+      {searching && (
+        <WorkingOn
+          data-testid="working"
+          label={t("working")}
+          words={have}
+          progress={progress}
+        />
+      )}
 
       {error && (
         <Banner tone="error" data-testid="menu-error" onDismiss={() => setError(null)}>

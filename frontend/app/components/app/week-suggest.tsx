@@ -8,14 +8,16 @@ import { Badge } from "@ui/badge";
 import { Chip } from "@ui/chip";
 import { Dialog } from "@ui/dialog";
 import { Input } from "@ui/input";
-import { Spinner } from "@ui/spinner";
 import { Icon } from "@ui/icons";
 import { cn } from "@ui/cn";
 import { CUISINES } from "@app/lib/cuisines";
 import { SLOTS, formatDay } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
-import type { Declined, WeekProposal } from "@app/lib/api";
-import { acceptProposal, suggestWeek } from "@app/[locale]/(app)/app/plan/actions";
+import type { Declined, WeekProposal, WeekSuggestion } from "@app/lib/api";
+import { askLive } from "@app/lib/ideas-stream";
+import type { Progress } from "@app/lib/ideas-stream";
+import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
+import { WorkingOn } from "./working-on";
 
 /**
  * The intentions somebody can ask a week for.
@@ -67,6 +69,10 @@ export function WeekSuggest({
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  // The ask is not a transition: what the stream says has to render the
+  // moment it arrives, and a transition holds its updates until it ends.
+  const [asking, setAsking] = useState(false);
 
   const [intents, setIntents] = useState<string[]>([]);
   const [cuisines, setCuisines] = useState<string[]>([]);
@@ -119,8 +125,10 @@ export function WeekSuggest({
     const asked = narrowed;
 
     setFailed(false);
-    startTransition(async () => {
-      const result = await suggestWeek({
+    setProgress(null);
+    setAsking(true);
+    void (async () => {
+      const result = await askLive<WeekSuggestion>("/api/plan/suggest", {
         week: weekStart,
         intents: asked,
         cuisines,
@@ -137,7 +145,8 @@ export function WeekSuggest({
         ],
         excludeTitles: [...keeping, ...refusing].map((one) => one.proposal.title),
         note: note.trim(),
-      });
+      }, setProgress);
+      setAsking(false);
 
       if (!result.ok) {
         setFailed(true);
@@ -145,13 +154,13 @@ export function WeekSuggest({
       }
       setDecisions([
         ...keeping,
-        ...result.suggestion.proposals.map((proposal) => ({ proposal, refused: null })),
+        ...result.result.proposals.map((proposal) => ({ proposal, refused: null })),
       ]);
-      setDeclined(result.suggestion.declined);
-      setUnfilled(result.suggestion.unfilled);
+      setDeclined(result.result.declined);
+      setUnfilled(result.result.unfilled);
       setRound((current) => current + 1);
       setStage("reviewing");
-    });
+    })();
   }
 
   /** Writes what is left onto the week, one meal at a time. */
@@ -190,7 +199,17 @@ export function WeekSuggest({
           data-testid="suggest-dialog"
           onClose={() => setOpen(false)}
         >
-          {stage === "asking" && (
+          {stage === "asking" && asking && (
+            <WorkingOn
+              className="mt-3"
+              data-testid="working"
+              label={t("working")}
+              words={[...intents, ...cuisines].join(" ")}
+              progress={progress}
+            />
+          )}
+
+          {stage === "asking" && !asking && (
             <div className="mt-3 flex flex-col gap-6">
               <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
                 {t("asking.body")}
@@ -237,7 +256,7 @@ export function WeekSuggest({
               )}
 
               <div className="flex flex-wrap gap-3">
-                <Button onClick={() => ask([], [])} loading={pending}>
+                <Button onClick={() => ask([], [])} loading={asking}>
                   {t("asking.submit")}
                 </Button>
                 <Button variant="secondary" onClick={() => setOpen(false)}>
@@ -249,6 +268,17 @@ export function WeekSuggest({
 
           {stage === "reviewing" && (
             <div className="mt-3 flex flex-col gap-5">
+              {/* Asking again writes only what was turned down; the count
+                  is of those, and the kept dishes stay on show below. */}
+              {asking && refused.length > 0 && (
+                <WorkingOn
+                  data-testid="working"
+                  label={t("working")}
+                  words={refused.map((one) => one.proposal.title).join(" ")}
+                  progress={progress}
+                />
+              )}
+
               <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
                 {t("reviewing.body", { count: kept.length })}
               </p>
@@ -312,7 +342,7 @@ export function WeekSuggest({
                 {refused.length > 0 && roundsLeft > 0 ? (
                   <Button
                     data-testid="reask"
-                    loading={pending}
+                    loading={asking}
                     onClick={() => ask(kept, refused)}
                   >
                     {t("reviewing.reask", { count: refused.length })}
@@ -371,12 +401,6 @@ export function WeekSuggest({
                 </Button>
               </div>
             </div>
-          )}
-
-          {pending && stage === "asking" && (
-            <p className="mt-4 flex items-center gap-2 text-[13px] font-semibold text-text-dim">
-              <Spinner /> {t("working")}
-            </p>
           )}
         </Dialog>
       )}

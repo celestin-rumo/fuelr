@@ -11,14 +11,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Ideas for what to cook, from Claude.
@@ -126,6 +133,12 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
     @Override
     public Ideas suggest(String have, int wanted, List<String> already,
                          ch.celestin.fuelr.preferences.Constraints constraints) {
+        return suggest(have, wanted, already, constraints, Progress.NONE);
+    }
+
+    @Override
+    public Ideas suggest(String have, int wanted, List<String> already,
+                         ch.celestin.fuelr.preferences.Constraints constraints, Progress progress) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -146,7 +159,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body, answerTimeFor(wanted));
+        JsonNode answer = send(body, answerTimeFor(wanted), wanted, progress);
         return new Ideas(read(answer), usageFrom(answer));
     }
 
@@ -154,6 +167,13 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
     public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
                             int wanted, List<String> already, String note,
                             ch.celestin.fuelr.preferences.Constraints constraints) {
+        return suggestFor(intents, cuisines, wanted, already, note, constraints, Progress.NONE);
+    }
+
+    @Override
+    public Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                            int wanted, List<String> already, String note,
+                            ch.celestin.fuelr.preferences.Constraints constraints, Progress progress) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -194,13 +214,20 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body, answerTimeFor(wanted));
+        JsonNode answer = send(body, answerTimeFor(wanted), wanted, progress);
         return new Ideas(read(answer), usageFrom(answer));
     }
 
     @Override
     public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
                               int wanted, ch.celestin.fuelr.preferences.Constraints constraints) {
+        return suggestBatch(intents, cuisines, wanted, constraints, Progress.NONE);
+    }
+
+    @Override
+    public Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                              int wanted, ch.celestin.fuelr.preferences.Constraints constraints,
+                              Progress progress) {
         ObjectNode body = JSON.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", tokensFor(wanted));
@@ -234,7 +261,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         choice.put("type", "tool");
         choice.put("name", TOOL);
 
-        JsonNode answer = send(body, answerTimeFor(wanted));
+        JsonNode answer = send(body, answerTimeFor(wanted), wanted, progress);
         return new Ideas(read(answer), usageFrom(answer));
     }
 
@@ -430,7 +457,19 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                 usage.path("output_tokens").asLong(0));
     }
 
-    private JsonNode send(ObjectNode body, Duration answerTime) {
+    /**
+     * Sent as a stream, and assembled here into the shape a one-piece answer
+     * has, so {@link #read} and {@link #usageFrom} never know the difference.
+     *
+     * What the stream adds is the titles. Each one closes long before its
+     * dish does, and telling the screen "plat 6 sur 14 — Dahl de lentilles"
+     * as it happens is what turns two minutes of spinner into two minutes
+     * somebody sits through. A provider that answers in one piece — the
+     * stand-ins in the tests do — is read as before: the shape is checked on
+     * the content type, never assumed.
+     */
+    private JsonNode send(ObjectNode body, Duration answerTime, int wanted, Progress progress) {
+        body.put("stream", true);
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(baseUrl + "/v1/messages"))
                 .timeout(answerTime)
                 .header("content-type", "application/json")
@@ -440,22 +479,31 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
             request.header("anthropic-workspace-id", workspaceId);
         }
         try {
-            HttpResponse<String> response = client.send(
+            HttpResponse<InputStream> response = client.send(
                     request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),
-                    HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                log.warn("No ideas: {} {}", response.statusCode(), response.body());
-                throw new IllegalStateException("provider_" + response.statusCode());
+                    HttpResponse.BodyHandlers.ofInputStream());
+            try (InputStream stream = response.body()) {
+                if (response.statusCode() != 200) {
+                    log.warn("No ideas: {} {}", response.statusCode(),
+                            new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+                    throw new IllegalStateException("provider_" + response.statusCode());
+                }
+                boolean streamed = response.headers().firstValue("content-type")
+                        .orElse("").contains("text/event-stream");
+                JsonNode answer = streamed
+                        ? assemble(stream, wanted, progress, Instant.now().plus(answerTime))
+                        : JSON.readTree(stream);
+                // A cut-off answer has no closed tool block and reads as "no
+                // ideas". Said by name here, because from the screen the two
+                // are indistinguishable and only one of them is our fault.
+                if ("max_tokens".equals(answer.path("stop_reason").asText())) {
+                    log.warn("Answer cut at max_tokens={} — asked for too much in one go",
+                            body.path("max_tokens").asInt());
+                }
+                return answer;
             }
-            JsonNode answer = JSON.readTree(response.body());
-            // A cut-off answer has no closed tool block and reads as "no
-            // ideas". Said by name here, because from the screen the two are
-            // indistinguishable and only one of them is our fault.
-            if ("max_tokens".equals(answer.path("stop_reason").asText())) {
-                log.warn("Answer cut at max_tokens={} — asked for too much in one go",
-                        body.path("max_tokens").asInt());
-            }
-            return answer;
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (IOException e) {
             throw new IllegalStateException("unreachable");
         } catch (InterruptedException e) {
@@ -463,6 +511,104 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
             throw new IllegalStateException("interrupted");
         } catch (Exception e) {
             throw new IllegalStateException("unparseable", e);
+        }
+    }
+
+    /**
+     * The provider's events, folded back into one answer.
+     *
+     * The tool's input arrives as fragments of JSON text; they are appended
+     * and, after each one, the closed titles are counted. The deadline is
+     * checked per line rather than by a read timeout, which this client does
+     * not have: the provider pings every few seconds, so a stalled connection
+     * still reaches the check, and a dead one fails the read.
+     */
+    private JsonNode assemble(InputStream stream, int wanted, Progress progress, Instant deadline)
+            throws IOException {
+        StringBuilder partial = new StringBuilder();
+        long inputTokens = 0;
+        long outputTokens = 0;
+        String stop = null;
+        boolean inTool = false;
+        int told = 0;
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (Instant.now().isAfter(deadline)) {
+                    throw new IllegalStateException("timeout");
+                }
+                if (!line.startsWith("data:")) {
+                    continue;
+                }
+                JsonNode event = JSON.readTree(line.substring(5).trim());
+                switch (event.path("type").asText()) {
+                    case "message_start" -> inputTokens = event.path("message").path("usage")
+                            .path("input_tokens").asLong(0);
+                    case "content_block_start" -> {
+                        JsonNode block = event.path("content_block");
+                        inTool = "tool_use".equals(block.path("type").asText())
+                                && TOOL.equals(block.path("name").asText());
+                    }
+                    case "content_block_delta" -> {
+                        JsonNode delta = event.path("delta");
+                        if (inTool && "input_json_delta".equals(delta.path("type").asText())) {
+                            partial.append(delta.path("partial_json").asText(""));
+                            told = tell(partial, told, wanted, progress);
+                        }
+                    }
+                    case "message_delta" -> {
+                        stop = event.path("delta").path("stop_reason").asText(null);
+                        outputTokens = event.path("usage").path("output_tokens").asLong(outputTokens);
+                    }
+                    case "error" -> throw new IllegalStateException("provider_error");
+                    default -> { }
+                }
+            }
+        }
+
+        ObjectNode answer = JSON.createObjectNode();
+        ObjectNode block = answer.putArray("content").addObject();
+        block.put("type", "tool_use");
+        block.put("name", TOOL);
+        JsonNode input;
+        try {
+            // Cut short, the text does not parse — and that is the same "no
+            // closed tool block" a one-piece answer would have handed back.
+            input = partial.isEmpty() ? JSON.createObjectNode() : JSON.readTree(partial.toString());
+        } catch (IOException e) {
+            input = JSON.createObjectNode();
+        }
+        block.set("input", input);
+        if (stop != null) {
+            answer.put("stop_reason", stop);
+        }
+        answer.putObject("usage").put("input_tokens", inputTokens).put("output_tokens", outputTokens);
+        return answer;
+    }
+
+    /** A title, once its closing quote has arrived. Only "titre" has one per dish. */
+    private static final Pattern TITLE = Pattern.compile("\"titre\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+
+    /** Says every title closed since the last look, and returns how many that makes. */
+    private static int tell(CharSequence partial, int told, int wanted, Progress progress) {
+        Matcher titles = TITLE.matcher(partial);
+        int seen = 0;
+        while (titles.find()) {
+            seen++;
+            if (seen > told) {
+                progress.dish(seen, wanted, unescaped(titles.group(1)));
+            }
+        }
+        return Math.max(told, seen);
+    }
+
+    private static String unescaped(String raw) {
+        try {
+            return JSON.readTree("\"" + raw + "\"").asText();
+        } catch (IOException e) {
+            return raw;
         }
     }
 }
