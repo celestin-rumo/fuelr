@@ -117,11 +117,12 @@ test("the library holds up, with its filters folded away", async ({ request, pag
   await page.goto("/fr/app");
 
   // Eleven rows of chips are not what somebody opens the app to read.
-  await expect(page.getByTestId("filter-cuisines")).toBeVisible();
-  await expect(page.getByTestId("cuisine-filters")).toBeHidden();
+  await expect(page.getByTestId("open-filters")).toBeVisible();
+  await expect(page.getByTestId("filters-drawer")).toBeHidden();
   await holdsUp(page);
 
-  // Twelve cuisines open under the row, not over the page.
+  // The drawer is a sheet from the bottom here; twelve cuisines open inside it.
+  await page.getByTestId("open-filters").click();
   await page.getByTestId("filter-cuisines").click();
   await expect(page.getByTestId("cuisine-filters")).toBeVisible();
   await holdsUp(page);
@@ -155,6 +156,7 @@ test("filling the week holds up on a phone", async ({ request, page }) => {
   await holdsUp(page);
 
   // Three rows of chips and a submit, on 360px.
+  await page.getByTestId("open-suggest").click();
   await page.getByTestId("suggest-week").click();
   await expect(page.getByTestId("suggest-dialog")).toBeVisible();
   await holdsUp(page);
@@ -173,6 +175,7 @@ test("cooking the week in one go holds up on a phone", async ({ request, page })
   });
 
   await page.goto(`/fr/app/planning?week=${MONDAY}`);
+  await page.getByTestId("open-suggest").click();
   await page.getByTestId("suggest-batch").click();
   await expect(page.getByTestId("batch-dialog")).toBeVisible();
   await holdsUp(page);

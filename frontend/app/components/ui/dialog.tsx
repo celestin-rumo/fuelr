@@ -26,6 +26,7 @@ export function Dialog({
   onClose,
   closeLabel,
   className,
+  placement = "center",
   ...props
 }: {
   title: string;
@@ -33,7 +34,15 @@ export function Dialog({
   onClose: () => void;
   closeLabel: string;
   className?: string;
+  /**
+   * `side` is the drawer: a panel along the right edge on a desk, a sheet
+   * from the bottom on a phone. For options that were hiding the content —
+   * a library's filters, a week's proposals — opened over the page rather
+   * than laid out above it, so the list is what a screen shows first.
+   */
+  placement?: "center" | "side";
 } & Omit<React.HTMLAttributes<HTMLDivElement>, "title" | "children">) {
+  const side = placement === "side";
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -53,11 +62,20 @@ export function Dialog({
     >
       {/* Top-aligned on a short screen, centred when there is room: centring a
           tall card is what pushes its head and feet off both ends at once. */}
-      <div className="flex min-h-full items-start justify-center p-4 sm:items-center sm:p-6">
+      <div
+        className={cn(
+          "flex min-h-full",
+          side
+            ? "items-end justify-center sm:items-stretch sm:justify-end"
+            : "items-start justify-center p-4 sm:items-center sm:p-6",
+        )}
+      >
         <div
           className={cn(
-            "flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col",
-            "rounded-lg border border-line bg-bg-raised shadow-e3",
+            "flex w-full flex-col border border-line bg-bg-raised shadow-e3",
+            side
+              ? "max-h-[85dvh] rounded-t-lg sm:h-dvh sm:max-h-none sm:max-w-md sm:rounded-none sm:rounded-l-lg"
+              : "max-h-[calc(100dvh-2rem)] max-w-lg rounded-lg",
             className,
           )}
         >

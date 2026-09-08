@@ -141,7 +141,10 @@
     "household": {
       "label": "Foyer",
       "less": "Une personne de moins dans le foyer",
-      "more": "Une personne de plus dans le foyer"
+      "more": "Une personne de plus dans le foyer",
+      "menu": "Foyer : {count, plural, one {# personne} other {# personnes}}",
+      "close": "Fermer",
+      "hint": "Pour combien de personnes la semaine se cuisine. C'est le nombre de parts proposé quand un plat est posé sur un jour."
     },
     "duplicate": {
       "action": "Dupliquer vers la semaine suivante",
@@ -328,7 +331,9 @@
       "more": "{count, plural, one {+ 1 autre} other {+ # autres}}",
       "empty": "Rien n'est prévu cette semaine.",
       "moment": "Feuille imprimée à un instant donné : un repas déplacé depuis n'y figure pas."
-    }
+    },
+    "propose": "Proposer",
+    "more": "Plus d'actions"
   },
   "household": {
     "label": "Foyer",
@@ -773,7 +778,8 @@
         "seasons": "Saison",
         "cuisines": "Cuisine",
         "origins": "Origine"
-      }
+      },
+      "close": "Fermer les filtres"
     },
     "print": {
       "button": "Imprimer",

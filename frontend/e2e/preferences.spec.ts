@@ -56,6 +56,7 @@ test("what I do not eat is said once, and the library can be narrowed to it", as
 
   // And the library applies it on the lines: the gratin names cream.
   await page.goto("/fr/app");
+  await page.getByTestId("open-filters").click();
   await page.getByTestId("compatible-filter").click();
   await expect(page).toHaveURL(/compatible=1/);
   await expect(page.getByText("Salade de tomates")).toBeVisible();

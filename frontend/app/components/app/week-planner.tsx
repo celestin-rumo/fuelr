@@ -3,9 +3,11 @@
 import { useOptimistic, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link, getPathname, useRouter } from "@/i18n/navigation";
 import { Button } from "@ui/button";
 import { Stepper } from "@ui/stepper";
+import { Menu } from "@ui/menu";
+import { FilterTrigger } from "@ui/filter-group";
 import { Dialog } from "@ui/dialog";
 import { Checkbox } from "@ui/checkbox";
 import { Chip } from "@ui/chip";
@@ -132,6 +134,7 @@ export function WeekPlanner({
         accounts={plan.accounts}
         onHousehold={changeHousehold}
         onDuplicate={() => duplicate(false)}
+        hasMeals={plan.meals.length > 0}
         suggest={
           <>
             <WeekSuggest
@@ -142,28 +145,6 @@ export function WeekPlanner({
               weekStart={plan.weekStart}
               planned={plan.meals.map((meal) => `${meal.date}:${meal.slot}`)}
             />
-            {/* Reading the week as one afternoon's work. Only offered once
-                there is a week to read: an empty plan has no session in it. */}
-            {plan.meals.length > 0 && (
-              <>
-                <Link
-                  href={{ pathname: "/app/plan/prep", query: { week: plan.weekStart } }}
-                  data-testid="to-prep-session"
-                  className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
-                >
-                  {t("prep.action")}
-                </Link>
-                {/* The one sheet in this application read by several people at
-                    once, most of whom have no account. */}
-                <Link
-                  href={{ pathname: "/app/plan/print", query: { week: plan.weekStart } }}
-                  data-testid="print-week"
-                  className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
-                >
-                  {t("printWeek.button")}
-                </Link>
-              </>
-            )}
           </>
         }
       />
@@ -414,6 +395,7 @@ function Toolbar({
   accounts,
   onHousehold,
   onDuplicate,
+  hasMeals,
   suggest,
 }: {
   weekStart: string;
@@ -424,72 +406,142 @@ function Toolbar({
   accounts: number;
   onHousehold: (size: number) => void;
   onDuplicate: () => void;
-  /** The whole suggestion flow, which owns its own dialog. */
+  /** Reading and printing a week only make sense once there is one. */
+  hasMeals: boolean;
+  /** The two proposal flows, each owning its own dialog. */
   suggest: ReactNode;
 }) {
   const t = useTranslations("plan");
   const label = t("week", {
     date: formatDay(weekStart, locale, { day: "numeric", month: "long" }),
   });
+  /** The proposals, shown under the row on request. */
+  const [proposing, setProposing] = useState(false);
+  const [householdOpen, setHouseholdOpen] = useState(false);
+  const loc = locale as "fr" | "en" | "de";
 
+  /*
+   * One row, then the week. Which week and who shares it stay visible;
+   * the two proposal flows sit behind one button, and what is done once a
+   * week or less — the household, duplicating, reading, printing — behind
+   * one menu. Three rows of controls stood between somebody opening the
+   * planner and Monday.
+   */
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-      <div className="flex items-center gap-2">
-        <WeekLink week={addDays(weekStart, -7)} label={t("previousWeek")}>
-          <Icon name="arrowLeft" />
-        </WeekLink>
-        <h2
-          data-testid="week-label"
-          className="font-display text-[15px] font-bold text-text"
-        >
-          {label}
-        </h2>
-        <WeekLink week={addDays(weekStart, 7)} label={t("nextWeek")}>
-          <Icon name="arrowRight" />
-        </WeekLink>
-      </div>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3" data-testid="plan-bar">
+        <div className="flex items-center gap-2">
+          <WeekLink week={addDays(weekStart, -7)} label={t("previousWeek")}>
+            <Icon name="arrowLeft" />
+          </WeekLink>
+          <h2
+            data-testid="week-label"
+            className="font-display text-[15px] font-bold text-text"
+          >
+            {label}
+          </h2>
+          <WeekLink week={addDays(weekStart, 7)} label={t("nextWeek")}>
+            <Icon name="arrowRight" />
+          </WeekLink>
+        </div>
 
-      <Link
-        href={{ pathname: "/app/plan", query: { week: today } }}
-        className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
-      >
-        {t("thisWeek")}
-      </Link>
-
-      {/* A shared plan has to say so. Someone else's dinner appearing on
-          Thursday is a surprise exactly once if the screen never mentions
-          that other people are writing on it. */}
-      {shared && (
         <Link
-          href="/app/household"
-          data-testid="shared-plan"
-          className="inline-flex h-9 max-sm:h-11 items-center gap-2 rounded-full border border-accent-ink px-3 text-[13px] font-semibold text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          href={{ pathname: "/app/plan", query: { week: today } }}
+          className="inline-flex min-h-11 items-center text-[13px] font-semibold text-mint-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
         >
-          {t("sharedWith", { count: accounts })}
+          {t("thisWeek")}
         </Link>
-      )}
 
-      <div className="flex-1" />
+        {/* A shared plan has to say so. Someone else's dinner appearing on
+            Thursday is a surprise exactly once if the screen never mentions
+            that other people are writing on it. */}
+        {shared && (
+          <Link
+            href="/app/household"
+            data-testid="shared-plan"
+            className="inline-flex h-9 max-sm:h-11 items-center gap-2 rounded-full border border-accent-ink px-3 text-[13px] font-semibold text-accent-ink hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+          >
+            {t("sharedWith", { count: accounts })}
+          </Link>
+        )}
 
-      <div className="flex items-center gap-2">
-        <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-          {t("household.label")}
-        </span>
-        <Stepper
-          data-testid="household-size"
-          value={household}
-          onChange={onHousehold}
-          max={12}
-          decreaseLabel={t("household.less")}
-          increaseLabel={t("household.more")}
+        <div className="flex-1" />
+
+        <FilterTrigger
+          block={false}
+          open={proposing}
+          aria-controls="suggest-panel"
+          data-testid="open-suggest"
+          onClick={() => setProposing((current) => !current)}
+        >
+          {t("propose")}
+        </FilterTrigger>
+
+        <Menu
+          label={t("more")}
+          align="end"
+          data-testid="plan-menu"
+          items={[
+            {
+              label: t("household.menu", { count: household }),
+              icon: "people",
+              onSelect: () => setHouseholdOpen(true),
+              testId: "menu-household",
+            },
+            {
+              label: t("duplicate.action"),
+              icon: "copy",
+              onSelect: onDuplicate,
+              testId: "menu-duplicate",
+            },
+            // Reading the week as one afternoon's work, and the one sheet in
+            // this application read by several people at once. Only offered
+            // once there is a week: an empty plan has no session in it.
+            {
+              label: t("prep.action"),
+              icon: "flame",
+              href: getPathname({ href: { pathname: "/app/plan/prep", query: { week: weekStart } }, locale: loc }),
+              disabled: !hasMeals,
+              testId: "to-prep-session",
+            },
+            {
+              label: t("printWeek.button"),
+              icon: "book",
+              href: getPathname({ href: { pathname: "/app/plan/print", query: { week: weekStart } }, locale: loc }),
+              disabled: !hasMeals,
+              testId: "print-week",
+            },
+          ]}
         />
       </div>
 
-      {suggest}
+      {proposing && (
+        <div id="suggest-panel" className="flex flex-wrap gap-3" data-testid="suggest-panel">
+          {suggest}
+        </div>
+      )}
 
-      <Button variant="secondary" onClick={onDuplicate}>
-        {t("duplicate.action")}
-      </Button>
+      {householdOpen && (
+        <Dialog
+          title={t("household.label")}
+          closeLabel={t("household.close")}
+          data-testid="household-dialog"
+          onClose={() => setHouseholdOpen(false)}
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-[15px] leading-[1.5] font-medium text-text-dim">{t("household.hint")}</p>
+            <Stepper
+              data-testid="household-size"
+              value={household}
+              onChange={onHousehold}
+              max={12}
+              size="xl"
+              decreaseLabel={t("household.less")}
+              increaseLabel={t("household.more")}
+            />
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

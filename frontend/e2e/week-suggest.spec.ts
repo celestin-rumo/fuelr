@@ -66,6 +66,7 @@ test("filling the week never proposes what is already in the library", async ({
   await seed(request, "Pâtes au pesto", "Pâtes");
 
   await openWeek(page);
+  await page.getByTestId("open-suggest").click();
   await page.getByTestId("suggest-week").click();
 
   const dialog = page.getByTestId("suggest-dialog");

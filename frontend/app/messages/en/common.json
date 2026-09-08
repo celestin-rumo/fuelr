@@ -141,7 +141,10 @@
     "household": {
       "label": "Household",
       "less": "One person fewer in the household",
-      "more": "One person more in the household"
+      "more": "One person more in the household",
+      "menu": "Household: {count, plural, one {# person} other {# people}}",
+      "close": "Close",
+      "hint": "How many people the week cooks for: the servings proposed when a dish is put on a day."
     },
     "duplicate": {
       "action": "Copy to next week",
@@ -328,7 +331,9 @@
       "more": "{count, plural, one {+ 1 more} other {+ # more}}",
       "empty": "Nothing is planned this week.",
       "moment": "Printed at one moment: a meal moved since is not on this sheet."
-    }
+    },
+    "propose": "Propose",
+    "more": "More actions"
   },
   "household": {
     "label": "Household",
@@ -773,7 +778,8 @@
         "seasons": "Season",
         "cuisines": "Cuisine",
         "origins": "Origin"
-      }
+      },
+      "close": "Close the filters"
     },
     "print": {
       "button": "Print",

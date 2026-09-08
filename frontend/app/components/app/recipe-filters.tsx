@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { Chip } from "@ui/chip";
 import { FilterPanel, FilterTrigger } from "@ui/filter-group";
-import { Input } from "@ui/input";
 import { SEASONS, seasonOf } from "@app/lib/seasons";
 import type { Season } from "@app/lib/seasons";
 import { CUISINES } from "@app/lib/cuisines";
@@ -29,31 +28,7 @@ const DEBOUNCE = 300;
 const GROUPS = ["tags", "seasons", "cuisines", "origins"] as const;
 type Group = (typeof GROUPS)[number];
 
-/**
- * The library's filters, the way a shop's listing draws them.
- *
- * A row of *popular* filters first — the handful people actually press:
- * in season, quick, vegetarian, what my preferences allow, what a model
- * wrote — then four doors, one per closed domain, each saying on its face
- * how many of its options are on. Opening one lays its options out under
- * the row; opening another closes it. Below, what is on is repeated as
- * chips that can be removed one by one, so a filter behind a shut door is
- * never a forgotten one: the door counts it and the chip names it.
- *
- * Twenty-three chips used to stand here, folded behind one button at every
- * width. Four doors and five chips are what replaced the fold: nothing to
- * open before the library can be narrowed, and nothing hidden that does
- * not say so.
- */
-export function RecipeFilters({
-  term,
-  selectedTags,
-  selectedSeasons,
-  selectedCuisines,
-  selectedOrigins,
-  onlyCompatible,
-  today,
-}: {
+export type FilterState = {
   term: string;
   selectedTags: string[];
   selectedSeasons: Season[];
@@ -64,24 +39,35 @@ export function RecipeFilters({
   onlyCompatible: boolean;
   /** Resolved on the server, so "in season" means the same on both sides. */
   today: string;
-}) {
-  const t = useTranslations("recipe");
-  const tApp = useTranslations("app");
+};
+
+/** How many filters are on — what the bar's button says on its face. */
+export function activeCount(state: FilterState): number {
+  return (
+    state.selectedTags.length +
+    state.selectedSeasons.length +
+    state.selectedCuisines.length +
+    state.selectedOrigins.length +
+    (state.onlyCompatible ? 1 : 0)
+  );
+}
+
+/**
+ * The one way the filters reach the URL. Every part of the bar — the search
+ * field, the drawer, the chips of what is on — writes through this, so no
+ * part can forget another's state: the state is the page's props, and a
+ * write carries all of it.
+ */
+function useFilterPush(state: FilterState) {
   const router = useRouter();
   const pathname = usePathname();
-
-  const [value, setValue] = useState(term);
-  const firstRender = useRef(true);
-  /** The one door open, if any. */
-  const [open, setOpen] = useState<Group | null>(null);
-
-  function push(
-    nextTerm: string,
-    nextTags: string[],
-    nextSeasons: Season[],
-    nextCuisines: Cuisine[] = selectedCuisines,
-    nextOrigins: RecipeOrigin[] = selectedOrigins,
-    nextCompatible: boolean = onlyCompatible,
+  return function push(
+    nextTerm: string = state.term,
+    nextTags: string[] = state.selectedTags,
+    nextSeasons: Season[] = state.selectedSeasons,
+    nextCuisines: Cuisine[] = state.selectedCuisines,
+    nextOrigins: RecipeOrigin[] = state.selectedOrigins,
+    nextCompatible: boolean = state.onlyCompatible,
   ) {
     const params = new URLSearchParams();
     if (nextTerm.trim()) params.set("q", nextTerm.trim());
@@ -92,7 +78,57 @@ export function RecipeFilters({
     if (nextCompatible) params.set("compatible", "1");
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
-  }
+  };
+}
+
+/** What toggling each domain does; shared by the drawer and the chips. */
+function useToggles(state: FilterState) {
+  const push = useFilterPush(state);
+  const { selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, onlyCompatible } = state;
+  return {
+    push,
+    toggleTag(tag: string) {
+      const next = selectedTags.includes(tag)
+        ? selectedTags.filter((x) => x !== tag)
+        : [...selectedTags, tag];
+      push(undefined, next);
+    },
+    // Several means *either*, like the seasons — a recipe carries at most one
+    // cuisine, so asking for two can only be a choice between them.
+    toggleCuisine(cuisine: Cuisine) {
+      const next = selectedCuisines.includes(cuisine)
+        ? selectedCuisines.filter((x) => x !== cuisine)
+        : [...selectedCuisines, cuisine];
+      push(undefined, undefined, undefined, next);
+    },
+    // Alternatives too: a recipe has exactly one origin.
+    toggleOrigin(origin: RecipeOrigin) {
+      const next = selectedOrigins.includes(origin)
+        ? selectedOrigins.filter((x) => x !== origin)
+        : [...selectedOrigins, origin];
+      push(undefined, undefined, undefined, undefined, next);
+    },
+    toggleSeason(season: Season) {
+      const next = selectedSeasons.includes(season)
+        ? selectedSeasons.filter((x) => x !== season)
+        : [...selectedSeasons, season];
+      push(undefined, undefined, next);
+    },
+    toggleCompatible() {
+      push(undefined, undefined, undefined, undefined, undefined, !onlyCompatible);
+    },
+  };
+}
+
+/**
+ * The search field alone, for the bar: it is the one filter somebody uses
+ * on every visit, so it stays in reach while the rest is behind a button.
+ */
+export function RecipeSearch(state: FilterState) {
+  const tApp = useTranslations("app");
+  const push = useFilterPush(state);
+  const [value, setValue] = useState(state.term);
+  const firstRender = useRef(true);
 
   // Typing does not fire a request per keystroke.
   useEffect(() => {
@@ -100,62 +136,116 @@ export function RecipeFilters({
       firstRender.current = false;
       return;
     }
-    const timer = window.setTimeout(
-      () => push(value, selectedTags, selectedSeasons),
-      DEBOUNCE,
-    );
+    const timer = window.setTimeout(() => push(value), DEBOUNCE);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  // Escape shuts the open door and leaves the focus where it is.
-  useEffect(() => {
-    if (!open) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(null);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  return (
+    <input
+      type="search"
+      aria-label={tApp("search.label")}
+      placeholder={tApp("search.placeholder")}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      data-testid="recipe-search"
+      className="min-h-11 w-full rounded-sm border border-line bg-bg-raised-2 px-4 text-[15px] font-medium text-text placeholder:text-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+    />
+  );
+}
 
-  function toggleTag(tag: string) {
-    const next = selectedTags.includes(tag)
-      ? selectedTags.filter((x) => x !== tag)
-      : [...selectedTags, tag];
-    push(value, next, selectedSeasons);
-  }
+/**
+ * What is on, by name, removable one by one — outside the drawer, so a
+ * filter behind a shut door is never a forgotten one. Nothing while
+ * nothing is on.
+ */
+export function ActiveFilters(state: FilterState) {
+  const t = useTranslations("recipe");
+  const tApp = useTranslations("app");
+  const { push, toggleTag, toggleSeason, toggleCuisine, toggleOrigin, toggleCompatible } =
+    useToggles(state);
+  const { selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, onlyCompatible } = state;
+  if (activeCount(state) === 0 && state.term === "") return null;
 
-  // Several means *either*, like the seasons — a recipe carries at most one
-  // cuisine, so asking for two can only be a choice between them.
-  function toggleCuisine(cuisine: Cuisine) {
-    const next = selectedCuisines.includes(cuisine)
-      ? selectedCuisines.filter((x) => x !== cuisine)
-      : [...selectedCuisines, cuisine];
-    push(value, selectedTags, selectedSeasons, next);
-  }
+  return (
+    <div className="flex flex-wrap items-center gap-2" data-testid="active-filters">
+      {selectedTags.map((tag) => (
+        <Chip
+          key={`on-${tag}`}
+          active
+          onRemove={() => toggleTag(tag)}
+          removeLabel={t("filters.remove", { name: t(`tags.${tag}`) })}
+        >
+          {t(`tags.${tag}`)}
+        </Chip>
+      ))}
+      {selectedSeasons.map((season) => (
+        <Chip
+          key={`on-${season}`}
+          active
+          onRemove={() => toggleSeason(season)}
+          removeLabel={t("filters.remove", { name: t(`seasons.${season}`) })}
+        >
+          {t(`seasons.${season}`)}
+        </Chip>
+      ))}
+      {selectedCuisines.map((cuisine) => (
+        <Chip
+          key={`on-${cuisine}`}
+          active
+          onRemove={() => toggleCuisine(cuisine)}
+          removeLabel={t("filters.remove", { name: t(`cuisines.${cuisine}`) })}
+        >
+          {t(`cuisines.${cuisine}`)}
+        </Chip>
+      ))}
+      {selectedOrigins.map((origin) => (
+        <Chip
+          key={`on-${origin}`}
+          active
+          onRemove={() => toggleOrigin(origin)}
+          removeLabel={t("filters.remove", { name: t(`origins.${origin}`) })}
+        >
+          {t(`origins.${origin}`)}
+        </Chip>
+      ))}
+      {onlyCompatible && (
+        <Chip
+          active
+          onRemove={toggleCompatible}
+          removeLabel={t("filters.remove", { name: t("filters.compatible") })}
+        >
+          {t("filters.compatible")}
+        </Chip>
+      )}
+      <Chip onClick={() => push("", [], [], [], [], false)}>{tApp("search.clear")}</Chip>
+    </div>
+  );
+}
 
-  // Alternatives too: a recipe has exactly one origin.
-  function toggleOrigin(origin: RecipeOrigin) {
-    const next = selectedOrigins.includes(origin)
-      ? selectedOrigins.filter((x) => x !== origin)
-      : [...selectedOrigins, origin];
-    push(value, selectedTags, selectedSeasons, selectedCuisines, next);
-  }
-
-  function toggleSeason(season: Season) {
-    const next = selectedSeasons.includes(season)
-      ? selectedSeasons.filter((x) => x !== season)
-      : [...selectedSeasons, season];
-    push(value, selectedTags, next);
-  }
-
-  function toggleCompatible() {
-    push(value, selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, !onlyCompatible);
-  }
+/**
+ * The library's filters, the way a shop's listing draws them — inside the
+ * drawer the bar opens.
+ *
+ * A row of *popular* filters first — the handful people actually press:
+ * in season, quick, vegetarian, what my preferences allow, what a model
+ * wrote — then four doors, one per closed domain, each saying on its face
+ * how many of its options are on. Opening one lays its options out under
+ * the row; opening another closes it. What is on is named outside the
+ * drawer, by `ActiveFilters`, so a filter behind a shut drawer is never a
+ * forgotten one: the bar's button counts it and the chip names it.
+ */
+export function RecipeFilters(state: FilterState) {
+  const t = useTranslations("recipe");
+  const { push, toggleTag, toggleSeason, toggleCuisine, toggleOrigin, toggleCompatible } =
+    useToggles(state);
+  const { selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, onlyCompatible, today } =
+    state;
+  /** The one door open, if any. */
+  const [open, setOpen] = useState<Group | null>(null);
 
   const current = seasonOf(today);
-  const onlyCurrent =
-    selectedSeasons.length === 1 && selectedSeasons[0] === current;
+  const onlyCurrent = selectedSeasons.length === 1 && selectedSeasons[0] === current;
 
   const counts: Record<Group, number> = {
     tags: selectedTags.length,
@@ -163,8 +253,6 @@ export function RecipeFilters({
     cuisines: selectedCuisines.length,
     origins: selectedOrigins.length,
   };
-  const active =
-    counts.tags + counts.seasons + counts.cuisines + counts.origins + (onlyCompatible ? 1 : 0);
 
   function door(group: Group) {
     setOpen((now) => (now === group ? null : group));
@@ -172,17 +260,6 @@ export function RecipeFilters({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="max-w-md">
-        <Input
-          label={tApp("search.label")}
-          type="search"
-          value={value}
-          placeholder={tApp("search.placeholder")}
-          onChange={(e) => setValue(e.target.value)}
-          hint={tApp("search.hint")}
-        />
-      </div>
-
       {/* The handful people actually press, always in reach. Each is the
           same filter as behind its door, so the door counts it too. */}
       <div className="flex flex-col gap-2">
@@ -193,7 +270,7 @@ export function RecipeFilters({
           <Chip
             active={onlyCurrent}
             data-testid="in-season"
-            onClick={() => push(value, selectedTags, onlyCurrent ? [] : [current])}
+            onClick={() => push(undefined, undefined, onlyCurrent ? [] : [current])}
           >
             {t("seasons.now")}
           </Chip>
@@ -217,8 +294,8 @@ export function RecipeFilters({
         </div>
       </div>
 
-      {/* Four doors: two to a row on a phone, all four across on a desk. */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {/* Four doors, two to a row: the drawer is never wider than a phone. */}
+      <div className="grid grid-cols-2 gap-2">
         {GROUPS.map((group) => (
           <FilterTrigger
             key={group}
@@ -286,74 +363,6 @@ export function RecipeFilters({
             </Chip>
           ))}
         </FilterPanel>
-      )}
-
-      {/* What is on, by name, removable one by one — whatever door it is
-          behind. The count on the door says how many; this says which. */}
-      {(active > 0 || value !== "") && (
-        <div className="flex flex-wrap items-center gap-2" data-testid="active-filters">
-          {selectedTags.map((tag) => (
-            <Chip
-              key={`on-${tag}`}
-              active
-              onRemove={() => toggleTag(tag)}
-              removeLabel={t("filters.remove", { name: t(`tags.${tag}`) })}
-              onClick={() => setOpen("tags")}
-            >
-              {t(`tags.${tag}`)}
-            </Chip>
-          ))}
-          {selectedSeasons.map((season) => (
-            <Chip
-              key={`on-${season}`}
-              active
-              onRemove={() => toggleSeason(season)}
-              removeLabel={t("filters.remove", { name: t(`seasons.${season}`) })}
-              onClick={() => setOpen("seasons")}
-            >
-              {t(`seasons.${season}`)}
-            </Chip>
-          ))}
-          {selectedCuisines.map((cuisine) => (
-            <Chip
-              key={`on-${cuisine}`}
-              active
-              onRemove={() => toggleCuisine(cuisine)}
-              removeLabel={t("filters.remove", { name: t(`cuisines.${cuisine}`) })}
-              onClick={() => setOpen("cuisines")}
-            >
-              {t(`cuisines.${cuisine}`)}
-            </Chip>
-          ))}
-          {selectedOrigins.map((origin) => (
-            <Chip
-              key={`on-${origin}`}
-              active
-              onRemove={() => toggleOrigin(origin)}
-              removeLabel={t("filters.remove", { name: t(`origins.${origin}`) })}
-              onClick={() => setOpen("origins")}
-            >
-              {t(`origins.${origin}`)}
-            </Chip>
-          ))}
-          {onlyCompatible && (
-            <Chip
-              active
-              onRemove={toggleCompatible}
-              removeLabel={t("filters.remove", { name: t("filters.compatible") })}
-            >
-              {t("filters.compatible")}
-            </Chip>
-          )}
-          <Chip
-            onClick={() => {
-              setValue("");
-              push("", [], [], [], [], false);
-            }}
-          >
-            {tApp("search.clear")}
-          </Chip>
-        </div>
       )}
     </div>
   );

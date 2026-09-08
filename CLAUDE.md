@@ -673,9 +673,12 @@ left gets read. From a row, a recipe can be cooked or put on the week without
 opening it — planning asks two questions and pre-answers both, today and
 dinner, because opening the planner, finding the week, finding the day and
 dragging a card is four decisions for something already decided when the
-recipe was picked. `/app/idees` uses the same rows, which settles the
-illustration question honestly: no row anywhere in this app carries a
-photograph, so an idea is not made to look like it is missing one.
+recipe was picked. Every row carries a small picture at its left
+(`RecipeThumb`): the recipe's photograph when it has one, otherwise a tile
+drawn from its own title — a hue hashed from the words and the first food the
+title names — deterministic, and drawn rather than generated, so it never
+pretends to be a photograph of a dish nobody cooked. `/app/idees` uses the
+same rows.
 
 **A backup that has not been restored is a hypothesis.** `scripts/backup.sh`
 dumps Postgres, archives the `recipe_media` volume, and then restores the dump
@@ -1097,12 +1100,18 @@ each new screen to that spec; a control written into a sentence is exempt
 (`display: inline`), a control with a box of its own is not.
 
 Three habits come out of it. **A phone is not a small desktop**: below `lg` the
-planner offers one add button per day instead of 21 empty slots, and the
-library's filters are a row of *popular* chips and four doors (`FilterTrigger`)
-— one per closed domain, each counting what is on behind it — whose options
-open under the row (`FilterPanel`), never over the page; what is on is also
-named as removable chips below. Hiding a filter is only allowed while it still
-says it is on, and a door does. **Order is part
+planner offers one add button per day instead of 21 empty slots, and both
+the library and the planner open on **one bar, then the content**. The
+library's bar is the search field, one *Filtrer* button that counts what is
+on, and *Favorites*; the filters — a row of *popular* chips and four doors
+(`FilterTrigger`), one per closed domain, whose options open under the row
+(`FilterPanel`) — live in a drawer (`Dialog placement="side"`: a panel at
+the right edge on a desk, a sheet from the bottom on a phone), and what is
+on is named under the bar as removable chips (`ActiveFilters`). The
+planner's bar is the week, one *Proposer* button revealing the two proposal
+flows, and one menu for what is done once a week or less: the household (a
+dialog with the stepper), duplicating, reading, printing. Hiding an option is
+only allowed while it still says it is on, and a counting button does. **Order is part
 of the layout**: the journal puts the meals somebody came to read before the
 targets they set once a month, with `order-*` rather than a second markup.
 And **a dialog is one component** — `@ui/dialog` — because the meal sheet that
