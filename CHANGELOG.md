@@ -6,6 +6,25 @@ this file collects them newest first.
 
 ---
 
+# v4.3.3 — 2026-09-08
+
+The two save buttons on the profile are gone.
+
+*Vous* and *Activité et objectif* wrote nothing until a button under them was
+pressed, while the first name beside them had always saved on its own. Now a
+figure is written the moment it is settled: a field left, a goal card pressed,
+an activity or a sex chosen. The target under the figures follows each write,
+because the person just changed the number it is computed from. A weight
+typed on *Vous* is still today's weigh-in, recorded once per change. Nothing
+is written while a figure is still missing, since the formula would have
+nothing to say.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.3.2 — 2026-09-08
 
 One thing: *Activité et objectif* folds the way *Vous* does. Both open by
