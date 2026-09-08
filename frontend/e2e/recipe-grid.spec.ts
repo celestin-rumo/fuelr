@@ -141,6 +141,7 @@ test("the favourites filter narrows the grid", async ({ request, context, page }
   await expect(page.getByText("Épinglée")).toBeVisible();
   await expect(page.getByText("Ordinaire")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Toutes" }).click();
+  // One chip, on or off: pressing it again shows everything.
+  await page.getByTestId("only-favorites").click();
   await expect(page.getByText("Ordinaire")).toBeVisible();
 });
