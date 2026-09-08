@@ -56,6 +56,8 @@ test("the language follows the account, and the page follows the language", asyn
   const { token } = await register(request, context);
   await page.goto("/fr/app/compte/profil");
 
+  // Folded near the end: a language does not change, so it is not up front.
+  await page.getByTestId("disclosure-language").locator("summary").click();
   await page.getByRole("button", { name: "Deutsch" }).click();
   await expect(page).toHaveURL(/\/de\/app\/konto\/profil/);
   await expect(page.getByTestId("account-back")).toContainText("Zurück");
@@ -106,6 +108,7 @@ test("an address moves only when the new one clicks, and the old one is told", a
   const next = freshEmail("nouvelle");
 
   await page.goto("/fr/app/compte/profil");
+  await page.getByTestId("disclosure-email").locator("summary").click();
   await page.getByTestId("email-new").fill(next);
   await page.getByTestId("email-password").fill("motdepasse123");
   await page.getByTestId("email-submit").click();

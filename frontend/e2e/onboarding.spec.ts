@@ -82,7 +82,7 @@ test("creating the account keeps the profile that was just filled in", async ({
   const { profile } = await saved.json();
   expect(profile).toMatchObject({
     goal: "LOSE",
-    birthDate: "1996-01-02",
+    birthDate: "1996-03-02",
     sex: "FEMALE",
     heightCm: 168,
     weightKg: 62,
