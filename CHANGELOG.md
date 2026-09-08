@@ -6,6 +6,44 @@ this file collects them newest first.
 
 ---
 
+# v4.1.0 — 2026-09-08
+
+The account page, reshaped — and the household moves in.
+
+## An identity in front, five tabs behind
+
+v4.0.0 put nine forms on one page, and nine forms is past what anybody
+scans. The account now shows who this is — your name is the heading, your
+address sits under it — and groups everything else by what you came to do:
+
+- **Profil** — the six figures, your weigh-ins, the link to share;
+- **Foyer** — the household, which lived on a screen of its own;
+- **Préférences** — what you eat, and what you hear from Fuelr;
+- **Sécurité** — the password and your devices;
+- **Mes données** — the archive and the door out, last and on their own.
+
+The tab is in the address, so a bookmark can land on security and an
+invitation mail on the household. On a phone the strip scrolls sideways
+rather than stacking rows above what you came to read.
+
+## Four tabs at the bottom, not five
+
+The bar at the bottom of the phone had five destinations and about eighty
+pixels to spare. It keeps the four things done every week — recipes, plan,
+shopping, journal — and the household goes where it is read: the account
+page, reached from your name in the header on every screen. It is set once
+and read rarely, and a tab bar is for what is touched every day.
+
+The household's old address still works. Invitation mails carry it, and a
+link in somebody's inbox is not something a redesign may break — it forwards
+to the account, token and all.
+
+## What is left
+
+Unchanged from v4.0.0.
+
+---
+
 # v4.0.0 — 2026-09-07
 
 One epic: *Mon compte*. What is yours stays under your hand — your profile,
