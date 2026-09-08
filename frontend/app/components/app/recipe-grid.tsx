@@ -283,7 +283,7 @@ export function RecipeGrid({
                 leading={
                   <span className="flex shrink-0 items-center gap-2">
                   {/* The picture first, at the very left; the pin beside it. */}
-                  <RecipeThumb id={recipe.id} title={title} hasPhoto={recipe.hasPhoto} generated={recipe.photoGenerated} />
+                  <RecipeThumb id={recipe.id} title={title} hasPhoto={recipe.hasPhoto} generated={recipe.photoGenerated} awaiting={recipe.origin === "AI"} />
                   <button
                     type="button"
                     aria-label={
