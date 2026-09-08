@@ -6,6 +6,31 @@ this file collects them newest first.
 
 ---
 
+# v4.8.0 — 2026-09-08
+
+Each dish shows up the moment it is written.
+
+## One row at a time
+
+Asking for dishes used to end in one go: a count moved for a minute or two,
+then the whole list appeared. Now every dish the model finishes — title,
+ingredients, steps — shows up as a row under the count while the next one
+is still being written, with its picture already on the way. *Une idée*
+says "1 plat prêt", then "2 plats prêts", and a dish from the bag can be
+kept the moment it is there, without waiting for the others. The week and
+the batch set list their dishes the same way; deciding still happens on
+the whole answer, once it is in.
+
+Under it, the stream now carries each finished dish as well as each
+started title. A dish that would be dropped for an allergen is never
+shown, even for a second.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.7.0 — 2026-09-08
 
 The picture is there before you decide.
