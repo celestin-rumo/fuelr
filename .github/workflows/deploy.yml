@@ -36,6 +36,9 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'production') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch != 'dev')
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -100,6 +103,16 @@ jobs:
       # images behind: the disk filled up and a deploy died mid-pull with "No
       # space left on device". Unused images and build cache go before each
       # pull; what is running is never touched, and every image is in ghcr.
+      # Pulls were riding on a login somebody typed on the server once, and
+      # the day it stopped working every deploy died with "denied". The job
+      # signs in itself, with the token the run already holds.
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Make room
         shell: bash
         run: |
@@ -125,6 +138,9 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev')
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -190,6 +206,16 @@ jobs:
       # images behind: the disk filled up and a deploy died mid-pull with "No
       # space left on device". Unused images and build cache go before each
       # pull; what is running is never touched, and every image is in ghcr.
+      # Pulls were riding on a login somebody typed on the server once, and
+      # the day it stopped working every deploy died with "denied". The job
+      # signs in itself, with the token the run already holds.
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Make room
         shell: bash
         run: |
