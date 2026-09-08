@@ -6,6 +6,23 @@ this file collects them newest first.
 
 ---
 
+# v4.6.2 — 2026-09-08
+
+The picture shows up on its own.
+
+An illustration is asked for the instant a dish a model wrote becomes a
+draft, and lands a few seconds behind it. Until now the screen only found
+out on the next reload. The row in the library and the photo on the
+recipe's page now watch for it — a look at the photo route every couple of
+seconds, for half a minute at most — and show it the moment it is there,
+saying what it is. A dish that never gets one stops being asked about.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.6.1 — 2026-09-08
 
 One fix: a dish kept from *Une idée* — the bag-of-groceries screen — is now
