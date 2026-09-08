@@ -6,6 +6,50 @@ this file collects them newest first.
 
 ---
 
+# v4.5.0 — 2026-09-08
+
+One bar, then the content — on the library and on the week.
+
+## The library: a bar and a drawer
+
+Five rows stood between opening the library and the first recipe: the
+search field with its hint, the popular filters, the four doors, the active
+chips, the favourites switch. The library now opens on one row — the search
+field, one *Filtrer* button that says how many filters are on, and
+*Favorites* — and the recipes right under it.
+
+The filters are exactly what v4.4.0 built, in a drawer the button opens: a
+panel along the right edge on a desk, a sheet from the bottom on a phone.
+What is on stays named under the bar as chips that can be removed one by
+one, so a filter behind a shut drawer is never a forgotten one: the button
+counts it and the chip names it.
+
+## The week: a bar and a menu
+
+Three rows stood between opening the planner and Monday. There is one now:
+the week and its arrows, *this week*, who shares the plan; then one
+*Proposer* button that reveals *Remplir la semaine* and *Cuisiner en une
+fois*; then one menu for what is done once a week or less — the household,
+in a small dialog with its stepper; duplicating; reading the week as one
+afternoon; printing it for the fridge.
+
+## A picture on every row
+
+Every recipe row carries a small picture at its left. A recipe with a
+photograph shows it. One without — most imports, every dish a model wrote —
+gets a tile drawn from its own title: a hue from the words, the first food
+the title names. Deterministic, so the same recipe looks the same twice and
+two never look alike; drawn rather than generated, so it never pretends to
+be a photograph of a dish nobody cooked. Generating real pictures for the
+dishes a model writes is a separate decision, and it needs an image model
+this application does not yet talk to.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.4.0 — 2026-09-08
 
 The library's filters, drawn the way a shop draws them.
