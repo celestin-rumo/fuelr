@@ -1097,9 +1097,12 @@ each new screen to that spec; a control written into a sentence is exempt
 (`display: inline`), a control with a box of its own is not.
 
 Three habits come out of it. **A phone is not a small desktop**: below `lg` the
-planner offers one add button per day instead of 21 empty slots, and below `sm`
-the library folds eleven rows of filters behind one chip that carries the count
-— hiding a filter is only allowed while it still says it is on. **Order is part
+planner offers one add button per day instead of 21 empty slots, and the
+library's filters are a row of *popular* chips and four doors (`FilterTrigger`)
+— one per closed domain, each counting what is on behind it — whose options
+open under the row (`FilterPanel`), never over the page; what is on is also
+named as removable chips below. Hiding a filter is only allowed while it still
+says it is on, and a door does. **Order is part
 of the layout**: the journal puts the meals somebody came to read before the
 targets they set once a month, with `order-*` rather than a second markup.
 And **a dialog is one component** — `@ui/dialog` — because the meal sheet that

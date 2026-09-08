@@ -72,10 +72,10 @@ async function rowMenu(page: Page, title: string) {
  * what is on stays visible outside the panel as removable chips, which is what
  * makes hiding the rest allowed.
  */
-async function openFilters(page: Page) {
-  const toggle = page.getByTestId("toggle-filters");
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
-    await toggle.click();
+async function openFilters(page: Page, group: "tags" | "seasons" | "cuisines" | "origins") {
+  const door = page.getByTestId(`filter-${group}`);
+  if ((await door.getAttribute("aria-expanded")) !== "true") {
+    await door.click();
   }
 }
 
@@ -108,11 +108,12 @@ test("tags stack instead of widening the results", async ({ request, page }) => 
   await seed(request, "Un seul", "Riz", ["vegetarian"]);
   await page.goto("/fr/app");
 
-  await openFilters(page);
-  await page.getByRole("button", { name: "Végétarien" }).click();
+  await openFilters(page, "tags");
+  const tags = page.getByTestId("tag-filters");
+  await tags.getByRole("button", { name: "Végétarien" }).click();
   await expect(page.getByRole("heading", { name: "Un seul" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Rapide" }).click();
+  await tags.getByRole("button", { name: "Rapide" }).click();
 
   await expect(page.getByRole("heading", { name: "Les deux" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Un seul" })).toHaveCount(0);
@@ -340,21 +341,23 @@ test("the filters fold at every width, and what is on stays visible", async ({
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/fr/app");
 
-  await expect(page.getByTestId("toggle-filters")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Végétarien" })).toBeHidden();
+  // Four doors, shut; the popular row is the only thing in reach.
+  await expect(page.getByTestId("filter-tags")).toBeVisible();
+  await expect(page.getByTestId("tag-filters")).toBeHidden();
   await expect(page.getByTestId("cuisine-filters")).toBeHidden();
 
-  await openFilters(page);
-  await page.getByRole("button", { name: "Végétarien" }).click();
-  await page.getByTestId("toggle-filters").click();
+  await openFilters(page, "tags");
+  await page.getByTestId("tag-filters").getByRole("button", { name: "Végétarien" }).click();
+  await page.getByTestId("filter-tags").click();
 
   // Hiding a filter is only allowed while it still says it is on — and this
   // says *which*, not just how many, and undoes it without opening anything.
-  const on = page.getByRole("button", { name: "Végétarien", exact: true });
+  const on = page.getByTestId("active-filters").getByRole("button", { name: "Végétarien", exact: true });
   await expect(on).toBeVisible();
+  await expect(page.getByTestId("filter-tags")).toContainText("1");
   await page.getByRole("button", { name: "Retirer le filtre Végétarien" }).click();
 
-  await expect(page.getByRole("button", { name: "Végétarien", exact: true })).toHaveCount(0);
+  await expect(page.getByTestId("active-filters")).toBeHidden();
   await expect(page.getByTestId("recipe-grid").locator("li")).toHaveCount(1);
 });
 
@@ -408,7 +411,7 @@ test("a dish a model invented says so in the library, and can be looked for", as
 
   // And it is a filter, because provenance is a fact worth looking for —
   // written by the code, never by the editor.
-  await openFilters(page);
+  await openFilters(page, "origins");
   await page.getByTestId("origin-filters").getByRole("button", { name: "Créée par IA" }).click();
   await expect(page).toHaveURL(/origins=AI/);
   await expect(page.getByText("Dahl de lentilles")).toBeVisible();

@@ -766,7 +766,14 @@
     "filters": {
       "toggle": "Filtrer",
       "remove": "Retirer le filtre {name}",
-      "compatible": "Compatible avec mes préférences"
+      "compatible": "Compatible avec mes préférences",
+      "popular": "Filtres populaires",
+      "groups": {
+        "tags": "Envie",
+        "seasons": "Saison",
+        "cuisines": "Cuisine",
+        "origins": "Origine"
+      }
     },
     "print": {
       "button": "Imprimer",

@@ -89,7 +89,9 @@ export default async function AccountPage() {
                 <Link
                   href={section.href}
                   data-testid={`account-card-${section.key}`}
-                  className="group flex items-center gap-4 rounded-md border border-line bg-bg-raised p-5 transition-[box-shadow,border-color] duration-[var(--dur)] ease-[var(--ease)] hover:border-gray hover:shadow-e1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+                  // One height for every card, whatever its line says: a list
+                  // of doors reads as a list only when the doors match.
+                  className="group flex min-h-28 items-center gap-4 rounded-md border border-line bg-bg-raised p-5 transition-[box-shadow,border-color] duration-[var(--dur)] ease-[var(--ease)] hover:border-gray hover:shadow-e1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
                 >
                   <span className="grid size-11 shrink-0 place-items-center rounded-full bg-bg-raised-2 text-text">
                     <Icon name={section.icon} />

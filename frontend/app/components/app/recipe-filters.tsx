@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { Chip } from "@ui/chip";
-import { cn } from "@ui/cn";
+import { FilterPanel, FilterTrigger } from "@ui/filter-group";
 import { Input } from "@ui/input";
 import { SEASONS, seasonOf } from "@app/lib/seasons";
 import type { Season } from "@app/lib/seasons";
@@ -25,6 +25,26 @@ const TAGS = [
 
 const DEBOUNCE = 300;
 
+/** The four doors, in the order somebody narrows a library: what, when, whence, where from. */
+const GROUPS = ["tags", "seasons", "cuisines", "origins"] as const;
+type Group = (typeof GROUPS)[number];
+
+/**
+ * The library's filters, the way a shop's listing draws them.
+ *
+ * A row of *popular* filters first — the handful people actually press:
+ * in season, quick, vegetarian, what my preferences allow, what a model
+ * wrote — then four doors, one per closed domain, each saying on its face
+ * how many of its options are on. Opening one lays its options out under
+ * the row; opening another closes it. Below, what is on is repeated as
+ * chips that can be removed one by one, so a filter behind a shut door is
+ * never a forgotten one: the door counts it and the chip names it.
+ *
+ * Twenty-three chips used to stand here, folded behind one button at every
+ * width. Four doors and five chips are what replaced the fold: nothing to
+ * open before the library can be narrowed, and nothing hidden that does
+ * not say so.
+ */
 export function RecipeFilters({
   term,
   selectedTags,
@@ -52,6 +72,8 @@ export function RecipeFilters({
 
   const [value, setValue] = useState(term);
   const firstRender = useRef(true);
+  /** The one door open, if any. */
+  const [open, setOpen] = useState<Group | null>(null);
 
   function push(
     nextTerm: string,
@@ -86,6 +108,16 @@ export function RecipeFilters({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
+  // Escape shuts the open door and leaves the focus where it is.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   function toggleTag(tag: string) {
     const next = selectedTags.includes(tag)
       ? selectedTags.filter((x) => x !== tag)
@@ -117,24 +149,26 @@ export function RecipeFilters({
     push(value, selectedTags, next);
   }
 
+  function toggleCompatible() {
+    push(value, selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, !onlyCompatible);
+  }
+
   const current = seasonOf(today);
   const onlyCurrent =
     selectedSeasons.length === 1 && selectedSeasons[0] === current;
 
-  // Eleven rows of chips stood between somebody opening the app and seeing a
-  // single recipe. They fold on a phone and are open at every other width;
-  // the count on the button is what keeps a hidden filter from being a
-  // forgotten one.
+  const counts: Record<Group, number> = {
+    tags: selectedTags.length,
+    seasons: selectedSeasons.length,
+    cuisines: selectedCuisines.length,
+    origins: selectedOrigins.length,
+  };
   const active =
-    selectedTags.length +
-    selectedSeasons.length +
-    selectedCuisines.length +
-    selectedOrigins.length +
-    (onlyCompatible ? 1 : 0);
-  // Always shut to begin with, even arriving from a filtered link: the chips
-  // above already say what is on, and opening the panel as well would put the
-  // same state on screen twice while costing everybody the tab stops.
-  const [open, setOpen] = useState(false);
+    counts.tags + counts.seasons + counts.cuisines + counts.origins + (onlyCompatible ? 1 : 0);
+
+  function door(group: Group) {
+    setOpen((now) => (now === group ? null : group));
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -149,158 +183,168 @@ export function RecipeFilters({
         />
       </div>
 
-      {/*
-       * Folded at every width, not only on a phone.
-       *
-       * Twenty-three chips — six tags, five seasons, twelve cuisines — stood
-       * between somebody opening the app and seeing a recipe, and every one of
-       * them is a tab stop for anybody who does not use a mouse. The library
-       * is what people came for; the filters are how they narrow it once they
-       * are here.
-       *
-       * The rule that makes hiding them allowed is that a hidden filter still
-       * has to say it is on — so what is active stays out here, as chips that
-       * can be removed one by one. That is stronger than the count it replaces:
-       * you can see *which* filter is on, and undo it without opening
-       * anything.
-       */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Chip
-          active={active > 0}
-          count={active > 0 ? active : undefined}
-          aria-expanded={open}
-          aria-controls="recipe-filters"
-          data-testid="toggle-filters"
-          onClick={() => setOpen((current) => !current)}
-        >
-          {t("filters.toggle")}
-        </Chip>
+      {/* The handful people actually press, always in reach. Each is the
+          same filter as behind its door, so the door counts it too. */}
+      <div className="flex flex-col gap-2">
+        <p className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+          {t("filters.popular")}
+        </p>
+        <div className="flex flex-wrap gap-2" data-testid="popular-filters">
+          <Chip
+            active={onlyCurrent}
+            data-testid="in-season"
+            onClick={() => push(value, selectedTags, onlyCurrent ? [] : [current])}
+          >
+            {t("seasons.now")}
+          </Chip>
+          <Chip active={selectedTags.includes("quick")} onClick={() => toggleTag("quick")}>
+            {t("tags.quick")}
+          </Chip>
+          <Chip
+            active={selectedTags.includes("vegetarian")}
+            onClick={() => toggleTag("vegetarian")}
+          >
+            {t("tags.vegetarian")}
+          </Chip>
+          {/* The account's own diet and allergens, applied to the library the
+              way the planner applies them to a model's answer: on the lines. */}
+          <Chip active={onlyCompatible} data-testid="compatible-filter" onClick={toggleCompatible}>
+            {t("filters.compatible")}
+          </Chip>
+          <Chip active={selectedOrigins.includes("AI")} onClick={() => toggleOrigin("AI")}>
+            {t("origins.AI")}
+          </Chip>
+        </div>
+      </div>
 
-        {/* Only while the panel is shut: open, the panel itself says what is
-            on, and two copies of the same state is two places to tab through. */}
-        {!open &&
-          selectedTags.map((tag) => (
+      {/* Four doors: two to a row on a phone, all four across on a desk. */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {GROUPS.map((group) => (
+          <FilterTrigger
+            key={group}
+            id={`filter-${group}-trigger`}
+            aria-controls={`${group}-panel`}
+            data-testid={`filter-${group}`}
+            count={counts[group]}
+            open={open === group}
+            onClick={() => door(group)}
+          >
+            {t(`filters.groups.${group}`)}
+          </FilterTrigger>
+        ))}
+      </div>
+
+      {open === "tags" && (
+        <FilterPanel id="tags-panel" labelledBy="filter-tags-trigger" data-testid="tag-filters">
+          {TAGS.map((tag) => (
+            <Chip key={tag} active={selectedTags.includes(tag)} onClick={() => toggleTag(tag)}>
+              {t(`tags.${tag}`)}
+            </Chip>
+          ))}
+        </FilterPanel>
+      )}
+
+      {open === "seasons" && (
+        <FilterPanel id="seasons-panel" labelledBy="filter-seasons-trigger" data-testid="season-filters">
+          {SEASONS.map((season) => (
+            <Chip
+              key={season}
+              active={selectedSeasons.includes(season)}
+              onClick={() => toggleSeason(season)}
+            >
+              {t(`seasons.${season}`)}
+            </Chip>
+          ))}
+        </FilterPanel>
+      )}
+
+      {open === "cuisines" && (
+        <FilterPanel id="cuisines-panel" labelledBy="filter-cuisines-trigger" data-testid="cuisine-filters">
+          {CUISINES.map((cuisine) => (
+            <Chip
+              key={cuisine}
+              active={selectedCuisines.includes(cuisine)}
+              onClick={() => toggleCuisine(cuisine)}
+            >
+              {t(`cuisines.${cuisine}`)}
+            </Chip>
+          ))}
+        </FilterPanel>
+      )}
+
+      {/* Where a recipe came from. Written by the code and never by the
+          editor, which is exactly why it is worth being able to look for. */}
+      {open === "origins" && (
+        <FilterPanel id="origins-panel" labelledBy="filter-origins-trigger" data-testid="origin-filters">
+          {ORIGINS.map((origin) => (
+            <Chip
+              key={origin}
+              active={selectedOrigins.includes(origin)}
+              onClick={() => toggleOrigin(origin)}
+            >
+              {t(`origins.${origin}`)}
+            </Chip>
+          ))}
+        </FilterPanel>
+      )}
+
+      {/* What is on, by name, removable one by one — whatever door it is
+          behind. The count on the door says how many; this says which. */}
+      {(active > 0 || value !== "") && (
+        <div className="flex flex-wrap items-center gap-2" data-testid="active-filters">
+          {selectedTags.map((tag) => (
             <Chip
               key={`on-${tag}`}
               active
               onRemove={() => toggleTag(tag)}
               removeLabel={t("filters.remove", { name: t(`tags.${tag}`) })}
-              onClick={() => setOpen(true)}
+              onClick={() => setOpen("tags")}
             >
               {t(`tags.${tag}`)}
             </Chip>
           ))}
-        {!open &&
-          selectedSeasons.map((season) => (
+          {selectedSeasons.map((season) => (
             <Chip
               key={`on-${season}`}
               active
               onRemove={() => toggleSeason(season)}
               removeLabel={t("filters.remove", { name: t(`seasons.${season}`) })}
-              onClick={() => setOpen(true)}
+              onClick={() => setOpen("seasons")}
             >
               {t(`seasons.${season}`)}
             </Chip>
           ))}
-        {!open &&
-          selectedCuisines.map((cuisine) => (
+          {selectedCuisines.map((cuisine) => (
             <Chip
               key={`on-${cuisine}`}
               active
               onRemove={() => toggleCuisine(cuisine)}
               removeLabel={t("filters.remove", { name: t(`cuisines.${cuisine}`) })}
-              onClick={() => setOpen(true)}
+              onClick={() => setOpen("cuisines")}
             >
               {t(`cuisines.${cuisine}`)}
             </Chip>
           ))}
-        {!open &&
-          selectedOrigins.map((origin) => (
+          {selectedOrigins.map((origin) => (
             <Chip
               key={`on-${origin}`}
               active
               onRemove={() => toggleOrigin(origin)}
               removeLabel={t("filters.remove", { name: t(`origins.${origin}`) })}
-              onClick={() => setOpen(true)}
+              onClick={() => setOpen("origins")}
             >
               {t(`origins.${origin}`)}
             </Chip>
           ))}
-      </div>
-
-      <div
-        id="recipe-filters"
-        className={cn("flex-col gap-4", open ? "flex" : "hidden")}
-      >
-      <div className="flex flex-wrap gap-2">
-        {TAGS.map((tag) => (
-          <Chip
-            key={tag}
-            active={selectedTags.includes(tag)}
-            onClick={() => toggleTag(tag)}
-          >
-            {t(`tags.${tag}`)}
-          </Chip>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap gap-2" data-testid="season-filters">
-        {/* One tap for the common case, next to the four it is made of — it
-            selects the season, it does not hide the others. */}
-        <Chip
-          active={onlyCurrent}
-          data-testid="in-season"
-          onClick={() => push(value, selectedTags, onlyCurrent ? [] : [current])}
-        >
-          {t("seasons.now")}
-        </Chip>
-        {SEASONS.map((season) => (
-          <Chip
-            key={season}
-            active={selectedSeasons.includes(season)}
-            onClick={() => toggleSeason(season)}
-          >
-            {t(`seasons.${season}`)}
-          </Chip>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap gap-2" data-testid="cuisine-filters">
-        {CUISINES.map((cuisine) => (
-          <Chip
-            key={cuisine}
-            active={selectedCuisines.includes(cuisine)}
-            onClick={() => toggleCuisine(cuisine)}
-          >
-            {t(`cuisines.${cuisine}`)}
-          </Chip>
-        ))}
-      </div>
-
-      {/* Where a recipe came from. Written by the code and never by the
-          editor, which is exactly why it is worth being able to look for. */}
-      <div className="flex flex-wrap gap-2" data-testid="origin-filters">
-        {/* The account's own diet and allergens, applied to the library the
-            way the planner applies them to a model's answer: on the lines. */}
-        <Chip
-          active={onlyCompatible}
-          data-testid="compatible-filter"
-          onClick={() =>
-            push(value, selectedTags, selectedSeasons, selectedCuisines, selectedOrigins, !onlyCompatible)
-          }
-        >
-          {t("filters.compatible")}
-        </Chip>
-        {ORIGINS.map((origin) => (
-          <Chip
-            key={origin}
-            active={selectedOrigins.includes(origin)}
-            onClick={() => toggleOrigin(origin)}
-          >
-            {t(`origins.${origin}`)}
-          </Chip>
-        ))}
-        {(active > 0 || value !== "") && (
+          {onlyCompatible && (
+            <Chip
+              active
+              onRemove={toggleCompatible}
+              removeLabel={t("filters.remove", { name: t("filters.compatible") })}
+            >
+              {t("filters.compatible")}
+            </Chip>
+          )}
           <Chip
             onClick={() => {
               setValue("");
@@ -309,9 +353,8 @@ export function RecipeFilters({
           >
             {tApp("search.clear")}
           </Chip>
-        )}
-      </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
