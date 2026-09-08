@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { FoodIcon } from "@ui/food-icons";
 import { iconsFor } from "@app/lib/food-words";
+import { useIllustration } from "@app/lib/use-illustration";
 
 /**
  * A small picture at the left of a row.
@@ -21,18 +22,28 @@ export function RecipeThumb({
   title,
   hasPhoto,
   generated = false,
+  awaiting = false,
 }: {
   id: number;
   title: string;
   hasPhoto: boolean;
   generated?: boolean;
+  /** A dish a model wrote, whose picture is still being drawn. */
+  awaiting?: boolean;
 }) {
   const t = useTranslations("recipe.photo");
+  // The picture is a few seconds behind the draft; the row watches for it
+  // rather than waiting for somebody to reload.
+  const arrived = useIllustration(id, awaiting && !hasPhoto);
+  if (arrived) {
+    hasPhoto = true;
+    generated = true;
+  }
   if (hasPhoto) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={`/api/recipes/${id}/photo`}
+        src={`/api/recipes/${id}/photo${arrived ? "?v=1" : ""}`}
         alt=""
         title={generated ? t("generated") : undefined}
         width={44}

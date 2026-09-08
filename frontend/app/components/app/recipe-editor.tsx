@@ -395,7 +395,7 @@ export function RecipeEditor({
       <Card as="panel">
         {tab === 0 && (
           <div className="flex flex-col gap-6">
-            <RecipePhoto recipeId={recipe.id} hasPhoto={recipe.hasPhoto} generated={recipe.photoGenerated} />
+            <RecipePhoto recipeId={recipe.id} hasPhoto={recipe.hasPhoto} generated={recipe.photoGenerated} awaiting={recipe.origin === "AI"} />
 
             <Input
               label={t("base.title")}

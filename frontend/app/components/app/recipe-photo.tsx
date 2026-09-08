@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useIllustration } from "@app/lib/use-illustration";
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
 import { cn } from "@ui/cn";
@@ -16,11 +17,14 @@ export function RecipePhoto({
   recipeId,
   hasPhoto,
   generated = false,
+  awaiting = false,
 }: {
   recipeId: number;
   hasPhoto: boolean;
   /** Drawn by an image model for a dish a model wrote; replaced by any upload. */
   generated?: boolean;
+  /** A dish a model wrote, whose picture is still being drawn. */
+  awaiting?: boolean;
 }) {
   const t = useTranslations("recipe.photo");
   const router = useRouter();
@@ -34,6 +38,14 @@ export function RecipePhoto({
   // Bumped after every change so the browser refetches instead of showing the
   // previous photo from cache.
   const [version, setVersion] = useState(0);
+  // Opened straight from "garder", the draft has no picture yet: it is a
+  // few seconds behind. Watch for it rather than wait for a reload.
+  const arrived = useIllustration(recipeId, awaiting && !hasPhoto);
+  // Derived, not synced: the picture shows the moment it has landed, and
+  // says it was drawn — until an upload of somebody's own replaces it.
+  const [replaced, setReplaced] = useState(false);
+  const showPhoto = photo || arrived;
+  const drawn = !replaced && (generated || arrived);
 
   async function onPick(file: File) {
     setError(null);
@@ -58,6 +70,8 @@ export function RecipePhoto({
       return;
     }
     setPhoto(true);
+    // Somebody's own photograph: the illustration and its note are gone.
+    setReplaced(true);
     setVersion((v) => v + 1);
     // Still refresh, so the rest of the page and the grid agree with it.
     startTransition(() => router.refresh());
@@ -89,11 +103,11 @@ export function RecipePhoto({
             "aspect-[4/3] w-full shrink-0 overflow-hidden rounded-md border border-line bg-bg-raised-2 sm:w-56",
           )}
         >
-          {photo ? (
+          {showPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              key={version}
-              src={`/api/recipes/${recipeId}/photo?v=${version}`}
+              key={`${version}-${arrived ? "drawn" : "own"}`}
+              src={`/api/recipes/${recipeId}/photo?v=${version}${arrived ? "&drawn=1" : ""}`}
               alt=""
               data-testid="recipe-photo"
               className="size-full object-cover"
@@ -110,7 +124,7 @@ export function RecipePhoto({
         <div className="flex flex-col gap-2">
           {/* Confessed, in words: an image model drew this for a dish nobody
               has cooked. Any upload replaces it and the line goes. */}
-          {generated && photo && (
+          {drawn && showPhoto && (
             <p className="text-[12px] font-medium text-gray" data-testid="photo-generated">
               {t("generated")}
             </p>
