@@ -149,10 +149,13 @@ public class RecipeController {
                                         line.name(), line.quantity(), line.unit()))
                                 .toList(),
                 body.steps());
-        // A dish nobody has cooked gets a picture drawn for it, after the
-        // answer: an image model takes seconds, and accepting a week is
-        // fourteen of these in a row.
-        illustrations.illustrate(userId(principal), created.getId());
+        // Drawn while it was still a proposal, the picture becomes the
+        // draft's photo right now and the draft opens with it. Otherwise it
+        // is drawn behind the answer: an image model takes seconds, and
+        // accepting a week is fourteen of these in a row.
+        if (!illustrations.attach(userId(principal), created)) {
+            illustrations.illustrate(userId(principal), created.getId());
+        }
         return toView(created);
     }
 

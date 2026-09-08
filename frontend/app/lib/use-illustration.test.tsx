@@ -13,7 +13,7 @@ it("asks the photo route until the picture has landed, then stops", async () => 
     .spyOn(globalThis, "fetch")
     .mockResolvedValueOnce({ ok: false } as Response)
     .mockResolvedValueOnce({ ok: true } as Response);
-  const { result } = renderHook(() => useIllustration(7, true));
+  const { result } = renderHook(() => useIllustration("/api/recipes/7/photo", true));
   expect(result.current).toBe(false);
 
   await act(async () => {
@@ -37,7 +37,7 @@ it("asks the photo route until the picture has landed, then stops", async () => 
 
 it("never asks for a dish that is not waiting for a picture", async () => {
   const fetchMock = vi.spyOn(globalThis, "fetch");
-  renderHook(() => useIllustration(7, false));
+  renderHook(() => useIllustration("/api/recipes/7/photo", false));
   await act(async () => {
     await vi.advanceTimersByTimeAsync(10_000);
   });
@@ -46,7 +46,7 @@ it("never asks for a dish that is not waiting for a picture", async () => {
 
 it("gives up after half a minute", async () => {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: false } as Response);
-  renderHook(() => useIllustration(7, true));
+  renderHook(() => useIllustration("/api/recipes/7/photo", true));
   await act(async () => {
     await vi.advanceTimersByTimeAsync(60_000);
   });

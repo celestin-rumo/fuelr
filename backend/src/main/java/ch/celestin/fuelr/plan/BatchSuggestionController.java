@@ -5,6 +5,7 @@ import ch.celestin.fuelr.menu.IdeaStreams;
 import ch.celestin.fuelr.menu.MenuDtos;
 import ch.celestin.fuelr.menu.MenuIntelligence;
 import ch.celestin.fuelr.recipe.Cuisine;
+import ch.celestin.fuelr.recipe.illustration.IllustrationService;
 import ch.celestin.fuelr.subscription.Entitlements;
 import ch.celestin.fuelr.subscription.Feature;
 import org.slf4j.Logger;
@@ -73,7 +74,9 @@ public class BatchSuggestionController {
             String title,
             Integer minutes,
             /** Everything it takes to become a draft, without a second bill. */
-            WeekSuggestionController.Idea idea) {
+            WeekSuggestionController.Idea idea,
+            /** The picture being drawn for it, by key; null when none will be. */
+            String illustrationKey) {
     }
 
     public record SetView(
@@ -95,16 +98,18 @@ public class BatchSuggestionController {
     private final List<MenuIntelligence> readers;
     private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
     private final IdeaStreams streams;
+    private final IllustrationService illustrations;
 
     public BatchSuggestionController(Entitlements entitlements, AiBudget budget,
                                      List<MenuIntelligence> readers,
                                      ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
-                                     IdeaStreams streams) {
+                                     IdeaStreams streams, IllustrationService illustrations) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
         this.preferences = preferences;
         this.streams = streams;
+        this.illustrations = illustrations;
     }
 
     @PostMapping
@@ -143,11 +148,18 @@ public class BatchSuggestionController {
 
         ch.celestin.fuelr.preferences.Constraints constraints =
                 ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
+        boolean drawing = illustrations.available();
+        MenuIntelligence.Progress told = (index, of, title) -> {
+            if (drawing) {
+                illustrations.illustrateIdea(userId, title);
+            }
+            progress.dish(index, of, title);
+        };
         try {
             MenuIntelligence.Ideas ideas = reader.suggestBatch(
                     request.intents() == null ? Set.of() : request.intents(),
                     Cuisine.knownNames(request.cuisines()),
-                    size, constraints, progress);
+                    size, constraints, told);
             budget.record(userId, "BATCH_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
@@ -160,7 +172,7 @@ public class BatchSuggestionController {
             if (safe.size() < FEWEST) {
                 return nothing(WeekSuggestionController.Declined.FAILED);
             }
-            SetView built = describe(safe);
+            SetView built = describe(safe, drawing);
             // A set that turns out to share nothing is dropped rather than
             // dressed up: it is the one claim on this screen worth checking.
             return built == null
@@ -182,7 +194,7 @@ public class BatchSuggestionController {
      * Sunday afternoon saved, and calling it one is how somebody stops
      * trusting every other suggestion on the screen.
      */
-    private SetView describe(List<MenuDtos.Suggestion> ideas) {
+    private SetView describe(List<MenuDtos.Suggestion> ideas, boolean drawing) {
         Map<String, BaseView> shared = new LinkedHashMap<>();
         for (MenuDtos.Suggestion idea : ideas) {
             Set<String> counted = new LinkedHashSet<>();
@@ -219,7 +231,8 @@ public class BatchSuggestionController {
         for (MenuDtos.Suggestion idea : ideas) {
             members.add(new MemberView(idea.title(), idea.minutes(),
                     new WeekSuggestionController.Idea(idea.title(), idea.minutes(),
-                            idea.ingredients(), idea.steps())));
+                            idea.ingredients(), idea.steps()),
+                    drawing ? IllustrationService.keyOf(idea.title()) : null));
         }
         return new SetView(members, bases, most);
     }

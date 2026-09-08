@@ -34,7 +34,7 @@ export function RecipeThumb({
   const t = useTranslations("recipe.photo");
   // The picture is a few seconds behind the draft; the row watches for it
   // rather than waiting for somebody to reload.
-  const arrived = useIllustration(id, awaiting && !hasPhoto);
+  const arrived = useIllustration(`/api/recipes/${id}/photo`, awaiting && !hasPhoto);
   if (arrived) {
     hasPhoto = true;
     generated = true;
@@ -54,18 +54,63 @@ export function RecipeThumb({
       />
     );
   }
+  return <TitleTile title={title} />;
+}
+
+/**
+ * The tile drawn from a title: a hue hashed from the words, the first food
+ * the title names. The same every time, and never a photograph of anything.
+ */
+export function TitleTile({ title, size = 44 }: { title: string; size?: number }) {
   const hue = hueOf(title);
   const icon = iconsFor(title)[0];
   return (
     <span
       aria-hidden="true"
       data-testid="recipe-thumb-tile"
-      className="grid size-11 shrink-0 place-items-center rounded-sm text-text"
-      style={{ background: `hsl(${hue} 32% 40% / 0.35)` }}
+      className="grid shrink-0 place-items-center rounded-sm text-text"
+      style={{ width: size, height: size, background: `hsl(${hue} 32% 40% / 0.35)` }}
     >
-      <FoodIcon name={icon} size={22} />
+      <FoodIcon name={icon} size={Math.round(size / 2)} />
     </span>
   );
+}
+
+/**
+ * A picture for a dish that is only proposed, drawn while the model is
+ * still writing the others. It has no recipe yet, so it is fetched by the
+ * key the server gave it, and polled for until it lands; before that, and
+ * for a proposal that never gets one, the tile from the title.
+ */
+export function IdeaThumb({
+  illustrationKey,
+  title,
+  size = 44,
+}: {
+  illustrationKey: string | null | undefined;
+  title: string;
+  size?: number;
+}) {
+  const t = useTranslations("recipe.photo");
+  const url = illustrationKey ? `/api/ideas/illustrations/${illustrationKey}` : "";
+  const arrived = useIllustration(url, Boolean(illustrationKey));
+  if (arrived) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt=""
+        title={t("generated")}
+        width={size}
+        height={size}
+        loading="lazy"
+        data-testid="idea-thumb-illustration"
+        className="shrink-0 rounded-sm object-cover"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return <TitleTile title={title} size={size} />;
 }
 
 /** A hue from the title, the same every time. */

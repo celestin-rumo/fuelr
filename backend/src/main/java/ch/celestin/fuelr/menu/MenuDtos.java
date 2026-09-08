@@ -46,7 +46,13 @@ public final class MenuDtos {
             List<String> missing,
             /** An idea carries enough to become a draft without a second call. */
             List<Ingredient> ingredients,
-            List<String> steps) {
+            List<String> steps,
+            /** The picture being drawn for an idea, by key; null for a recipe or when none will be. */
+            String illustrationKey) {
+
+        public Suggestion withIllustrationKey(String key) {
+            return new Suggestion(origin, recipeId, title, minutes, hasPhoto, missing, ingredients, steps, key);
+        }
     }
 
     /**

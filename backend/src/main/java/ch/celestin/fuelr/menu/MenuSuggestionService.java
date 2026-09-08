@@ -5,6 +5,7 @@ import ch.celestin.fuelr.nutrition.FoodMatcher;
 import ch.celestin.fuelr.recipe.Recipe;
 import ch.celestin.fuelr.recipe.RecipeIngredient;
 import ch.celestin.fuelr.recipe.RecipeService;
+import ch.celestin.fuelr.recipe.illustration.IllustrationService;
 import ch.celestin.fuelr.subscription.Entitlements;
 import ch.celestin.fuelr.subscription.Feature;
 import org.slf4j.Logger;
@@ -37,8 +38,11 @@ public class MenuSuggestionService {
 
     private static final Logger log = LoggerFactory.getLogger(MenuSuggestionService.class);
 
-    /** Enough to choose between, few enough to read standing up. */
-    private static final int WANTED = 5;
+    /**
+     * Enough to choose between, few enough to read standing up — and, now
+     * that every idea is drawn as it is written, few enough to pay for.
+     */
+    private static final int WANTED = 3;
 
     /**
      * How many of the cook's own recipes make an answer on their own.
@@ -57,11 +61,14 @@ public class MenuSuggestionService {
     private final AiBudget budget;
     private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
     private final List<MenuIntelligence> readers;
+    private final IllustrationService illustrations;
 
     public MenuSuggestionService(
             RecipeService recipes, Entitlements entitlements,
             AiBudget budget, List<MenuIntelligence> readers,
-            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
+            IllustrationService illustrations) {
+        this.illustrations = illustrations;
         this.preferences = preferences;
         this.recipes = recipes;
         this.entitlements = entitlements;
@@ -138,7 +145,8 @@ public class MenuSuggestionService {
                         scored.recipe().getPhotoPath() != null,
                         scored.missing(),
                         List.of(),
-                        List.of()))
+                        List.of(),
+                        null))
                 .limit(WANTED)
                 .toList();
     }
@@ -196,17 +204,26 @@ public class MenuSuggestionService {
         try {
             ch.celestin.fuelr.preferences.Constraints constraints =
                     ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
+            // Each idea's picture starts as its title closes.
+            boolean drawing = illustrations.available();
+            MenuIntelligence.Progress told = (index, of, title) -> {
+                if (drawing) {
+                    illustrations.illustrateIdea(userId, title);
+                }
+                progress.dish(index, of, title);
+            };
             MenuIntelligence.Ideas ideas = intelligence.suggest(
                     have,
                     WANTED - already.size(),
                     already.stream().map(MenuDtos.Suggestion::title).toList(),
-                    constraints, progress);
+                    constraints, told);
             budget.record(userId, "MENU_SUGGESTIONS", intelligence.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
             // Told to the model, checked by the code.
             return ideas.suggestions().stream()
                     .filter(idea -> constraints.allows(
                             idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList()))
+                    .map(idea -> drawing ? idea.withIllustrationKey(IllustrationService.keyOf(idea.title())) : idea)
                     .toList();
         } catch (RuntimeException e) {
             log.warn("No ideas came back: {}", e.toString());

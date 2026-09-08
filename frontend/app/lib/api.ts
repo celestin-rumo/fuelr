@@ -432,6 +432,8 @@ export type Suggestion = {
   title: string;
   minutes: number | null;
   hasPhoto: boolean;
+  /** The key of the picture being drawn for this dish, when one is. */
+  illustrationKey?: string | null;
   /** What the bag does not hold — named so it can go on a shopping list. */
   missing: string[];
   ingredients: { name: string; quantity: number; unit: string; needsReview: boolean }[];
@@ -465,6 +467,8 @@ export type WeekProposal = {
   title: string;
   minutes: number | null;
   idea: RecipeIdea | null;
+  /** The key of the picture being drawn for this dish, when one is. */
+  illustrationKey?: string | null;
 };
 
 /**
@@ -502,6 +506,8 @@ export type BatchMember = {
   title: string;
   minutes: number | null;
   idea: RecipeIdea | null;
+  /** The key of the picture being drawn for this dish, when one is. */
+  illustrationKey?: string | null;
 };
 
 export type BatchSet = {

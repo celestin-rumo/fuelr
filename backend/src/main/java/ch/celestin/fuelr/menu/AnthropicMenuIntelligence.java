@@ -441,7 +441,7 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                     // An idea has no photograph, and inventing one would be a
                     // picture of a dish nobody cooked.
                     false,
-                    missing, ingredients, steps));
+                    missing, ingredients, steps, null));
         }
         return found;
     }
@@ -493,6 +493,22 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                 JsonNode answer = streamed
                         ? assemble(stream, wanted, progress, Instant.now().plus(answerTime))
                         : JSON.readTree(stream);
+                if (!streamed) {
+                    // Answered in one piece: told late, but told — the
+                    // pictures that start on a title must start here too.
+                    int index = 0;
+                    for (JsonNode block : answer.path("content")) {
+                        if (!"tool_use".equals(block.path("type").asText())) {
+                            continue;
+                        }
+                        for (JsonNode dish : block.path("input").path("plats")) {
+                            String title = dish.path("titre").asText("").trim();
+                            if (!title.isEmpty()) {
+                                progress.dish(++index, wanted, title);
+                            }
+                        }
+                    }
+                }
                 // A cut-off answer has no closed tool block and reads as "no
                 // ideas". Said by name here, because from the screen the two
                 // are indistinguishable and only one of them is our fault.

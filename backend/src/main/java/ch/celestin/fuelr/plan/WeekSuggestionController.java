@@ -5,6 +5,7 @@ import ch.celestin.fuelr.menu.IdeaStreams;
 import ch.celestin.fuelr.menu.MenuDtos;
 import ch.celestin.fuelr.menu.MenuIntelligence;
 import ch.celestin.fuelr.recipe.Cuisine;
+import ch.celestin.fuelr.recipe.illustration.IllustrationService;
 import ch.celestin.fuelr.subscription.Entitlements;
 import ch.celestin.fuelr.subscription.Feature;
 import org.slf4j.Logger;
@@ -109,7 +110,9 @@ public class WeekSuggestionController {
             String title,
             Integer minutes,
             /** Everything it takes to become a draft, without a second bill. */
-            Idea idea) {
+            Idea idea,
+            /** The picture being drawn for it, by key; null when none will be. */
+            String illustrationKey) {
     }
 
     public record SuggestionView(
@@ -125,16 +128,18 @@ public class WeekSuggestionController {
     private final List<MenuIntelligence> readers;
     private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
     private final IdeaStreams streams;
+    private final IllustrationService illustrations;
 
     public WeekSuggestionController(Entitlements entitlements, AiBudget budget,
                                     List<MenuIntelligence> readers,
                                     ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
-                                    IdeaStreams streams) {
+                                    IdeaStreams streams, IllustrationService illustrations) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
         this.preferences = preferences;
         this.streams = streams;
+        this.illustrations = illustrations;
     }
 
     @PostMapping
@@ -205,6 +210,15 @@ public class WeekSuggestionController {
 
         ch.celestin.fuelr.preferences.Constraints constraints =
                 ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
+        // As each title closes, its picture starts — while the model is
+        // still writing the next dish — so most are on screen with the answer.
+        boolean drawing = illustrations.available();
+        MenuIntelligence.Progress told = (index, of, title) -> {
+            if (drawing) {
+                illustrations.illustrateIdea(userId, title);
+            }
+            progress.dish(index, of, title);
+        };
         try {
             MenuIntelligence.Ideas ideas = reader.suggestFor(
                     request.intents() == null ? Set.of() : request.intents(),
@@ -212,7 +226,7 @@ public class WeekSuggestionController {
                     open.size(),
                     request.excludeTitles() == null
                             ? List.of() : List.copyOf(request.excludeTitles()),
-                    request.note(), constraints, progress);
+                    request.note(), constraints, told);
             budget.record(userId, "WEEK_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 
@@ -232,7 +246,8 @@ public class WeekSuggestionController {
                         slot.date().toString(), slot.slot().name(),
                         idea.title(), idea.minutes(),
                         new Idea(idea.title(), idea.minutes(),
-                                idea.ingredients(), idea.steps())));
+                                idea.ingredients(), idea.steps()),
+                        drawing ? IllustrationService.keyOf(idea.title()) : null));
             }
             // Fewer dishes than slots is an answer rather than a failure; it
             // is only a refusal when there were none at all.
