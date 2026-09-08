@@ -93,6 +93,16 @@ jobs:
         run: |
           install -Dm644 docker-compose.prod.yml "${{ env.DEPLOY_PATH }}/${{ env.COMPOSE_PROD_FILE }}"
 
+      # The runner lives on the server, and every release leaves the previous
+      # images behind: the disk filled up and a deploy died mid-pull with "No
+      # space left on device". Unused images and build cache go before each
+      # pull; what is running is never touched, and every image is in ghcr.
+      - name: Make room
+        shell: bash
+        run: |
+          docker image prune -af || true
+          docker builder prune -af || true
+
       - name: Pull deployment images
         shell: bash
         run: |
@@ -169,6 +179,16 @@ jobs:
         shell: bash
         run: |
           install -Dm644 docker-compose.staging.yml "${{ env.STAGING_DEPLOY_PATH }}/${{ env.COMPOSE_STAGING_FILE }}"
+
+      # The runner lives on the server, and every release leaves the previous
+      # images behind: the disk filled up and a deploy died mid-pull with "No
+      # space left on device". Unused images and build cache go before each
+      # pull; what is running is never touched, and every image is in ghcr.
+      - name: Make room
+        shell: bash
+        run: |
+          docker image prune -af || true
+          docker builder prune -af || true
 
       - name: Pull deployment images
         shell: bash
