@@ -723,9 +723,11 @@ way, and what differs is in the mail, as at registration. **A password change
 that leaves the other sessions open has changed nothing** for whoever holds
 the previous one, so `PUT /api/account/password` closes them and keeps the
 caller's, and a mail says so with the forgot-password link for the case where
-it was not them. The six figures of the profile are previewed through
-`POST /api/nutrition/target` before `PUT /api/profile` writes them: a target is
-shown, never sprung. Neither password field is ever pre-filled.
+it was not them. The six figures of the profile have no save button: a
+field left or a card pressed is the write (`PUT /api/profile`), and the target
+shown under them follows each one, because the person just changed the figure
+it is computed from — a target is shown, never sprung. Nothing is written while
+a figure is still missing. Neither password field is ever pre-filled.
 
 **There is one place to say what you weigh.** `weight_entries` is the
 history — one figure a day, weighing twice replaces — and `profiles.weight_kg`

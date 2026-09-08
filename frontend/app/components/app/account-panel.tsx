@@ -16,7 +16,6 @@ import type { Session } from "@app/lib/session";
 import type { ProfileInput, ProfileResponse, ProfileTargets } from "@app/lib/api";
 import {
   changePassword,
-  previewTargets,
   recordWeight,
   requestEmailChange,
   saveProfile,
@@ -150,7 +149,8 @@ export function AccountPanel({
   /** Two questions, one at a time: a goal is chosen, an activity is admitted. */
   const [goalsTab, setGoalsTab] = useState<"goal" | "activity">("goal");
   const [preview, setPreview] = useState<ProfileTargets | null>(profile?.targets ?? null);
-  const [dirty, setDirty] = useState(false);
+  /** The weight last written, so a weigh-in is recorded once per change, not per blur. */
+  const [savedWeight, setSavedWeight] = useState(profile?.profile.weightKg);
 
   function complete(input: Partial<ProfileInput>): input is ProfileInput {
     return (
@@ -159,44 +159,51 @@ export function AccountPanel({
     );
   }
 
+  /** A keystroke: the figure changes on screen and nowhere else yet. */
   function edit(patch: Partial<ProfileInput>) {
-    const merged = { ...figures, ...patch };
-    setFigures(merged);
-    setDirty(true);
-    // What the six figures would give, before any of them is written: a
-    // target is shown, never sprung.
-    if (complete(merged)) {
-      startTransition(async () => {
-        setPreview(await previewTargets(merged));
-      });
-    }
+    setFigures((current) => ({ ...current, ...patch }));
   }
 
-  function submitProfile() {
-    if (!complete(figures)) return;
-    const input = figures;
+  /**
+   * A figure is written the moment it is settled — a field left, a card
+   * pressed — and the target follows it. No save button: a button under six
+   * fields that each mean one thing is a second decision nobody asked for,
+   * and the name beside them has always saved on its own. Nothing is written
+   * while a figure is still missing, because the formula has nothing to say.
+   */
+  function commit(next: Partial<ProfileInput> = figures) {
+    if (!complete(next)) return;
+    if (JSON.stringify(next) === JSON.stringify(profile?.profile) && next.weightKg === savedWeight) {
+      return;
+    }
     startTransition(async () => {
       // The weight is the one figure with a history. Typed here, it is
       // today's weigh-in, and the profile follows it the way it follows the
       // journal's — one fact, written once.
-      const weighed = profile?.profile.weightKg;
-      if (today && weighed !== input.weightKg) {
-        const weighIn = await recordWeight({ weighedOn: today, weightKg: input.weightKg });
+      if (today && next.weightKg !== savedWeight) {
+        const weighIn = await recordWeight({ weighedOn: today, weightKg: next.weightKg });
         if (!weighIn.ok) {
           setNotice({ tone: "error", text: t("failed") });
           return;
         }
+        setSavedWeight(next.weightKg);
       }
-      const result = await saveProfile(input);
+      const result = await saveProfile(next);
       if (result.ok) {
         setPreview(result.saved.targets);
-        setDirty(false);
         setNotice({ tone: "success", text: t("figures.saved") });
         router.refresh();
       } else {
         setNotice({ tone: "error", text: t("failed") });
       }
     });
+  }
+
+  /** A choice is settled by being made. */
+  function choose(patch: Partial<ProfileInput>) {
+    const next = { ...figures, ...patch };
+    setFigures(next);
+    commit(next);
   }
 
   const number = (value: string) => (value === "" ? undefined : Number(value));
@@ -250,6 +257,7 @@ export function AccountPanel({
               value={figures.birthDate ?? ""}
               data-testid="figure-birth"
               onChange={(event) => edit({ birthDate: event.target.value || undefined })}
+              onBlur={() => commit()}
             />
             <Input
               label={tOnboarding("body.height")}
@@ -258,6 +266,7 @@ export function AccountPanel({
               value={figures.heightCm ?? ""}
               data-testid="figure-height"
               onChange={(event) => edit({ heightCm: number(event.target.value) })}
+              onBlur={() => commit()}
             />
             {/* A weight typed here is today's weigh-in — the one place to say
                 it, and the journal's history is the same row. */}
@@ -270,25 +279,15 @@ export function AccountPanel({
               value={figures.weightKg ?? ""}
               data-testid="figure-weight"
               onChange={(event) => edit({ weightKg: number(event.target.value) })}
+              onBlur={() => commit()}
             />
           </div>
           <Choices
             legend={tOnboarding("body.sex")}
             options={SEXES.map((sex) => ({ value: sex, label: tOnboarding(`body.sexes.${sex}`) }))}
             value={figures.sex}
-            onChange={(sex) => edit({ sex })}
+            onChange={(sex) => choose({ sex })}
           />
-          <div>
-            <Button
-              variant="secondary"
-              onClick={submitProfile}
-              loading={pending}
-              disabled={!dirty || !complete(figures)}
-              data-testid="body-submit"
-            >
-              {t("figures.submit")}
-            </Button>
-          </div>
         </Card>
       </section>
       )}
@@ -473,7 +472,7 @@ export function AccountPanel({
                   selected={figures.goal === goal}
                   title={tOnboarding(`goal.options.${goal}.title`)}
                   description={tOnboarding(`goal.options.${goal}.description`)}
-                  onClick={() => edit({ goal })}
+                  onClick={() => choose({ goal })}
                 />
               ))}
             </div>
@@ -491,7 +490,7 @@ export function AccountPanel({
                 label={tOnboarding("habits.activity")}
                 className="max-sm:w-full max-sm:flex-col"
                 value={figures.activity}
-                onChange={(activity) => edit({ activity })}
+                onChange={(activity) => choose({ activity })}
                 options={ACTIVITIES.map((activity) => ({
                   value: activity,
                   label: t(`goals.activityShort.${activity}`),
@@ -524,17 +523,6 @@ export function AccountPanel({
             </dl>
           )}
           <p className="text-[13px] font-medium text-gray">{t("figures.formula")}</p>
-
-          <div>
-            <Button
-              onClick={submitProfile}
-              loading={pending}
-              disabled={!dirty || !complete(figures)}
-              data-testid="figures-submit"
-            >
-              {t("figures.submit")}
-            </Button>
-          </div>
         </Card>
       </section>
       )}

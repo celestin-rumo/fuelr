@@ -110,22 +110,18 @@ it("asks for a click before an address moves, and says the old one was told", as
   expect(screen.getByTestId("account-email")).toHaveTextContent("celine@fuelr.app");
 });
 
-it("previews the target before writing the figures, and only then offers to save", async () => {
+it("a goal pressed is written at once, and the target follows it", async () => {
   const user = userEvent.setup({ delay: null });
+  saveProfile.mockResolvedValueOnce({ ok: true, saved: { targets: { kcal: 2100, proteinG: 120, carbsG: 240, fatG: 70 } } });
   renderWithIntl(<AccountPanel session={session} profile={profile} />);
-
-  expect(screen.getByTestId("figures-submit")).toBeDisabled();
   expect(screen.getByTestId("target-preview")).toHaveTextContent("2000");
 
-  // A goal is three small cards, not one block; picking one previews.
+  // No save button: a card is a decision, and pressing it is the save.
+  expect(screen.queryByRole("button", { name: "Enregistrer" })).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: /Perdre du poids/ }));
 
-  await waitFor(() => expect(previewTargets).toHaveBeenCalled());
+  await waitFor(() => expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ goal: "LOSE" })));
   expect(await screen.findByText("2100")).toBeInTheDocument();
-  expect(saveProfile).not.toHaveBeenCalled();
-  // The button is out while the preview transition runs; once it has
-  // settled, saving is offered — and not before.
-  await waitFor(() => expect(screen.getByTestId("figures-submit")).toBeEnabled());
 });
 
 it("treats a missing profile as a state, not an error", () => {
@@ -135,7 +131,7 @@ it("treats a missing profile as a state, not an error", () => {
   expect(screen.queryByTestId("target-preview")).not.toBeInTheDocument();
 });
 
-it("a weight typed here is today's weigh-in, written before the profile", async () => {
+it("a weight typed here is today's weigh-in, written when the field is left", async () => {
   const user = userEvent.setup({ delay: null });
   saveProfile.mockResolvedValueOnce({ ok: true, saved: { targets: { kcal: 1900, proteinG: 110, carbsG: 220, fatG: 65 } } });
   renderWithIntl(
@@ -147,9 +143,8 @@ it("a weight typed here is today's weigh-in, written before the profile", async 
   const weight = screen.getByTestId("figure-weight");
   await user.clear(weight);
   await user.type(weight, "60");
-  // The preview runs first; the save waits for it.
-  await waitFor(() => expect(screen.getByTestId("body-submit")).toBeEnabled());
-  await user.click(screen.getByTestId("body-submit"));
+  // Leaving the field is the save.
+  await user.tab();
 
   await waitFor(() => expect(recordWeight).toHaveBeenCalledWith({ weighedOn: "2026-03-02", weightKg: 60 }));
   expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ weightKg: 60 }));
@@ -164,8 +159,7 @@ it("leaves the weigh-ins alone when the weight did not change", async () => {
   const height = screen.getByTestId("figure-height");
   await user.clear(height);
   await user.type(height, "170");
-  await waitFor(() => expect(screen.getByTestId("body-submit")).toBeEnabled());
-  await user.click(screen.getByTestId("body-submit"));
+  await user.tab();
 
   await waitFor(() => expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ heightCm: 170 })));
   expect(recordWeight).not.toHaveBeenCalled();
