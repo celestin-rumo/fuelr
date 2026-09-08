@@ -6,6 +6,43 @@ this file collects them newest first.
 
 ---
 
+# v4.4.0 — 2026-09-08
+
+The library's filters, drawn the way a shop draws them.
+
+## Popular first, then four doors
+
+Twenty-three chips — six tags, four seasons, twelve cuisines, three origins
+— stood behind one *Filtrer* button, folded at every width. That kept the
+library readable and made every filter two presses away.
+
+Now a row of **popular filters** is always in reach: in season, quick,
+vegetarian, what my preferences allow, what a model wrote — the five people
+actually press. Under it, **four doors**: *Envie*, *Saison*, *Cuisine*,
+*Origine*. Each says on its face how many of its options are on, and opening
+one lays its options out under the row — not over the page, because a panel
+that floats has to be positioned, kept inside 360 pixels and closed on a
+click anywhere else, and a panel in the flow is a row of chips the library
+has always known how to draw. Opening a second door shuts the first; Escape
+shuts it too.
+
+What is on is repeated below as chips that can be removed one by one, so a
+filter behind a shut door is never a forgotten one: the door counts it and
+the chip names it. That is the rule that has always allowed hiding a filter,
+kept.
+
+## And one height on the account hub
+
+Every card on the account hub is the same height now, whatever its line
+says. A list of doors reads as a list only when the doors match; so do the
+folds on the profile.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.3.3 — 2026-09-08
 
 The two save buttons on the profile are gone.
