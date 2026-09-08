@@ -6,6 +6,51 @@ this file collects them newest first.
 
 ---
 
+# v4.2.0 — 2026-09-08
+
+The account, a second time — and this time as a place you walk into rather
+than a page you scroll.
+
+## A hub, and you choose the first level
+
+v4.0.0 put nine forms on one page. v4.1.0 put five tabs above them. Both
+were still one long scroll with a menu on top, and a menu on top is not
+how anybody thinks about their account — they arrive knowing what they came
+to do.
+
+So the account opens on a hub: your name and your address, then one card
+per thing you might have come for, grouped the way they belong together —
+**Vous** (profile, preferences), **À plusieurs** (household), **Accès et
+données** (security, my data). Each card says in a line what is behind it
+and, where it helps, its state: how many devices are signed in, whether the
+weekly reminder is on, how many people are in the household. Each card is a
+page of its own, with the way back at the top. The destructive page is last
+in the list and alone.
+
+It is the shape the admin panel of gyoza has, and for the same reason: a hub
+reads at a glance, a long page is searched.
+
+## Inside a section, what you came for is open
+
+On each page, the form you came for is open and the ones touched twice a
+year are behind a fold: on the profile, the six figures, the weigh-in and
+the link to share; on security, the password below the devices; on
+preferences, the reminder below what you eat. The fold is a native details
+element — it works with no script, the keyboard reaches it, a screen reader
+announces its state — and it is never used for anything that must be read.
+
+## The household's old address still works
+
+`/app/foyer` forwards to the household section, token and all, because
+invitation mails carry that address and a link in somebody's inbox is not
+something a redesign may break.
+
+## What is left
+
+Unchanged from v4.1.0.
+
+---
+
 # v4.1.0 — 2026-09-08
 
 The account page, reshaped — and the household moves in.
