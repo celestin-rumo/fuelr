@@ -1189,6 +1189,15 @@
       "formula": "Eine Formel aus Alter, Grösse, Gewicht und Aktivität. Ein Richtwert, keine Vorschrift.",
       "submit": "Speichern",
       "saved": "Zahlen gespeichert. Das Ziel gilt ab heute."
+    },
+    "tabs": {
+      "label": "Konto-Reiter",
+      "profile": "Profil",
+      "household": "Haushalt",
+      "preferences": "Einstellungen",
+      "security": "Sicherheit",
+      "data": "Meine Daten",
+      "unavailable": "Der Haushalt konnte nicht gelesen werden. Bitte gleich erneut versuchen."
     }
   },
   "verifyEmailChange": {

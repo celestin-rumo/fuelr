@@ -1009,18 +1009,31 @@ squeeze the connectors to nothing, and the header's sign-out button drops to its
 icon there. Check a narrow viewport in the browser, not only a wide one.
 
 **The app's navigation is a bottom tab bar below `sm`, and the header keeps
-none of it.** That bar has about 80px to spare and five readable labels want
-four times that. Wrapping them onto a line of their own was the first answer
-and it solved the overflow and nothing else: the navigation ended up three
-rows deep at the top of a screen held at the bottom, above the thing somebody
+none of it.** That bar has about 80px to spare and readable labels want four
+times that. Wrapping them onto a line of their own was the first answer and
+it solved the overflow and nothing else: the navigation ended up three rows
+deep at the top of a screen held at the bottom, above the thing somebody
 came to read. `AppTabs` is fixed to the bottom, 56px plus
 `env(safe-area-inset-bottom)`, and `<main>` reserves that room rather than
-sliding under it. Two rules it does not break: every destination stays
-reachable — five tabs, not four with the household folded away behind
-something — and each icon comes *with* its word, because a bar of icons alone
-has to be learnt and this one is read by somebody holding a knife. Cooking
-mode is in the `(cook)` route group and never gets the bar; it has its own
-footer.
+sliding under it. Four tabs — recipes, plan, shopping, journal — the four
+things done every week; each icon comes *with* its word, because a bar of
+icons alone has to be learnt and this one is read by somebody holding a
+knife. The household is not a fifth tab: it is set once and read rarely, so
+it lives on the account page, and the account is reached from the header on
+every screen. Cooking mode is in the `(cook)` route group and never gets the
+bar; it has its own footer.
+
+**The account page is an identity in front and five tabs behind it.** Nine
+forms on one page is past what anybody scans, so `/app/account` shows who
+this is — name and address, read at a glance — and groups the rest by what
+somebody came to do: *profile* (the six figures, weigh-ins, the link to
+share), *household*, *preferences* (what they eat, what they hear from us),
+*security* (password, devices), and *data* (the archive and the door out),
+destructive last and on its own tab. The tab is the URL (`?tab=`), so a
+mailed invitation lands on the household and a bookmark on security;
+`/app/household` stays as an address because invitation mails carry it, and
+forwards there with its token. The tab strip scrolls sideways on a phone
+rather than wrapping into rows above the content.
 
 When a control loses its visible label that way, give it an explicit
 `aria-label`. Hiding the text with `sr-only` alone has bitten this codebase

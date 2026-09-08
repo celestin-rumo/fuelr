@@ -1189,6 +1189,15 @@
       "formula": "Une formule sur l'âge, la taille, le poids et l'activité. C'est un repère, pas une prescription.",
       "submit": "Enregistrer",
       "saved": "Chiffres enregistrés. La cible s'applique à partir d'aujourd'hui."
+    },
+    "tabs": {
+      "label": "Onglets du compte",
+      "profile": "Profil",
+      "household": "Foyer",
+      "preferences": "Préférences",
+      "security": "Sécurité",
+      "data": "Mes données",
+      "unavailable": "Le foyer n'a pas pu être lu. Réessayez dans un instant."
     }
   },
   "verifyEmailChange": {

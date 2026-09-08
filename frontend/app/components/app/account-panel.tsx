@@ -40,13 +40,19 @@ type Notice = { tone: "success" | "error"; text: string } | null;
  * Two things are never pre-filled: the passwords. A password field that
  * arrives full is a password somebody can read off the screen.
  */
+export type AccountSection = "identity" | "email" | "password" | "figures";
+
 export function AccountPanel({
   session,
   profile,
+  sections = ["identity", "email", "password", "figures"],
 }: {
   session: Session;
   profile: ProfileResponse | null;
+  /** Which of the four forms this instance shows: a tab shows only its own. */
+  sections?: AccountSection[];
 }) {
+  const show = (section: AccountSection) => sections.includes(section);
   const t = useTranslations("account");
   const tOnboarding = useTranslations("onboarding");
   const locale = useLocale();
@@ -187,6 +193,7 @@ export function AccountPanel({
       )}
 
       {/* --- who ----------------------------------------------------------- */}
+      {show("identity") && (
       <section className="flex flex-col gap-4">
         <SectionHead as="h2">{t("profile.title")}</SectionHead>
         <Card as="panel" className="flex flex-col gap-5">
@@ -216,8 +223,10 @@ export function AccountPanel({
           </div>
         </Card>
       </section>
+      )}
 
       {/* --- the address ----------------------------------------------------- */}
+      {show("email") && (
       <section className="flex flex-col gap-4">
         <SectionHead as="h2" hint={t("email.hint")}>
           {t("email.title")}
@@ -275,8 +284,10 @@ export function AccountPanel({
           )}
         </Card>
       </section>
+      )}
 
       {/* --- the password ------------------------------------------------------ */}
+      {show("password") && (
       <section className="flex flex-col gap-4">
         <SectionHead as="h2" hint={t("password.hint")}>
           {t("password.title")}
@@ -322,8 +333,10 @@ export function AccountPanel({
           </form>
         </Card>
       </section>
+      )}
 
       {/* --- the six figures ------------------------------------------------------ */}
+      {show("figures") && (
       <section className="flex flex-col gap-4">
         <SectionHead as="h2" hint={t("figures.hint")}>
           {t("figures.title")}
@@ -426,6 +439,7 @@ export function AccountPanel({
           </div>
         </Card>
       </section>
+      )}
     </div>
   );
 }

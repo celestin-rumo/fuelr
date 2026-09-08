@@ -58,7 +58,7 @@ test("the language follows the account, and the page follows the language", asyn
 
   await page.getByRole("button", { name: "Deutsch" }).click();
   await expect(page).toHaveURL(/\/de\/app\/konto/);
-  await expect(page.getByRole("heading", { level: 1, name: "Mein Konto" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Sicherheit" })).toBeVisible();
 
   const me = await request.get(`${BACKEND}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,7 @@ test("changing the password signs the other device out and tells the address", a
   });
   const phoneToken = (await phone.json()).token as string;
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=security");
   await page.getByTestId("password-current").fill("motdepasse123");
   await page.getByTestId("password-next").fill("nouveaumotdepasse");
   await page.getByTestId("password-submit").click();
@@ -148,7 +148,7 @@ test("the devices are listed in words, and one closed from here is out", async (
   });
   const phoneToken = (await phone.json()).token as string;
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=security");
   const panel = page.getByTestId("devices-panel");
   await expect(panel).toContainText("Safari · iOS");
   await expect(panel).toContainText("Cet appareil");
@@ -188,7 +188,7 @@ test("everything I have leaves in one archive, once", async ({ request, context,
     data: { title: "Risotto", servings: 4, ingredients: [{ name: "Riz", quantity: 200, unit: "g" }], steps: ["Cuire."] },
   });
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=data");
   await page.getByTestId("export-submit").click();
   await expect(page.getByTestId("export-asked")).toContainText(email);
 
@@ -214,7 +214,7 @@ test("deleting my account needs my password, says what goes, and then I am gone"
 }) => {
   const { email, token } = await register(request, context);
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=data");
   await page.getByTestId("delete-open").click();
   const dialog = page.getByTestId("delete-dialog");
   await expect(dialog).toContainText(/Aucune recette|recette/);
@@ -273,7 +273,7 @@ test("the weekly reminder is off, turns on, and stops from the mail", async ({
   page,
 }) => {
   const { token } = await register(request, context);
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=preferences");
   const panel = page.getByTestId("reminder-panel");
   await expect(panel.getByTestId("reminder-switch")).not.toBeChecked();
 
@@ -290,4 +290,30 @@ test("the weekly reminder is off, turns on, and stops from the mail", async ({
       })).json()).day,
     )
     .toBe(7);
+});
+
+test("the account is an identity in front and five tabs behind it", async ({ request, context, page }) => {
+  const { email } = await register(request, context);
+  await page.goto("/fr/app/compte");
+
+  // Who this is, read at a glance.
+  const header = page.getByTestId("account-header");
+  await expect(header).toContainText("Céline");
+  await expect(header).toContainText(email);
+
+  // The default tab is the profile; the destructive one is last and on its own.
+  const tabs = page.getByTestId("account-tabs");
+  await expect(tabs.getByRole("tab")).toHaveCount(5);
+  await expect(tabs.getByRole("tab", { name: "Profil" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("delete-open")).toHaveCount(0);
+
+  await tabs.getByRole("tab", { name: "Mes données" }).click();
+  await expect(page).toHaveURL(/tab=data/);
+  await expect(page.getByTestId("delete-open")).toBeVisible();
+
+  // The household lives here now, and its old address still leads to it.
+  await tabs.getByRole("tab", { name: "Foyer" }).click();
+  await expect(page.getByTestId("account-panel-household")).toBeVisible();
+  await page.goto("/fr/app/foyer");
+  await expect(page).toHaveURL(/\/fr\/app\/compte\?tab=household/);
 });
