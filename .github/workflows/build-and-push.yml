@@ -417,9 +417,16 @@ jobs:
 
       - name: Create git tag if missing
         shell: bash
+        # No pipe into `grep -q`: with `pipefail`, grep closing its end early
+        # hands `git ls-remote` a SIGPIPE, the pipeline fails, and the `if`
+        # falls into the else branch — on a tag push, where the tag is already
+        # in the checkout, `git tag` then dies with "already exists". It only
+        # bites once the repository holds enough tags for ls-remote to still be
+        # writing when grep has its answer, which is why it appeared at v4.4.0.
         run: |
-          if git ls-remote --tags origin | grep -q "refs/tags/${{ needs.prepare-meta.outputs.release_tag }}$"; then
-            echo "Tag already exists on origin"
+          TAG="${{ needs.prepare-meta.outputs.release_tag }}"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/$TAG")" ] || git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists"
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
