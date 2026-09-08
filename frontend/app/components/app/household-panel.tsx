@@ -80,7 +80,7 @@ export function HouseholdPanel({
       }
       // The token is spent; leaving it in the URL would offer to use it again
       // on every reload.
-      router.replace({ pathname: "/app/account", query: { tab: "household" } });
+      router.replace({ pathname: "/app/account/household" });
       router.refresh();
     });
   }
@@ -106,7 +106,7 @@ export function HouseholdPanel({
   return (
     // Capped like body text: a list of five names does not get better for
     // being stretched across a desktop.
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div data-testid="household-panel" className="flex max-w-3xl flex-col gap-6">
       {error && (
         <Banner tone="error" data-testid="household-error" onDismiss={() => setError(null)}>
           {error}

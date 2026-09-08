@@ -108,6 +108,29 @@ const paths = {
       <path d="M9 8h6" />
     </>
   ),
+  /** One person: the account itself. */
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  /** What gets in: the password and the devices. */
+  lock: (
+    <>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </>
+  ),
+  /** What somebody eats — or does not. */
+  leaf: <path d="M5 20c0-8 4-14 14-14 0 10-6 14-14 14Zm0 0c3-4 6-7 10-9" />,
+  /** The archive, and everything that leaves with it. */
+  archive: (
+    <>
+      <rect x="3" y="4" width="18" height="5" rx="1" />
+      <path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4" />
+    </>
+  ),
   /** The household — people, because that is what it cooks for. */
   people: (
     <>

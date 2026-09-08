@@ -127,6 +127,31 @@ export const routing = defineRouting({
       en: "/app/account",
       de: "/app/konto",
     },
+    "/app/account/profile": {
+      fr: "/app/compte/profil",
+      en: "/app/account/profile",
+      de: "/app/konto/profil",
+    },
+    "/app/account/household": {
+      fr: "/app/compte/foyer",
+      en: "/app/account/household",
+      de: "/app/konto/haushalt",
+    },
+    "/app/account/preferences": {
+      fr: "/app/compte/preferences",
+      en: "/app/account/preferences",
+      de: "/app/konto/einstellungen",
+    },
+    "/app/account/security": {
+      fr: "/app/compte/securite",
+      en: "/app/account/security",
+      de: "/app/konto/sicherheit",
+    },
+    "/app/account/data": {
+      fr: "/app/compte/donnees",
+      en: "/app/account/data",
+      de: "/app/konto/daten",
+    },
     "/app/household": {
       fr: "/app/foyer",
       en: "/app/household",
