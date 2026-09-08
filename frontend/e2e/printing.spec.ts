@@ -159,6 +159,7 @@ test("the week prints as one landscape sheet for the fridge", async ({
   }
 
   await page.goto(`/fr/app/planning?week=${MONDAY}`);
+  await page.getByRole("button", { name: "Plus d'actions" }).click();
   await page.getByTestId("print-week").click();
   await expect(page).toHaveURL(/\/fr\/app\/planning\/imprimer/);
 

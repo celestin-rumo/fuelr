@@ -55,7 +55,14 @@ test.beforeEach(async ({ request, context }) => {
  * what is on stays visible outside the panel as removable chips, which is what
  * makes hiding the rest allowed.
  */
+async function openDrawer(page: Page) {
+  if (!(await page.getByTestId("filters-drawer").isVisible())) {
+    await page.getByTestId("open-filters").click();
+  }
+}
+
 async function openFilters(page: Page, group: "tags" | "seasons" | "cuisines" | "origins") {
+  await openDrawer(page);
   const door = page.getByTestId(`filter-${group}`);
   if ((await door.getAttribute("aria-expanded")) !== "true") {
     await door.click();
@@ -139,6 +146,7 @@ test("the in-season shortcut picks the season the date is in", async ({
   await page.goto("/fr/app");
 
   await openFilters(page, "seasons");
+  await openDrawer(page);
   await page.getByTestId("in-season").click();
 
   await expect(page.getByRole("heading", { name: "Plat de saison" })).toBeVisible();

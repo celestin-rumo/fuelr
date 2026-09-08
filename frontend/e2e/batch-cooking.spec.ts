@@ -74,6 +74,7 @@ test("asking for a batch names its refusal rather than proposing your own recipe
   await seed(request, "Galettes de lentilles", lentils);
 
   await openWeek(page);
+  await page.getByTestId("open-suggest").click();
   await page.getByTestId("suggest-batch").click();
   const dialog = page.getByTestId("batch-dialog");
   await dialog.getByRole("button", { name: "Chercher un ensemble" }).click();
@@ -98,6 +99,7 @@ test("the week already planned is read as one afternoon's work", async ({
   ]));
 
   await openWeek(page);
+  await page.getByRole("button", { name: "Plus d'actions" }).click();
   await page.getByTestId("to-prep-session").click();
 
   // Prepared once, for the whole week, with the total to actually make.

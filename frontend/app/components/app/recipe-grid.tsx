@@ -15,13 +15,15 @@ import {
   moveFavorite,
   setFavorite,
 } from "@app/[locale]/(app)/app/recipes/actions";
-import { RecipeFilters } from "./recipe-filters";
+import { ActiveFilters, RecipeFilters, RecipeSearch, activeCount } from "./recipe-filters";
+import { RecipeThumb } from "./recipe-thumb";
+import { Chip } from "@ui/chip";
+import { FilterTrigger } from "@ui/filter-group";
 import { Button, IconButton, buttonClasses } from "@ui/button";
 import { Dialog } from "@ui/dialog";
 import { Icon } from "@ui/icons";
 import { ListRow, ListRowActions } from "@ui/list-row";
 import { Menu } from "@ui/menu";
-import { Segmented, SegmentedCount } from "@ui/segmented";
 import { Pagination } from "@ui/pagination";
 import { Banner } from "@ui/banner";
 import { PlanDialog } from "./plan-dialog";
@@ -92,6 +94,17 @@ export function RecipeGrid({
   const current = Math.min(page, pages - 1);
   const shown = matching.slice(current * PER_PAGE, current * PER_PAGE + PER_PAGE);
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filters = {
+    term,
+    selectedTags,
+    selectedSeasons,
+    selectedCuisines,
+    selectedOrigins,
+    onlyCompatible,
+    today,
+  };
+
   function move(recipe: RecipeSummary, direction: -1 | 1) {
     startTransition(async () => {
       const result = await moveFavorite(recipe.id, direction);
@@ -127,33 +140,47 @@ export function RecipeGrid({
 
   return (
     <div className="flex flex-col gap-6">
-      <RecipeFilters
-        term={term}
-        selectedTags={selectedTags}
-        selectedSeasons={selectedSeasons}
-        selectedCuisines={selectedCuisines}
-        selectedOrigins={selectedOrigins}
-        onlyCompatible={onlyCompatible}
-        today={today}
-      />
+      {/* One row, then the recipes. The search stays in reach — it is the
+          filter used on every visit — and everything else is behind one
+          button that says how many are on, with what is on named under it. */}
+      <div className="flex flex-wrap items-center gap-2" data-testid="library-bar">
+        <div className="min-w-0 flex-1 basis-56">
+          <RecipeSearch {...filters} />
+        </div>
+        <FilterTrigger
+          block={false}
+          count={activeCount(filters)}
+          open={filtersOpen}
+          aria-controls="filters-drawer"
+          data-testid="open-filters"
+          onClick={() => setFiltersOpen(true)}
+        >
+          {t("filters.toggle")}
+        </FilterTrigger>
+        <Chip
+          active={onlyFavorites}
+          count={favoriteCount > 0 ? favoriteCount : undefined}
+          data-testid="only-favorites"
+          onClick={() => setOnlyFavorites((current) => !current)}
+        >
+          {t("filters.favorites")}
+        </Chip>
+      </div>
 
-      {/* One among two, so it is the segmented control and not two chips: a
-          chip is a filter you stack, and these two are exclusive. */}
-      <Segmented
-        label={t("filters.label")}
-        value={onlyFavorites ? "favorites" : "all"}
-        onChange={(which) => setOnlyFavorites(which === "favorites")}
-        options={[
-          { value: "all", label: t("filters.all") },
-          {
-            value: "favorites",
-            label: t("filters.favorites"),
-            affix: (
-              <SegmentedCount count={favoriteCount} on={onlyFavorites} />
-            ),
-          },
-        ]}
-      />
+      <ActiveFilters {...filters} />
+
+      {filtersOpen && (
+        <Dialog
+          placement="side"
+          id="filters-drawer"
+          title={t("filters.toggle")}
+          closeLabel={t("filters.close")}
+          data-testid="filters-drawer"
+          onClose={() => setFiltersOpen(false)}
+        >
+          <RecipeFilters {...filters} />
+        </Dialog>
+      )}
 
       {shown.length === 0 ? (
         <p data-testid="no-results" className="text-[15px] font-medium text-text-dim">
@@ -254,6 +281,9 @@ export function RecipeGrid({
                   </ListRowActions>
                 }
                 leading={
+                  <span className="flex shrink-0 items-center gap-2">
+                  {/* The picture first, at the very left; the pin beside it. */}
+                  <RecipeThumb id={recipe.id} title={title} hasPhoto={recipe.hasPhoto} />
                   <button
                     type="button"
                     aria-label={
@@ -276,6 +306,7 @@ export function RecipeGrid({
                   >
                     <Icon name="star" size={20} filled={recipe.favorite} />
                   </button>
+                  </span>
                 }
               >
                 {/* A heading, not a bare link: the library is navigated by

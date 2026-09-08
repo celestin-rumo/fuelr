@@ -21,12 +21,15 @@ export type FilterTriggerProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "
   /** How many of this filter's options are on. */
   count?: number;
   open?: boolean;
+  /** Fills its grid cell by default; inline in a toolbar. */
+  block?: boolean;
 };
 
 export function FilterTrigger({
   children,
   count = 0,
   open = false,
+  block = true,
   className,
   type = "button",
   ...props
@@ -37,7 +40,8 @@ export function FilterTrigger({
       type={type}
       aria-expanded={open}
       className={cn(
-        "flex min-h-11 w-full items-center justify-between gap-2 rounded-sm px-4 text-[13px] font-semibold",
+        "flex min-h-11 items-center justify-between gap-2 rounded-sm px-4 text-[13px] font-semibold",
+        block ? "w-full" : "w-auto",
         "transition-colors duration-[var(--dur-control)] ease-[var(--ease)]",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
         on

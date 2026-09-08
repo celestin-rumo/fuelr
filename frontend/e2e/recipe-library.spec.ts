@@ -72,7 +72,14 @@ async function rowMenu(page: Page, title: string) {
  * what is on stays visible outside the panel as removable chips, which is what
  * makes hiding the rest allowed.
  */
+async function openDrawer(page: Page) {
+  if (!(await page.getByTestId("filters-drawer").isVisible())) {
+    await page.getByTestId("open-filters").click();
+  }
+}
+
 async function openFilters(page: Page, group: "tags" | "seasons" | "cuisines" | "origins") {
+  await openDrawer(page);
   const door = page.getByTestId(`filter-${group}`);
   if ((await door.getAttribute("aria-expanded")) !== "true") {
     await door.click();
@@ -341,20 +348,21 @@ test("the filters fold at every width, and what is on stays visible", async ({
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/fr/app");
 
-  // Four doors, shut; the popular row is the only thing in reach.
-  await expect(page.getByTestId("filter-tags")).toBeVisible();
-  await expect(page.getByTestId("tag-filters")).toBeHidden();
+  // One bar, and the recipes right under it: the filters wait in a drawer.
+  await expect(page.getByTestId("open-filters")).toBeVisible();
+  await expect(page.getByTestId("filters-drawer")).toBeHidden();
   await expect(page.getByTestId("cuisine-filters")).toBeHidden();
 
   await openFilters(page, "tags");
   await page.getByTestId("tag-filters").getByRole("button", { name: "Végétarien" }).click();
-  await page.getByTestId("filter-tags").click();
+  await page.getByRole("button", { name: "Fermer les filtres" }).click();
+  await expect(page.getByTestId("filters-drawer")).toBeHidden();
 
   // Hiding a filter is only allowed while it still says it is on — and this
   // says *which*, not just how many, and undoes it without opening anything.
   const on = page.getByTestId("active-filters").getByRole("button", { name: "Végétarien", exact: true });
   await expect(on).toBeVisible();
-  await expect(page.getByTestId("filter-tags")).toContainText("1");
+  await expect(page.getByTestId("open-filters")).toContainText("1");
   await page.getByRole("button", { name: "Retirer le filtre Végétarien" }).click();
 
   await expect(page.getByTestId("active-filters")).toBeHidden();

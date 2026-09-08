@@ -96,8 +96,12 @@ test("portions follow the household, and the recipe's own servings are left alon
   await seed(request, "Curry de lentilles");
   await openWeek(page);
 
+  // The household sits behind the week's menu: set once, read rarely.
+  await page.getByRole("button", { name: "Plus d'actions" }).click();
+  await page.getByTestId("menu-household").click();
   await page.getByRole("button", { name: "Une personne de plus dans le foyer" }).click();
   await expect(page.getByTestId("household-size")).toHaveText("3");
+  await page.getByRole("button", { name: "Fermer", exact: true }).click();
 
   await planInto(page, "Dîner", "mercredi", "Curry de lentilles");
   await page

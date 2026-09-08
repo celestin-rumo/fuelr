@@ -11,6 +11,8 @@ const refresh = vi.fn();
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push, refresh }),
+  getPathname: ({ href }: { href: { pathname: string; query?: Record<string, string> } }) =>
+    `${href.pathname}${href.query ? `?${new URLSearchParams(href.query)}` : ""}`,
   Link: ({
     children,
     ...props
@@ -236,6 +238,12 @@ describe("WeekPlanner", () => {
     const user = userEvent.setup();
     renderPlanner(planWith([mealWith()], 2));
 
+    // The household lives behind the menu, in a dialog of its own.
+
+    await user.click(screen.getByRole("button", { name: "Plus d'actions" }));
+
+    await user.click(screen.getByTestId("menu-household"));
+
     await user.click(screen.getByRole("button", { name: /Une personne de plus/ }));
 
     await waitFor(() => expect(setHouseholdSize).toHaveBeenCalledWith(3));
@@ -247,8 +255,10 @@ describe("WeekPlanner", () => {
     const user = userEvent.setup();
     renderPlanner(planWith([mealWith()]));
 
+    // Once a week or less: behind the menu.
+    await user.click(screen.getByRole("button", { name: "Plus d'actions" }));
     await user.click(
-      screen.getByRole("button", { name: "Dupliquer vers la semaine suivante" }),
+      screen.getByRole("menuitem", { name: "Dupliquer vers la semaine suivante" }),
     );
 
     await waitFor(() =>
@@ -270,8 +280,10 @@ describe("WeekPlanner", () => {
     } as unknown as { ok: true; week: WeekPlan });
     renderPlanner(planWith([mealWith()]));
 
+    // Once a week or less: behind the menu.
+    await user.click(screen.getByRole("button", { name: "Plus d'actions" }));
     await user.click(
-      screen.getByRole("button", { name: "Dupliquer vers la semaine suivante" }),
+      screen.getByRole("menuitem", { name: "Dupliquer vers la semaine suivante" }),
     );
 
     const dialog = await screen.findByRole("dialog");
