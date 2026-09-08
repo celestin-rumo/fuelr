@@ -1441,6 +1441,7 @@
   "working": {
     "progress": "Fortschritt",
     "dish": "Gericht {done} von {of}",
-    "starting": "Erstes Gericht in Arbeit…"
+    "starting": "Erstes Gericht in Arbeit…",
+    "arrived": "{count, plural, one {# Gericht fertig} other {# Gerichte fertig}}"
   }
 }

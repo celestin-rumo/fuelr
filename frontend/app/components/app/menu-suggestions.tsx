@@ -43,6 +43,8 @@ export function MenuSuggestions({ week }: { week: string }) {
   const [added, setAdded] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** Ideas written to the end so far, shown — and keepable — before the answer is whole. */
+  const [arriving, setArriving] = useState<Suggestion[]>([]);
   const [pending, startTransition] = useTransition();
 
   async function ask(event: React.FormEvent) {
@@ -55,11 +57,13 @@ export function MenuSuggestions({ week }: { week: string }) {
     setAdded(null);
     setAnswer(null);
     setProgress(null);
+    setArriving([]);
     setSearching(true);
-    const result = await askLive<Suggestions>(
+    const result = await askLive<Suggestions, Suggestion>(
       "/api/menu/suggestions",
       { have: have.trim() },
       setProgress,
+      (arrival) => setArriving((list) => [...list, arrival.dish]),
     );
     setSearching(false);
     if (!result.ok) {
@@ -126,6 +130,21 @@ export function MenuSuggestions({ week }: { week: string }) {
           words={have}
           progress={progress}
         />
+      )}
+
+      {/* Written to the end while the rest is still being written: the same
+          row as in the answer, and it can already be kept. */}
+      {searching && arriving.length > 0 && (
+        <ul data-testid="arriving" aria-live="polite" className="flex flex-col gap-2">
+          {arriving.map((suggestion, index) => (
+            <SuggestionRow
+              key={`arriving-${suggestion.title}-${index}`}
+              suggestion={suggestion}
+              onKeep={() => keep(suggestion)}
+              onShop={() => shop(suggestion)}
+            />
+          ))}
+        </ul>
       )}
 
       {error && (

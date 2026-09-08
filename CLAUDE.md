@@ -592,6 +592,17 @@ library had hidden this for a week by asking for one or two dishes at a time.
 max_tokens` by name, because from the screen a truncated answer and a refusal
 are indistinguishable and only one of them is our fault.
 
+**A dish shows up the moment it is written, not when the answer is whole.**
+`DishScanner` finds each closed dish object in the tool's input as the
+fragments arrive — depth three, strings and escapes tracked — and
+`Progress.completed` hands it on, shaped by the controller the way the
+final answer will shape it (placed on its slot, checked against the
+allergens, keyed for its picture), as a `dish` event on the stream. The
+three screens list those rows under the count while the model writes the
+rest; the bag's can already be kept. The `result` still comes last and is
+what the screen decides on. A one-piece answer tells its titles and its
+dishes after reading, late but told.
+
 The correction loop is unchanged. The request is per *slot*, not per day:
 `keep` carries what is already decided so a second round replaces exactly what
 was turned down, and what was refused travels back by title, because an idea

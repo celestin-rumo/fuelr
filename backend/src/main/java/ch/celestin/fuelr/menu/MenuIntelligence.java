@@ -42,6 +42,19 @@ public interface MenuIntelligence {
          * @param title what it is called
          */
         void dish(int index, int of, String title);
+
+        /**
+         * A dish written to the end — title, ingredients, steps — while the
+         * model goes on with the next. What a screen shows as a row the
+         * moment it exists, rather than a count. The object is whatever the
+         * caller made of the suggestion: a placed proposal, a set member.
+         *
+         * @param index the dish, counted from one
+         * @param of    how many were asked for
+         * @param dish  the dish, as the caller shapes it
+         */
+        default void completed(int index, int of, Object dish) {
+        }
     }
 
     String name();

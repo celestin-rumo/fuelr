@@ -39,6 +39,7 @@ export function BatchSuggest({
   planned: string[];
 }) {
   const t = useTranslations("plan.batch");
+  const tWorking = useTranslations("working");
   const tTags = useTranslations("recipe.tags");
   const tCuisines = useTranslations("recipe.cuisines");
   const locale = useLocale();
@@ -49,6 +50,8 @@ export function BatchSuggest({
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** The dishes written to the end so far. */
+  const [arriving, setArriving] = useState<BatchMember[]>([]);
   // The ask is not a transition: what the stream says has to render the
   // moment it arrives, and a transition holds its updates until it ends.
   const [asking, setAsking] = useState(false);
@@ -84,16 +87,17 @@ export function BatchSuggest({
   function ask() {
     setFailed(false);
     setProgress(null);
+    setArriving([]);
     setAsking(true);
     void (async () => {
-      const result = await askLive<BatchSets>("/api/plan/suggest/batch", {
+      const result = await askLive<BatchSets, BatchMember>("/api/plan/suggest/batch", {
         size,
         intents,
         cuisines,
         // What has already been turned down, by name: every dish here is one
         // nobody has written yet, and an idea has no id.
         excludeTitles: refused,
-      }, setProgress);
+      }, setProgress, (arrival) => setArriving((list) => [...list, arrival.dish]));
       setAsking(false);
       if (!result.ok) {
         setFailed(true);
@@ -159,13 +163,35 @@ export function BatchSuggest({
           onClose={() => setOpen(false)}
         >
           {stage === "asking" && asking && (
-            <WorkingOn
-              className="mt-3"
-              data-testid="working"
-              label={t("working")}
-              words={[...intents, ...cuisines].join(" ")}
-              progress={progress}
-            />
+            <div className="mt-3 flex flex-col gap-4">
+              <WorkingOn
+                data-testid="working"
+                label={t("working")}
+                words={[...intents, ...cuisines].join(" ")}
+                progress={progress}
+              />
+              {arriving.length > 0 && (
+                <div className="flex flex-col gap-2" aria-live="polite" data-testid="arriving">
+                  <p className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+                    {tWorking("arrived", { count: arriving.length })}
+                  </p>
+                  <ul className="flex flex-col gap-2">
+                    {arriving.map((member, at) => (
+                      <li
+                        key={`${member.title}-${at}`}
+                        data-testid="arriving-member"
+                        className="flex items-center gap-3 rounded-sm border border-line bg-bg-raised-2 p-3"
+                      >
+                        <IdeaThumb illustrationKey={member.illustrationKey} title={member.title} />
+                        <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
+                          {member.title}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
 
           {stage === "asking" && !asking && (

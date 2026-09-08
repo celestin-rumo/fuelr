@@ -71,6 +71,8 @@ export function WeekSuggest({
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** The dishes written to the end so far, shown while the rest are being written. */
+  const [arriving, setArriving] = useState<WeekProposal[]>([]);
   // The ask is not a transition: what the stream says has to render the
   // moment it arrives, and a transition holds its updates until it ends.
   const [asking, setAsking] = useState(false);
@@ -127,9 +129,10 @@ export function WeekSuggest({
 
     setFailed(false);
     setProgress(null);
+    setArriving([]);
     setAsking(true);
     void (async () => {
-      const result = await askLive<WeekSuggestion>("/api/plan/suggest", {
+      const result = await askLive<WeekSuggestion, WeekProposal>("/api/plan/suggest", {
         week: weekStart,
         intents: asked,
         cuisines,
@@ -146,7 +149,7 @@ export function WeekSuggest({
         ],
         excludeTitles: [...keeping, ...refusing].map((one) => one.proposal.title),
         note: note.trim(),
-      }, setProgress);
+      }, setProgress, (arrival) => setArriving((list) => [...list, arrival.dish]));
       setAsking(false);
 
       if (!result.ok) {
@@ -201,13 +204,15 @@ export function WeekSuggest({
           onClose={() => setOpen(false)}
         >
           {stage === "asking" && asking && (
-            <WorkingOn
-              className="mt-3"
-              data-testid="working"
-              label={t("working")}
-              words={[...intents, ...cuisines].join(" ")}
-              progress={progress}
-            />
+            <div className="mt-3 flex flex-col gap-4">
+              <WorkingOn
+                data-testid="working"
+                label={t("working")}
+                words={[...intents, ...cuisines].join(" ")}
+                progress={progress}
+              />
+              <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
+            </div>
           )}
 
           {stage === "asking" && !asking && (
@@ -272,12 +277,15 @@ export function WeekSuggest({
               {/* Asking again writes only what was turned down; the count
                   is of those, and the kept dishes stay on show below. */}
               {asking && refused.length > 0 && (
-                <WorkingOn
-                  data-testid="working"
-                  label={t("working")}
-                  words={refused.map((one) => one.proposal.title).join(" ")}
-                  progress={progress}
-                />
+                <>
+                  <WorkingOn
+                    data-testid="working"
+                    label={t("working")}
+                    words={refused.map((one) => one.proposal.title).join(" ")}
+                    progress={progress}
+                  />
+                  <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
+                </>
               )}
 
               <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
@@ -406,6 +414,51 @@ export function WeekSuggest({
         </Dialog>
       )}
     </>
+  );
+}
+
+/**
+ * The dishes written so far, one row each, while the rest are still being
+ * written. Read-only: deciding happens on the reviewed list, once the
+ * answer is whole. A polite live region, so a screen reader hears each
+ * arrival without being interrupted by the picture turning above.
+ */
+function Arriving({
+  proposals,
+  dayOf,
+  slotOf,
+}: {
+  proposals: WeekProposal[];
+  dayOf: (date: string) => string;
+  slotOf: (slot: Slot) => string;
+}) {
+  const t = useTranslations("working");
+  if (proposals.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2" aria-live="polite" data-testid="arriving">
+      <p className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+        {t("arrived", { count: proposals.length })}
+      </p>
+      <ul className="flex flex-col gap-2">
+        {proposals.map((proposal) => (
+          <li
+            key={`${proposal.date}:${proposal.slot}`}
+            data-testid="arriving-proposal"
+            className="flex items-center gap-3 rounded-sm border border-line bg-bg-raised-2 p-3"
+          >
+            <IdeaThumb illustrationKey={proposal.illustrationKey} title={proposal.title} />
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+                <span className="capitalize">{dayOf(proposal.date)}</span> · {slotOf(proposal.slot)}
+              </span>
+              <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
+                {proposal.title}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

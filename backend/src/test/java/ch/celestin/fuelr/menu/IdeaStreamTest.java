@@ -150,6 +150,11 @@ class IdeaStreamTest {
         assertThat(events).containsOnlyOnce("{\"done\":2,\"of\":7,\"title\":\"Soupe de courge\"}");
         assertThat(events).doesNotContain("Dahl de len\"");
 
+        // Each dish written to the end, placed on its slot, before the answer.
+        assertThat(events).containsOnlyOnce("{\"index\":1,\"of\":7,\"dish\":{\"date\":\"2026-03-02\",\"slot\":\"DINNER\",\"title\":\"Dahl de lentilles\"");
+        assertThat(events).contains("{\"index\":2,\"of\":7,\"dish\":{\"date\":\"2026-03-03\"");
+        assertThat(events.indexOf("event:dish")).isLessThan(events.indexOf("event:result"));
+
         // Then the whole answer, as the one-piece endpoint would give it.
         assertThat(events).contains("event:result");
         assertThat(events).contains("\"declined\":\"NONE\"");

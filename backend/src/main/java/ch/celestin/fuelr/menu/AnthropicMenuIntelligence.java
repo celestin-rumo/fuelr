@@ -396,54 +396,62 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
 
         List<MenuDtos.Suggestion> found = new ArrayList<>();
         for (JsonNode dish : input.path("plats")) {
-            String title = dish.path("titre").asText("").trim();
-            if (title.isEmpty()) {
-                continue;
+            MenuDtos.Suggestion read = readDish(dish);
+            if (read != null) {
+                found.add(read);
             }
-
-            List<MenuDtos.Ingredient> ingredients = new ArrayList<>();
-            for (JsonNode line : dish.path("ingredients")) {
-                String name = line.path("nom").asText("").trim();
-                if (name.isEmpty()) {
-                    continue;
-                }
-                String written = line.path("unite").asText("").trim();
-                String known = KNOWN_UNITS.contains(written) ? written : "";
-                ingredients.add(new MenuDtos.Ingredient(
-                        name,
-                        line.path("quantite").asDouble(0),
-                        known,
-                        // A unit we had to drop is a line worth a second look.
-                        line.path("aVerifier").asBoolean(true)
-                                || (known.isEmpty() && !written.isEmpty())));
-            }
-
-            List<String> steps = new ArrayList<>();
-            for (JsonNode step : dish.path("etapes")) {
-                String written = step.asText("").trim();
-                if (!written.isEmpty()) {
-                    steps.add(written);
-                }
-            }
-
-            List<String> missing = new ArrayList<>();
-            for (JsonNode item : dish.path("manque")) {
-                String written = item.asText("").trim();
-                if (!written.isEmpty()) {
-                    missing.add(written);
-                }
-            }
-
-            int minutes = dish.path("minutes").asInt(0);
-            found.add(new MenuDtos.Suggestion(
-                    MenuDtos.Origin.IDEA.name(), null, title,
-                    minutes > 0 ? minutes : null,
-                    // An idea has no photograph, and inventing one would be a
-                    // picture of a dish nobody cooked.
-                    false,
-                    missing, ingredients, steps, null));
         }
         return found;
+    }
+
+    /** One dish, or null when it has no title: the same reading for a whole answer and for a dish arriving alone. */
+    private MenuDtos.Suggestion readDish(JsonNode dish) {
+        String title = dish.path("titre").asText("").trim();
+        if (title.isEmpty()) {
+            return null;
+        }
+
+        List<MenuDtos.Ingredient> ingredients = new ArrayList<>();
+        for (JsonNode line : dish.path("ingredients")) {
+            String name = line.path("nom").asText("").trim();
+            if (name.isEmpty()) {
+                continue;
+            }
+            String written = line.path("unite").asText("").trim();
+            String known = KNOWN_UNITS.contains(written) ? written : "";
+            ingredients.add(new MenuDtos.Ingredient(
+                    name,
+                    line.path("quantite").asDouble(0),
+                    known,
+                    // A unit we had to drop is a line worth a second look.
+                    line.path("aVerifier").asBoolean(true)
+                            || (known.isEmpty() && !written.isEmpty())));
+        }
+
+        List<String> steps = new ArrayList<>();
+        for (JsonNode step : dish.path("etapes")) {
+            String written = step.asText("").trim();
+            if (!written.isEmpty()) {
+                steps.add(written);
+            }
+        }
+
+        List<String> missing = new ArrayList<>();
+        for (JsonNode item : dish.path("manque")) {
+            String written = item.asText("").trim();
+            if (!written.isEmpty()) {
+                missing.add(written);
+            }
+        }
+
+        int minutes = dish.path("minutes").asInt(0);
+        return new MenuDtos.Suggestion(
+                MenuDtos.Origin.IDEA.name(), null, title,
+                minutes > 0 ? minutes : null,
+                // An idea has no photograph, and inventing one would be a
+                // picture of a dish nobody cooked.
+                false,
+                missing, ingredients, steps, null);
     }
 
     /** The app's five, and nothing else — a schema is a request, not a promise. */
@@ -505,6 +513,10 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                             String title = dish.path("titre").asText("").trim();
                             if (!title.isEmpty()) {
                                 progress.dish(++index, wanted, title);
+                                MenuDtos.Suggestion whole = readDish(dish);
+                                if (whole != null) {
+                                    progress.completed(index, wanted, whole);
+                                }
                             }
                         }
                     }
@@ -542,11 +554,13 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
     private JsonNode assemble(InputStream stream, int wanted, Progress progress, Instant deadline)
             throws IOException {
         StringBuilder partial = new StringBuilder();
+        DishScanner dishes = new DishScanner();
         long inputTokens = 0;
         long outputTokens = 0;
         String stop = null;
         boolean inTool = false;
         int told = 0;
+        int completed = 0;
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(stream, StandardCharsets.UTF_8))) {
@@ -570,8 +584,22 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
                     case "content_block_delta" -> {
                         JsonNode delta = event.path("delta");
                         if (inTool && "input_json_delta".equals(delta.path("type").asText())) {
-                            partial.append(delta.path("partial_json").asText(""));
+                            String fragment = delta.path("partial_json").asText("");
+                            partial.append(fragment);
                             told = tell(partial, told, wanted, progress);
+                            // A dish written to the end is a row the screen can
+                            // show now, while the next one is still being written.
+                            for (String text : dishes.feed(fragment)) {
+                                try {
+                                    MenuDtos.Suggestion dish = readDish(JSON.readTree(text));
+                                    if (dish != null) {
+                                        progress.completed(++completed, wanted, dish);
+                                    }
+                                } catch (IOException unreadable) {
+                                    // A dish the model wrote badly is dropped
+                                    // here as it would be at the end.
+                                }
+                            }
                         }
                     }
                     case "message_delta" -> {

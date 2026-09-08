@@ -18,9 +18,11 @@ import java.util.function.Function;
  *
  * Three screens ask a model for dishes and wait; this is the one shape their
  * waiting takes. `progress` events carry the dish that was just started —
- * its number, how many were asked for, its title — and one `result` event
- * carries the whole answer, exactly what the one-piece endpoint would have
- * returned. A screen that never reads the progress loses nothing.
+ * its number, how many were asked for, its title; `dish` events carry each
+ * dish written to the end, shaped by the caller, so the screen shows the row
+ * the moment it exists; and one `result` event carries the whole answer,
+ * exactly what the one-piece endpoint would have returned. A screen that
+ * reads only the result loses nothing.
  *
  * The work runs on a pool of its own rather than the request thread, since
  * a stream is a request held open for the two minutes a model takes and a
@@ -47,14 +49,28 @@ public class IdeaStreams {
         SseEmitter emitter = new SseEmitter(TIMEOUT.toMillis());
         executor.execute(() -> {
             try {
-                T result = work.apply((index, of, title) -> {
-                    // In this order on the wire, always: a screen reads it, and
-                    // so does a test.
-                    Map<String, Object> progress = new LinkedHashMap<>();
-                    progress.put("done", index);
-                    progress.put("of", of);
-                    progress.put("title", title);
-                    tell(emitter, progress);
+                T result = work.apply(new MenuIntelligence.Progress() {
+                    @Override
+                    public void dish(int index, int of, String title) {
+                        // In this order on the wire, always: a screen reads it,
+                        // and so does a test.
+                        Map<String, Object> progress = new LinkedHashMap<>();
+                        progress.put("done", index);
+                        progress.put("of", of);
+                        progress.put("title", title);
+                        tell(emitter, "progress", progress);
+                    }
+
+                    @Override
+                    public void completed(int index, int of, Object dish) {
+                        // A whole dish, the moment it exists: the screen shows
+                        // the row and starts fetching its picture.
+                        Map<String, Object> event = new LinkedHashMap<>();
+                        event.put("index", index);
+                        event.put("of", of);
+                        event.put("dish", dish);
+                        tell(emitter, "dish", event);
+                    }
                 });
                 emitter.send(SseEmitter.event().name("result").data(result, MediaType.APPLICATION_JSON));
                 emitter.complete();
@@ -72,9 +88,9 @@ public class IdeaStreams {
         return emitter;
     }
 
-    private static void tell(SseEmitter emitter, Map<String, Object> progress) {
+    private static void tell(SseEmitter emitter, String name, Map<String, Object> payload) {
         try {
-            emitter.send(SseEmitter.event().name("progress").data(progress, MediaType.APPLICATION_JSON));
+            emitter.send(SseEmitter.event().name(name).data(payload, MediaType.APPLICATION_JSON));
         } catch (Exception gone) {
             // Nobody listening any more. The answer is still finished and
             // billed; only the counting stops.
