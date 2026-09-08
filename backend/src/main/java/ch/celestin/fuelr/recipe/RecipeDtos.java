@@ -57,6 +57,8 @@ public final class RecipeDtos {
             String level,
             String status,
             boolean hasPhoto,
+            /** True for a picture an image model drew; the screen says so. */
+            boolean photoGenerated,
             List<IngredientView> ingredients,
             List<String> steps,
             Set<String> tags,
@@ -82,7 +84,7 @@ public final class RecipeDtos {
     public record RecipeSummary(
             Long id, String title, String status, int servings,
             int ingredientCount, int stepCount,
-            boolean favorite, boolean hasPhoto, int minutes,
+            boolean favorite, boolean hasPhoto, boolean photoGenerated, int minutes,
             Double kcalPerServing, Double proteinPerServing,
             Double carbsPerServing, Double fatPerServing,
             boolean estimated,

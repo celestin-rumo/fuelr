@@ -48,11 +48,15 @@ public class RecipeController {
     private final Entitlements entitlements;
     private final RecipeAudience audience;
 
+    private final ch.celestin.fuelr.recipe.illustration.IllustrationService illustrations;
+
     public RecipeController(
             RecipeService recipes, NutritionService nutrition, MediaStorage media,
             RecipeImportService recipeImport, RecipeImportSources importSources,
             Entitlements entitlements, RecipeAudience audience,
-            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+            ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
+            ch.celestin.fuelr.recipe.illustration.IllustrationService illustrations) {
+        this.illustrations = illustrations;
         this.preferences = preferences;
         this.recipes = recipes;
         this.nutrition = nutrition;
@@ -80,6 +84,7 @@ public class RecipeController {
         }
         String previous = recipe.getPhotoPath();
         recipe.setPhotoPath(stored);
+        recipe.setPhotoOrigin(Recipe.PhotoOrigin.UPLOADED);
         RecipeView view = toView(recipes.savePhoto(recipe));
         media.delete(previous);
         return view;
@@ -91,6 +96,7 @@ public class RecipeController {
         Recipe recipe = owned(principal, id);
         String previous = recipe.getPhotoPath();
         recipe.setPhotoPath(null);
+        recipe.setPhotoOrigin(null);
         RecipeView view = toView(recipes.savePhoto(recipe));
         media.delete(previous);
         return view;
@@ -135,14 +141,19 @@ public class RecipeController {
     public RecipeView createFromIdea(
             @AuthenticationPrincipal Jwt principal,
             @Valid @RequestBody IdeaRequest body) {
-        return toView(recipes.createFromIdea(
+        Recipe created = recipes.createFromIdea(
                 userId(principal), body.title(), body.minutes(),
                 body.ingredients() == null ? java.util.List.of()
                         : body.ingredients().stream()
                                 .map(line -> new RecipeService.IdeaLine(
                                         line.name(), line.quantity(), line.unit()))
                                 .toList(),
-                body.steps()));
+                body.steps());
+        // A dish nobody has cooked gets a picture drawn for it, after the
+        // answer: an image model takes seconds, and accepting a week is
+        // fourteen of these in a row.
+        illustrations.illustrate(userId(principal), created.getId());
+        return toView(created);
     }
 
     public record IdeaRequest(
@@ -383,6 +394,7 @@ public class RecipeController {
                 recipe.getServings(), recipe.getIngredients().size(),
                 recipe.getSteps().size(), recipe.isFavorite(),
                 recipe.getPhotoPath() != null,
+                recipe.isPhotoGenerated(),
                 RecipeService.minutesFor(recipe),
                 breakdown == null ? null : breakdown.perServing().kcal(),
                 breakdown == null ? null : breakdown.perServing().proteinG(),
@@ -475,6 +487,7 @@ public class RecipeController {
                 recipe.getLevel(),
                 recipe.getStatus().name(),
                 recipe.getPhotoPath() != null,
+                recipe.isPhotoGenerated(),
                 recipe.getIngredients().stream()
                         .map(i -> new IngredientView(
                                 i.getId(), i.getName(), i.getQuantity().doubleValue(),

@@ -73,6 +73,7 @@ services:
       # without the secret is degraded rather than broken.
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
+      HF_TOKEN: ${HF_TOKEN:-}
 
     depends_on:
       database:

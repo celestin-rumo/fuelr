@@ -703,7 +703,8 @@
         "file_too_large": "Datei zu gross. Wähle ein leichteres Bild.",
         "unreadable": "Bild nicht lesbar. Versuche eine andere Datei.",
         "upload_failed": "Hochladen fehlgeschlagen. Bitte erneut versuchen."
-      }
+      },
+      "generated": "KI-generierte Illustration"
     },
     "alreadyUsed": "Dieses Rezept ist bereits gespeichert und nutzbar. Deine Änderungen gelten für künftige Verwendungen; bereits protokollierte Mahlzeiten behalten ihre damaligen Werte.",
     "nav": {

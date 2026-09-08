@@ -676,9 +676,26 @@ dragging a card is four decisions for something already decided when the
 recipe was picked. Every row carries a small picture at its left
 (`RecipeThumb`): the recipe's photograph when it has one, otherwise a tile
 drawn from its own title — a hue hashed from the words and the first food the
-title names — deterministic, and drawn rather than generated, so it never
-pretends to be a photograph of a dish nobody cooked. `/app/idees` uses the
-same rows.
+title names — the same every time. `/app/idees` uses the same rows.
+
+**A dish a model wrote gets a picture drawn for it, and the picture says
+so.** Anthropic's models read images and draw nothing, so `RecipeIllustrator`
+is a second seam for an image model: `HuggingFaceIllustrator` speaks the
+OpenAI images shape to one pinned provider behind Hugging Face's router
+(FLUX.1-schnell on nscale: a second per picture, a fraction of a cent, an
+Apache licence), `NoIllustrator` draws nothing while no `HF_TOKEN` is set.
+`IllustrationService.illustrate` runs `@Async` after `POST /api/recipes/from-idea`
+has answered — the recipe is the answer, the picture is seconds behind it —
+through the same gates as every paid call (the plan, the month's budget),
+records a flat `ILLUSTRATION` row the moment the provider answers, and stores
+the bytes exactly as an upload is stored: sniffed and capped. The prompt is
+the title and the first ingredient names and nothing about the person; the
+privacy page names Hugging Face and nscale. `recipes.photo_origin` (V33) is
+the provenance — `UPLOADED`, `IMPORTED`, `GENERATED` — written by the code
+and never by the editor, and `photoGenerated` is what lets the thumbnail and
+the editor say *illustration*: a picture an image model drew is not a
+photograph of a dish somebody cooked, and the screen must not let it pass
+for one. Any upload replaces it and takes the origin with it.
 
 **A backup that has not been restored is a hypothesis.** `scripts/backup.sh`
 dumps Postgres, archives the `recipe_media` volume, and then restores the dump

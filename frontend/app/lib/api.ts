@@ -35,6 +35,8 @@ export type Recipe = {
   level: string | null;
   status: "DRAFT" | "PUBLISHED";
   hasPhoto: boolean;
+  /** A picture an image model drew, which the screen says. */
+  photoGenerated?: boolean;
   ingredients: {
     id: number;
     name: string;
@@ -603,6 +605,8 @@ export type RecipeSummary = {
   stepCount: number;
   favorite: boolean;
   hasPhoto: boolean;
+  /** A picture an image model drew, which the screen says. */
+  photoGenerated?: boolean;
   minutes: number;
   kcalPerServing: number | null;
   proteinPerServing: number | null;

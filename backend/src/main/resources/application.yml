@@ -78,6 +78,19 @@ app:
     base-url: https://api.anthropic.com
     model: claude-sonnet-5
     max-output-tokens: 2000
+    # A picture for a dish a model wrote. Anthropic draws nothing, so this is
+    # an image model behind Hugging Face's router, pinned to one provider so
+    # the request has one shape and one bill. Without a token nothing is drawn
+    # and nothing fails — the row keeps its tile drawn from the title.
+    illustration:
+      token: ${HF_TOKEN:}
+      base-url: https://router.huggingface.co
+      provider: nscale
+      model: black-forest-labs/FLUX.1-schnell
+      # Pixels a side. 640 keeps a PNG under the media limit; it is a thumbnail.
+      size: 640
+      # Micro-dollars per picture, as the provider lists it (0.003 $).
+      price-micros: 3000
     # The provider's list price, in dollars per million tokens. Configuration
     # rather than code, because it changes without us.
     price:

@@ -48,6 +48,9 @@ public class Recipe {
      */
     public enum Origin { TYPED, IMPORTED, AI }
 
+    /** Where the photo came from; GENERATED is the one the screen has to confess. */
+    public enum PhotoOrigin { UPLOADED, IMPORTED, GENERATED }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -76,6 +79,10 @@ public class Recipe {
     /** File name on the media volume. Null when the recipe has no photo. */
     @Column(name = "photo_path")
     private String photoPath;
+
+    /** Null on rows older than the column, which all held photos somebody chose. */
+    @Column(name = "photo_origin", length = 16)
+    private String photoOrigin;
 
     /** Position among the pinned recipes. Null when not pinned. */
     @Column(name = "favorite_rank")
@@ -220,6 +227,19 @@ public class Recipe {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public PhotoOrigin getPhotoOrigin() {
+        return photoOrigin == null ? null : PhotoOrigin.valueOf(photoOrigin);
+    }
+
+    public void setPhotoOrigin(PhotoOrigin origin) {
+        this.photoOrigin = origin == null ? null : origin.name();
+    }
+
+    /** Only an illustration is confessed as one; a photo somebody chose is a photo. */
+    public boolean isPhotoGenerated() {
+        return photoPath != null && PhotoOrigin.GENERATED.name().equals(photoOrigin);
     }
 
     public Integer getFavoriteRank() {
