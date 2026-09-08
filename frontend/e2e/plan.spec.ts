@@ -182,7 +182,8 @@ test("a week copies forward, and asks before writing over one already planned", 
   await openWeek(page);
   await planInto(page, "Dîner", "mercredi", "Curry de lentilles");
 
-  await page.getByRole("button", { name: "Dupliquer vers la semaine suivante" }).click();
+  await page.getByRole("button", { name: "Plus d'actions" }).click();
+  await page.getByRole("menuitem", { name: "Dupliquer vers la semaine suivante" }).click();
 
   // It lands on the week it just filled in, same weekday, same slot.
   await expect(page).toHaveURL(/week=2026-03-09/);
@@ -192,7 +193,8 @@ test("a week copies forward, and asks before writing over one already planned", 
 
   // Copying onto it a second time would lose what is there, so it asks.
   await openWeek(page);
-  await page.getByRole("button", { name: "Dupliquer vers la semaine suivante" }).click();
+  await page.getByRole("button", { name: "Plus d'actions" }).click();
+  await page.getByRole("menuitem", { name: "Dupliquer vers la semaine suivante" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("La semaine suivante est déjà planifiée");
 
