@@ -22,6 +22,28 @@ public interface MenuIntelligence {
     record Ideas(List<MenuDtos.Suggestion> suggestions, RecipeIntelligence.Usage usage) {
     }
 
+    /**
+     * Told as each dish is written, so a screen can count along.
+     *
+     * A model writes fourteen dinners in about two minutes, and a spinner
+     * over two minutes reads as a hang. The title of a dish closes long
+     * before its ingredients and steps do, so "plat 6 sur 14 — Dahl de
+     * lentilles" can be said while the dahl is still being written. It is a
+     * fact about the stream, never a promise: what the screen is finally
+     * handed is still the whole answer, read and checked as before.
+     */
+    @FunctionalInterface
+    interface Progress {
+        Progress NONE = (index, of, title) -> { };
+
+        /**
+         * @param index the dish whose title just closed, counted from one
+         * @param of    how many were asked for
+         * @param title what it is called
+         */
+        void dish(int index, int of, String title);
+    }
+
     String name();
 
     /** False while no provider is wired; the library still answers. */
@@ -72,4 +94,26 @@ public interface MenuIntelligence {
      */
     Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
                        int wanted, ch.celestin.fuelr.preferences.Constraints constraints);
+
+    // --- the same three, counted along --------------------------------------
+    // Defaults, so a provider that answers in one piece — and every stand-in
+    // in the tests — implements nothing new and is simply never heard from
+    // until the end.
+
+    default Ideas suggest(String have, int wanted, List<String> already,
+                          ch.celestin.fuelr.preferences.Constraints constraints, Progress progress) {
+        return suggest(have, wanted, already, constraints);
+    }
+
+    default Ideas suggestFor(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                             int wanted, List<String> already, String note,
+                             ch.celestin.fuelr.preferences.Constraints constraints, Progress progress) {
+        return suggestFor(intents, cuisines, wanted, already, note, constraints);
+    }
+
+    default Ideas suggestBatch(java.util.Set<String> intents, java.util.Set<String> cuisines,
+                               int wanted, ch.celestin.fuelr.preferences.Constraints constraints,
+                               Progress progress) {
+        return suggestBatch(intents, cuisines, wanted, constraints);
+    }
 }

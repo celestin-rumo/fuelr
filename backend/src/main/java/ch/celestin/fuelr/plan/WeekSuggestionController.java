@@ -1,6 +1,7 @@
 package ch.celestin.fuelr.plan;
 
 import ch.celestin.fuelr.ai.AiBudget;
+import ch.celestin.fuelr.menu.IdeaStreams;
 import ch.celestin.fuelr.menu.MenuDtos;
 import ch.celestin.fuelr.menu.MenuIntelligence;
 import ch.celestin.fuelr.recipe.Cuisine;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -122,20 +124,41 @@ public class WeekSuggestionController {
     private final AiBudget budget;
     private final List<MenuIntelligence> readers;
     private final ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences;
+    private final IdeaStreams streams;
 
     public WeekSuggestionController(Entitlements entitlements, AiBudget budget,
                                     List<MenuIntelligence> readers,
-                                    ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences) {
+                                    ch.celestin.fuelr.preferences.DietaryPreferencesRepository preferences,
+                                    IdeaStreams streams) {
         this.entitlements = entitlements;
         this.budget = budget;
         this.readers = readers;
         this.preferences = preferences;
+        this.streams = streams;
     }
 
     @PostMapping
     public SuggestionView suggest(@AuthenticationPrincipal Jwt principal,
                                   @RequestBody Request request) {
+        return answer(Long.valueOf(principal.getSubject()), request, MenuIntelligence.Progress.NONE);
+    }
+
+    /**
+     * The same answer, told as it is written.
+     *
+     * Fourteen dinners take a model about two minutes, and two minutes of
+     * spinner reads as a hang. This streams a `progress` event as each
+     * dish's title closes and then the whole answer as `result` — the very
+     * object the endpoint above returns, so nothing is decided differently
+     * for having been watched.
+     */
+    @PostMapping("/live")
+    public SseEmitter live(@AuthenticationPrincipal Jwt principal, @RequestBody Request request) {
         Long userId = Long.valueOf(principal.getSubject());
+        return streams.run(progress -> answer(userId, request, progress));
+    }
+
+    SuggestionView answer(Long userId, Request request, MenuIntelligence.Progress progress) {
         LocalDate monday = PlanService.weekStart(LocalDate.parse(request.week()));
 
         List<MealSlot> slots = request.slots() == null || request.slots().isEmpty()
@@ -189,7 +212,7 @@ public class WeekSuggestionController {
                     open.size(),
                     request.excludeTitles() == null
                             ? List.of() : List.copyOf(request.excludeTitles()),
-                    request.note(), constraints);
+                    request.note(), constraints, progress);
             budget.record(userId, "WEEK_SUGGESTIONS", reader.name(),
                     ideas.usage().inputTokens(), ideas.usage().outputTokens());
 

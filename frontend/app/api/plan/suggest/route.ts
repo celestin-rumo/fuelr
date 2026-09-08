@@ -6,11 +6,7 @@ function backendUrl() {
 }
 
 /**
- * Asks what to cook from what somebody has.
- *
- * Never refuses for want of a plan: the library is searched for free and
- * answers most of the time, and the ideas beyond it are declined quietly
- * rather than turned into a sales pitch.
+ * Fills the week with dishes nobody has written yet.
  *
  * Streamed through as it comes: the backend's server-sent events are the
  * body of this response, untouched, with the headers that stop anything on
@@ -22,7 +18,7 @@ export async function POST(request: Request) {
     return new Response(null, { status: 401 });
   }
 
-  const response = await fetch(`${backendUrl()}/api/menu/suggestions/live`, {
+  const response = await fetch(`${backendUrl()}/api/plan/suggest/live`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

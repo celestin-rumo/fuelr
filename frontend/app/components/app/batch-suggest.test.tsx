@@ -16,14 +16,18 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-const suggestBatch = vi.fn();
+/** The stream, stood in for: (url, body, onProgress) → the answer. */
+const askLive = vi.fn();
+vi.mock("@app/lib/ideas-stream", () => ({
+  askLive: (...args: unknown[]) => askLive(...(args as [])),
+}));
+
 const acceptProposal =
   vi.fn<(proposal: { title: string; date: string }) => Promise<{ ok: boolean }>>(
     async () => ({ ok: true }),
   );
 
 vi.mock("@app/[locale]/(app)/app/plan/actions", () => ({
-  suggestBatch: (...args: unknown[]) => suggestBatch(...(args as [])),
   acceptProposal: (...args: unknown[]) =>
     acceptProposal(...(args as [{ title: string; date: string }])),
 }));
@@ -51,7 +55,7 @@ function set(overrides: Partial<BatchSet> = {}): BatchSet {
 
 async function askFor(sets: BatchSet[], declined: Declined = "NONE") {
   const user = userEvent.setup({ delay: null });
-  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets, declined } });
+  askLive.mockResolvedValueOnce({ ok: true, result: { sets, declined } });
   renderWithIntl(<BatchSuggest weekStart={MONDAY} planned={[]} />);
   await user.click(screen.getByTestId("suggest-batch"));
   await user.click(screen.getByRole("button", { name: "Chercher un ensemble" }));
@@ -65,7 +69,7 @@ beforeEach(() => {
 
 it("asks for a set of the size that was chosen", async () => {
   const user = userEvent.setup({ delay: null });
-  suggestBatch.mockResolvedValueOnce({ ok: true, sets: { sets: [set()], declined: "NONE" } });
+  askLive.mockResolvedValueOnce({ ok: true, result: { sets: [set()], declined: "NONE" } });
   renderWithIntl(<BatchSuggest weekStart={MONDAY} planned={[]} />);
 
   await user.click(screen.getByTestId("suggest-batch"));
@@ -73,8 +77,8 @@ it("asks for a set of the size that was chosen", async () => {
   await user.click(screen.getByRole("button", { name: "Végétarien" }));
   await user.click(screen.getByRole("button", { name: "Chercher un ensemble" }));
 
-  await waitFor(() => expect(suggestBatch).toHaveBeenCalledTimes(1));
-  expect(suggestBatch.mock.calls[0][0]).toMatchObject({
+  await waitFor(() => expect(askLive).toHaveBeenCalledTimes(1));
+  expect(askLive.mock.calls[0][1]).toMatchObject({
     size: 3,
     intents: ["vegetarian"],
     cuisines: [],
@@ -136,9 +140,9 @@ it("pre-answers which evening, and writes only once asked", async () => {
 
 it("skips the evenings that already hold a meal", async () => {
   const user = userEvent.setup({ delay: null });
-  suggestBatch.mockResolvedValueOnce({
+  askLive.mockResolvedValueOnce({
     ok: true,
-    sets: { sets: [set({ members: [member("Dahl"), member("Soupe")], sharedBy: 2 })], declined: "NONE" },
+    result: { sets: [set({ members: [member("Dahl"), member("Soupe")], sharedBy: 2 })], declined: "NONE" },
   });
   renderWithIntl(
     <BatchSuggest weekStart={MONDAY} planned={[`${MONDAY}:DINNER`, "2026-03-03:DINNER"]} />,

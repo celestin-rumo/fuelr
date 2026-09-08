@@ -16,13 +16,17 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-const suggestWeek = vi.fn();
+/** The stream, stood in for: (url, body, onProgress) → the answer. */
+const askLive = vi.fn();
+vi.mock("@app/lib/ideas-stream", () => ({
+  askLive: (...args: unknown[]) => askLive(...(args as [])),
+}));
+
 const acceptProposal = vi.fn<(proposal: WeekProposal) => Promise<{ ok: boolean }>>(
   async () => ({ ok: true }),
 );
 
 vi.mock("@app/[locale]/(app)/app/plan/actions", () => ({
-  suggestWeek: (...args: unknown[]) => suggestWeek(...(args as [])),
   acceptProposal: (...args: unknown[]) => acceptProposal(...(args as [WeekProposal])),
 }));
 
@@ -46,14 +50,14 @@ function proposal(overrides: Partial<WeekProposal> = {}): WeekProposal {
 function answer(proposals: WeekProposal[], rest: Partial<WeekSuggestion> = {}) {
   return {
     ok: true as const,
-    suggestion: { proposals, unfilled: 0, declined: "NONE" as const, ...rest },
+    result: { proposals, unfilled: 0, declined: "NONE" as const, ...rest },
   };
 }
 
 /** The whole first screen, up to the proposals being on show. */
 async function askFor(proposals: WeekProposal[], rest: Partial<WeekSuggestion> = {}) {
   const user = userEvent.setup({ delay: null });
-  suggestWeek.mockResolvedValueOnce(answer(proposals, rest));
+  askLive.mockResolvedValueOnce(answer(proposals, rest));
   renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[]} />);
   await user.click(screen.getByTestId("suggest-week"));
   await user.click(screen.getByRole("button", { name: "Proposer une semaine" }));
@@ -67,7 +71,7 @@ beforeEach(() => {
 
 it("asks in the direction that was chosen, and writes nothing by asking", async () => {
   const user = userEvent.setup({ delay: null });
-  suggestWeek.mockResolvedValueOnce(answer([proposal()]));
+  askLive.mockResolvedValueOnce(answer([proposal()]));
   renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[`${TUESDAY}:DINNER`]} />);
 
   await user.click(screen.getByTestId("suggest-week"));
@@ -75,8 +79,8 @@ it("asks in the direction that was chosen, and writes nothing by asking", async 
   await user.click(screen.getByRole("button", { name: "Italienne" }));
   await user.click(screen.getByRole("button", { name: "Proposer une semaine" }));
 
-  await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(1));
-  expect(suggestWeek.mock.calls[0][0]).toMatchObject({
+  await waitFor(() => expect(askLive).toHaveBeenCalledTimes(1));
+  expect(askLive.mock.calls[0][1]).toMatchObject({
     week: MONDAY,
     intents: ["vegetarian"],
     cuisines: ["ITALIAN"],
@@ -100,11 +104,11 @@ it("keeps what was kept and never proposes a refusal again", async () => {
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
   await user.click(screen.getByRole("button", { name: "Pas envie" }));
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Pâtes au pesto" })]));
+  askLive.mockResolvedValueOnce(answer([proposal({ title: "Pâtes au pesto" })]));
   await user.click(screen.getByTestId("reask"));
 
-  await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(2));
-  const second = suggestWeek.mock.calls[1][0];
+  await waitFor(() => expect(askLive).toHaveBeenCalledTimes(2));
+  const second = askLive.mock.calls[1][1];
   // Tuesday was kept, so it is not asked about a second time…
   expect(second.keep).toContainEqual({ date: TUESDAY, slot: "DINNER" });
   // …and neither dish can come back: a name is the only handle there is.
@@ -124,13 +128,13 @@ it("acts on the one refusal it can act on", async () => {
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
   await user.click(screen.getByRole("button", { name: "Trop long" }));
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
+  askLive.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
   await user.click(screen.getByTestId("reask"));
 
   // "Trop long" is the only reason that names something the library can search
   // on. The rest are exclusions, and the ask is unchanged by them.
-  await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(2));
-  expect(suggestWeek.mock.calls[1][0].intents).toEqual(["quick"]);
+  await waitFor(() => expect(askLive).toHaveBeenCalledTimes(2));
+  expect(askLive.mock.calls[1][1].intents).toEqual(["quick"]);
 });
 
 it("sends what was typed, and only when something was refused", async () => {
@@ -142,11 +146,11 @@ it("sends what was typed, and only when something was refused", async () => {
   await user.click(screen.getByRole("button", { name: "Trop souvent" }));
   await user.type(screen.getByLabelText("Autre chose à préciser ?"), "moins de pâtes");
 
-  suggestWeek.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
+  askLive.mockResolvedValueOnce(answer([proposal({ title: "Salade" })]));
   await user.click(screen.getByTestId("reask"));
 
-  await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(2));
-  expect(suggestWeek.mock.calls[1][0].note).toBe("moins de pâtes");
+  await waitFor(() => expect(askLive).toHaveBeenCalledTimes(2));
+  expect(askLive.mock.calls[1][1].note).toBe("moins de pâtes");
 });
 
 it("adds only what was kept, then offers the shopping list", async () => {
@@ -189,11 +193,11 @@ it("stops asking again after a few rounds", async () => {
   for (let round = 0; round < 3; round += 1) {
     await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
     await user.click(screen.getByRole("button", { name: "Pas envie" }));
-    suggestWeek.mockResolvedValueOnce(
+    askLive.mockResolvedValueOnce(
       answer([proposal({ title: `Plat ${round}` + round })]),
     );
     await user.click(screen.getByTestId("reask"));
-    await waitFor(() => expect(suggestWeek).toHaveBeenCalledTimes(round + 2));
+    await waitFor(() => expect(askLive).toHaveBeenCalledTimes(round + 2));
   }
 
   await user.click(screen.getByTestId(`refuse-${MONDAY}-DINNER`));
@@ -203,4 +207,32 @@ it("stops asking again after a few rounds", async () => {
   // instead, and it is the honest one — keep what suits you.
   expect(screen.queryByTestId("reask")).not.toBeInTheDocument();
   expect(screen.getByText(/Assez d'essais/)).toBeInTheDocument();
+});
+
+it("counts the dishes as their titles close, and shows the one being written", async () => {
+  const user = userEvent.setup({ delay: null });
+  let finish!: (answer: unknown) => void;
+  askLive.mockImplementationOnce(
+    (_url: string, _body: unknown, onProgress: (progress: unknown) => void) =>
+      new Promise((resolve) => {
+        onProgress({ done: 2, of: 5, title: "Dahl de lentilles" });
+        finish = resolve;
+      }),
+  );
+  renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[]} />);
+  await user.click(screen.getByTestId("suggest-week"));
+  await user.click(screen.getByRole("button", { name: "Proposer une semaine" }));
+
+  // Real, from the stream: never a clock dressed as a percentage.
+  const bar = await screen.findByRole("progressbar");
+  expect(bar).toHaveAttribute("aria-valuenow", "2");
+  expect(bar).toHaveAttribute("aria-valuemax", "5");
+  expect(screen.getByTestId("working")).toHaveTextContent("Plat 2 sur 5");
+  expect(screen.getByTestId("working-title")).toHaveTextContent("Dahl de lentilles");
+  // The dish being written decides the picture: a dahl is a bowl.
+  expect(screen.getByTestId("working").querySelector('[data-food="bowl"]')).not.toBeNull();
+
+  finish(answer([proposal({ title: "Dahl de lentilles" })]));
+  await screen.findByTestId("proposals");
+  expect(screen.queryByRole("progressbar")).toBeNull();
 });

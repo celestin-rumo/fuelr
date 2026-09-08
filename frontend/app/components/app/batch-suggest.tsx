@@ -8,13 +8,15 @@ import { Badge } from "@ui/badge";
 import { Chip } from "@ui/chip";
 import { Dialog } from "@ui/dialog";
 import { Stepper } from "@ui/stepper";
-import { Spinner } from "@ui/spinner";
 import { cn } from "@ui/cn";
 import { CUISINES } from "@app/lib/cuisines";
 import { formatDay, weekDays } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
-import type { BatchMember, BatchSet, Declined } from "@app/lib/api";
-import { acceptProposal, suggestBatch } from "@app/[locale]/(app)/app/plan/actions";
+import type { BatchMember, BatchSet, BatchSets, Declined } from "@app/lib/api";
+import { askLive } from "@app/lib/ideas-stream";
+import type { Progress } from "@app/lib/ideas-stream";
+import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
+import { WorkingOn } from "./working-on";
 
 const INTENTS = ["vegetarian", "protein", "quick", "cheap"] as const;
 
@@ -45,6 +47,10 @@ export function BatchSuggest({
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  // The ask is not a transition: what the stream says has to render the
+  // moment it arrives, and a transition holds its updates until it ends.
+  const [asking, setAsking] = useState(false);
 
   const [size, setSize] = useState(4);
   const [intents, setIntents] = useState<string[]>([]);
@@ -76,23 +82,26 @@ export function BatchSuggest({
 
   function ask() {
     setFailed(false);
-    startTransition(async () => {
-      const result = await suggestBatch({
+    setProgress(null);
+    setAsking(true);
+    void (async () => {
+      const result = await askLive<BatchSets>("/api/plan/suggest/batch", {
         size,
         intents,
         cuisines,
         // What has already been turned down, by name: every dish here is one
         // nobody has written yet, and an idea has no id.
         excludeTitles: refused,
-      });
+      }, setProgress);
+      setAsking(false);
       if (!result.ok) {
         setFailed(true);
         return;
       }
-      setSets(result.sets.sets);
-      setDeclined(result.sets.declined);
+      setSets(result.result.sets);
+      setDeclined(result.result.declined);
       setStage("choosing");
-    });
+    })();
   }
 
   /**
@@ -148,7 +157,17 @@ export function BatchSuggest({
           data-testid="batch-dialog"
           onClose={() => setOpen(false)}
         >
-          {stage === "asking" && (
+          {stage === "asking" && asking && (
+            <WorkingOn
+              className="mt-3"
+              data-testid="working"
+              label={t("working")}
+              words={[...intents, ...cuisines].join(" ")}
+              progress={progress}
+            />
+          )}
+
+          {stage === "asking" && !asking && (
             <div className="mt-3 flex flex-col gap-6">
               <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
                 {t("asking.body")}
@@ -193,19 +212,13 @@ export function BatchSuggest({
               )}
 
               <div className="flex flex-wrap gap-3">
-                <Button onClick={ask} loading={pending}>
+                <Button onClick={ask} loading={asking}>
                   {t("asking.submit")}
                 </Button>
                 <Button variant="secondary" onClick={() => setOpen(false)}>
                   {t("cancel")}
                 </Button>
               </div>
-
-              {pending && (
-                <p className="flex items-center gap-2 text-[13px] font-semibold text-text-dim">
-                  <Spinner /> {t("working")}
-                </p>
-              )}
             </div>
           )}
 

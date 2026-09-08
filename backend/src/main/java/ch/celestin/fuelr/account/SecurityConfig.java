@@ -37,7 +37,7 @@ public class SecurityConfig {
                 // to /error. Without this, every failure on a public endpoint
                 // comes back as 401 instead of its real status — a duplicate
                 // registration reported itself as "unauthenticated".
-                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.ASYNC).permitAll()
                 .requestMatchers("/api/health").permitAll()
                 // What the plans cost is the same answer for everybody, and
                 // the pricing page is read by people with no account at all.

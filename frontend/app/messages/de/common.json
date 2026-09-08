@@ -188,7 +188,7 @@
       "action": "Woche füllen",
       "close": "Schliessen",
       "cancel": "Abbrechen",
-      "working": "Wir sehen in Ihren Rezepten nach…",
+      "working": "Die Gerichte der Woche werden geschrieben…",
       "failed": "Der Vorschlag kam nicht zurück. Bitte erneut versuchen.",
       "minutes": "{count} Min.",
       "refuse": "Dieses nicht",
@@ -241,7 +241,7 @@
       "action": "Auf einmal kochen",
       "close": "Schliessen",
       "cancel": "Abbrechen",
-      "working": "Wir suchen, was sich zusammen vorbereiten lässt…",
+      "working": "Gerichte, die zusammen zubereitet werden…",
       "failed": "Der Vorschlag kam nicht zurück. Bitte erneut versuchen.",
       "minutes": "{count} Min.",
       "idea": "Neues Gericht",
@@ -1137,7 +1137,8 @@
     "errors": {
       "failed": "Die Suche ist fehlgeschlagen. Versuch es erneut.",
       "empty": "Schreib mindestens eine Zutat."
-    }
+    },
+    "working": "Wir schauen, was sich daraus machen lässt…"
   },
   "account": {
     "label": "Konto",
@@ -1204,7 +1205,7 @@
       "cards": {
         "profile": {
           "title": "Profil",
-          "description": "Vorname, Adresse, Sprache, Aktivität und Ziel, Gewicht, Passwort."
+          "description": "Sie, Ihre Aktivität und Ihr Ziel, die Adresse, die Sprache, das Passwort."
         },
         "household": {
           "title": "Haushalt",
@@ -1257,7 +1258,17 @@
     "body": {
       "title": "Grösse, Geburtsdatum und Geschlecht",
       "hint": "Was sich kaum noch ändert.",
-      "birthDate": "Geburtsdatum"
+      "birthDate": "Geburtsdatum",
+      "weight": "Gewicht (kg)",
+      "weightHint": "Als heutiges Wiegen gespeichert; der Verlauf steht im Tagebuch."
+    },
+    "you": {
+      "title": "Sie",
+      "hint": "Vorname, Geburtsdatum, Grösse, Gewicht, Geschlecht."
+    },
+    "language": {
+      "title": "Sprache",
+      "hint": "Die der App und der E-Mails. Ändert sich selten."
     }
   },
   "verifyEmailChange": {
@@ -1410,5 +1421,10 @@
     "done": "Erledigt: Sie erhalten die wöchentliche Erinnerung nicht mehr. Sie lässt sich in Ihrem Konto wieder einschalten, falls Sie sie eines Tages wollen.",
     "expired": "Dieser Link gilt nicht mehr. Die Erinnerung wird in Ihrem Konto eingestellt.",
     "noToken": "Dieser Link ist unvollständig. Öffnen Sie den aus der E-Mail."
+  },
+  "working": {
+    "progress": "Fortschritt",
+    "dish": "Gericht {done} von {of}",
+    "starting": "Erstes Gericht in Arbeit…"
   }
 }

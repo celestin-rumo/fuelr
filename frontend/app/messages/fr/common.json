@@ -188,7 +188,7 @@
       "action": "Remplir la semaine",
       "close": "Fermer",
       "cancel": "Annuler",
-      "working": "On cherche dans vos recettes…",
+      "working": "On écrit les plats de la semaine…",
       "failed": "La proposition n'a pas abouti. Réessayez.",
       "minutes": "{count} min",
       "refuse": "Pas celui-là",
@@ -241,7 +241,7 @@
       "action": "Cuisiner en une fois",
       "close": "Fermer",
       "cancel": "Annuler",
-      "working": "On cherche ce qui se prépare ensemble…",
+      "working": "On écrit des plats qui se préparent ensemble…",
       "failed": "La proposition n'a pas abouti. Réessayez.",
       "minutes": "{count} min",
       "idea": "Nouveau plat",
@@ -1137,7 +1137,8 @@
     "errors": {
       "failed": "La recherche a échoué. Réessaie.",
       "empty": "Écris au moins un ingrédient."
-    }
+    },
+    "working": "On cherche quoi faire avec ça…"
   },
   "account": {
     "label": "Compte",
@@ -1204,7 +1205,7 @@
       "cards": {
         "profile": {
           "title": "Profil",
-          "description": "Prénom, adresse, langue, activité et objectif, poids, mot de passe."
+          "description": "Vous, votre activité et votre objectif, l'adresse, la langue, le mot de passe."
         },
         "household": {
           "title": "Foyer",
@@ -1257,7 +1258,17 @@
     "body": {
       "title": "Taille, date de naissance et sexe",
       "hint": "Ce qui ne change presque plus.",
-      "birthDate": "Date de naissance"
+      "birthDate": "Date de naissance",
+      "weight": "Poids (kg)",
+      "weightHint": "Enregistré comme pesée du jour ; l'historique est dans le journal."
+    },
+    "you": {
+      "title": "Vous",
+      "hint": "Prénom, date de naissance, taille, poids, sexe."
+    },
+    "language": {
+      "title": "Langue",
+      "hint": "Celle de l'application et des e-mails. Change rarement."
     }
   },
   "verifyEmailChange": {
@@ -1410,5 +1421,10 @@
     "done": "C'est fait : vous ne recevrez plus le rappel hebdomadaire. Il se réactive depuis votre compte, si un jour vous le voulez.",
     "expired": "Ce lien n'est plus valable. Le rappel se règle depuis votre compte.",
     "noToken": "Ce lien est incomplet. Ouvrez celui du mail."
+  },
+  "working": {
+    "progress": "Avancement",
+    "dish": "Plat {done} sur {of}",
+    "starting": "Premier plat en cours…"
   }
 }
