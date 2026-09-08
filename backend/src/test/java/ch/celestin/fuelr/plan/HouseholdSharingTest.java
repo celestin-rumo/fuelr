@@ -262,14 +262,14 @@ class HouseholdSharingTest {
                         .header("Authorization", "Bearer " + owner.token())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"age":40,"sex":"MALE","heightCm":180,"weightKg":80,
+                                {"birthDate":"1986-01-02","sex":"MALE","heightCm":180,"weightKg":80,
                                  "activity":"MODERATE","goal":"MAINTAIN"}"""))
                 .andExpect(status().isOk());
         mvc.perform(put("/api/profile")
                         .header("Authorization", "Bearer " + guest.token())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"age":30,"sex":"FEMALE","heightCm":165,"weightKg":58,
+                                {"birthDate":"1996-01-02","sex":"FEMALE","heightCm":165,"weightKg":58,
                                  "activity":"LIGHT","goal":"LOSE"}"""))
                 .andExpect(status().isOk());
 

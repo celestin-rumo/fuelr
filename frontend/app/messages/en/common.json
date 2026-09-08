@@ -971,7 +971,7 @@
     "body": {
       "title": "Tell us about you",
       "hint": "Three things — that is all the formula asks for.",
-      "age": "Age",
+      "age": "Date of birth",
       "sex": "Sex",
       "sexes": {
         "FEMALE": "Female",
@@ -1204,19 +1204,19 @@
       "cards": {
         "profile": {
           "title": "Profile",
-          "description": "Name, address, language, your figures and your weight."
+          "description": "Name, address, language, activity and goal, weight, password."
         },
         "household": {
           "title": "Household",
           "description": "Who shares your plan, and how many people you cook for."
         },
         "preferences": {
-          "title": "Preferences",
-          "description": "What you do not eat, and what Fuelr sends you."
+          "title": "Dietary preferences",
+          "description": "Diet, allergies, what you dislike — applied to the dishes proposed — and the weekly reminder."
         },
         "security": {
           "title": "Security",
-          "description": "Your password and the signed-in devices."
+          "description": "The devices signed in to this account."
         },
         "data": {
           "title": "My data",
@@ -1242,6 +1242,22 @@
       "preferences": "Said once, and remembered by the screens that propose dishes.",
       "security": "How this account is entered, and from where.",
       "data": "Take everything, or leave."
+    },
+    "goals": {
+      "title": "Activity and goal",
+      "hint": "The two that change — and the journal's target with them.",
+      "activityShort": {
+        "SEDENTARY": "Sedentary",
+        "LIGHT": "Light",
+        "MODERATE": "Moderate",
+        "ACTIVE": "Active",
+        "VERY_ACTIVE": "Very active"
+      }
+    },
+    "body": {
+      "title": "Height, birth date and sex",
+      "hint": "What hardly changes any more.",
+      "birthDate": "Date of birth"
     }
   },
   "verifyEmailChange": {

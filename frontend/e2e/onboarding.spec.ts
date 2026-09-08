@@ -7,7 +7,7 @@ async function answerEverything(page: Page) {
   await page.goto("/fr/commencer");
   await page.getByRole("button", { name: /Perdre du poids/ }).click();
 
-  await page.getByLabel("Âge").fill("30");
+  await page.getByLabel("Date de naissance").fill("1996-03-02");
   await page.getByRole("button", { name: "Femme" }).click();
   await page.getByLabel("Taille (cm)").fill("168");
   await page.getByRole("button", { name: "Suivant" }).click();
@@ -44,14 +44,14 @@ test("no step asks for more than three things", async ({ page }) => {
 test("the answers survive closing the tab", async ({ page }) => {
   await page.goto("/fr/commencer");
   await page.getByRole("button", { name: /Prendre du poids/ }).click();
-  await page.getByLabel("Âge").fill("41");
+  await page.getByLabel("Date de naissance").fill("1985-03-02");
 
   // Same browser, fresh load — as if they had come back tomorrow.
   await page.goto("/fr/commencer");
   await expect(page.getByTestId("onboarding-resume")).toBeVisible();
 
   await page.getByRole("button", { name: /Prendre du poids/ }).click();
-  await expect(page.getByLabel("Âge")).toHaveValue("41");
+  await expect(page.getByLabel("Date de naissance")).toHaveValue("1985-03-02");
 });
 
 test("creating the account keeps the profile that was just filled in", async ({
@@ -82,7 +82,7 @@ test("creating the account keeps the profile that was just filled in", async ({
   const { profile } = await saved.json();
   expect(profile).toMatchObject({
     goal: "LOSE",
-    age: 30,
+    birthDate: "1996-01-02",
     sex: "FEMALE",
     heightCm: 168,
     weightKg: 62,
@@ -98,7 +98,7 @@ test("going back keeps what was already answered", async ({ page }) => {
   await expect(page.getByLabel("Poids (kg)")).toHaveValue("62");
 
   await page.getByRole("button", { name: "Retour" }).click();
-  await expect(page.getByLabel("Âge")).toHaveValue("30");
+  await expect(page.getByLabel("Date de naissance")).toHaveValue("1996-03-02");
 });
 
 test("the journey holds up on a phone", async ({ page }) => {

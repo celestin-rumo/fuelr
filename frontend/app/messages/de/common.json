@@ -971,7 +971,7 @@
     "body": {
       "title": "Erzähl uns von dir",
       "hint": "Drei Angaben — mehr braucht die Formel nicht.",
-      "age": "Alter",
+      "age": "Geburtsdatum",
       "sex": "Geschlecht",
       "sexes": {
         "FEMALE": "Weiblich",
@@ -1204,19 +1204,19 @@
       "cards": {
         "profile": {
           "title": "Profil",
-          "description": "Vorname, Adresse, Sprache, Ihre Zahlen und Ihr Gewicht."
+          "description": "Vorname, Adresse, Sprache, Aktivität und Ziel, Gewicht, Passwort."
         },
         "household": {
           "title": "Haushalt",
           "description": "Wer Ihren Plan teilt, und für wie viele Personen Sie kochen."
         },
         "preferences": {
-          "title": "Einstellungen",
-          "description": "Was Sie nicht essen, und was Fuelr Ihnen schickt."
+          "title": "Ernährungseinstellungen",
+          "description": "Ernährung, Allergien, was Sie nicht mögen — auf die vorgeschlagenen Gerichte angewendet — und die wöchentliche Erinnerung."
         },
         "security": {
           "title": "Sicherheit",
-          "description": "Ihr Passwort und die angemeldeten Geräte."
+          "description": "Die bei diesem Konto angemeldeten Geräte."
         },
         "data": {
           "title": "Meine Daten",
@@ -1242,6 +1242,22 @@
       "preferences": "Einmal gesagt, und von den Bildschirmen gemerkt, die Gerichte vorschlagen.",
       "security": "Wie man in dieses Konto kommt, und von wo.",
       "data": "Alles mitnehmen, oder gehen."
+    },
+    "goals": {
+      "title": "Aktivität und Ziel",
+      "hint": "Die beiden, die sich ändern — und mit ihnen das Ziel des Tagebuchs.",
+      "activityShort": {
+        "SEDENTARY": "Sitzend",
+        "LIGHT": "Leicht",
+        "MODERATE": "Mässig",
+        "ACTIVE": "Aktiv",
+        "VERY_ACTIVE": "Sehr aktiv"
+      }
+    },
+    "body": {
+      "title": "Grösse, Geburtsdatum und Geschlecht",
+      "hint": "Was sich kaum noch ändert.",
+      "birthDate": "Geburtsdatum"
     }
   },
   "verifyEmailChange": {

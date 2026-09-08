@@ -12,7 +12,10 @@ import { RecommendPanel } from "@app/components/app/recommend-panel";
 export const dynamic = "force-dynamic";
 
 /**
- * Who this is, open; what is touched twice a year, shut until it is.
+ * In the order things change. Who this is and what they are aiming for,
+ * open; then, behind a fold each: the weigh-in — the one place to say what
+ * you weigh — the figures that hardly move, the password, and the link to
+ * share.
  */
 export default async function ProfilePage() {
   const t = await getTranslations("account");
@@ -30,17 +33,21 @@ export default async function ProfilePage() {
 
   return (
     <AccountSection title={t("hub.cards.profile.title")} intro={t("sections.profile")}>
-      <AccountPanel session={session} profile={profile} sections={["identity", "email"]} />
-
-      <Disclosure title={t("figures.title")} hint={t("figures.hint")} data-testid="disclosure-figures">
-        <AccountPanel session={session} profile={profile} sections={["figures"]} />
-      </Disclosure>
+      <AccountPanel session={session} profile={profile} sections={["identity", "email", "goals"]} />
 
       {weight && (
         <Disclosure title={t("hub.weight")} hint={t("hub.weightHint")} data-testid="disclosure-weight">
-          <WeightPanel weight={weight} profile={profile?.profile ?? null} today={today} compact />
+          <WeightPanel weight={weight} today={today} compact />
         </Disclosure>
       )}
+
+      <Disclosure title={t("body.title")} hint={t("body.hint")} data-testid="disclosure-body">
+        <AccountPanel session={session} profile={profile} sections={["body"]} />
+      </Disclosure>
+
+      <Disclosure title={t("password.title")} hint={t("password.hint")} data-testid="disclosure-password">
+        <AccountPanel session={session} profile={profile} sections={["password"]} />
+      </Disclosure>
 
       {referral && (
         <Disclosure title={t("hub.recommend")} hint={t("hub.recommendHint")} data-testid="disclosure-recommend">

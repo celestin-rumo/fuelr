@@ -12,7 +12,7 @@ class NutritionTargetServiceTest {
     private final NutritionTargetService service = new NutritionTargetService();
 
     private static ProfileInput profile(Sex sex, Activity activity, Goal goal) {
-        return new ProfileInput(30, sex, 175, 70, activity, goal);
+        return new ProfileInput(java.time.LocalDate.now().minusYears(30), sex, 175, 70, activity, goal);
     }
 
     @Test
@@ -75,8 +75,7 @@ class NutritionTargetServiceTest {
     @Test
     void aDeficitNeverProducesATargetBelowTheFloor() {
         // Small, sedentary, and losing: the arithmetic alone would go under.
-        ProfileInput small = new ProfileInput(
-                75, Sex.FEMALE, 145, 40, Activity.SEDENTARY, Goal.LOSE);
+        ProfileInput small = new ProfileInput(java.time.LocalDate.now().minusYears(75), Sex.FEMALE, 145, 40, Activity.SEDENTARY, Goal.LOSE);
 
         assertThat(service.compute(small).kcal())
                 .isEqualTo(NutritionTargetService.MINIMUM_KCAL);

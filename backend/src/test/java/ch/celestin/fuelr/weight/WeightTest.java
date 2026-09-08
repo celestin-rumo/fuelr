@@ -86,24 +86,30 @@ class WeightTest {
     }
 
     @Test
-    void aWeighInNeverMovesTheProfile() throws Exception {
+    void aWeighInIsTheProfilesWeight() throws Exception {
         mvc.perform(put("/api/profile")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"age":34,"sex":"FEMALE","heightCm":168,"weightKg":62,
+                                {"birthDate":"1992-01-02","sex":"FEMALE","heightCm":168,"weightKg":62,
                                  "activity":"MODERATE","goal":"MAINTAIN"}"""))
                 .andExpect(status().isOk());
 
         weigh("2026-03-09", 58.0);
 
-        // The target is computed from the profile, and the profile has not
-        // moved: a weigh-in proposes a recalculation, it never applies one.
+        // One place to say what you weigh: the profile, and so the target,
+        // follow the latest weigh-in.
         mvc.perform(get("/api/weight").header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.profileWeightKg").value(62.0))
+                .andExpect(jsonPath("$.profileWeightKg").value(58.0))
                 .andExpect(jsonPath("$.latest.weightKg").value(58.0));
         mvc.perform(get("/api/profile").header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.profile.weightKg").value(62.0));
+                .andExpect(jsonPath("$.profile.weightKg").value(58.0));
+
+        // Only the latest: an older weigh-in written in afterwards does not
+        // roll the profile back.
+        weigh("2026-03-02", 63.0);
+        mvc.perform(get("/api/profile").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.profile.weightKg").value(58.0));
     }
 
     @Test

@@ -971,7 +971,7 @@
     "body": {
       "title": "Parle-nous de toi",
       "hint": "Trois informations, c'est tout ce que la formule demande.",
-      "age": "Âge",
+      "age": "Date de naissance",
       "sex": "Sexe",
       "sexes": {
         "FEMALE": "Femme",
@@ -1204,19 +1204,19 @@
       "cards": {
         "profile": {
           "title": "Profil",
-          "description": "Prénom, adresse, langue, vos chiffres et votre poids."
+          "description": "Prénom, adresse, langue, activité et objectif, poids, mot de passe."
         },
         "household": {
           "title": "Foyer",
           "description": "Qui partage votre planning, et pour combien de personnes vous cuisinez."
         },
         "preferences": {
-          "title": "Préférences",
-          "description": "Ce que vous ne mangez pas, et ce que Fuelr vous envoie."
+          "title": "Préférences alimentaires",
+          "description": "Régime, allergies, ce que vous n'aimez pas — appliqués aux plats proposés — et le rappel hebdomadaire."
         },
         "security": {
           "title": "Sécurité",
-          "description": "Votre mot de passe et les appareils connectés."
+          "description": "Les appareils connectés à ce compte."
         },
         "data": {
           "title": "Mes données",
@@ -1242,6 +1242,22 @@
       "preferences": "Dit une fois, et retenu par les écrans qui proposent des plats.",
       "security": "Comment on entre dans ce compte, et depuis où.",
       "data": "Tout emporter, ou partir."
+    },
+    "goals": {
+      "title": "Activité et objectif",
+      "hint": "Les deux qui changent — et la cible du journal avec.",
+      "activityShort": {
+        "SEDENTARY": "Sédentaire",
+        "LIGHT": "Légère",
+        "MODERATE": "Modérée",
+        "ACTIVE": "Soutenue",
+        "VERY_ACTIVE": "Très soutenue"
+      }
+    },
+    "body": {
+      "title": "Taille, date de naissance et sexe",
+      "hint": "Ce qui ne change presque plus.",
+      "birthDate": "Date de naissance"
     }
   },
   "verifyEmailChange": {

@@ -26,8 +26,9 @@ public class Profile {
     @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
-    @Column(nullable = false)
-    private int age;
+    /** True forever, where an age was true for a year. */
+    @Column(name = "birth_date", nullable = false)
+    private java.time.LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -67,7 +68,7 @@ public class Profile {
     }
 
     public final void apply(ProfileInput input) {
-        this.age = input.age();
+        this.birthDate = input.birthDate();
         this.sex = input.sex();
         this.heightCm = input.heightCm();
         this.weightKg = BigDecimal.valueOf(input.weightKg()).setScale(1, RoundingMode.HALF_UP);
@@ -76,7 +77,7 @@ public class Profile {
     }
 
     public ProfileInput toInput() {
-        return new ProfileInput(age, sex, heightCm, weightKg.doubleValue(), activity, goal);
+        return new ProfileInput(birthDate, sex, heightCm, weightKg.doubleValue(), activity, goal);
     }
 
     @PreUpdate

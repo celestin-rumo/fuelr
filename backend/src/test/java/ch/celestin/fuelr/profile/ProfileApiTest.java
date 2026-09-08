@@ -28,7 +28,7 @@ class ProfileApiTest {
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17");
 
     private static final String PROFILE = """
-            {"age":30,"sex":"MALE","heightCm":175,"weightKg":70,
+            {"birthDate":"1996-01-02","sex":"MALE","heightCm":175,"weightKg":70,
              "activity":"MODERATE","goal":"MAINTAIN"}""";
 
     @Autowired MockMvc mvc;
@@ -60,7 +60,7 @@ class ProfileApiTest {
         mvc.perform(post("/api/nutrition/target")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"age":30,"sex":"MALE","heightCm":17,"weightKg":70,
+                                {"birthDate":"1996-01-02","sex":"MALE","heightCm":17,"weightKg":70,
                                  "activity":"MODERATE","goal":"MAINTAIN"}"""))
                 .andExpect(status().isBadRequest());
     }
@@ -91,7 +91,7 @@ class ProfileApiTest {
         mvc.perform(put("/api/profile").header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"age":31,"sex":"MALE","heightCm":175,"weightKg":72,
+                                {"birthDate":"1995-01-02","sex":"MALE","heightCm":175,"weightKg":72,
                                  "activity":"ACTIVE","goal":"GAIN"}"""))
                 .andExpect(status().isOk());
 

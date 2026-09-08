@@ -727,13 +727,13 @@ it was not them. The six figures of the profile are previewed through
 `POST /api/nutrition/target` before `PUT /api/profile` writes them: a target is
 shown, never sprung. Neither password field is ever pre-filled.
 
-**A weigh-in proposes a target; it never applies one.** `weight_entries` is
-the history — one figure a day, weighing twice replaces — and
-`profiles.weight_kg` stays what it was: the snapshot the journal's target is
-computed from, moved only by a press on the account page or on the offer the
-weight panel makes once the latest figure has drifted a kilo from it.
-Recording a weight touches nothing else, so a target cannot change under
-somebody without their having said so. And nothing is said about the curve:
+**There is one place to say what you weigh.** `weight_entries` is the
+history — one figure a day, weighing twice replaces — and `profiles.weight_kg`
+follows the *latest* weigh-in, so the journal's target is computed on a
+weight somebody actually has rather than the one typed the day they signed
+up; writing last month's weigh-in in afterwards does not roll it back. The
+profile form never asks for a weight, because a question asked in two places
+gets two answers. And nothing is said about the curve:
 one series, one accent, a day without a weigh-in left as a gap rather than
 drawn as zero, no streak and no verdict — a curve of weight is the field where
 an application most easily starts to judge, and this one draws a figure and
@@ -1032,8 +1032,13 @@ and, where it helps, its state ("3 appareils connectés"). Each card is a page
 of its own — `/app/account/{profile,household,preferences,security,data}`,
 translated slugs — framed by `AccountSection` with the way back. Inside a
 section, what somebody came for is open and what is touched twice a year is
-behind a `Disclosure`: the six figures, the weigh-in, the share link, the
-password, the reminder. `Disclosure` is a native `<details>` — no script,
+behind a `Disclosure`. The profile runs in the order things change: who this
+is and *activity and goal* open — a goal is three small cards, like the
+onboarding, because one stacked block reads as one big thing when nothing is
+chosen — then, folded: the weigh-in, the figures that hardly move (birth
+date, not age, because an age is wrong a year later and nobody comes back to
+fix it; height; sex), the password, the link to share. Security keeps the
+devices. `Disclosure` is a native `<details>` — no script,
 keyboard-reachable, state announced — and it is never used for anything that
 must be read, because a hidden warning is no warning. The destructive page is
 last in the list and alone. `/app/household` stays as an address because
