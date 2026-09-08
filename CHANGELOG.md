@@ -6,6 +6,20 @@ this file collects them newest first.
 
 ---
 
+# v4.6.1 — 2026-09-08
+
+One fix: a dish kept from *Une idée* — the bag-of-groceries screen — is now
+written the way the week's and the batch's are, in one call through
+`from-idea`. It therefore carries its provenance (*créée par IA*) and gets
+its illustration a few seconds later. It used to be written in two steps,
+as a recipe somebody typed, and so was drawn for nobody.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.6.0 — 2026-09-08
 
 A picture for every dish a model writes — and the picture says what it is.
