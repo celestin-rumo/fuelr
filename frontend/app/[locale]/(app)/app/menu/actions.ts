@@ -11,26 +11,26 @@ import type { Suggestion } from "@app/lib/api";
  * into the library as a finished recipe.
  */
 export async function draftFromIdea(suggestion: Suggestion) {
-  const created = await apiFetch("/api/recipes", { method: "POST" });
-  if (!created.ok) return { ok: false as const };
-  const { id } = (await created.json()) as { id: number };
-
-  const saved = await apiFetch(`/api/recipes/${id}`, {
-    method: "PUT",
+  // One call, like the week and the batch: the provenance is written by the
+  // hand that creates the row, and the picture follows a few seconds later.
+  // The two-step dance this replaced left the origin at TYPED and drew
+  // nothing — a dish from the bag looked like one somebody had written.
+  const created = await apiFetch("/api/recipes/from-idea", {
+    method: "POST",
     body: JSON.stringify({
       title: suggestion.title,
-      servings: 4,
-      totalMinutes: suggestion.minutes,
+      minutes: suggestion.minutes,
       ingredients: suggestion.ingredients.map((line) => ({
         name: line.name,
         quantity: line.quantity,
         unit: line.unit,
-        needsReview: line.needsReview,
       })),
       steps: suggestion.steps,
     }),
   });
-  return saved.ok ? { ok: true as const, id } : { ok: false as const };
+  if (!created.ok) return { ok: false as const };
+  const { id } = (await created.json()) as { id: number };
+  return { ok: true as const, id };
 }
 
 /** What the bag does not hold, added to the week being shopped for. */
