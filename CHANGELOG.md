@@ -6,6 +6,18 @@ this file collects them newest first.
 
 ---
 
+# v4.3.2 — 2026-09-08
+
+One thing: *Activité et objectif* folds the way *Vous* does. Both open by
+default, both fold away once they are right, and the four folds below them
+read as the same kind of thing.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.3.1 — 2026-09-08
 
 Two small things on the profile, both from using v4.3.0 for an afternoon.
