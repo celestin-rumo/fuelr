@@ -73,12 +73,6 @@ export function AppHeader({
           >
             {t("nav.journal")}
           </Link>
-          <Link
-            href="/app/household"
-            className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-[13px] font-semibold text-text-dim hover:bg-bg-raised-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] sm:min-h-0"
-          >
-            {t("nav.household")}
-          </Link>
         </nav>
 
         <div className="flex-1" />

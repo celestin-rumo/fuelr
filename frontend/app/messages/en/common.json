@@ -1189,6 +1189,15 @@
       "formula": "A formula on age, height, weight and activity. A reference, not a prescription.",
       "submit": "Save",
       "saved": "Figures saved. The target applies from today."
+    },
+    "tabs": {
+      "label": "Account tabs",
+      "profile": "Profile",
+      "household": "Household",
+      "preferences": "Preferences",
+      "security": "Security",
+      "data": "My data",
+      "unavailable": "The household could not be read. Try again in a moment."
     }
   },
   "verifyEmailChange": {

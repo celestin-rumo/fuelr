@@ -18,7 +18,8 @@ import { cn } from "@ui/cn";
  * already is, and the header keeps the identity and the account controls.
  *
  * Two rules it does not break. Every destination stays reachable — five tabs,
- * not four with the household hidden behind something. And the icon comes
+ * and the household lives on the account page, reached from the header,
+ * because it is something set once and read rarely. And the icon comes
  * *with* its word: a bar of icons alone has to be learnt, and this one is read
  * by somebody holding a knife.
  */
@@ -27,7 +28,6 @@ const TABS = [
   { href: "/app/plan", key: "plan", icon: "calendar" },
   { href: "/app/shopping", key: "shopping", icon: "cart" },
   { href: "/app/journal", key: "journal", icon: "journal" },
-  { href: "/app/household", key: "household", icon: "people" },
 ] as const satisfies ReadonlyArray<{
   href: string;
   key: string;

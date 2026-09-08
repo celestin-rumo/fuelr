@@ -41,7 +41,7 @@ test("what I do not eat is said once, and the library can be narrowed to it", as
   await seed(request, "Gratin dauphinois", "Crème");
   await seed(request, "Salade de tomates", "Tomates");
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte?tab=preferences");
   const panel = page.getByTestId("preferences-panel");
   await panel.getByRole("button", { name: "Lait" }).click();
   await panel.getByRole("button", { name: "Végétarien" }).click();

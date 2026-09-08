@@ -80,7 +80,7 @@ export function HouseholdPanel({
       }
       // The token is spent; leaving it in the URL would offer to use it again
       // on every reload.
-      router.replace({ pathname: "/app/household" });
+      router.replace({ pathname: "/app/account", query: { tab: "household" } });
       router.refresh();
     });
   }

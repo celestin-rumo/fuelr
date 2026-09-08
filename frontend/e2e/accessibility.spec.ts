@@ -128,6 +128,9 @@ test.describe("signed in", () => {
       "/fr/app/planning",
       "/fr/app/planning/preparation",
       "/fr/app/compte",
+      "/fr/app/compte?tab=security",
+      "/fr/app/compte?tab=preferences",
+      "/fr/app/compte?tab=data",
       "/fr/app/courses",
       "/fr/app/journal",
     ]) {
@@ -147,7 +150,7 @@ test.describe("signed in", () => {
   });
 
   test("the household screen and the idea screen have none", async ({ page }) => {
-    for (const path of ["/fr/app/foyer", "/fr/app/idees"]) {
+    for (const path of ["/fr/app/compte?tab=household", "/fr/app/idees"]) {
       await page.goto(path);
       await clean(page, path);
     }

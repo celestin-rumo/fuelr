@@ -270,7 +270,7 @@ test("cooking mode holds up, and keeps its footer on screen", async ({
 });
 
 test("the household screen holds up", async ({ page }) => {
-  await page.goto("/fr/app/foyer");
+  await page.goto("/fr/app/compte?tab=household");
   await expect(page.getByTestId("members")).toBeVisible();
 
   await holdsUp(page);
@@ -282,13 +282,14 @@ test("the navigation is at the bottom, where the thumb is", async ({ page }) => 
   const tabs = page.getByTestId("app-tabs");
   await expect(tabs).toBeVisible();
 
-  // Every destination, not four with the household folded away behind
+  // The four things done every week; the household is on the account page,
+  // reached from the header, because it is set once and read rarely. Not
   // something: the bar is the whole navigation on a phone.
-  await expect(tabs.getByRole("link")).toHaveCount(5);
+  await expect(tabs.getByRole("link")).toHaveCount(4);
 
   // The icon comes with its word. A bar of icons alone has to be learnt,
   // and this one is read by somebody holding a knife.
-  for (const label of ["Recettes", "Planning", "Courses", "Journal", "Foyer"]) {
+  for (const label of ["Recettes", "Planning", "Courses", "Journal",]) {
     await expect(tabs.getByRole("link", { name: label })).toBeVisible();
   }
 
