@@ -40,7 +40,7 @@ export function RecipePhoto({
   const [version, setVersion] = useState(0);
   // Opened straight from "garder", the draft has no picture yet: it is a
   // few seconds behind. Watch for it rather than wait for a reload.
-  const arrived = useIllustration(recipeId, awaiting && !hasPhoto);
+  const arrived = useIllustration(`/api/recipes/${recipeId}/photo`, awaiting && !hasPhoto);
   // Derived, not synced: the picture shows the moment it has landed, and
   // says it was drawn — until an upload of somebody's own replaces it.
   const [replaced, setReplaced] = useState(false);

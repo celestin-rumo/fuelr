@@ -17,6 +17,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
+import { IdeaThumb } from "./recipe-thumb";
 
 const INTENTS = ["vegetarian", "protein", "quick", "cheap"] as const;
 
@@ -410,6 +411,7 @@ function SetCard({
       <ul className="flex flex-col gap-1">
         {set.members.map((member, at) => (
           <li key={`${member.title}-${at}`} className="flex flex-wrap items-center gap-2">
+            <IdeaThumb illustrationKey={member.illustrationKey} title={member.title} size={36} />
             <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
               {member.title}
             </span>

@@ -18,6 +18,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
+import { IdeaThumb } from "./recipe-thumb";
 
 /**
  * The intentions somebody can ask a week for.
@@ -487,6 +488,8 @@ function ProposalRow({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        {/* Drawn while the model was still writing the next dish. */}
+        <IdeaThumb illustrationKey={proposal.illustrationKey} title={proposal.title} />
         <span
           data-testid="proposal-title"
           className={cn(

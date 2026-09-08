@@ -22,6 +22,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/actions";
 import { WorkingOn } from "./working-on";
+import { IdeaThumb, RecipeThumb } from "./recipe-thumb";
 
 /**
  * What to cook, from what is in the bag.
@@ -189,6 +190,13 @@ function SuggestionRow({
     <ListRow
       as="li"
       selected={own}
+      leading={
+        own && suggestion.recipeId != null ? (
+          <RecipeThumb id={suggestion.recipeId} title={suggestion.title} hasPhoto={suggestion.hasPhoto} />
+        ) : (
+          <IdeaThumb illustrationKey={suggestion.illustrationKey} title={suggestion.title} />
+        )
+      }
       trailing={
         <ListRowActions className="gap-2">
           {own ? (

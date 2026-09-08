@@ -684,11 +684,23 @@ is a second seam for an image model: `HuggingFaceIllustrator` speaks the
 OpenAI images shape to one pinned provider behind Hugging Face's router
 (FLUX.1-schnell on nscale: a second per picture, a fraction of a cent, an
 Apache licence), `NoIllustrator` draws nothing while no `HF_TOKEN` is set.
-`IllustrationService.illustrate` runs `@Async` after `POST /api/recipes/from-idea`
-has answered — the recipe is the answer, the picture is seconds behind it —
-through the same gates as every paid call (the plan, the month's budget),
-records a flat `ILLUSTRATION` row the moment the provider answers, and stores
-the bytes exactly as an upload is stored: sniffed and capped. The prompt is
+**A dish is drawn while it is still a proposal.** The three screens that
+ask a model for dishes wrap the stream's `Progress` so that, as each title
+closes, `IllustrationService.illustrateIdea` starts drawing it on its own
+pool while the model is still writing the next dish; the picture lands in
+`idea_illustrations` (V34), keyed by account and normalised title
+(`keyOf`), because an idea has no id. The proposal carries that key
+(`illustrationKey`), `GET /api/ideas/illustrations/{key}` answers 404
+until the picture is there — the screen polls it (`useIllustration`,
+`IdeaThumb`) — and only the account it was drawn for can see it. Keeping
+the dish (`from-idea`) calls `attach` first: the file changes hands, the
+draft opens with its photo, nothing is drawn twice; a dish with no picture
+yet gets `illustrate` behind the answer as before. What nobody kept is
+swept after a week. Every picture goes through the same gates as every paid
+call (the plan, the month's budget), records a flat `ILLUSTRATION` row the
+moment the provider answers, and stores the bytes exactly as an upload is
+stored: sniffed and capped. The bag screen asks for three ideas rather than
+five for that reason. The prompt is
 the title and the first ingredient names and nothing about the person; the
 privacy page names Hugging Face and nscale. `recipes.photo_origin` (V33) is
 the provenance — `UPLOADED`, `IMPORTED`, `GENERATED` — written by the code
