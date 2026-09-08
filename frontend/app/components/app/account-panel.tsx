@@ -9,6 +9,7 @@ import { Card } from "@ui/card";
 import { Input } from "@ui/input";
 import { Segmented } from "@ui/segmented";
 import { SectionHead } from "@ui/section-head";
+import { Tab, TabList } from "@ui/tabs";
 import { PasswordStrength } from "./password-strength";
 import { ChoiceCard, Choices } from "@app/components/site/onboarding";
 import type { Session } from "@app/lib/session";
@@ -146,6 +147,8 @@ export function AccountPanel({
 
   // --- the six figures ------------------------------------------------------------------
   const [figures, setFigures] = useState<Partial<ProfileInput>>(profile?.profile ?? {});
+  /** Two questions, one at a time: a goal is chosen, an activity is admitted. */
+  const [goalsTab, setGoalsTab] = useState<"goal" | "activity">("goal");
   const [preview, setPreview] = useState<ProfileTargets | null>(profile?.targets ?? null);
   const [dirty, setDirty] = useState(false);
 
@@ -431,11 +434,39 @@ export function AccountPanel({
           </SectionHead>
         )}
         <Card as="panel" className="flex flex-col gap-5">
+          <TabList>
+            <Tab
+              id="goals-tab-goal"
+              aria-controls="goals-panel-goal"
+              className="min-h-11"
+              active={goalsTab === "goal"}
+              onClick={() => setGoalsTab("goal")}
+              data-testid="goals-tab-goal"
+            >
+              {tOnboarding("goal.title")}
+            </Tab>
+            <Tab
+              id="goals-tab-activity"
+              aria-controls="goals-panel-activity"
+              className="min-h-11"
+              active={goalsTab === "activity"}
+              onClick={() => setGoalsTab("activity")}
+              data-testid="goals-tab-activity"
+            >
+              {tOnboarding("habits.activity")}
+            </Tab>
+          </TabList>
+
           {/* Three small cards, like the onboarding: one block of three stacked
               rows read as one big thing when nothing was chosen yet. */}
-          <div className="flex flex-col gap-2">
-            <p className="text-[13px] font-semibold text-text-dim">{tOnboarding("goal.title")}</p>
-            <div className="grid gap-3 sm:grid-cols-3" data-testid="goal-cards">
+          {goalsTab === "goal" && (
+            <div
+              role="tabpanel"
+              id="goals-panel-goal"
+              aria-labelledby="goals-tab-goal"
+              className="grid gap-3 sm:grid-cols-3"
+              data-testid="goal-cards"
+            >
               {GOALS.map((goal) => (
                 <ChoiceCard
                   key={goal}
@@ -446,26 +477,33 @@ export function AccountPanel({
                 />
               ))}
             </div>
-          </div>
+          )}
 
-          <div className="flex flex-col gap-2">
-            <p className="text-[13px] font-semibold text-text-dim">{tOnboarding("habits.activity")}</p>
-            <Segmented
-              label={tOnboarding("habits.activity")}
-              className="max-sm:w-full max-sm:flex-col"
-              value={figures.activity}
-              onChange={(activity) => edit({ activity })}
-              options={ACTIVITIES.map((activity) => ({
-                value: activity,
-                label: t(`goals.activityShort.${activity}`),
-              }))}
-            />
-            {figures.activity && (
-              <p className="text-[13px] font-medium text-gray">
-                {tOnboarding(`habits.activities.${figures.activity}`)}
-              </p>
-            )}
-          </div>
+          {goalsTab === "activity" && (
+            <div
+              role="tabpanel"
+              id="goals-panel-activity"
+              aria-labelledby="goals-tab-activity"
+              className="flex flex-col gap-2"
+              data-testid="activity-panel"
+            >
+              <Segmented
+                label={tOnboarding("habits.activity")}
+                className="max-sm:w-full max-sm:flex-col"
+                value={figures.activity}
+                onChange={(activity) => edit({ activity })}
+                options={ACTIVITIES.map((activity) => ({
+                  value: activity,
+                  label: t(`goals.activityShort.${activity}`),
+                }))}
+              />
+              {figures.activity && (
+                <p className="text-[13px] font-medium text-gray">
+                  {tOnboarding(`habits.activities.${figures.activity}`)}
+                </p>
+              )}
+            </div>
+          )}
 
           {preview && (
             <dl

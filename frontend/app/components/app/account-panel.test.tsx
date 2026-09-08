@@ -170,3 +170,18 @@ it("leaves the weigh-ins alone when the weight did not change", async () => {
   await waitFor(() => expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ heightCm: 170 })));
   expect(recordWeight).not.toHaveBeenCalled();
 });
+
+it("asks the goal and the activity one at a time, on two tabs", async () => {
+  const user = userEvent.setup({ delay: null });
+  renderWithIntl(<AccountPanel session={session} profile={profile} sections={["goals"]} />);
+
+  expect(screen.getByTestId("goal-cards")).toBeInTheDocument();
+  expect(screen.queryByTestId("activity-panel")).not.toBeInTheDocument();
+  expect(screen.getByTestId("goals-tab-goal")).toHaveAttribute("aria-selected", "true");
+
+  await user.click(screen.getByTestId("goals-tab-activity"));
+  expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
+  expect(screen.queryByTestId("goal-cards")).not.toBeInTheDocument();
+  // The chosen activity is explained under the control.
+  expect(screen.getByTestId("activity-panel")).toHaveTextContent(/Modérée|modéré/i);
+});

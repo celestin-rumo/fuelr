@@ -1033,12 +1033,14 @@ and, where it helps, its state ("3 appareils connectés"). Each card is a page
 of its own — `/app/account/{profile,household,preferences,security,data}`,
 translated slugs — framed by `AccountSection` with the way back. Inside a
 section, what somebody came for is open and what is touched twice a year is
-behind a `Disclosure`. The profile is two cards open and the rest folded:
+behind a `Disclosure`. The profile is two cards and the rest folded:
 *Vous* — first name, birth date (not age, because an age is wrong a year
-later and nobody comes back to fix it), height, weight, sex — and *Activité
-et objectif*, the two figures that change and take the journal's target with
-them; a goal is three small cards, like the onboarding, because one stacked
-block reads as one big thing when nothing is chosen. Then, folded: the
+later and nobody comes back to fix it), height, weight, sex — open by default
+and foldable, since once the figures are right there is nothing on it to read
+twice; and *Activité et objectif*, the two figures that change and take the
+journal's target with them, asked one at a time on two tabs — a goal is three
+small cards, like the onboarding, because one stacked block reads as one big
+thing when nothing is chosen. Then, folded: the
 address, the language, the password, the link to share. The weight typed on
 the first card is today's weigh-in, so it is still one fact. Security keeps
 the devices. `Disclosure` is a native `<details>` — no script,
