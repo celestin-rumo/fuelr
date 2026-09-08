@@ -54,6 +54,7 @@ services:
       # is not wired, which is a working state and not a broken one.
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
+      HF_TOKEN: ${HF_TOKEN:-}
 
     depends_on:
       database:

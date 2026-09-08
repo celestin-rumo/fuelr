@@ -69,6 +69,8 @@ jobs:
           # which is why nothing here fails when the secret is not set.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
+          # Pictures for the dishes a model writes. Absent, nothing is drawn.
+          HF_TOKEN: ${{ secrets.HUGGINGFACE_KEY }}
         shell: bash
         run: |
           cd "${{ env.DEPLOY_PATH }}"
@@ -85,6 +87,7 @@ jobs:
           JWT_SECRET=${JWT_SECRET}
           ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
           ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID}
+          HF_TOKEN=${HF_TOKEN}
           EOF
           chmod 600 .env
 
@@ -156,6 +159,8 @@ jobs:
           # so the two budgets can be told apart.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
+          # Pictures for the dishes a model writes. Absent, nothing is drawn.
+          HF_TOKEN: ${{ secrets.HUGGINGFACE_KEY }}
         shell: bash
         run: |
           cd "${{ env.STAGING_DEPLOY_PATH }}"
@@ -172,6 +177,7 @@ jobs:
           JWT_SECRET=${JWT_SECRET}
           ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
           ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID}
+          HF_TOKEN=${HF_TOKEN}
           EOF
           chmod 600 .env
 

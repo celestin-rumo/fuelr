@@ -15,9 +15,12 @@ import type { ResizeError } from "@app/lib/resize-image";
 export function RecipePhoto({
   recipeId,
   hasPhoto,
+  generated = false,
 }: {
   recipeId: number;
   hasPhoto: boolean;
+  /** Drawn by an image model for a dish a model wrote; replaced by any upload. */
+  generated?: boolean;
 }) {
   const t = useTranslations("recipe.photo");
   const router = useRouter();
@@ -105,6 +108,13 @@ export function RecipePhoto({
         </div>
 
         <div className="flex flex-col gap-2">
+          {/* Confessed, in words: an image model drew this for a dish nobody
+              has cooked. Any upload replaces it and the line goes. */}
+          {generated && photo && (
+            <p className="text-[12px] font-medium text-gray" data-testid="photo-generated">
+              {t("generated")}
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             <Button
               variant="secondary"

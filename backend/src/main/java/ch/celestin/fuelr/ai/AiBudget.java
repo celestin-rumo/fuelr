@@ -176,4 +176,13 @@ public class AiBudget {
                 userId, period(), operation, provider,
                 inputTokens, outputTokens, costOf(inputTokens, outputTokens)));
     }
+
+    /**
+     * A call priced flat rather than by token — an image. Recorded with no
+     * tokens and the price the provider lists, so the month sums the same way.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AiUsage record(Long userId, String operation, String provider, long costMicros) {
+        return usage.save(new AiUsage(userId, period(), operation, provider, 0, 0, costMicros));
+    }
 }

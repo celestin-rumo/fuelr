@@ -703,7 +703,8 @@
         "file_too_large": "Fichier trop lourd. Choisis une image plus légère.",
         "unreadable": "Image illisible. Essaie un autre fichier.",
         "upload_failed": "L'envoi a échoué. Réessaie."
-      }
+      },
+      "generated": "Illustration générée par IA"
     },
     "alreadyUsed": "Cette recette est déjà enregistrée et utilisable. Tes modifications s'appliqueront à ses prochaines utilisations ; les repas déjà journalisés gardent les valeurs qu'ils avaient.",
     "nav": {
