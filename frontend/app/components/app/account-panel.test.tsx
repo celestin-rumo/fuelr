@@ -17,6 +17,7 @@ const updateAccount = vi.fn(async () => ({ ok: true }));
 const changePassword = vi.fn();
 const requestEmailChange = vi.fn();
 const saveProfile = vi.fn();
+const recordWeight = vi.fn(async () => ({ ok: true }));
 const previewTargets = vi.fn(async () => ({ kcal: 2100, proteinG: 120, carbsG: 240, fatG: 70 }));
 
 vi.mock("@app/[locale]/(app)/app/account/actions", () => ({
@@ -24,6 +25,7 @@ vi.mock("@app/[locale]/(app)/app/account/actions", () => ({
   changePassword: (...args: unknown[]) => changePassword(...(args as [])),
   requestEmailChange: (...args: unknown[]) => requestEmailChange(...(args as [])),
   saveProfile: (...args: unknown[]) => saveProfile(...(args as [])),
+  recordWeight: (...args: unknown[]) => recordWeight(...(args as [])),
   previewTargets: (...args: unknown[]) => previewTargets(...(args as [])),
 }));
 
@@ -133,9 +135,38 @@ it("treats a missing profile as a state, not an error", () => {
   expect(screen.queryByTestId("target-preview")).not.toBeInTheDocument();
 });
 
-it("never asks for the weight here: that question has one place", () => {
-  renderWithIntl(<AccountPanel session={session} profile={profile} />);
-  expect(screen.queryByTestId("figure-weight")).not.toBeInTheDocument();
+it("a weight typed here is today's weigh-in, written before the profile", async () => {
+  const user = userEvent.setup({ delay: null });
+  saveProfile.mockResolvedValueOnce({ ok: true, saved: { targets: { kcal: 1900, proteinG: 110, carbsG: 220, fatG: 65 } } });
+  renderWithIntl(
+    <AccountPanel session={session} profile={profile} today="2026-03-02" sections={["you"]} />,
+  );
   // Birth date, not age: true forever.
   expect(screen.getByTestId("figure-birth")).toHaveValue("1992-01-02");
+
+  const weight = screen.getByTestId("figure-weight");
+  await user.clear(weight);
+  await user.type(weight, "60");
+  // The preview runs first; the save waits for it.
+  await waitFor(() => expect(screen.getByTestId("body-submit")).toBeEnabled());
+  await user.click(screen.getByTestId("body-submit"));
+
+  await waitFor(() => expect(recordWeight).toHaveBeenCalledWith({ weighedOn: "2026-03-02", weightKg: 60 }));
+  expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ weightKg: 60 }));
+});
+
+it("leaves the weigh-ins alone when the weight did not change", async () => {
+  const user = userEvent.setup({ delay: null });
+  saveProfile.mockResolvedValueOnce({ ok: true, saved: { targets: { kcal: 1900, proteinG: 110, carbsG: 220, fatG: 65 } } });
+  renderWithIntl(
+    <AccountPanel session={session} profile={profile} today="2026-03-02" sections={["you"]} />,
+  );
+  const height = screen.getByTestId("figure-height");
+  await user.clear(height);
+  await user.type(height, "170");
+  await waitFor(() => expect(screen.getByTestId("body-submit")).toBeEnabled());
+  await user.click(screen.getByTestId("body-submit"));
+
+  await waitFor(() => expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ heightCm: 170 })));
+  expect(recordWeight).not.toHaveBeenCalled();
 });
