@@ -766,7 +766,14 @@
     "filters": {
       "toggle": "Filtern",
       "remove": "Filter {name} entfernen",
-      "compatible": "Passend zu meinen Einstellungen"
+      "compatible": "Passend zu meinen Einstellungen",
+      "popular": "Beliebte Filter",
+      "groups": {
+        "tags": "Lust auf",
+        "seasons": "Saison",
+        "cuisines": "Küche",
+        "origins": "Herkunft"
+      }
     },
     "print": {
       "button": "Drucken",

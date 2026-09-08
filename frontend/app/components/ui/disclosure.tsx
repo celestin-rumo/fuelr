@@ -35,7 +35,7 @@ export function Disclosure({
       className={cn("group rounded-md border border-line bg-bg-raised", className)}
       {...props}
     >
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-md px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 rounded-md px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)] [&::-webkit-details-marker]:hidden">
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="font-display text-[16px] font-bold text-text">{title}</span>
           {hint && <span className="text-[13px] font-medium text-text-dim">{hint}</span>}

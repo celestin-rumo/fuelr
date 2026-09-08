@@ -55,10 +55,10 @@ test.beforeEach(async ({ request, context }) => {
  * what is on stays visible outside the panel as removable chips, which is what
  * makes hiding the rest allowed.
  */
-async function openFilters(page: Page) {
-  const toggle = page.getByTestId("toggle-filters");
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
-    await toggle.click();
+async function openFilters(page: Page, group: "tags" | "seasons" | "cuisines" | "origins") {
+  const door = page.getByTestId(`filter-${group}`);
+  if ((await door.getAttribute("aria-expanded")) !== "true") {
+    await door.click();
   }
 }
 
@@ -100,7 +100,7 @@ test("the library filters by season, beside the filters already there", async ({
   await seed(request, "Pâtes au beurre", []);
   await page.goto("/fr/app");
 
-  await openFilters(page);
+  await openFilters(page, "seasons");
   await page.getByTestId("season-filters").getByRole("button", { name: "Été" }).click();
 
   await expect(page.getByRole("heading", { name: "Salade de tomates" })).toBeVisible();
@@ -114,7 +114,7 @@ test("asking for two seasons asks for either, not both", async ({ request, page 
   await seed(request, "Salade de tomates", ["SUMMER"]);
   await page.goto("/fr/app");
 
-  await openFilters(page);
+  await openFilters(page, "seasons");
   const filters = page.getByTestId("season-filters");
   await filters.getByRole("button", { name: "Automne" }).click();
   await filters.getByRole("button", { name: "Été" }).click();
@@ -138,7 +138,7 @@ test("the in-season shortcut picks the season the date is in", async ({
   ]);
   await page.goto("/fr/app");
 
-  await openFilters(page);
+  await openFilters(page, "seasons");
   await page.getByTestId("in-season").click();
 
   await expect(page.getByRole("heading", { name: "Plat de saison" })).toBeVisible();
@@ -153,7 +153,7 @@ test("season filters, it does not reorder", async ({ request, page }) => {
   await page.goto("/fr/app");
 
   const before = await page.getByTestId("recipe-grid").locator("li h3").allTextContents();
-  await openFilters(page);
+  await openFilters(page, "seasons");
   await page.getByTestId("season-filters").getByRole("button", { name: "Été" }).click();
   await expect(page).toHaveURL(/seasons=SUMMER/);
 
@@ -167,7 +167,7 @@ test("clearing takes the season with it", async ({ request, page }) => {
   await seed(request, "Salade de tomates", ["SUMMER"]);
   await page.goto("/fr/app");
 
-  await openFilters(page);
+  await openFilters(page, "seasons");
   await page.getByTestId("season-filters").getByRole("button", { name: "Été" }).click();
   await expect(page.getByRole("heading", { name: "Soupe de courge" })).toHaveCount(0);
 
@@ -183,7 +183,7 @@ test("the season filters hold up on a phone", async ({ request, page }) => {
   // Folded away until asked for — at every width now, not only here: three
   // rows of chips are not what somebody opens the app to read.
   await expect(page.getByTestId("season-filters")).toBeHidden();
-  await openFilters(page);
+  await openFilters(page, "seasons");
   await expect(page.getByTestId("season-filters")).toBeVisible();
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

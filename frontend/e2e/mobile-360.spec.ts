@@ -117,12 +117,13 @@ test("the library holds up, with its filters folded away", async ({ request, pag
   await page.goto("/fr/app");
 
   // Eleven rows of chips are not what somebody opens the app to read.
-  await expect(page.getByTestId("toggle-filters")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Végétarien" })).toBeHidden();
+  await expect(page.getByTestId("filter-cuisines")).toBeVisible();
+  await expect(page.getByTestId("cuisine-filters")).toBeHidden();
   await holdsUp(page);
 
-  await page.getByTestId("toggle-filters").click();
-  await expect(page.getByRole("button", { name: "Végétarien" })).toBeVisible();
+  // Twelve cuisines open under the row, not over the page.
+  await page.getByTestId("filter-cuisines").click();
+  await expect(page.getByTestId("cuisine-filters")).toBeVisible();
   await holdsUp(page);
 });
 

@@ -22,6 +22,7 @@ import { Pagination } from "@ui/pagination";
 import { SectionHead } from "@ui/section-head";
 import { Disclosure } from "@ui/disclosure";
 import { FOOD_NAMES, FoodIcon } from "@ui/food-icons";
+import { FilterPanel, FilterTrigger } from "@ui/filter-group";
 import { WorkingOn } from "@app/components/app/working-on";
 import {
   ListRow,
@@ -741,6 +742,28 @@ export default function DesignSystemPage() {
                 A native details element: no script, keyboard reachable, state announced.
               </p>
             </Disclosure>
+            <Card as="panel">
+              <CardTitle>Filter group</CardTitle>
+              <CardBody>
+                <p className="mb-3">
+                  A door per closed domain, counting what is on; the open one lays its
+                  options out under the row rather than over the page.
+                </p>
+                <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <FilterTrigger count={2} id="ds-filter-a" aria-controls="ds-panel-a" open>
+                    Cuisine
+                  </FilterTrigger>
+                  <FilterTrigger>Saison</FilterTrigger>
+                  <FilterTrigger>Envie</FilterTrigger>
+                  <FilterTrigger>Origine</FilterTrigger>
+                </div>
+                <FilterPanel id="ds-panel-a" labelledBy="ds-filter-a">
+                  <Chip active>Italienne</Chip>
+                  <Chip active>Japonaise</Chip>
+                  <Chip>Française</Chip>
+                </FilterPanel>
+              </CardBody>
+            </Card>
             <WorkingOn
               label="Working on — the wait while a model writes dishes"
               words="poulet, carottes"

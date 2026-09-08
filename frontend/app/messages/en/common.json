@@ -766,7 +766,14 @@
     "filters": {
       "toggle": "Filter",
       "remove": "Remove the {name} filter",
-      "compatible": "Compatible with my preferences"
+      "compatible": "Compatible with my preferences",
+      "popular": "Popular filters",
+      "groups": {
+        "tags": "Wish",
+        "seasons": "Season",
+        "cuisines": "Cuisine",
+        "origins": "Origin"
+      }
     },
     "print": {
       "button": "Print",
