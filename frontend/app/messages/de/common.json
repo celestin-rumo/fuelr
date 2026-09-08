@@ -40,7 +40,9 @@
       "label": "Rezepte filtern",
       "all": "Alle",
       "favorites": "Favoriten",
-      "noFavorites": "Noch keine angehefteten Rezepte."
+      "noFavorites": "Noch keine angehefteten Rezepte.",
+      "toggle": "Filtern",
+      "close": "Filter schliessen"
     },
     "copySuffix": " (Kopie)",
     "export": "Exportieren",

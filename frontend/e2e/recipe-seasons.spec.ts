@@ -179,6 +179,8 @@ test("clearing takes the season with it", async ({ request, page }) => {
   await page.getByTestId("season-filters").getByRole("button", { name: "Été" }).click();
   await expect(page.getByRole("heading", { name: "Soupe de courge" })).toHaveCount(0);
 
+  // What is on is named under the bar, outside the drawer, with the way to clear it.
+  await page.getByRole("button", { name: "Fermer les filtres" }).click();
   await page.getByRole("button", { name: "Tout effacer" }).click();
   await expect(page.getByRole("heading", { name: "Soupe de courge" })).toBeVisible();
 });

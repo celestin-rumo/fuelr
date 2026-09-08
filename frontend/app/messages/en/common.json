@@ -40,7 +40,9 @@
       "label": "Filter recipes",
       "all": "All",
       "favorites": "Favourites",
-      "noFavorites": "No pinned recipes yet."
+      "noFavorites": "No pinned recipes yet.",
+      "toggle": "Filter",
+      "close": "Close the filters"
     },
     "copySuffix": " (copy)",
     "export": "Export",
