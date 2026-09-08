@@ -149,11 +149,27 @@ public class BatchSuggestionController {
         ch.celestin.fuelr.preferences.Constraints constraints =
                 ch.celestin.fuelr.preferences.Constraints.of(preferences.findById(userId).orElse(null));
         boolean drawing = illustrations.available();
-        MenuIntelligence.Progress told = (index, of, title) -> {
-            if (drawing) {
-                illustrations.illustrateIdea(userId, title);
+        MenuIntelligence.Progress told = new MenuIntelligence.Progress() {
+            @Override
+            public void dish(int index, int of, String title) {
+                if (drawing) {
+                    illustrations.illustrateIdea(userId, title);
+                }
+                progress.dish(index, of, title);
             }
-            progress.dish(index, of, title);
+
+            @Override
+            public void completed(int index, int of, Object dish) {
+                MenuDtos.Suggestion idea = (MenuDtos.Suggestion) dish;
+                if (!constraints.allows(
+                        idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList())) {
+                    return;
+                }
+                progress.completed(index, of, new MemberView(idea.title(), idea.minutes(),
+                        new WeekSuggestionController.Idea(idea.title(), idea.minutes(),
+                                idea.ingredients(), idea.steps()),
+                        drawing ? IllustrationService.keyOf(idea.title()) : null));
+            }
         };
         try {
             MenuIntelligence.Ideas ideas = reader.suggestBatch(

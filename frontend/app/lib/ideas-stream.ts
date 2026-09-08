@@ -2,9 +2,10 @@
  * An answer told as it is written.
  *
  * The three screens that ask a model for dishes post to a `/live` route and
- * read server-sent events back: `progress` as each dish is started, then one
- * `result` carrying the same object the one-piece endpoint returns, or
- * `failed`. `fetch` rather than `EventSource`, because the ask is a POST with
+ * read server-sent events back: `progress` as each dish is started, `dish`
+ * as each one is written to the end — the row shows up while the next is
+ * being written — then one `result` carrying the same object the one-piece
+ * endpoint returns, or `failed`. `fetch` rather than `EventSource`, because the ask is a POST with
  * a body and EventSource can only GET.
  *
  * What the caller gets is exactly what it got before — an answer, or not —
@@ -19,10 +20,18 @@ export type Progress = {
   title: string;
 };
 
-export async function askLive<T>(
+/** A dish written to the end, shaped the way the answer will shape it. */
+export type Arrival<D> = {
+  index: number;
+  of: number;
+  dish: D;
+};
+
+export async function askLive<T, D = unknown>(
   url: string,
   body: unknown,
   onProgress: (progress: Progress) => void,
+  onDish?: (arrival: Arrival<D>) => void,
 ): Promise<{ ok: true; result: T } | { ok: false }> {
   let response: Response;
   try {
@@ -46,6 +55,7 @@ export async function askLive<T>(
 
   function dispatch() {
     if (event === "progress") onProgress(JSON.parse(data) as Progress);
+    else if (event === "dish") onDish?.(JSON.parse(data) as Arrival<D>);
     else if (event === "result") result = JSON.parse(data) as T;
     else if (event === "failed") failed = true;
     event = "";

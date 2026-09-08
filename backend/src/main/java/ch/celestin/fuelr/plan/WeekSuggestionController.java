@@ -213,11 +213,32 @@ public class WeekSuggestionController {
         // As each title closes, its picture starts — while the model is
         // still writing the next dish — so most are on screen with the answer.
         boolean drawing = illustrations.available();
-        MenuIntelligence.Progress told = (index, of, title) -> {
-            if (drawing) {
-                illustrations.illustrateIdea(userId, title);
+        MenuIntelligence.Progress told = new MenuIntelligence.Progress() {
+            @Override
+            public void dish(int index, int of, String title) {
+                if (drawing) {
+                    illustrations.illustrateIdea(userId, title);
+                }
+                progress.dish(index, of, title);
             }
-            progress.dish(index, of, title);
+
+            @Override
+            public void completed(int index, int of, Object dish) {
+                // Placed on its slot and checked against the allergens as the
+                // answer will be, so what the screen shows early is what it
+                // will keep — a dish that would be dropped is not shown.
+                MenuDtos.Suggestion idea = (MenuDtos.Suggestion) dish;
+                if (index - 1 >= open.size() || !constraints.allows(
+                        idea.ingredients().stream().map(MenuDtos.Ingredient::name).toList())) {
+                    return;
+                }
+                Slot slot = open.get(index - 1);
+                progress.completed(index, of, new ProposalView(
+                        slot.date().toString(), slot.slot().name(),
+                        idea.title(), idea.minutes(),
+                        new Idea(idea.title(), idea.minutes(), idea.ingredients(), idea.steps()),
+                        drawing ? IllustrationService.keyOf(idea.title()) : null));
+            }
         };
         try {
             MenuIntelligence.Ideas ideas = reader.suggestFor(

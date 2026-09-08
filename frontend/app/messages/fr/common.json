@@ -1441,6 +1441,7 @@
   "working": {
     "progress": "Avancement",
     "dish": "Plat {done} sur {of}",
-    "starting": "Premier plat en cours…"
+    "starting": "Premier plat en cours…",
+    "arrived": "{count, plural, one {# plat prêt} other {# plats prêts}}"
   }
 }

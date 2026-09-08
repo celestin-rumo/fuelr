@@ -236,3 +236,34 @@ it("counts the dishes as their titles close, and shows the one being written", a
   await screen.findByTestId("proposals");
   expect(screen.queryByRole("progressbar")).toBeNull();
 });
+
+it("shows each dish the moment it is written, before the answer is whole", async () => {
+  const user = userEvent.setup({ delay: null });
+  let finish!: (answer: unknown) => void;
+  askLive.mockImplementationOnce(
+    (
+      _url: string,
+      _body: unknown,
+      onProgress: (progress: unknown) => void,
+      onDish: (arrival: unknown) => void,
+    ) =>
+      new Promise((resolve) => {
+        onProgress({ done: 1, of: 3, title: "Dahl de lentilles" });
+        onDish({ index: 1, of: 3, dish: proposal({ title: "Dahl de lentilles" }) });
+        finish = resolve;
+      }),
+  );
+  renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[]} />);
+  await user.click(screen.getByTestId("suggest-week"));
+  await user.click(screen.getByRole("button", { name: "Proposer une semaine" }));
+
+  const arriving = await screen.findByTestId("arriving");
+  expect(arriving).toHaveTextContent("1 plat prêt");
+  expect(within(arriving).getByTestId("arriving-proposal")).toHaveTextContent("Dahl de lentilles");
+  // Not yet a decision: the reviewed list comes with the whole answer.
+  expect(screen.queryByTestId("proposals")).toBeNull();
+
+  finish(answer([proposal({ title: "Dahl de lentilles" })]));
+  await screen.findByTestId("proposals");
+  expect(screen.queryByTestId("arriving")).toBeNull();
+});

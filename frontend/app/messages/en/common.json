@@ -1441,6 +1441,7 @@
   "working": {
     "progress": "Progress",
     "dish": "Dish {done} of {of}",
-    "starting": "First dish under way…"
+    "starting": "First dish under way…",
+    "arrived": "{count, plural, one {# dish ready} other {# dishes ready}}"
   }
 }
