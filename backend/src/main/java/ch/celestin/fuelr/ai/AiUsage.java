@@ -69,6 +69,18 @@ public class AiUsage {
         return id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
     public long getCostMicros() {
         return costMicros;
     }
