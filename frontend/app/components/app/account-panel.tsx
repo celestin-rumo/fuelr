@@ -16,6 +16,7 @@ import type { ProfileInput, ProfileResponse, ProfileTargets } from "@app/lib/api
 import {
   changePassword,
   previewTargets,
+  recordWeight,
   requestEmailChange,
   saveProfile,
   updateAccount,
@@ -40,21 +41,25 @@ type Notice = { tone: "success" | "error"; text: string } | null;
  * Two things are never pre-filled: the passwords. A password field that
  * arrives full is a password somebody can read off the screen.
  */
-export type AccountSection = "identity" | "email" | "password" | "goals" | "body";
+export type AccountSection = "you" | "language" | "email" | "password" | "goals";
 
 export function AccountPanel({
   session,
   profile,
-  sections = ["identity", "email", "password", "goals", "body"],
+  sections = ["you", "goals", "email", "language", "password"],
+  headed = sections.length > 1,
+  today,
 }: {
   session: Session;
   profile: ProfileResponse | null;
   /** Which of the four forms this instance shows: a tab shows only its own. */
   sections?: AccountSection[];
+  /** Whether each section carries its heading; a lone section in a fold does not. */
+  headed?: boolean;
+  /** Today, resolved on the server: the day a weight typed here is weighed on. */
+  today?: string;
 }) {
   const show = (section: AccountSection) => sections.includes(section);
-  // Alone inside a Disclosure, the section's own heading would repeat the fold's.
-  const headed = sections.length > 1;
   const t = useTranslations("account");
   const tOnboarding = useTranslations("onboarding");
   const locale = useLocale();
@@ -168,6 +173,17 @@ export function AccountPanel({
     if (!complete(figures)) return;
     const input = figures;
     startTransition(async () => {
+      // The weight is the one figure with a history. Typed here, it is
+      // today's weigh-in, and the profile follows it the way it follows the
+      // journal's — one fact, written once.
+      const weighed = profile?.profile.weightKg;
+      if (today && weighed !== input.weightKg) {
+        const weighIn = await recordWeight({ weighedOn: today, weightKg: input.weightKg });
+        if (!weighIn.ok) {
+          setNotice({ tone: "error", text: t("failed") });
+          return;
+        }
+      }
       const result = await saveProfile(input);
       if (result.ok) {
         setPreview(result.saved.targets);
@@ -194,10 +210,14 @@ export function AccountPanel({
         </Banner>
       )}
 
-      {/* --- who ----------------------------------------------------------- */}
-      {show("identity") && (
-      <section className="flex flex-col gap-4">
-        <SectionHead as="h2">{t("profile.title")}</SectionHead>
+      {/* --- who: what is true of the person, in one card -------------------- */}
+      {show("you") && (
+      <section className="flex flex-col gap-4" data-testid="you-section">
+        {headed && (
+          <SectionHead as="h2" hint={t("you.hint")}>
+            {t("you.title")}
+          </SectionHead>
+        )}
         <Card as="panel" className="flex flex-col gap-5">
           <Input
             label={t("profile.name")}
@@ -213,16 +233,79 @@ export function AccountPanel({
             }}
           />
 
-          <div className="flex flex-col gap-2">
-            <p className="text-[13px] font-semibold text-text-dim">{t("profile.language")}</p>
-            <Segmented
-              label={t("profile.language")}
-              value={(session.locale ?? locale) as (typeof LOCALES)[number]}
-              onChange={saveLocale}
-              options={LOCALES.map((code) => ({ value: code, label: t(`profile.locales.${code}`) }))}
+          {!profile && (
+            <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
+              {t("figures.none")}
+            </p>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label={t("body.birthDate")}
+              type="date"
+              max={today ?? new Date().toISOString().slice(0, 10)}
+              value={figures.birthDate ?? ""}
+              data-testid="figure-birth"
+              onChange={(event) => edit({ birthDate: event.target.value || undefined })}
             />
-            <p className="text-[13px] font-medium text-gray">{t("profile.languageHint")}</p>
+            <Input
+              label={tOnboarding("body.height")}
+              type="number"
+              inputMode="numeric"
+              value={figures.heightCm ?? ""}
+              data-testid="figure-height"
+              onChange={(event) => edit({ heightCm: number(event.target.value) })}
+            />
+            {/* A weight typed here is today's weigh-in — the one place to say
+                it, and the journal's history is the same row. */}
+            <Input
+              label={t("body.weight")}
+              hint={t("body.weightHint")}
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              value={figures.weightKg ?? ""}
+              data-testid="figure-weight"
+              onChange={(event) => edit({ weightKg: number(event.target.value) })}
+            />
           </div>
+          <Choices
+            legend={tOnboarding("body.sex")}
+            options={SEXES.map((sex) => ({ value: sex, label: tOnboarding(`body.sexes.${sex}`) }))}
+            value={figures.sex}
+            onChange={(sex) => edit({ sex })}
+          />
+          <div>
+            <Button
+              variant="secondary"
+              onClick={submitProfile}
+              loading={pending}
+              disabled={!dirty || !complete(figures)}
+              data-testid="body-submit"
+            >
+              {t("figures.submit")}
+            </Button>
+          </div>
+        </Card>
+      </section>
+      )}
+
+      {/* --- the language, which hardly ever changes ------------------------- */}
+      {show("language") && (
+      <section className="flex flex-col gap-4" data-testid="language-section">
+        {headed && (
+          <SectionHead as="h2" hint={t("language.hint")}>
+            {t("language.title")}
+          </SectionHead>
+        )}
+        <Card as="panel" className="flex flex-col gap-2">
+          <Segmented
+            label={t("profile.language")}
+            value={(session.locale ?? locale) as (typeof LOCALES)[number]}
+            onChange={saveLocale}
+            options={LOCALES.map((code) => ({ value: code, label: t(`profile.locales.${code}`) }))}
+          />
+          <p className="text-[13px] font-medium text-gray">{t("profile.languageHint")}</p>
         </Card>
       </section>
       )}
@@ -348,12 +431,6 @@ export function AccountPanel({
           </SectionHead>
         )}
         <Card as="panel" className="flex flex-col gap-5">
-          {!profile && (
-            <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
-              {t("figures.none")}
-            </p>
-          )}
-
           {/* Three small cards, like the onboarding: one block of three stacked
               rows read as one big thing when nothing was chosen yet. */}
           <div className="flex flex-col gap-2">
@@ -424,53 +501,6 @@ export function AccountPanel({
       </section>
       )}
 
-      {/* --- what hardly changes: birth date, height, sex ---------------------- */}
-      {show("body") && (
-      <section className="flex flex-col gap-4" data-testid="body-section">
-        {headed && (
-          <SectionHead as="h2" hint={t("body.hint")}>
-            {t("body.title")}
-          </SectionHead>
-        )}
-        <Card as="panel" className="flex flex-col gap-5">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label={t("body.birthDate")}
-              type="date"
-              max={new Date().toISOString().slice(0, 10)}
-              value={figures.birthDate ?? ""}
-              data-testid="figure-birth"
-              onChange={(event) => edit({ birthDate: event.target.value || undefined })}
-            />
-            <Input
-              label={tOnboarding("body.height")}
-              type="number"
-              inputMode="numeric"
-              value={figures.heightCm ?? ""}
-              data-testid="figure-height"
-              onChange={(event) => edit({ heightCm: number(event.target.value) })}
-            />
-          </div>
-          <Choices
-            legend={tOnboarding("body.sex")}
-            options={SEXES.map((sex) => ({ value: sex, label: tOnboarding(`body.sexes.${sex}`) }))}
-            value={figures.sex}
-            onChange={(sex) => edit({ sex })}
-          />
-          <div>
-            <Button
-              variant="secondary"
-              onClick={submitProfile}
-              loading={pending}
-              disabled={!dirty || !complete(figures)}
-              data-testid="body-submit"
-            >
-              {t("figures.submit")}
-            </Button>
-          </div>
-        </Card>
-      </section>
-      )}
     </div>
   );
 }

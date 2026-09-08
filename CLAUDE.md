@@ -732,8 +732,9 @@ history — one figure a day, weighing twice replaces — and `profiles.weight_k
 follows the *latest* weigh-in, so the journal's target is computed on a
 weight somebody actually has rather than the one typed the day they signed
 up; writing last month's weigh-in in afterwards does not roll it back. The
-profile form never asks for a weight, because a question asked in two places
-gets two answers. And nothing is said about the curve:
+profile's weight field *is* a weigh-in — typing 60 there records today's
+figure — so the two screens that show a weight write the same row, and a
+question asked in two places still has one answer. And nothing is said about the curve:
 one series, one accent, a day without a weigh-in left as a gap rather than
 drawn as zero, no streak and no verdict — a curve of weight is the field where
 an application most easily starts to judge, and this one draws a figure and
@@ -1032,13 +1033,15 @@ and, where it helps, its state ("3 appareils connectés"). Each card is a page
 of its own — `/app/account/{profile,household,preferences,security,data}`,
 translated slugs — framed by `AccountSection` with the way back. Inside a
 section, what somebody came for is open and what is touched twice a year is
-behind a `Disclosure`. The profile runs in the order things change: who this
-is and *activity and goal* open — a goal is three small cards, like the
-onboarding, because one stacked block reads as one big thing when nothing is
-chosen — then, folded: the weigh-in, the figures that hardly move (birth
-date, not age, because an age is wrong a year later and nobody comes back to
-fix it; height; sex), the password, the link to share. Security keeps the
-devices. `Disclosure` is a native `<details>` — no script,
+behind a `Disclosure`. The profile is two cards open and the rest folded:
+*Vous* — first name, birth date (not age, because an age is wrong a year
+later and nobody comes back to fix it), height, weight, sex — and *Activité
+et objectif*, the two figures that change and take the journal's target with
+them; a goal is three small cards, like the onboarding, because one stacked
+block reads as one big thing when nothing is chosen. Then, folded: the
+address, the language, the password, the link to share. The weight typed on
+the first card is today's weigh-in, so it is still one fact. Security keeps
+the devices. `Disclosure` is a native `<details>` — no script,
 keyboard-reachable, state announced — and it is never used for anything that
 must be read, because a hidden warning is no warning. The destructive page is
 last in the list and alone. `/app/household` stays as an address because
