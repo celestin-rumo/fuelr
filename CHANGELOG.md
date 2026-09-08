@@ -6,6 +6,48 @@ this file collects them newest first.
 
 ---
 
+# v4.6.0 — 2026-09-08
+
+A picture for every dish a model writes — and the picture says what it is.
+
+## Drawn a few seconds after the dish
+
+Accepting a proposal — from the week, from a batch set, from what is in the
+bag — writes a draft recipe. It now also asks an image model for a picture
+of it, in the background: the recipe is the answer, and the picture lands a
+few seconds behind it on the row and on the recipe's page. Until then, and
+for every recipe that has no picture at all, the row keeps the tile drawn
+from its title.
+
+The picture is made from the dish's title and its first ingredients, and
+from nothing about you. It is paid per picture, so it goes through the same
+gates as every other call — the plan, the month's budget — and it is
+counted in the same ledger, at the provider's price. Uploading a photograph
+of your own replaces it.
+
+## It says "illustration"
+
+A picture an image model drew is not a photograph of a dish somebody
+cooked, and it must not pass for one beside the photographs that are. The
+thumbnail says so on hover and the recipe's page says so in words; the
+provenance is written by the code (`photo_origin`) and the editor cannot
+send it, the same rule as *créée par IA*.
+
+## Under it
+
+Anthropic's models read images and draw none, so this is a second seam:
+FLUX.1-schnell through Hugging Face's router, pinned to one provider (nscale)
+so the request has one shape and one bill — a second per picture, a fraction
+of a cent, an Apache licence a paid product may use. Set `HF_TOKEN` and it
+draws; leave it unset and nothing is drawn and nothing fails. The privacy
+page names both.
+
+## What is left
+
+Unchanged from v4.3.0.
+
+---
+
 # v4.5.0 — 2026-09-08
 
 One bar, then the content — on the library and on the week.
