@@ -11,7 +11,7 @@ import { RecommendPanel } from "@app/components/app/recommend-panel";
 export const dynamic = "force-dynamic";
 
 /**
- * Two cards open, the rest folded.
+ * One card open and foldable, one card with two tabs, the rest folded.
  *
  * *Vous* holds what is true of the person — first name, birth date, height,
  * weight, sex — and *Activité et objectif* the two figures that change and
@@ -34,7 +34,11 @@ export default async function ProfilePage() {
 
   return (
     <AccountSection title={t("hub.cards.profile.title")} intro={t("sections.profile")}>
-      <AccountPanel session={session} profile={profile} today={today} sections={["you"]} headed />
+      {/* Open by default, and foldable: once the figures are right there is
+          nothing on it to read twice. */}
+      <Disclosure title={t("you.title")} hint={t("you.hint")} defaultOpen data-testid="disclosure-you">
+        <AccountPanel session={session} profile={profile} today={today} sections={["you"]} />
+      </Disclosure>
       <AccountPanel session={session} profile={profile} sections={["goals"]} headed />
 
       <Disclosure title={t("email.title")} hint={t("email.hint")} data-testid="disclosure-email">
