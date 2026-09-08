@@ -53,6 +53,8 @@ export function AccountPanel({
   sections?: AccountSection[];
 }) {
   const show = (section: AccountSection) => sections.includes(section);
+  // Alone inside a Disclosure, the section's own heading would repeat the fold's.
+  const headed = sections.length > 1;
   const t = useTranslations("account");
   const tOnboarding = useTranslations("onboarding");
   const locale = useLocale();
@@ -87,7 +89,7 @@ export function AccountPanel({
         setNotice({ tone: "error", text: t("failed") });
         return;
       }
-      router.replace("/app/account", { locale: next as (typeof LOCALES)[number] });
+      router.replace("/app/account/profile", { locale: next as (typeof LOCALES)[number] });
     });
   }
 
@@ -289,9 +291,11 @@ export function AccountPanel({
       {/* --- the password ------------------------------------------------------ */}
       {show("password") && (
       <section className="flex flex-col gap-4">
-        <SectionHead as="h2" hint={t("password.hint")}>
-          {t("password.title")}
-        </SectionHead>
+        {headed && (
+          <SectionHead as="h2" hint={t("password.hint")}>
+            {t("password.title")}
+          </SectionHead>
+        )}
         <Card as="panel">
           <form
             className="flex flex-col gap-4"
@@ -338,9 +342,11 @@ export function AccountPanel({
       {/* --- the six figures ------------------------------------------------------ */}
       {show("figures") && (
       <section className="flex flex-col gap-4">
-        <SectionHead as="h2" hint={t("figures.hint")}>
-          {t("figures.title")}
-        </SectionHead>
+        {headed && (
+          <SectionHead as="h2" hint={t("figures.hint")}>
+            {t("figures.title")}
+          </SectionHead>
+        )}
         <Card as="panel" className="flex flex-col gap-5">
           {!profile && (
             <p className="text-[15px] leading-[1.5] font-medium text-text-dim">

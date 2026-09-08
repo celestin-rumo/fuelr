@@ -1191,13 +1191,57 @@
       "saved": "Chiffres enregistrés. La cible s'applique à partir d'aujourd'hui."
     },
     "tabs": {
-      "label": "Onglets du compte",
-      "profile": "Profil",
-      "household": "Foyer",
-      "preferences": "Préférences",
-      "security": "Sécurité",
-      "data": "Mes données",
       "unavailable": "Le foyer n'a pas pu être lu. Réessayez dans un instant."
+    },
+    "back": "Retour au compte",
+    "hub": {
+      "choose": "Choisissez ce que vous venez faire.",
+      "groups": {
+        "you": "Vous",
+        "together": "À plusieurs",
+        "keys": "Accès et données"
+      },
+      "cards": {
+        "profile": {
+          "title": "Profil",
+          "description": "Prénom, adresse, langue, vos chiffres et votre poids."
+        },
+        "household": {
+          "title": "Foyer",
+          "description": "Qui partage votre planning, et pour combien de personnes vous cuisinez."
+        },
+        "preferences": {
+          "title": "Préférences",
+          "description": "Ce que vous ne mangez pas, et ce que Fuelr vous envoie."
+        },
+        "security": {
+          "title": "Sécurité",
+          "description": "Votre mot de passe et les appareils connectés."
+        },
+        "data": {
+          "title": "Mes données",
+          "description": "Tout emporter en une archive, ou supprimer le compte."
+        }
+      },
+      "status": {
+        "household": "{count, plural, one {1 personne} other {# personnes}}",
+        "security": "{count, plural, one {1 appareil connecté} other {# appareils connectés}}",
+        "reminderOn": "Rappel hebdomadaire activé",
+        "reminderOff": "Rappel hebdomadaire désactivé"
+      },
+      "weight": "Poids",
+      "weightHint": "Noter une pesée ; la courbe est dans le journal.",
+      "recommend": "Recommander Fuelr",
+      "recommendHint": "Un lien à partager, et combien sont venus par lui.",
+      "reminder": "Un rappel hebdomadaire",
+      "reminderHint": "Le seul email que Fuelr envoie sans y être obligé."
+    },
+    "sections": {
+      "profile": "Ce que Fuelr sait de vous, et ce que vous pouvez y changer.",
+      "household": "Un planning partagé : tout le monde y voit les mêmes repas.",
+      "preferences": "Dit une fois, et retenu par les écrans qui proposent des plats.",
+      "security": "Comment on entre dans ce compte, et depuis où.",
+      "data": "Tout emporter, ou partir."
     }
   },
   "verifyEmailChange": {

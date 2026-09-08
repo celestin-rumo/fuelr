@@ -1,89 +1,68 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { apiFetch } from "@app/lib/api";
-import type {
-  DeviceSession,
-  DietaryPreferences,
-  Household,
-  ProfileResponse,
-  Referral,
-  Reminder,
-  Subscription,
-  WeightView,
-} from "@app/lib/api";
+import type { DeviceSession, Household, Reminder } from "@app/lib/api";
 import { getSession } from "@app/lib/session";
-import { todayIso } from "@app/lib/week";
-import { cn } from "@ui/cn";
+import { Icon } from "@ui/icons";
+import type { IconName } from "@ui/icons";
 import { Container } from "@app/components/site/section";
-import { AccountPanel } from "@app/components/app/account-panel";
-import { WeightPanel } from "@app/components/app/weight-panel";
-import { PreferencesPanel } from "@app/components/app/preferences-panel";
-import { DevicesPanel } from "@app/components/app/devices-panel";
-import { DataPanel } from "@app/components/app/data-panel";
-import { RecommendPanel } from "@app/components/app/recommend-panel";
-import { ReminderPanel } from "@app/components/app/reminder-panel";
-import { HouseholdPanel } from "@app/components/app/household-panel";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The account, in five tabs.
+ * The account is a hub, and the person chooses the first level.
  *
- * It was one long page of nine forms, and nine forms is past what anybody
- * scans — about seven things is the ceiling before a page becomes a search.
- * So the identity sits in front, where it is read at a glance, and the rest
- * is grouped by what somebody came to do: their profile, their household,
- * what they eat and hear from us, how they get in, and the two doors out.
- * The tab is in the URL, so a mailed invitation can land on the household
- * and a bookmark can land on security.
- *
- * Order inside the tabs follows use: the most-touched forms first, the
- * destructive ones last and on their own tab.
+ * Nine forms on one page was a scroll; five tabs above them was a menu
+ * nobody asked for. This is the shape the admin panel of gyoza has, and it
+ * reads at a glance: who this is, then one card per thing somebody might
+ * have come to do, grouped, each with a line saying what is behind it and,
+ * where it helps, what its state is. Each card is a page of its own.
  */
-const TABS = ["profile", "household", "preferences", "security", "data"] as const;
-type TabKey = (typeof TABS)[number];
+type Section = {
+  key: "profile" | "household" | "preferences" | "security" | "data";
+  href: "/app/account/profile" | "/app/account/household" | "/app/account/preferences" | "/app/account/security" | "/app/account/data";
+  icon: IconName;
+};
 
-export default async function AccountPage({
-  searchParams,
-}: PageProps<"/[locale]/app/account">) {
+const GROUPS: { key: string; sections: Section[] }[] = [
+  { key: "you", sections: [
+    { key: "profile", href: "/app/account/profile", icon: "user" },
+    { key: "preferences", href: "/app/account/preferences", icon: "leaf" },
+  ] },
+  { key: "together", sections: [
+    { key: "household", href: "/app/account/household", icon: "people" },
+  ] },
+  { key: "keys", sections: [
+    { key: "security", href: "/app/account/security", icon: "lock" },
+    { key: "data", href: "/app/account/data", icon: "archive" },
+  ] },
+];
+
+export default async function AccountPage() {
   const t = await getTranslations("account");
   const session = await getSession();
-  const { tab, token } = await searchParams;
-  const current: TabKey = TABS.includes(tab as TabKey) ? (tab as TabKey) : "profile";
-  const invitation = typeof token === "string" ? token : null;
-  const today = todayIso();
-
-  const [profileResponse, weightResponse, preferencesResponse, sessionsResponse,
-    referralResponse, reminderResponse, householdResponse, subscriptionResponse] =
-    await Promise.all([
-      apiFetch("/api/profile"),
-      apiFetch(`/api/weight?to=${today}`),
-      apiFetch("/api/preferences"),
-      apiFetch("/api/auth/sessions"),
-      apiFetch("/api/account/referral"),
-      apiFetch("/api/account/reminder"),
-      apiFetch("/api/household"),
-      apiFetch("/api/subscription"),
-    ]);
-  const profile: ProfileResponse | null = profileResponse.ok ? await profileResponse.json() : null;
-  const weight: WeightView | null = weightResponse.ok ? await weightResponse.json() : null;
-  const preferences: DietaryPreferences | null = preferencesResponse.ok
-    ? await preferencesResponse.json()
-    : null;
-  const sessions: DeviceSession[] = sessionsResponse.ok ? await sessionsResponse.json() : [];
-  const referral: Referral | null = referralResponse.ok ? await referralResponse.json() : null;
-  const reminder: Reminder | null = reminderResponse.ok ? await reminderResponse.json() : null;
-  const household: Household | null = householdResponse.ok ? await householdResponse.json() : null;
-  const subscription: Subscription | null = subscriptionResponse.ok
-    ? await subscriptionResponse.json()
-    : null;
-
   if (!session) return null;
 
+  // Only what the cards say in one line; the sections fetch their own.
+  const [householdResponse, sessionsResponse, reminderResponse] = await Promise.all([
+    apiFetch("/api/household"),
+    apiFetch("/api/auth/sessions"),
+    apiFetch("/api/account/reminder"),
+  ]);
+  const household: Household | null = householdResponse.ok ? await householdResponse.json() : null;
+  const sessions: DeviceSession[] = sessionsResponse.ok ? await sessionsResponse.json() : [];
+  const reminder: Reminder | null = reminderResponse.ok ? await reminderResponse.json() : null;
+
+  const status: Partial<Record<Section["key"], string>> = {
+    household: household
+      ? t("hub.status.household", { count: household.members?.length ?? 1 })
+      : undefined,
+    security: t("hub.status.security", { count: sessions.length }),
+    preferences: reminder?.day != null ? t("hub.status.reminderOn") : t("hub.status.reminderOff"),
+  };
+
   return (
-    <Container className="flex max-w-3xl flex-col gap-8 py-14">
-      {/* The identity, in front and read at a glance: who this is, and how
-          they are reached. Everything else is a tab away. */}
+    <Container className="flex max-w-3xl flex-col gap-10 py-10 sm:py-14">
       <header className="flex flex-col gap-2" data-testid="account-header">
         <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
           {t("label")}
@@ -94,74 +73,47 @@ export default async function AccountPage({
         <p className="text-[15px] font-medium text-text-dim" data-testid="account-email">
           {session.email}
         </p>
+        <p className="mt-2 max-w-[68ch] text-[15px] leading-[1.5] font-medium text-text-dim">
+          {t("hub.choose")}
+        </p>
       </header>
 
-      {/* Links styled as tabs: the tab is the URL, so it can be bookmarked and
-          a mail can land on it. Scrolls sideways on a phone rather than
-          wrapping into two rows above the content. */}
-      <nav
-        role="tablist"
-        aria-label={t("tabs.label")}
-        data-testid="account-tabs"
-        className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 sm:mx-0 sm:gap-6 sm:px-0"
-      >
-        {TABS.map((key) => {
-          const active = key === current;
-          return (
-            <Link
-              key={key}
-              role="tab"
-              aria-selected={active}
-              href={{ pathname: "/app/account", query: { tab: key } }}
-              data-testid={`account-tab-${key}`}
-              className={cn(
-                "-mb-px inline-flex h-11 shrink-0 items-center whitespace-nowrap border-b-2 px-2 text-[14px] transition-colors duration-[var(--dur-fast)] ease-[var(--ease)] sm:h-10 sm:px-0",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]",
-                active
-                  ? "border-accent font-bold text-text"
-                  : "border-transparent font-semibold text-text-dim hover:border-line hover:text-text",
-              )}
-            >
-              {t(`tabs.${key}`)}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div role="tabpanel" data-testid={`account-panel-${current}`} className="flex flex-col gap-8">
-        {current === "profile" && (
-          <>
-            <AccountPanel session={session} profile={profile} sections={["identity", "email", "figures"]} />
-            {weight && (
-              <WeightPanel weight={weight} profile={profile?.profile ?? null} today={today} compact />
-            )}
-            {referral && <RecommendPanel referral={referral} />}
-          </>
-        )}
-
-        {current === "household" &&
-          (household && subscription ? (
-            <HouseholdPanel household={household} subscription={subscription} invitation={invitation} />
-          ) : (
-            <p className="text-[15px] font-medium text-text-dim">{t("tabs.unavailable")}</p>
-          ))}
-
-        {current === "preferences" && (
-          <>
-            {preferences && <PreferencesPanel preferences={preferences} />}
-            {reminder && <ReminderPanel reminder={reminder} />}
-          </>
-        )}
-
-        {current === "security" && (
-          <>
-            <AccountPanel session={session} profile={profile} sections={["password"]} />
-            {sessions.length > 0 && <DevicesPanel sessions={sessions} />}
-          </>
-        )}
-
-        {current === "data" && <DataPanel email={session.email} />}
-      </div>
+      {GROUPS.map((group) => (
+        <section key={group.key} className="flex flex-col gap-3" data-testid={`account-group-${group.key}`}>
+          <h2 className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
+            {t(`hub.groups.${group.key}`)}
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {group.sections.map((section) => (
+              <li key={section.key}>
+                <Link
+                  href={section.href}
+                  data-testid={`account-card-${section.key}`}
+                  className="group flex items-center gap-4 rounded-md border border-line bg-bg-raised p-5 transition-[box-shadow,border-color] duration-[var(--dur)] ease-[var(--ease)] hover:border-gray hover:shadow-e1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mint-ink)]"
+                >
+                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-bg-raised-2 text-text">
+                    <Icon name={section.icon} />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="font-display text-[16px] font-bold text-text">
+                      {t(`hub.cards.${section.key}.title`)}
+                    </span>
+                    <span className="text-[13px] leading-[1.5] font-medium text-text-dim">
+                      {t(`hub.cards.${section.key}.description`)}
+                    </span>
+                    {status[section.key] && (
+                      <span className="tnum mt-1 font-mono text-[11px] text-gray" data-testid={`account-status-${section.key}`}>
+                        {status[section.key]}
+                      </span>
+                    )}
+                  </span>
+                  <Icon name="chevronRight" className="shrink-0 text-gray" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </Container>
   );
 }

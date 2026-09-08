@@ -1191,13 +1191,57 @@
       "saved": "Zahlen gespeichert. Das Ziel gilt ab heute."
     },
     "tabs": {
-      "label": "Konto-Reiter",
-      "profile": "Profil",
-      "household": "Haushalt",
-      "preferences": "Einstellungen",
-      "security": "Sicherheit",
-      "data": "Meine Daten",
       "unavailable": "Der Haushalt konnte nicht gelesen werden. Bitte gleich erneut versuchen."
+    },
+    "back": "Zurück zum Konto",
+    "hub": {
+      "choose": "Wählen Sie, was Sie tun möchten.",
+      "groups": {
+        "you": "Sie",
+        "together": "Gemeinsam",
+        "keys": "Zugang und Daten"
+      },
+      "cards": {
+        "profile": {
+          "title": "Profil",
+          "description": "Vorname, Adresse, Sprache, Ihre Zahlen und Ihr Gewicht."
+        },
+        "household": {
+          "title": "Haushalt",
+          "description": "Wer Ihren Plan teilt, und für wie viele Personen Sie kochen."
+        },
+        "preferences": {
+          "title": "Einstellungen",
+          "description": "Was Sie nicht essen, und was Fuelr Ihnen schickt."
+        },
+        "security": {
+          "title": "Sicherheit",
+          "description": "Ihr Passwort und die angemeldeten Geräte."
+        },
+        "data": {
+          "title": "Meine Daten",
+          "description": "Alles in einem Archiv mitnehmen, oder das Konto löschen."
+        }
+      },
+      "status": {
+        "household": "{count, plural, one {1 Person} other {# Personen}}",
+        "security": "{count, plural, one {1 Gerät angemeldet} other {# Geräte angemeldet}}",
+        "reminderOn": "Wöchentliche Erinnerung an",
+        "reminderOff": "Wöchentliche Erinnerung aus"
+      },
+      "weight": "Gewicht",
+      "weightHint": "Eine Wägung eintragen; die Kurve steht im Tagebuch.",
+      "recommend": "Fuelr empfehlen",
+      "recommendHint": "Ein Link zum Teilen, und wie viele darüber gekommen sind.",
+      "reminder": "Eine wöchentliche Erinnerung",
+      "reminderHint": "Die einzige E-Mail, die Fuelr schickt, ohne zu müssen."
+    },
+    "sections": {
+      "profile": "Was Fuelr über Sie weiss, und was Sie daran ändern können.",
+      "household": "Ein geteilter Plan: Alle sehen dieselben Mahlzeiten.",
+      "preferences": "Einmal gesagt, und von den Bildschirmen gemerkt, die Gerichte vorschlagen.",
+      "security": "Wie man in dieses Konto kommt, und von wo.",
+      "data": "Alles mitnehmen, oder gehen."
     }
   },
   "verifyEmailChange": {

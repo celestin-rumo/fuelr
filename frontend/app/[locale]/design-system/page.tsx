@@ -20,6 +20,7 @@ import { Stepper } from "@ui/stepper";
 import { Menu } from "@ui/menu";
 import { Pagination } from "@ui/pagination";
 import { SectionHead } from "@ui/section-head";
+import { Disclosure } from "@ui/disclosure";
 import {
   ListRow,
   ListRowActions,
@@ -733,6 +734,11 @@ export default function DesignSystemPage() {
                 clickable. It uses the medium radius; panels use the large one.
               </CardBody>
             </Card>
+            <Disclosure title="Disclosure" hint="A block that opens — for a form used now and then">
+              <p className="text-[15px] font-medium text-text-dim">
+                A native details element: no script, keyboard reachable, state announced.
+              </p>
+            </Disclosure>
             <Card as="panel">
               <CardTitle>Panel</CardTitle>
               <CardBody>

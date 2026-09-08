@@ -182,10 +182,15 @@ test("cooking the week in one go holds up on a phone", async ({ request, page })
   await holdsUp(page);
 });
 
-test("the account page holds up", async ({ page }) => {
+test("the account hub and its sections hold up", async ({ page }) => {
   await page.goto("/fr/app/compte");
-  await expect(page.getByTestId("account-panel")).toBeVisible();
+  await expect(page.getByTestId("account-card-profile")).toBeVisible();
   await holdsUp(page);
+  for (const slug of ["profil", "preferences", "securite", "donnees"]) {
+    await page.goto(`/fr/app/compte/${slug}`);
+    await expect(page.getByTestId("account-back")).toBeVisible();
+    await holdsUp(page);
+  }
 });
 
 test("a dialog can be read to its bottom on a short screen", async ({
@@ -270,7 +275,7 @@ test("cooking mode holds up, and keeps its footer on screen", async ({
 });
 
 test("the household screen holds up", async ({ page }) => {
-  await page.goto("/fr/app/compte?tab=household");
+  await page.goto("/fr/app/compte/foyer");
   await expect(page.getByTestId("members")).toBeVisible();
 
   await holdsUp(page);

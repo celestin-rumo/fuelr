@@ -13,10 +13,9 @@ export default async function HouseholdPage({
   const { locale } = await params;
   const { token } = await searchParams;
   redirect({
-    href: {
-      pathname: "/app/account",
-      query: typeof token === "string" ? { tab: "household", token } : { tab: "household" },
-    },
+    href: typeof token === "string"
+      ? { pathname: "/app/account/household", query: { token } }
+      : { pathname: "/app/account/household" },
     locale,
   });
 }

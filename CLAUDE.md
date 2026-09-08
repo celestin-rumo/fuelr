@@ -1023,17 +1023,23 @@ it lives on the account page, and the account is reached from the header on
 every screen. Cooking mode is in the `(cook)` route group and never gets the
 bar; it has its own footer.
 
-**The account page is an identity in front and five tabs behind it.** Nine
-forms on one page is past what anybody scans, so `/app/account` shows who
-this is — name and address, read at a glance — and groups the rest by what
-somebody came to do: *profile* (the six figures, weigh-ins, the link to
-share), *household*, *preferences* (what they eat, what they hear from us),
-*security* (password, devices), and *data* (the archive and the door out),
-destructive last and on its own tab. The tab is the URL (`?tab=`), so a
-mailed invitation lands on the household and a bookmark on security;
-`/app/household` stays as an address because invitation mails carry it, and
-forwards there with its token. The tab strip scrolls sideways on a phone
-rather than wrapping into rows above the content.
+**The account is a hub, and the person chooses the first level.** Nine
+forms on one page was a scroll, and five tabs above them was a menu nobody
+asked for. `/app/account` shows who this is — name and address — and then
+one card per thing somebody might have come to do, grouped (*you*,
+*together*, *access and data*), each with a line saying what is behind it
+and, where it helps, its state ("3 appareils connectés"). Each card is a page
+of its own — `/app/account/{profile,household,preferences,security,data}`,
+translated slugs — framed by `AccountSection` with the way back. Inside a
+section, what somebody came for is open and what is touched twice a year is
+behind a `Disclosure`: the six figures, the weigh-in, the share link, the
+password, the reminder. `Disclosure` is a native `<details>` — no script,
+keyboard-reachable, state announced — and it is never used for anything that
+must be read, because a hidden warning is no warning. The destructive page is
+last in the list and alone. `/app/household` stays as an address because
+invitation mails carry it, and forwards to the household section with its
+token. This is the shape the admin panel of gyoza has, and for the same
+reason: a hub reads at a glance, a long page is searched.
 
 When a control loses its visible label that way, give it an explicit
 `aria-label`. Hiding the text with `sr-only` alone has bitten this codebase

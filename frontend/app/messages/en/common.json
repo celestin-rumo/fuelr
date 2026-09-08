@@ -1191,13 +1191,57 @@
       "saved": "Figures saved. The target applies from today."
     },
     "tabs": {
-      "label": "Account tabs",
-      "profile": "Profile",
-      "household": "Household",
-      "preferences": "Preferences",
-      "security": "Security",
-      "data": "My data",
       "unavailable": "The household could not be read. Try again in a moment."
+    },
+    "back": "Back to the account",
+    "hub": {
+      "choose": "Choose what you came to do.",
+      "groups": {
+        "you": "You",
+        "together": "Together",
+        "keys": "Access and data"
+      },
+      "cards": {
+        "profile": {
+          "title": "Profile",
+          "description": "Name, address, language, your figures and your weight."
+        },
+        "household": {
+          "title": "Household",
+          "description": "Who shares your plan, and how many people you cook for."
+        },
+        "preferences": {
+          "title": "Preferences",
+          "description": "What you do not eat, and what Fuelr sends you."
+        },
+        "security": {
+          "title": "Security",
+          "description": "Your password and the signed-in devices."
+        },
+        "data": {
+          "title": "My data",
+          "description": "Take everything in one archive, or delete the account."
+        }
+      },
+      "status": {
+        "household": "{count, plural, one {1 person} other {# people}}",
+        "security": "{count, plural, one {1 device signed in} other {# devices signed in}}",
+        "reminderOn": "Weekly reminder on",
+        "reminderOff": "Weekly reminder off"
+      },
+      "weight": "Weight",
+      "weightHint": "Log a weigh-in; the curve is in the journal.",
+      "recommend": "Recommend Fuelr",
+      "recommendHint": "A link to share, and how many came by it.",
+      "reminder": "A weekly reminder",
+      "reminderHint": "The only email Fuelr sends without having to."
+    },
+    "sections": {
+      "profile": "What Fuelr knows about you, and what you can change.",
+      "household": "A shared plan: everyone sees the same meals.",
+      "preferences": "Said once, and remembered by the screens that propose dishes.",
+      "security": "How this account is entered, and from where.",
+      "data": "Take everything, or leave."
     }
   },
   "verifyEmailChange": {

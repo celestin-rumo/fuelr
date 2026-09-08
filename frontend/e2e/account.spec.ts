@@ -36,7 +36,7 @@ async function lastMailTo(request: APIRequestContext, to: string, subject: RegEx
 
 test("the name is the account's, and saved without a button", async ({ request, context, page }) => {
   await register(request, context);
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte/profil");
 
   const name = page.getByTestId("account-name");
   await name.fill("Camille");
@@ -54,11 +54,11 @@ test("the language follows the account, and the page follows the language", asyn
   page,
 }) => {
   const { token } = await register(request, context);
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte/profil");
 
   await page.getByRole("button", { name: "Deutsch" }).click();
-  await expect(page).toHaveURL(/\/de\/app\/konto/);
-  await expect(page.getByRole("tab", { name: "Sicherheit" })).toBeVisible();
+  await expect(page).toHaveURL(/\/de\/app\/konto\/profil/);
+  await expect(page.getByTestId("account-back")).toContainText("Zurück");
 
   const me = await request.get(`${BACKEND}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,8 @@ test("changing the password signs the other device out and tells the address", a
   });
   const phoneToken = (await phone.json()).token as string;
 
-  await page.goto("/fr/app/compte?tab=security");
+  await page.goto("/fr/app/compte/securite");
+  await page.getByTestId("disclosure-password").locator("summary").click();
   await page.getByTestId("password-current").fill("motdepasse123");
   await page.getByTestId("password-next").fill("nouveaumotdepasse");
   await page.getByTestId("password-submit").click();
@@ -90,7 +91,7 @@ test("changing the password signs the other device out and tells the address", a
   });
   expect(gone.status()).toBe(401);
   await page.reload();
-  await expect(page.getByTestId("account-panel")).toBeVisible();
+  await expect(page.getByTestId("account-back")).toBeVisible();
 
   const text = await lastMailTo(request, email, /mot de passe.*chang/i);
   expect(text).toContain("autres appareils");
@@ -104,7 +105,7 @@ test("an address moves only when the new one clicks, and the old one is told", a
   const { email, token } = await register(request, context);
   const next = freshEmail("nouvelle");
 
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte/profil");
   await page.getByTestId("email-new").fill(next);
   await page.getByTestId("email-password").fill("motdepasse123");
   await page.getByTestId("email-submit").click();
@@ -148,7 +149,7 @@ test("the devices are listed in words, and one closed from here is out", async (
   });
   const phoneToken = (await phone.json()).token as string;
 
-  await page.goto("/fr/app/compte?tab=security");
+  await page.goto("/fr/app/compte/securite");
   const panel = page.getByTestId("devices-panel");
   await expect(panel).toContainText("Safari · iOS");
   await expect(panel).toContainText("Cet appareil");
@@ -188,7 +189,7 @@ test("everything I have leaves in one archive, once", async ({ request, context,
     data: { title: "Risotto", servings: 4, ingredients: [{ name: "Riz", quantity: 200, unit: "g" }], steps: ["Cuire."] },
   });
 
-  await page.goto("/fr/app/compte?tab=data");
+  await page.goto("/fr/app/compte/donnees");
   await page.getByTestId("export-submit").click();
   await expect(page.getByTestId("export-asked")).toContainText(email);
 
@@ -214,7 +215,7 @@ test("deleting my account needs my password, says what goes, and then I am gone"
 }) => {
   const { email, token } = await register(request, context);
 
-  await page.goto("/fr/app/compte?tab=data");
+  await page.goto("/fr/app/compte/donnees");
   await page.getByTestId("delete-open").click();
   const dialog = page.getByTestId("delete-dialog");
   await expect(dialog).toContainText(/Aucune recette|recette/);
@@ -239,7 +240,8 @@ test("a shared link is remembered for thirty days and counted, never named", asy
   page,
 }) => {
   const { token } = await register(request, context);
-  await page.goto("/fr/app/compte");
+  await page.goto("/fr/app/compte/profil");
+  await page.getByTestId("disclosure-recommend").locator("summary").click();
   const link = await page.getByTestId("referral-link").innerText();
   const code = new URL(link.trim()).searchParams.get("via");
   expect(code).toBeTruthy();
@@ -273,7 +275,8 @@ test("the weekly reminder is off, turns on, and stops from the mail", async ({
   page,
 }) => {
   const { token } = await register(request, context);
-  await page.goto("/fr/app/compte?tab=preferences");
+  await page.goto("/fr/app/compte/preferences");
+  await page.getByTestId("disclosure-reminder").locator("summary").click();
   const panel = page.getByTestId("reminder-panel");
   await expect(panel.getByTestId("reminder-switch")).not.toBeChecked();
 
@@ -292,28 +295,30 @@ test("the weekly reminder is off, turns on, and stops from the mail", async ({
     .toBe(7);
 });
 
-test("the account is an identity in front and five tabs behind it", async ({ request, context, page }) => {
+test("the account is an identity, then cards to choose a section", async ({ request, context, page }) => {
   const { email } = await register(request, context);
   await page.goto("/fr/app/compte");
 
-  // Who this is, read at a glance.
   const header = page.getByTestId("account-header");
   await expect(header).toContainText("Céline");
   await expect(header).toContainText(email);
 
-  // The default tab is the profile; the destructive one is last and on its own.
-  const tabs = page.getByTestId("account-tabs");
-  await expect(tabs.getByRole("tab")).toHaveCount(5);
-  await expect(tabs.getByRole("tab", { name: "Profil" })).toHaveAttribute("aria-selected", "true");
+  // Five cards, grouped, each a page of its own; the destructive one last.
+  for (const key of ["profile", "preferences", "household", "security", "data"]) {
+    await expect(page.getByTestId(`account-card-${key}`)).toBeVisible();
+  }
+  await expect(page.getByTestId("account-status-security")).toContainText("1 appareil");
   await expect(page.getByTestId("delete-open")).toHaveCount(0);
 
-  await tabs.getByRole("tab", { name: "Mes données" }).click();
-  await expect(page).toHaveURL(/tab=data/);
+  await page.getByTestId("account-card-data").click();
+  await expect(page).toHaveURL(/\/fr\/app\/compte\/donnees/);
   await expect(page.getByTestId("delete-open")).toBeVisible();
+  await page.getByTestId("account-back").click();
+  await expect(page).toHaveURL(/\/fr\/app\/compte$/);
 
   // The household lives here now, and its old address still leads to it.
-  await tabs.getByRole("tab", { name: "Foyer" }).click();
-  await expect(page.getByTestId("account-panel-household")).toBeVisible();
+  await page.getByTestId("account-card-household").click();
+  await expect(page.getByTestId("household-panel")).toBeVisible();
   await page.goto("/fr/app/foyer");
-  await expect(page).toHaveURL(/\/fr\/app\/compte\?tab=household/);
+  await expect(page).toHaveURL(/\/fr\/app\/compte\/foyer/);
 });

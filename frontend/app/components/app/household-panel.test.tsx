@@ -235,7 +235,7 @@ describe("HouseholdPanel", () => {
 
     await waitFor(() => expect(joinHousehold).toHaveBeenCalledWith("invitation-token"));
     // Left in the URL it would offer to be used again on every reload.
-    expect(replace).toHaveBeenCalledWith({ pathname: "/app/account", query: { tab: "household" } });
+    expect(replace).toHaveBeenCalledWith({ pathname: "/app/account/household" });
   });
 
   it("says a spent invitation is spent rather than failing silently", async () => {
