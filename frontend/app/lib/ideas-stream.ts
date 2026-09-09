@@ -32,16 +32,19 @@ export async function askLive<T, D = unknown>(
   body: unknown,
   onProgress: (progress: Progress) => void,
   onDish?: (arrival: Arrival<D>) => void,
-): Promise<{ ok: true; result: T } | { ok: false }> {
+  /** Cancelling closes the stream; the answer, if any, is simply not read. */
+  signal?: AbortSignal,
+): Promise<{ ok: true; result: T } | { ok: false; cancelled?: boolean }> {
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
       body: JSON.stringify(body),
+      signal,
     });
   } catch {
-    return { ok: false };
+    return { ok: false, cancelled: signal?.aborted };
   }
   if (!response.ok || !response.body) return { ok: false };
 
@@ -82,7 +85,7 @@ export async function askLive<T, D = unknown>(
     }
     if (event || data) dispatch();
   } catch {
-    return { ok: false };
+    return { ok: false, cancelled: signal?.aborted };
   }
   if (failed || result === undefined) return { ok: false };
   return { ok: true, result };

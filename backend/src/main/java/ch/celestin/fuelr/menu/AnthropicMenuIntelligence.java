@@ -340,6 +340,12 @@ public class AnthropicMenuIntelligence implements MenuIntelligence {
         ObjectNode tool = JSON.createObjectNode();
         tool.put("name", TOOL);
         tool.put("description", "Propose des plats faisables avec ce qu'on a.");
+        // Without this the provider buffers the tool's input and hands it over
+        // in a few large pieces — three short dishes arrive together at the
+        // end, and nothing on the screen moves until then. Eager streaming
+        // sends the JSON as it is written; only closed dishes are read, so a
+        // fragment that is not yet valid costs nothing.
+        tool.put("eager_input_streaming", true);
 
         ObjectNode schema = tool.putObject("input_schema");
         schema.put("type", "object");

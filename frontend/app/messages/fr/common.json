@@ -1154,7 +1154,8 @@
       "failed": "La recherche a échoué. Réessaie.",
       "empty": "Écris au moins un ingrédient."
     },
-    "working": "On cherche quoi faire avec ça…"
+    "working": "On cherche quoi faire avec ça…",
+    "cancel": "Annuler"
   },
   "account": {
     "label": "Compte",
@@ -1442,6 +1443,24 @@
     "progress": "Avancement",
     "dish": "Plat {done} sur {of}",
     "starting": "Premier plat en cours…",
-    "arrived": "{count, plural, one {# plat prêt} other {# plats prêts}}"
+    "arrived": "{count, plural, one {# plat prêt} other {# plats prêts}}",
+    "writing": "{n}.1 Nous concoctons votre {ordinal} recette…",
+    "drawing": "{n}.2 Nous réalisons votre {ordinal} image…",
+    "ordinals": {
+      "1": "première",
+      "2": "deuxième",
+      "3": "troisième",
+      "4": "quatrième",
+      "5": "cinquième",
+      "6": "sixième",
+      "7": "septième",
+      "8": "huitième",
+      "9": "neuvième",
+      "10": "dixième",
+      "11": "onzième",
+      "12": "douzième",
+      "13": "treizième",
+      "14": "quatorzième"
+    }
   }
 }

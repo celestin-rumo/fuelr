@@ -17,6 +17,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
+import type { Step } from "./working-on";
 import { IdeaThumb } from "./recipe-thumb";
 
 const INTENTS = ["vegetarian", "protein", "quick", "cheap"] as const;
@@ -50,6 +51,8 @@ export function BatchSuggest({
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** Writing dish n, then drawing its picture once it is written. */
+  const [step, setStep] = useState<Step | null>(null);
   /** The dishes written to the end so far. */
   const [arriving, setArriving] = useState<BatchMember[]>([]);
   // The ask is not a transition: what the stream says has to render the
@@ -87,6 +90,7 @@ export function BatchSuggest({
   function ask() {
     setFailed(false);
     setProgress(null);
+    setStep(null);
     setArriving([]);
     setAsking(true);
     void (async () => {
@@ -97,7 +101,13 @@ export function BatchSuggest({
         // What has already been turned down, by name: every dish here is one
         // nobody has written yet, and an idea has no id.
         excludeTitles: refused,
-      }, setProgress, (arrival) => setArriving((list) => [...list, arrival.dish]));
+      }, (told) => {
+        setProgress(told);
+        setStep({ index: told.done, phase: "writing" });
+      }, (arrival) => {
+        setArriving((list) => [...list, arrival.dish]);
+        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+      });
       setAsking(false);
       if (!result.ok) {
         setFailed(true);
@@ -169,6 +179,7 @@ export function BatchSuggest({
                 label={t("working")}
                 words={[...intents, ...cuisines].join(" ")}
                 progress={progress}
+                step={step}
               />
               {arriving.length > 0 && (
                 <div className="flex flex-col gap-2" aria-live="polite" data-testid="arriving">
