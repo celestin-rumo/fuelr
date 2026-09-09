@@ -1443,7 +1443,6 @@
     "progress": "Avancement",
     "dish": "Plat {done} sur {of}",
     "starting": "Premier plat en cours…",
-    "arrived": "{count, plural, one {# plat prêt} other {# plats prêts}}",
     "writing": "{n}.1 Nous concoctons votre {ordinal} recette…",
     "drawing": "{n}.2 Nous réalisons votre {ordinal} image…",
     "ordinals": {

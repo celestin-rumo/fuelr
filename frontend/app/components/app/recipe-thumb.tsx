@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { FoodIcon } from "@ui/food-icons";
 import { iconsFor } from "@app/lib/food-words";
-import { useIllustration } from "@app/lib/use-illustration";
+import { ideaIllustrationUrl, useIllustration } from "@app/lib/use-illustration";
 
 /**
  * A small picture at the left of a row.
@@ -86,15 +86,18 @@ export function IdeaThumb({
   illustrationKey,
   title,
   size = 44,
+  ready = false,
 }: {
   illustrationKey: string | null | undefined;
   title: string;
   size?: number;
+  /** The picture was fetched before this row was shown: no need to look again. */
+  ready?: boolean;
 }) {
   const t = useTranslations("recipe.photo");
-  const url = illustrationKey ? `/api/ideas/illustrations/${illustrationKey}` : "";
-  const arrived = useIllustration(url, Boolean(illustrationKey));
-  if (arrived) {
+  const url = illustrationKey ? ideaIllustrationUrl(illustrationKey) : "";
+  const arrived = useIllustration(url, Boolean(illustrationKey) && !ready);
+  if (ready || arrived) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img

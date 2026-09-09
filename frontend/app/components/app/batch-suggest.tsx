@@ -14,6 +14,7 @@ import { formatDay, weekDays } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
 import type { BatchMember, BatchSet, BatchSets, Declined } from "@app/lib/api";
 import { askLive } from "@app/lib/ideas-stream";
+import { preloadIllustration } from "@app/lib/use-illustration";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
@@ -40,7 +41,6 @@ export function BatchSuggest({
   planned: string[];
 }) {
   const t = useTranslations("plan.batch");
-  const tWorking = useTranslations("working");
   const tTags = useTranslations("recipe.tags");
   const tCuisines = useTranslations("recipe.cuisines");
   const locale = useLocale();
@@ -53,8 +53,10 @@ export function BatchSuggest({
   const [progress, setProgress] = useState<Progress | null>(null);
   /** Writing dish n, then drawing its picture once it is written. */
   const [step, setStep] = useState<Step | null>(null);
-  /** The dishes written to the end so far. */
-  const [arriving, setArriving] = useState<BatchMember[]>([]);
+  /** Pictures already fetched, so the sets paint with them. */
+  const [ready, setReady] = useState<Set<string>>(new Set());
+  /** Pictures finished: the second half of the bar. */
+  const [drawn, setDrawn] = useState(0);
   // The ask is not a transition: what the stream says has to render the
   // moment it arrives, and a transition holds its updates until it ends.
   const [asking, setAsking] = useState(false);
@@ -91,8 +93,11 @@ export function BatchSuggest({
     setFailed(false);
     setProgress(null);
     setStep(null);
-    setArriving([]);
+    setReady(new Set());
+    setDrawn(0);
     setAsking(true);
+    // The sets are shown once every picture is in: one layout, illustrated.
+    const pictures: Promise<void>[] = [];
     void (async () => {
       const result = await askLive<BatchSets, BatchMember>("/api/plan/suggest/batch", {
         size,
@@ -105,14 +110,23 @@ export function BatchSuggest({
         setProgress(told);
         setStep({ index: told.done, phase: "writing" });
       }, (arrival) => {
-        setArriving((list) => [...list, arrival.dish]);
-        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+        const key = arrival.dish.illustrationKey;
+        if (!key) return;
+        setStep({ index: arrival.index, phase: "drawing" });
+        pictures.push(
+          preloadIllustration(key).then((drawn) => {
+            if (drawn) setReady((keys) => new Set(keys).add(key));
+            setDrawn((count) => count + 1);
+          }),
+        );
       });
-      setAsking(false);
       if (!result.ok) {
+        setAsking(false);
         setFailed(true);
         return;
       }
+      await Promise.all(pictures);
+      setAsking(false);
       setSets(result.result.sets);
       setDeclined(result.result.declined);
       setStage("choosing");
@@ -180,28 +194,8 @@ export function BatchSuggest({
                 words={[...intents, ...cuisines].join(" ")}
                 progress={progress}
                 step={step}
+                drawn={drawn}
               />
-              {arriving.length > 0 && (
-                <div className="flex flex-col gap-2" aria-live="polite" data-testid="arriving">
-                  <p className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-                    {tWorking("arrived", { count: arriving.length })}
-                  </p>
-                  <ul className="flex flex-col gap-2">
-                    {arriving.map((member, at) => (
-                      <li
-                        key={`${member.title}-${at}`}
-                        data-testid="arriving-member"
-                        className="flex items-center gap-3 rounded-sm border border-line bg-bg-raised-2 p-3"
-                      >
-                        <IdeaThumb illustrationKey={member.illustrationKey} title={member.title} />
-                        <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
-                          {member.title}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           )}
 
@@ -291,6 +285,7 @@ export function BatchSuggest({
                         key={at}
                         set={set}
                         index={at}
+                        ready={ready}
                         onChoose={() => choose(set)}
                       />
                     ))}
@@ -425,10 +420,13 @@ function SetCard({
   set,
   index,
   onChoose,
+  ready,
 }: {
   set: BatchSet;
   index: number;
   onChoose: () => void;
+  /** The pictures fetched before the sets were shown. */
+  ready: Set<string>;
 }) {
   const t = useTranslations("plan.batch");
 
@@ -448,7 +446,12 @@ function SetCard({
       <ul className="flex flex-col gap-1">
         {set.members.map((member, at) => (
           <li key={`${member.title}-${at}`} className="flex flex-wrap items-center gap-2">
-            <IdeaThumb illustrationKey={member.illustrationKey} title={member.title} size={36} />
+            <IdeaThumb
+              illustrationKey={member.illustrationKey}
+              title={member.title}
+              size={36}
+              ready={ready.has(member.illustrationKey ?? "")}
+            />
             <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
               {member.title}
             </span>
