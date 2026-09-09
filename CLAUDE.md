@@ -601,7 +601,15 @@ allergens, keyed for its picture), as a `dish` event on the stream. The
 three screens list those rows under the count while the model writes the
 rest; the bag's can already be kept. The `result` still comes last and is
 what the screen decides on. A one-piece answer tells its titles and its
-dishes after reading, late but told.
+dishes after reading, late but told. **The tool is declared with
+`eager_input_streaming: true`**: without it the provider buffers the tool's
+input and hands it over in a few large pieces, so three short dishes arrive
+together at the end and nothing on the screen moves until then — it
+streamed fine through every stand-in and batched only against the real
+API. The panel says the step in words ("2.1 Nous concoctons votre deuxième
+recette", "2.2 Nous réalisons votre deuxième image"), and the bag's button
+never spins: while an ask is in flight it becomes *Annuler*, which aborts
+the fetch and keeps the ideas that had already arrived.
 
 The correction loop is unchanged. The request is per *slot*, not per day:
 `keep` carries what is already decided so a second round replaces exactly what

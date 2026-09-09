@@ -1154,7 +1154,8 @@
       "failed": "Die Suche ist fehlgeschlagen. Versuch es erneut.",
       "empty": "Schreib mindestens eine Zutat."
     },
-    "working": "Wir schauen, was sich daraus machen lässt…"
+    "working": "Wir schauen, was sich daraus machen lässt…",
+    "cancel": "Abbrechen"
   },
   "account": {
     "label": "Konto",
@@ -1442,6 +1443,24 @@
     "progress": "Fortschritt",
     "dish": "Gericht {done} von {of}",
     "starting": "Erstes Gericht in Arbeit…",
-    "arrived": "{count, plural, one {# Gericht fertig} other {# Gerichte fertig}}"
+    "arrived": "{count, plural, one {# Gericht fertig} other {# Gerichte fertig}}",
+    "writing": "{n}.1 Wir tüfteln Ihr {ordinal} Rezept aus…",
+    "drawing": "{n}.2 Wir zeichnen Ihr {ordinal} Bild…",
+    "ordinals": {
+      "1": "erstes",
+      "2": "zweites",
+      "3": "drittes",
+      "4": "viertes",
+      "5": "fünftes",
+      "6": "sechstes",
+      "7": "siebtes",
+      "8": "achtes",
+      "9": "neuntes",
+      "10": "zehntes",
+      "11": "elftes",
+      "12": "zwölftes",
+      "13": "dreizehntes",
+      "14": "vierzehntes"
+    }
   }
 }

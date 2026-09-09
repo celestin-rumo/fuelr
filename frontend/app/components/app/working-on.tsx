@@ -24,10 +24,14 @@ const TURN_MS = 1100;
  * One live region, polite, so a screen reader hears the count move without
  * being interrupted by every turn of the picture.
  */
+/** Which half of a dish the kitchen is on: writing it, or drawing its picture. */
+export type Step = { index: number; phase: "writing" | "drawing" };
+
 export function WorkingOn({
   label,
   words,
   progress,
+  step = null,
   className,
   ...rest
 }: {
@@ -37,10 +41,17 @@ export function WorkingOn({
   words?: string;
   /** The last thing the stream said, or null before it said anything. */
   progress: Progress | null;
+  /**
+   * Said in words, when known: "2.1 Nous concoctons votre deuxième recette",
+   * then "2.2 Nous réalisons votre deuxième image" once it is written and
+   * its picture is on the way.
+   */
+  step?: Step | null;
   className?: string;
   "data-testid"?: string;
 }) {
   const t = useTranslations("working");
+  const ordinal = step ? t(`ordinals.${Math.min(step.index, 14)}`) : "";
   const icons = useMemo(
     () => iconsFor([words ?? "", progress?.title ?? ""].join(" ")),
     [words, progress?.title],
@@ -86,7 +97,11 @@ export function WorkingOn({
         ))}
       </div>
 
-      <p className="font-display text-[16px] leading-[1.2] font-bold text-text">{label}</p>
+      <p className="font-display text-[16px] leading-[1.2] font-bold text-text">
+        {step
+          ? t(step.phase, { n: step.index, ordinal })
+          : label}
+      </p>
 
       <div
         role="progressbar"

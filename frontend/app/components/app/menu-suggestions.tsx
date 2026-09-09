@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@ui/badge";
@@ -22,6 +22,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/actions";
 import { WorkingOn } from "./working-on";
+import type { Step } from "./working-on";
 import { IdeaThumb, RecipeThumb } from "./recipe-thumb";
 
 /**
@@ -43,9 +44,13 @@ export function MenuSuggestions({ week }: { week: string }) {
   const [added, setAdded] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** Writing dish n, then drawing its picture once it is written. */
+  const [step, setStep] = useState<Step | null>(null);
   /** Ideas written to the end so far, shown — and keepable — before the answer is whole. */
   const [arriving, setArriving] = useState<Suggestion[]>([]);
   const [pending, startTransition] = useTransition();
+  /** The ask in flight, so "Annuler" can close it. */
+  const asking = useRef<AbortController | null>(null);
 
   async function ask(event: React.FormEvent) {
     event.preventDefault();
@@ -57,20 +62,36 @@ export function MenuSuggestions({ week }: { week: string }) {
     setAdded(null);
     setAnswer(null);
     setProgress(null);
+    setStep(null);
     setArriving([]);
     setSearching(true);
+    const controller = new AbortController();
+    asking.current = controller;
     const result = await askLive<Suggestions, Suggestion>(
       "/api/menu/suggestions",
       { have: have.trim() },
-      setProgress,
-      (arrival) => setArriving((list) => [...list, arrival.dish]),
+      (told) => {
+        setProgress(told);
+        setStep({ index: told.done, phase: "writing" });
+      },
+      (arrival) => {
+        setArriving((list) => [...list, arrival.dish]);
+        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+      },
+      controller.signal,
     );
+    asking.current = null;
     setSearching(false);
     if (!result.ok) {
-      setError(t("errors.failed"));
+      // Cancelled is not failed: nothing to say, the ideas so far stay.
+      if (!result.cancelled) setError(t("errors.failed"));
       return;
     }
     setAnswer(result.result);
+  }
+
+  function cancel() {
+    asking.current?.abort();
   }
 
   /** An idea becomes a draft to correct — never a recipe in the library. */
@@ -115,9 +136,18 @@ export function MenuSuggestions({ week }: { week: string }) {
               status={error ? "error" : "default"}
             />
           </div>
-          <Button type="submit" size="lg" loading={searching} data-testid="ask">
-            {searching ? t("searching") : t("submit")}
-          </Button>
+          {/* The button does not spin: the panel below says what is
+              happening. While an ask is in flight, the one thing to offer is
+              the way out of it. */}
+          {searching ? (
+            <Button type="button" variant="secondary" size="lg" onClick={cancel} data-testid="cancel-ask">
+              {t("cancel")}
+            </Button>
+          ) : (
+            <Button type="submit" size="lg" data-testid="ask">
+              {t("submit")}
+            </Button>
+          )}
         </form>
       </Card>
 
@@ -129,12 +159,13 @@ export function MenuSuggestions({ week }: { week: string }) {
           label={t("working")}
           words={have}
           progress={progress}
+          step={step}
         />
       )}
 
       {/* Written to the end while the rest is still being written: the same
           row as in the answer, and it can already be kept. */}
-      {searching && arriving.length > 0 && (
+      {(searching || (answer === null && arriving.length > 0)) && arriving.length > 0 && (
         <ul data-testid="arriving" aria-live="polite" className="flex flex-col gap-2">
           {arriving.map((suggestion, index) => (
             <SuggestionRow

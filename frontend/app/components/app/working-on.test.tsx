@@ -32,3 +32,14 @@ it("pulses rather than counting before the first dish, then counts what the stre
   expect(bar).toHaveAttribute("aria-valuemax", "14");
   expect(screen.getByRole("status")).toHaveTextContent("Plat 3 sur 14 · Curry de poulet");
 });
+
+it("says the step in words: writing the second recipe, then drawing its picture", () => {
+  const { rerender } = renderWithIntl(
+    <WorkingOn label="On cherche…" progress={{ done: 2, of: 3, title: "Poulet" }} step={{ index: 2, phase: "writing" }} />,
+  );
+  expect(screen.getByRole("status")).toHaveTextContent("2.1 Nous concoctons votre deuxième recette");
+  rerender(
+    <WorkingOn label="On cherche…" progress={{ done: 2, of: 3, title: "Poulet" }} step={{ index: 2, phase: "drawing" }} />,
+  );
+  expect(screen.getByRole("status")).toHaveTextContent("2.2 Nous réalisons votre deuxième image");
+});

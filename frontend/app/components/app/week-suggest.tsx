@@ -18,6 +18,7 @@ import { askLive } from "@app/lib/ideas-stream";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
+import type { Step } from "./working-on";
 import { IdeaThumb } from "./recipe-thumb";
 
 /**
@@ -71,6 +72,8 @@ export function WeekSuggest({
   const [stage, setStage] = useState<Stage>("asking");
   const [failed, setFailed] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  /** Writing dish n, then drawing its picture once it is written. */
+  const [step, setStep] = useState<Step | null>(null);
   /** The dishes written to the end so far, shown while the rest are being written. */
   const [arriving, setArriving] = useState<WeekProposal[]>([]);
   // The ask is not a transition: what the stream says has to render the
@@ -129,6 +132,7 @@ export function WeekSuggest({
 
     setFailed(false);
     setProgress(null);
+    setStep(null);
     setArriving([]);
     setAsking(true);
     void (async () => {
@@ -149,7 +153,13 @@ export function WeekSuggest({
         ],
         excludeTitles: [...keeping, ...refusing].map((one) => one.proposal.title),
         note: note.trim(),
-      }, setProgress, (arrival) => setArriving((list) => [...list, arrival.dish]));
+      }, (told) => {
+        setProgress(told);
+        setStep({ index: told.done, phase: "writing" });
+      }, (arrival) => {
+        setArriving((list) => [...list, arrival.dish]);
+        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+      });
       setAsking(false);
 
       if (!result.ok) {
@@ -210,6 +220,7 @@ export function WeekSuggest({
                 label={t("working")}
                 words={[...intents, ...cuisines].join(" ")}
                 progress={progress}
+                step={step}
               />
               <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
             </div>
@@ -283,6 +294,7 @@ export function WeekSuggest({
                     label={t("working")}
                     words={refused.map((one) => one.proposal.title).join(" ")}
                     progress={progress}
+                    step={step}
                   />
                   <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
                 </>
