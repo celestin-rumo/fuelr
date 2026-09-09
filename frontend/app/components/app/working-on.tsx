@@ -32,6 +32,7 @@ export function WorkingOn({
   words,
   progress,
   step = null,
+  drawn = 0,
   className,
   ...rest
 }: {
@@ -47,6 +48,12 @@ export function WorkingOn({
    * its picture is on the way.
    */
   step?: Step | null;
+  /**
+   * How many pictures are done. A dish is two halves — written, then drawn —
+   * so the bar runs over both and does not sit still while a picture is on
+   * its way.
+   */
+  drawn?: number;
   className?: string;
   "data-testid"?: string;
 }) {
@@ -70,7 +77,10 @@ export function WorkingOn({
 
   const of = progress?.of ?? 0;
   const done = progress?.done ?? 0;
-  const percent = of > 0 ? Math.min(100, Math.round((done / of) * 100)) : 0;
+  // Both halves of every dish: written and drawn.
+  const total = of * 2;
+  const value = Math.min(total, done + drawn);
+  const percent = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
 
   return (
     <div
@@ -107,17 +117,20 @@ export function WorkingOn({
         role="progressbar"
         aria-label={t("progress")}
         aria-valuemin={0}
-        aria-valuemax={of > 0 ? of : undefined}
-        aria-valuenow={of > 0 ? done : undefined}
+        aria-valuemax={total > 0 ? total : undefined}
+        aria-valuenow={total > 0 ? value : undefined}
         aria-valuetext={of > 0 ? t("dish", { done, of }) : t("starting")}
         className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-bg-raised"
       >
+        {/* Loading, and it says so: the width is the real count, the sheen
+            crossing it says the wait is still alive. */}
         <div
           className={cn(
-            "h-full rounded-full bg-mint transition-[width] duration-[var(--dur)] ease-[var(--ease)]",
-            of === 0 && "w-1/3 animate-pulse",
+            "sheen relative h-full overflow-hidden rounded-full bg-mint",
+            "transition-[width] duration-[var(--dur)] ease-[var(--ease)]",
+            total === 0 && "w-1/3",
           )}
-          style={of > 0 ? { width: `${percent}%` } : undefined}
+          style={total > 0 ? { width: `${Math.max(6, percent)}%` } : undefined}
         />
       </div>
 

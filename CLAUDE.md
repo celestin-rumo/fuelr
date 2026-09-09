@@ -592,15 +592,20 @@ library had hidden this for a week by asking for one or two dishes at a time.
 max_tokens` by name, because from the screen a truncated answer and a refusal
 are indistinguishable and only one of them is our fault.
 
-**A dish shows up the moment it is written, not when the answer is whole.**
+**A dish is fetched the moment it is written, and shown when they all are.**
 `DishScanner` finds each closed dish object in the tool's input as the
 fragments arrive — depth three, strings and escapes tracked — and
 `Progress.completed` hands it on, shaped by the controller the way the
 final answer will shape it (placed on its slot, checked against the
 allergens, keyed for its picture), as a `dish` event on the stream. The
-three screens list those rows under the count while the model writes the
-rest; the bag's can already be kept. The `result` still comes last and is
-what the screen decides on. A one-piece answer tells its titles and its
+screens do not draw those rows one at a time — a list that fills in under
+the reader is read while it moves. They use the event to start **fetching**
+each picture (`preloadIllustration`, a GET whose body is read so the
+browser has the bytes) while the model writes the next dish, and lay
+everything out at once, dishes and pictures together, once the `result` and
+the last picture are both in. The bar runs over both halves of every dish,
+written and drawn, so it never sits still, and carries a sheen because a
+real count that has stopped for ten seconds reads as a hang. A one-piece answer tells its titles and its
 dishes after reading, late but told. **The tool is declared with
 `eager_input_streaming: true`**: without it the provider buffers the tool's
 input and hands it over in a few large pieces, so three short dishes arrive
@@ -609,7 +614,8 @@ streamed fine through every stand-in and batched only against the real
 API. The panel says the step in words ("2.1 Nous concoctons votre deuxième
 recette", "2.2 Nous réalisons votre deuxième image"), and the bag's button
 never spins: while an ask is in flight it becomes *Annuler*, which aborts
-the fetch and keeps the ideas that had already arrived.
+the fetch and shows what had been written, since it was paid for either
+way.
 
 The correction loop is unchanged. The request is per *slot*, not per day:
 `keep` carries what is already decided so a second round replaces exactly what

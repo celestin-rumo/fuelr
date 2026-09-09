@@ -19,6 +19,7 @@ import {
 } from "@ui/list-row";
 import type { Suggestion, Suggestions } from "@app/lib/api";
 import { askLive } from "@app/lib/ideas-stream";
+import { preloadIllustration } from "@app/lib/use-illustration";
 import type { Progress } from "@app/lib/ideas-stream";
 import { draftFromIdea, addMissingToList } from "@app/[locale]/(app)/app/menu/actions";
 import { WorkingOn } from "./working-on";
@@ -46,8 +47,10 @@ export function MenuSuggestions({ week }: { week: string }) {
   const [progress, setProgress] = useState<Progress | null>(null);
   /** Writing dish n, then drawing its picture once it is written. */
   const [step, setStep] = useState<Step | null>(null);
-  /** Ideas written to the end so far, shown — and keepable — before the answer is whole. */
-  const [arriving, setArriving] = useState<Suggestion[]>([]);
+  /** Pictures already fetched, so the rows paint with them rather than after them. */
+  const [ready, setReady] = useState<Set<string>>(new Set());
+  /** Pictures finished, drawn or given up on: the second half of the bar. */
+  const [drawn, setDrawn] = useState(0);
   const [pending, startTransition] = useTransition();
   /** The ask in flight, so "Annuler" can close it. */
   const asking = useRef<AbortController | null>(null);
@@ -63,10 +66,18 @@ export function MenuSuggestions({ week }: { week: string }) {
     setAnswer(null);
     setProgress(null);
     setStep(null);
-    setArriving([]);
+    setReady(new Set());
+    setDrawn(0);
     setSearching(true);
     const controller = new AbortController();
     asking.current = controller;
+
+    // Each picture is fetched as its dish is written, and the answer waits
+    // for all of them: the ideas then appear together, illustrated, rather
+    // than as rows that fill in one after another under the reader's eyes.
+    const pictures: Promise<void>[] = [];
+    const found: Suggestion[] = [];
+
     const result = await askLive<Suggestions, Suggestion>(
       "/api/menu/suggestions",
       { have: have.trim() },
@@ -75,18 +86,37 @@ export function MenuSuggestions({ week }: { week: string }) {
         setStep({ index: told.done, phase: "writing" });
       },
       (arrival) => {
-        setArriving((list) => [...list, arrival.dish]);
-        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+        // Kept only so a cancelled ask can still show what was written and
+        // paid for; nothing is put on screen until every picture is in.
+        found.push(arrival.dish);
+        const key = arrival.dish.illustrationKey;
+        if (!key) return;
+        setStep({ index: arrival.index, phase: "drawing" });
+        pictures.push(
+          preloadIllustration(key, controller.signal).then((drawn) => {
+            if (drawn) setReady((keys) => new Set(keys).add(key));
+            setDrawn((count) => count + 1);
+          }),
+        );
       },
       controller.signal,
     );
     asking.current = null;
-    setSearching(false);
+
     if (!result.ok) {
-      // Cancelled is not failed: nothing to say, the ideas so far stay.
-      if (!result.cancelled) setError(t("errors.failed"));
+      setSearching(false);
+      // Cancelled is not failed. What was written was paid for, so it is
+      // shown; its pictures catch up on their own.
+      if (result.cancelled) {
+        if (found.length > 0) setAnswer({ suggestions: found, assisted: true });
+        return;
+      }
+      setError(t("errors.failed"));
       return;
     }
+
+    await Promise.all(pictures);
+    setSearching(false);
     setAnswer(result.result);
   }
 
@@ -160,22 +190,8 @@ export function MenuSuggestions({ week }: { week: string }) {
           words={have}
           progress={progress}
           step={step}
+          drawn={drawn}
         />
-      )}
-
-      {/* Written to the end while the rest is still being written: the same
-          row as in the answer, and it can already be kept. */}
-      {(searching || (answer === null && arriving.length > 0)) && arriving.length > 0 && (
-        <ul data-testid="arriving" aria-live="polite" className="flex flex-col gap-2">
-          {arriving.map((suggestion, index) => (
-            <SuggestionRow
-              key={`arriving-${suggestion.title}-${index}`}
-              suggestion={suggestion}
-              onKeep={() => keep(suggestion)}
-              onShop={() => shop(suggestion)}
-            />
-          ))}
-        </ul>
       )}
 
       {error && (
@@ -209,6 +225,7 @@ export function MenuSuggestions({ week }: { week: string }) {
               <SuggestionRow
                 key={`${suggestion.title}-${index}`}
                 suggestion={suggestion}
+                ready={ready.has(suggestion.illustrationKey ?? "")}
                 onKeep={() => keep(suggestion)}
                 onShop={() => shop(suggestion)}
               />
@@ -228,10 +245,13 @@ function SuggestionRow({
   suggestion,
   onKeep,
   onShop,
+  ready = false,
 }: {
   suggestion: Suggestion;
   onKeep: () => void;
   onShop: () => void;
+  /** Its picture was fetched before this row was shown. */
+  ready?: boolean;
 }) {
   const t = useTranslations("menu");
   const own = suggestion.origin === "RECIPE";
@@ -244,7 +264,11 @@ function SuggestionRow({
         own && suggestion.recipeId != null ? (
           <RecipeThumb id={suggestion.recipeId} title={suggestion.title} hasPhoto={suggestion.hasPhoto} />
         ) : (
-          <IdeaThumb illustrationKey={suggestion.illustrationKey} title={suggestion.title} />
+          <IdeaThumb
+            illustrationKey={suggestion.illustrationKey}
+            title={suggestion.title}
+            ready={ready}
+          />
         )
       }
       trailing={

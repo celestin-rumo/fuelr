@@ -1443,7 +1443,6 @@
     "progress": "Fortschritt",
     "dish": "Gericht {done} von {of}",
     "starting": "Erstes Gericht in Arbeit…",
-    "arrived": "{count, plural, one {# Gericht fertig} other {# Gerichte fertig}}",
     "writing": "{n}.1 Wir tüfteln Ihr {ordinal} Rezept aus…",
     "drawing": "{n}.2 Wir zeichnen Ihr {ordinal} Bild…",
     "ordinals": {

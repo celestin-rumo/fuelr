@@ -199,6 +199,37 @@ body {
   animation: reveal-late var(--dur) var(--ease) 4s forwards;
 }
 
+/*
+ * A light crossing a progress bar while it fills.
+ *
+ * The width is the real count and never moves on its own; this only says
+ * the wait is still alive, which a bar stopped at two thirds does not. It
+ * rides on ::after so the bar keeps its own colour, and the reduced-motion
+ * block below collapses it to nothing.
+ */
+@keyframes sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--bg-raised) 70%, transparent),
+    transparent
+  );
+  animation: sheen 1.4s var(--ease) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

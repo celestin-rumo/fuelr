@@ -226,7 +226,8 @@ it("counts the dishes as their titles close, and shows the one being written", a
   // Real, from the stream: never a clock dressed as a percentage.
   const bar = await screen.findByRole("progressbar");
   expect(bar).toHaveAttribute("aria-valuenow", "2");
-  expect(bar).toHaveAttribute("aria-valuemax", "5");
+  // Five dishes are ten steps: written, then drawn.
+  expect(bar).toHaveAttribute("aria-valuemax", "10");
   expect(screen.getByTestId("working")).toHaveTextContent("Plat 2 sur 5");
   expect(screen.getByTestId("working-title")).toHaveTextContent("Dahl de lentilles");
   // The dish being written decides the picture: a dahl is a bowl.
@@ -237,33 +238,33 @@ it("counts the dishes as their titles close, and shows the one being written", a
   expect(screen.queryByRole("progressbar")).toBeNull();
 });
 
-it("shows each dish the moment it is written, before the answer is whole", async () => {
+it("waits for the pictures, then lays the whole week out with them on it", async () => {
   const user = userEvent.setup({ delay: null });
-  let finish!: (answer: unknown) => void;
+  const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+    ok: true,
+    blob: async () => new Blob(),
+  } as unknown as Response);
+  const drawn = proposal({ title: "Dahl de lentilles", illustrationKey: "abc" });
   askLive.mockImplementationOnce(
-    (
+    async (
       _url: string,
       _body: unknown,
       onProgress: (progress: unknown) => void,
       onDish: (arrival: unknown) => void,
-    ) =>
-      new Promise((resolve) => {
-        onProgress({ done: 1, of: 3, title: "Dahl de lentilles" });
-        onDish({ index: 1, of: 3, dish: proposal({ title: "Dahl de lentilles" }) });
-        finish = resolve;
-      }),
+    ) => {
+      onProgress({ done: 1, of: 1, title: "Dahl de lentilles" });
+      onDish({ index: 1, of: 1, dish: drawn });
+      return answer([drawn]);
+    },
   );
   renderWithIntl(<WeekSuggest weekStart={MONDAY} planned={[]} />);
   await user.click(screen.getByTestId("suggest-week"));
   await user.click(screen.getByRole("button", { name: "Proposer une semaine" }));
 
-  const arriving = await screen.findByTestId("arriving");
-  expect(arriving).toHaveTextContent("1 plat prêt");
-  expect(within(arriving).getByTestId("arriving-proposal")).toHaveTextContent("Dahl de lentilles");
-  // Not yet a decision: the reviewed list comes with the whole answer.
-  expect(screen.queryByTestId("proposals")).toBeNull();
-
-  finish(answer([proposal({ title: "Dahl de lentilles" })]));
-  await screen.findByTestId("proposals");
-  expect(screen.queryByTestId("arriving")).toBeNull();
+  // Nothing is laid out one row at a time; the list comes whole.
+  const proposals = await screen.findByTestId("proposals");
+  expect(fetchMock).toHaveBeenCalledWith("/api/ideas/illustrations/abc", expect.anything());
+  // And with its picture on it, rather than the tile drawn from the title.
+  expect(within(proposals).getByTestId("idea-thumb-illustration")).toBeInTheDocument();
+  vi.restoreAllMocks();
 });

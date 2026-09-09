@@ -1443,7 +1443,6 @@
     "progress": "Progress",
     "dish": "Dish {done} of {of}",
     "starting": "First dish under way…",
-    "arrived": "{count, plural, one {# dish ready} other {# dishes ready}}",
     "writing": "{n}.1 Cooking up your {ordinal} recipe…",
     "drawing": "{n}.2 Drawing your {ordinal} picture…",
     "ordinals": {

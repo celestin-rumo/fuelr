@@ -15,6 +15,7 @@ import { SLOTS, formatDay } from "@app/lib/week";
 import type { Slot } from "@app/lib/week";
 import type { Declined, WeekProposal, WeekSuggestion } from "@app/lib/api";
 import { askLive } from "@app/lib/ideas-stream";
+import { preloadIllustration } from "@app/lib/use-illustration";
 import type { Progress } from "@app/lib/ideas-stream";
 import { acceptProposal } from "@app/[locale]/(app)/app/plan/actions";
 import { WorkingOn } from "./working-on";
@@ -74,8 +75,10 @@ export function WeekSuggest({
   const [progress, setProgress] = useState<Progress | null>(null);
   /** Writing dish n, then drawing its picture once it is written. */
   const [step, setStep] = useState<Step | null>(null);
-  /** The dishes written to the end so far, shown while the rest are being written. */
-  const [arriving, setArriving] = useState<WeekProposal[]>([]);
+  /** Pictures already fetched, so the proposals paint with them. */
+  const [ready, setReady] = useState<Set<string>>(new Set());
+  /** Pictures finished: the second half of the bar. */
+  const [drawn, setDrawn] = useState(0);
   // The ask is not a transition: what the stream says has to render the
   // moment it arrives, and a transition holds its updates until it ends.
   const [asking, setAsking] = useState(false);
@@ -133,8 +136,12 @@ export function WeekSuggest({
     setFailed(false);
     setProgress(null);
     setStep(null);
-    setArriving([]);
+    setReady(new Set());
+    setDrawn(0);
     setAsking(true);
+    // Every picture is fetched as its dish is written, and the week waits
+    // for all of them: it is laid out at once, illustrated.
+    const pictures: Promise<void>[] = [];
     void (async () => {
       const result = await askLive<WeekSuggestion, WeekProposal>("/api/plan/suggest", {
         week: weekStart,
@@ -157,15 +164,24 @@ export function WeekSuggest({
         setProgress(told);
         setStep({ index: told.done, phase: "writing" });
       }, (arrival) => {
-        setArriving((list) => [...list, arrival.dish]);
-        if (arrival.dish.illustrationKey) setStep({ index: arrival.index, phase: "drawing" });
+        const key = arrival.dish.illustrationKey;
+        if (!key) return;
+        setStep({ index: arrival.index, phase: "drawing" });
+        pictures.push(
+          preloadIllustration(key).then((drawn) => {
+            if (drawn) setReady((keys) => new Set(keys).add(key));
+            setDrawn((count) => count + 1);
+          }),
+        );
       });
-      setAsking(false);
 
       if (!result.ok) {
+        setAsking(false);
         setFailed(true);
         return;
       }
+      await Promise.all(pictures);
+      setAsking(false);
       setDecisions([
         ...keeping,
         ...result.result.proposals.map((proposal) => ({ proposal, refused: null })),
@@ -221,8 +237,8 @@ export function WeekSuggest({
                 words={[...intents, ...cuisines].join(" ")}
                 progress={progress}
                 step={step}
+                drawn={drawn}
               />
-              <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
             </div>
           )}
 
@@ -288,16 +304,14 @@ export function WeekSuggest({
               {/* Asking again writes only what was turned down; the count
                   is of those, and the kept dishes stay on show below. */}
               {asking && refused.length > 0 && (
-                <>
-                  <WorkingOn
-                    data-testid="working"
-                    label={t("working")}
-                    words={refused.map((one) => one.proposal.title).join(" ")}
-                    progress={progress}
-                    step={step}
-                  />
-                  <Arriving proposals={arriving} dayOf={dayOf} slotOf={(slot) => tSlots(slot)} />
-                </>
+                <WorkingOn
+                  data-testid="working"
+                  label={t("working")}
+                  words={refused.map((one) => one.proposal.title).join(" ")}
+                  progress={progress}
+                  step={step}
+                  drawn={drawn}
+                />
               )}
 
               <p className="text-[15px] leading-[1.5] font-medium text-text-dim">
@@ -330,6 +344,7 @@ export function WeekSuggest({
                     decision={one}
                     day={dayOf(one.proposal.date)}
                     slot={tSlots(one.proposal.slot)}
+                    ready={ready.has(one.proposal.illustrationKey ?? "")}
                     onRefuse={(reason) =>
                       setDecisions((current) =>
                         current.map((other) =>
@@ -429,51 +444,6 @@ export function WeekSuggest({
   );
 }
 
-/**
- * The dishes written so far, one row each, while the rest are still being
- * written. Read-only: deciding happens on the reviewed list, once the
- * answer is whole. A polite live region, so a screen reader hears each
- * arrival without being interrupted by the picture turning above.
- */
-function Arriving({
-  proposals,
-  dayOf,
-  slotOf,
-}: {
-  proposals: WeekProposal[];
-  dayOf: (date: string) => string;
-  slotOf: (slot: Slot) => string;
-}) {
-  const t = useTranslations("working");
-  if (proposals.length === 0) return null;
-  return (
-    <div className="flex flex-col gap-2" aria-live="polite" data-testid="arriving">
-      <p className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-        {t("arrived", { count: proposals.length })}
-      </p>
-      <ul className="flex flex-col gap-2">
-        {proposals.map((proposal) => (
-          <li
-            key={`${proposal.date}:${proposal.slot}`}
-            data-testid="arriving-proposal"
-            className="flex items-center gap-3 rounded-sm border border-line bg-bg-raised-2 p-3"
-          >
-            <IdeaThumb illustrationKey={proposal.illustrationKey} title={proposal.title} />
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[11px] font-bold tracking-[0.02em] text-gray uppercase">
-                <span className="capitalize">{dayOf(proposal.date)}</span> · {slotOf(proposal.slot)}
-              </span>
-              <span className="font-display text-[15px] leading-[1.2] font-bold break-words text-text">
-                {proposal.title}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 /** One labelled row of chips. Three of them are the whole first screen. */
 function Choices({
   label,
@@ -522,11 +492,14 @@ function ProposalRow({
   day,
   slot,
   onRefuse,
+  ready = false,
 }: {
   decision: Decision;
   day: string;
   slot: string;
   onRefuse: (reason: Reason | null) => void;
+  /** Its picture was fetched before the week was laid out. */
+  ready?: boolean;
 }) {
   const t = useTranslations("plan.suggest");
   const [choosing, setChoosing] = useState(false);
@@ -554,7 +527,7 @@ function ProposalRow({
 
       <div className="flex flex-wrap items-center gap-2">
         {/* Drawn while the model was still writing the next dish. */}
-        <IdeaThumb illustrationKey={proposal.illustrationKey} title={proposal.title} />
+        <IdeaThumb illustrationKey={proposal.illustrationKey} title={proposal.title} ready={ready} />
         <span
           data-testid="proposal-title"
           className={cn(

@@ -27,10 +27,17 @@ it("pulses rather than counting before the first dish, then counts what the stre
   expect(bar).not.toHaveAttribute("aria-valuenow");
   expect(screen.getByRole("status")).toHaveTextContent("Premier plat en cours…");
 
+  // Every dish is two halves — written, then drawn — so fourteen dishes are
+  // twenty-eight steps, and the bar does not sit still while a picture comes.
   rerender(<WorkingOn label="On écrit…" progress={{ done: 3, of: 14, title: "Curry de poulet" }} />);
   expect(bar).toHaveAttribute("aria-valuenow", "3");
-  expect(bar).toHaveAttribute("aria-valuemax", "14");
+  expect(bar).toHaveAttribute("aria-valuemax", "28");
   expect(screen.getByRole("status")).toHaveTextContent("Plat 3 sur 14 · Curry de poulet");
+
+  rerender(
+    <WorkingOn label="On écrit…" progress={{ done: 3, of: 14, title: "Curry de poulet" }} drawn={2} />,
+  );
+  expect(bar).toHaveAttribute("aria-valuenow", "5");
 });
 
 it("says the step in words: writing the second recipe, then drawing its picture", () => {
